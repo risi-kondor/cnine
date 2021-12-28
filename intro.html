@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
-        <title>Installation - cnine documentation</title>
+        <title>Features - cnine documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
@@ -179,13 +179,22 @@
           </label>
         </div>
         <article role="main">
-          <p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend and optional Python interface.
-<cite>cnine</cite> is designed to expose GP-GPU functionality to the C++ or Python programmer.</p>
+          <p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend.
+In addition to its native C++ API, the library also has a Python interface.</p>
+<p>The primary purpose of <cite>cnine</cite> is to provide finer grained control
+GP-GPU functionality than other tensor libraries.</p>
 <p><cite>cnine</cite> was developed by Risi Kondor at the University of Chicago and is released under the
 <a class="reference external" href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla public license v.2.0</a>.</p>
 <p>This document provides documentation for cnine’s Python interface. Not all features in the C++ library
 are available through this interface. The documentation of the C++ API can be found in pdf format
 in the package’s <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory.</p>
+<section id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic simple">
+<li><p>Support for real and complex valued tensors.</p></li>
+<li><p>Transparent block level parallelization on GPUs using the tensor array data structures.</p></li>
+</ol>
+</section>
 <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>Installing <cite>cnine</cite> in Python requires the following:</p>
@@ -203,8 +212,8 @@ in the package’s <code class="docutils literal notranslate"><span class="pre">
 system.</p></li>
 </ol>
 <p>To use <cite>cnine</cite> from Python, load the corresponding module the usual way with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cnine</span></code>.
-In the following we assume that <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cnine</span> <span class="pre">import</span> <span class="pre">*</span></code> has also been called,
-obviating the need to prefix all <cite>cnine</cite> classes with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
+In the following we assume that the command <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cnine</span> <span class="pre">import</span> <span class="pre">*</span></code> has been issued,
+obviating the need to prefix all <cite>cnine</cite> classes and classes with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
 </section>
 <section id="known-issues">
 <h1>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h1>
@@ -246,7 +255,8 @@ obviating the need to prefix all <cite>cnine</cite> classes with <code class="do
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Installation</a></li>
+<li><a class="reference internal" href="#">Features</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
 

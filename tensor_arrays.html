@@ -181,12 +181,13 @@
         <article role="main">
           <section id="tensor-arrays">
 <h1>Tensor arrays<a class="headerlink" href="#tensor-arrays" title="Permalink to this headline">¶</a></h1>
-<p>The basic device for parallelizing computations on the GPU in <cite>cnine</cite> are tensor arrays.
-A tensor array is an array of tensors of the same size arranged in a contiguous data structure:
-<code class="docutils literal notranslate"><span class="pre">rtensor_arr</span></code> corresponds to an array of real tensors, whereas <code class="docutils literal notranslate"><span class="pre">ctensor_arr</span></code> corresponds
-to an array of complex tensors.
-We describe the basic functionality of tensor arrays for the <code class="docutils literal notranslate"><span class="pre">rtensor_arr</span></code> class.
-The API of <code class="docutils literal notranslate"><span class="pre">ctensor_arr</span></code> is analogous.</p>
+<p>The basic device in <cite>cnine</cite> for parallelizing computations on the GPU are tensor arrays.
+A tensor array is an array of tensors of the same size arranged in a contiguous data structure.
+An <code class="docutils literal notranslate"><span class="pre">rtensor_arr</span></code> object is an array of real tensors, whereas an <code class="docutils literal notranslate"><span class="pre">ctensor_arr</span></code> object is
+an array of complex tensors.</p>
+<p>We describe the basic functionality of tensor arrays for the <code class="docutils literal notranslate"><span class="pre">rtensor_arr</span></code> class.
+The API of <code class="docutils literal notranslate"><span class="pre">ctensor_arr</span></code> is analogous apart from the addition of some functions taking complex conjugates,
+etc..</p>
 <section id="creating-tensor-arrays">
 <h2>Creating tensor arrays<a class="headerlink" href="#creating-tensor-arrays" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows how to create a <img alt="2\times 2" class="math" src="_images/math/722e9acdc2f80ea3b4a4befe6fb5ef31a07f24ef.svg"/> array of <img alt="4\times 4" class="math" src="_images/math/e09ffa3ea05a3d4eea933dfc9ff5f288af38bca5.svg"/>
@@ -237,7 +238,7 @@ dimensional tensors filled with random numbers.</p>
 </section>
 <section id="accessing-tensor-cells">
 <h2>Accessing tensor cells<a class="headerlink" href="#accessing-tensor-cells" title="Permalink to this headline">¶</a></h2>
-<p>Individual tensors in the tensor array, called <cite>cells</cite>, can be accessed similarly to how tensor
+<p>Individual tensors in the tensor array, called <cite>cells</cite>, are accessed similarly to how tensor
 elements are accessed in regular tensors.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
@@ -298,7 +299,7 @@ of the corresponding cells in <code class="docutils literal notranslate"><span c
 <section id="broadcast-operations">
 <h2>Broadcast operations<a class="headerlink" href="#broadcast-operations" title="Permalink to this headline">¶</a></h2>
 <p>Applying a binary operation to a tensor array and a regular tensor corresponds to
-first broadcasting the tensor to an array of the same size and then applying the operation.</p>
+first broadcasting the tensor to an array of the same size and then applying the operation cellwise.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">A</span><span class="o">+</span><span class="n">B</span>
@@ -404,19 +405,19 @@ On the GPU, both these operations are performed in <cite>cnine</cite> with fast,
 </pre></div>
 </div>
 </section>
-<section id="storage-details">
-<h2>Storage details<a class="headerlink" href="#storage-details" title="Permalink to this headline">¶</a></h2>
+<section id="implementation-details">
+<h2>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
 <p>The default C++ backend class for real tensors arrays is <code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code>
 and for complex tensor arrays is <code class="docutils literal notranslate"><span class="pre">CtensorArrayA</span></code>.
 <code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code> stores an <img alt="D_1\times \ldots \times D_K" class="math" src="_images/math/acf705b40686b903a367c1a55a843afba22c2dda.svg"/> array of  <img alt="d_1\times\ldots\times d_k" class="math" src="_images/math/32cd00a5e0ce6e93f9d616d3991f6c71e697b7dc.svg"/>
-dimensional tensors essentially the same way that <code class="docutils literal notranslate"><span class="pre">RtensorA</span></code> would store a single
+dimensional tensors in a similar way that <code class="docutils literal notranslate"><span class="pre">RtensorA</span></code> would store a single
 <img alt="D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k" class="math" src="_images/math/b17487aa69d14a3b431e07af0bc75bdaa3b39fa7.svg"/> dimensional tensor.
-An important caveat however, is that
+An important caveat, however, is that
 the stride between consecutive cells is rounded up to the nearest multiple of 128 bytes.
 While this facilitates memory access, especially on the GPU, it makes it somewhat harder to
 convert a <code class="docutils literal notranslate"><span class="pre">tensor_array</span></code> object to a single tensor in e.g.. <cite>PyTorch</cite>.
-<code class="docutils literal notranslate"><span class="pre">CtensorArrayA</span></code> store a complex tensor array in a single array, essentially as two
-one tensor array followed by another.</p>
+The <code class="docutils literal notranslate"><span class="pre">CtensorArrayA</span></code> class stores a complex tensor array in a single array,
+consisting of two real tensor arrays back to back.</p>
 <p>A tensor array object’s header, including information about tensor dimensions, strides, etc., is always resident on
 the host. When a tensor array is moved to the GPU, only the array containing the actual tensor entries
 is moved to the  GPU’s global memory.</p>
@@ -466,7 +467,7 @@ is moved to the  GPU’s global memory.</p>
 <li><a class="reference internal" href="#broadcast-operations">Broadcast operations</a></li>
 <li><a class="reference internal" href="#widening-and-reduction">Widening and reduction</a></li>
 <li><a class="reference internal" href="#gpu-functionality">GPU functionality</a></li>
-<li><a class="reference internal" href="#storage-details">Storage details</a></li>
+<li><a class="reference internal" href="#implementation-details">Implementation details</a></li>
 </ul>
 </li>
 </ul>
