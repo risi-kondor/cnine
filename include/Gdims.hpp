@@ -99,6 +99,13 @@ namespace cnine{
       return (*this)[size()-1];
     }
 
+    bool operator==(const Gdims& x) const{
+      if(size()!=x.size()) return false;
+      for(int i=0; i<size(); i++)
+	if((*this)[i]!=x[i]) return false;
+      return true;
+    }
+
 
   public:
 
@@ -216,6 +223,17 @@ namespace cnine{
       for(int i=0; i<size(); i++)
 	R[i]=(*this)[i];
       return R;
+    }
+
+
+  public: // checks
+
+    void check_eq(const Gdims& x) const{
+      if(!((*this)==x)) throw std::out_of_range("Tensor dimensions "+str()+" do not match "+x.str()+".");
+    }
+
+    void check_cell_eq(const Gdims& x) const{
+      if(!((*this)==x)) throw std::out_of_range("Tensor cell dimensions "+str()+" do not match "+x.str()+".");
     }
 
 

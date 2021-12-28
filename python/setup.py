@@ -2,6 +2,7 @@ import sys,os
 import torch 
 from setuptools import setup
 from torch.utils.cpp_extension import CppExtension, BuildExtension, CUDAExtension
+import time 
 
 #os.environ['CUDA_HOME']='/usr/local/cuda'
 os.environ["CC"] = "clang"
@@ -36,7 +37,8 @@ ext_modules=[CppExtension('cnine', ['cnine_py.cpp'],
                                                         '-DCNINE_ASSIGN_WARNINGS',
                                                         '-DCNINE_MOVE_WARNINGS',
                                                         '-DCNINE_MOVEASSIGN_WARNINGS',
-                                                        '-DCNINE_RANGE_CHECKING'
+                                                        '-DCNINE_RANGE_CHECKING',
+                                                        '-DCNINE_SIZE_CHECKING'
                                                         #                                                               '-D_GLIBCXX_USE_CXX11_ABI=0'
                                                         ]},
                           depends=['setup.py','cnine_py.cpp','rtensor_py.cpp','ctensor_py.cpp',
@@ -45,3 +47,4 @@ ext_modules=[CppExtension('cnine', ['cnine_py.cpp'],
 cmdclass={'build_ext': BuildExtension}
 )
 
+print("Compilation finished:",time.ctime(time.time()))

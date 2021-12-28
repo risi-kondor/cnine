@@ -300,6 +300,10 @@ namespace cnine{
       return CtensorArray(CNINE_CTENSORARRAY_IMPL::plus(x));
     }
 
+    CtensorArray broadcast_minus(const CtensorObj& x) const{
+      return CtensorArray(CNINE_CTENSORARRAY_IMPL::minus(x));
+    }
+
 
   public: // ---- Cumulative operations ----------------------------------------------------------------------
 

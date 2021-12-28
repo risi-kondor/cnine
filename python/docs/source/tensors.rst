@@ -33,19 +33,20 @@ initialized),
 ``ones`` (a tensor filled with 1s), ``sequential`` (a tensor filled 
 with the numbers 0,1,2,... in sequence, ``identity`` (used to construct an identity matrix), 
 and ``gaussian`` (a tensor whose elements are drawn i.i.d. from a standard normal distribution). 
+
 For first, second and third order tensors, the list notation can be dropped, for example the 
-above tensor could have been initialized simply as ``A=rtensor.zero([4,4])``. 
+above tensor could have been initialized simply as ``A=rtensor.zero(4,4)``. 
 
 The number of tensor dimensions and the size of the individual dimensions can be read out as follows.
 
 .. code-block:: python
 
   >>> A=rtensor.zero([4,4])
-  >>> A.get_ndims()
+  >>> A.ndims()
   2
-  >>> A.get_dim(0)
+  >>> A.dim(0)
   4
-  >>> dims=A.get_dims()
+  >>> dims=A.dims()
   >>> dims[0]
   4
 
@@ -61,8 +62,7 @@ The following example shows how tensor elements can be set and read.
 
 .. code-block:: python
 
-  >>> from cnine import *
-  >>> A=rtensor.sequential([4,4])
+  >>> A=rtensor.sequential(4,4)
   >>> print(A)
   [ 0 1 2 3 ]
   [ 4 5 6 7 ]
@@ -71,15 +71,24 @@ The following example shows how tensor elements can be set and read.
 
   >>> A([1,2])
   6.0
+  >>> A[1,2] # synonym for the above 
+  6.0 
+  >>> A(1,2) # synonym for the above, but only for first, send and third order tensors
+  6.0
+
   >>> A[[1,2]]=99
+  >>> A[1,2]=99 # synonym for the above
   >>> print(A)
   [ 0 1 2 3 ]
   [ 4 5 99 7 ]
   [ 8 9 10 11 ]
   [ 12 13 14 15 ]
 
-Again, for first second and third order tensors indices can also be passed directly 
-as in ``A(1,2)`` for ``A([1,2])``. 
+
+..
+ An alternative syntax for `reading` (but not writing) the tensor elements of  
+ first, second and third order tensors indices is to pass the indices directly,  
+ as in ``A(1,2)`` for ``A([1,2])``. 
 
 
 
@@ -175,7 +184,7 @@ between two tensors and the squared Frobenius norm
 
 .. code-block:: python
 
-  >>> A=rtensor.gaussian([4,4])
+  >>> A=rtensor.gaussian(4,4)
   >>> print(A)
   [ -1.23974 -0.407472 1.61201 0.399771 ]
   [ 1.3828 0.0523187 -0.904146 1.87065 ]
@@ -208,7 +217,7 @@ The ``transp`` method returns the transpose of a matrix.
 
 .. code-block:: python
 
-  >>> A=rtensor.sequential([4,4])
+  >>> A=rtensor.sequential(4,4)
   >>> print(A.transp())
   [ 0 4 8 12 ]
   [ 1 5 9 13 ]
@@ -225,7 +234,7 @@ equal to c. ``reshape`` reinterprets the tensor as a tensor of a different shape
 
 .. code-block:: python
 
-  >>> A=rtensor.sequential([4,4])
+  >>> A=rtensor.sequential(4,4)
   >>> print(A.slice(1,2))
   [ 2 6 10 14 ]
 
@@ -246,7 +255,7 @@ Tensors can moved back and forth between the host (CPU) and the GPU with the ``t
 
 .. code-block:: python
 
-  >>> A=rtensor.sequential([4,4])
+  >>> A=rtensor.sequential(4,4)
   >>> B=A.to(1) # Create a copy of A on the first GPU (GPU0)
   >>> C=B.to(0) # Move B back to the host 
 
@@ -288,7 +297,7 @@ and conjugate transpose (Hermitian conjugate) of the tensor.
 
 .. code-block:: python
 
-  >>> A=ctensor.gaussian([4,4])
+  >>> A=ctensor.gaussian(4,4)
   >>> print(A)
   [ (-1.23974,0.584898) (-0.407472,-0.660558) (1.61201,0.534755) (0.399771,-0.607787) ]
   [ (1.3828,0.74589) (0.0523187,-1.75177) (-0.904146,-0.965146) (1.87065,-0.474282) ]
@@ -302,14 +311,14 @@ and conjugate transpose (Hermitian conjugate) of the tensor.
   [ (0.097221,0.370271) (-0.89237,1.12408) (-0.228782,-1.73664) (1.16493,-0.882195) ]
 
 
-=================
-Storage details
-=================
+======================
+Implementation details
+======================
 
-`cnine` is designed to be able to switch between different C++ backend classes for its core data types. 
+`cnine` is designed in a way that allows it to switch between different backend classes for its core data types. 
 The default backend class for real tensors is ``RtensorA`` and for complex tensors is ``CtensorA``. 
 ``RtensorA`` stores a tensor of dimensions :math:`d_1\times\ldots\times d_k` as a single contiguous array of 
-:math:`d_1 \ldots d_k` floating point numbers in row major order. 
+:math:`d_1 d_2 \ldots d_k` floating point numbers in row major order. 
 ``CtensorA`` stores a complex tensor as a single array consisting of the 
 real part of the tensor followed by the imaginary part. 
 To facilitate memory access on the GPU, the offset of the imaginary part is rounded up to the nearest 

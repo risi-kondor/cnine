@@ -473,12 +473,20 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    int get_nadims() const{
+      return adims.size();
+    }
+
     const Gdims& get_adims() const{
       return adims;
     }
 
     int get_adim(const int i) const{
       return adims[i];
+    }
+
+    int get_ncdims() const{
+      return cdims.size();
     }
 
     const Gdims& get_cdims() const{
@@ -503,14 +511,14 @@ namespace cnine{
 
 
     RtensorA get_cell(const Gindex& aix) const{
-      CNINE_CHECK_RANGE(aix.check_range(adims));
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       RtensorA R(cdims,nbu,fill::raw,dev);
       copy_cell_into(R,aix);
       return R;
     }
 
     void copy_cell_into(RtensorA& R, const Gindex& aix) const{
-      CNINE_CHECK_RANGE(aix.check_range(adims));
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       assert(dev==R.dev);
       int t=aix(strides);
       if(dev==0){
@@ -521,7 +529,7 @@ namespace cnine{
     }
 
     void add_cell_into(RtensorA& R, const Gindex& aix) const{
-      CNINE_CHECK_RANGE(aix.check_range(adims));
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       assert(dev==R.dev);
       int t=aix(strides);
       if(dev==0){
@@ -536,7 +544,7 @@ namespace cnine{
     }
 
     void set_cell(const Gindex& aix, const RtensorA& x) const{
-      CNINE_CHECK_RANGE(aix.check_range(adims));
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       int t=aix(strides);
       if(dev==0){
 	std::copy(x.arr,x.arr+asize,arr+t);
@@ -548,7 +556,7 @@ namespace cnine{
     }
 
     void add_to_cell(const Gindex& aix, const RtensorA& x) const{
-      CNINE_CHECK_RANGE(aix.check_range(adims));
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       int t=aix(strides);
       if(dev==0){
 	stdadd(x.arr,x.arr+asize,arr+t);
@@ -623,12 +631,14 @@ namespace cnine{
 
     const RtensorA cell(const Gindex& aix) const{
       //cout<<"const RtensorA view"<<endl;
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       int i=aix(astrides);
       return RtensorA(k,cdims,nbu,cstrides,asize,2*asize,dev,arr+i*cellstride,flag::view);
     }
 
     RtensorA cell_view(const Gindex& aix){
       //cout<<"RtensorA view"<<endl;
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       int i=aix(astrides);
       return RtensorA(k,cdims,nbu,cstrides,asize,2*asize,dev,arr+i*cellstride,flag::view);
     }
@@ -643,6 +653,7 @@ namespace cnine{
     }
 
     RtensorA* cellp(const Gindex& aix){
+      CNINE_CHECK_RANGE(aix.check_arange(adims));
       int i=aix(astrides);
       return new RtensorA(k,cdims,nbu,cstrides,asize,2*asize,dev,arr+i*cellstride,flag::view);
     }
@@ -1034,12 +1045,26 @@ namespace cnine{
 
 
     void broadcast_add(const RtensorA& x){
+      CNINE_CHECK_SIZE(cdims.check_cell_eq(x.dims));
       assert(dev==x.dev);
       assert(nbu==x.nbu);
       assert(x.cdims==cdims);
       if(dev==0){
 	for(int i=0; i<aasize; i++){
 	  stdadd(x.arr,x.arr+x.asize,arr+i*cellstride);
+	}
+      }
+    }
+
+
+    void broadcast_subtract(const RtensorA& x){
+      CNINE_CHECK_SIZE(cdims.check_cell_eq(x.dims));
+      assert(dev==x.dev);
+      assert(nbu==x.nbu);
+      assert(x.cdims==cdims);
+      if(dev==0){
+	for(int i=0; i<aasize; i++){
+	  stdsub(x.arr,x.arr+x.asize,arr+i*cellstride);
 	}
       }
     }
@@ -1191,6 +1216,12 @@ namespace cnine{
     RtensorArrayA plus(const RtensorA& y) const{
       RtensorArrayA R(*this);
       R.broadcast_add(y);
+      return R;
+    }
+
+    RtensorArrayA minus(const RtensorA& y) const{
+      RtensorArrayA R(*this);
+      R.broadcast_subtract(y);
       return R;
     }
 

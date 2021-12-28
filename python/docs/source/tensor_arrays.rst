@@ -2,12 +2,14 @@
 Tensor arrays
 *************
 
-The basic device for parallelizing computations on the GPU in `cnine` are tensor arrays. 
-A tensor array is an array of tensors of the same size arranged in a contiguous data structure: 
-``rtensor_arr`` corresponds to an array of real tensors, whereas ``ctensor_arr`` corresponds 
-to an array of complex tensors.  
+The basic device in `cnine` for parallelizing computations on the GPU are tensor arrays. 
+A tensor array is an array of tensors of the same size arranged in a contiguous data structure.  
+An ``rtensor_arr`` object is an array of real tensors, whereas an ``ctensor_arr`` object is 
+an array of complex tensors.  
+
 We describe the basic functionality of tensor arrays for the ``rtensor_arr`` class. 
-The API of ``ctensor_arr`` is analogous. 
+The API of ``ctensor_arr`` is analogous apart from the addition of some functions taking complex conjugates, 
+etc.. 
 
 
 ======================
@@ -72,7 +74,7 @@ Accessing tensor cells
 =========================
 
 
-Individual tensors in the tensor array, called `cells`, can be accessed similarly to how tensor 
+Individual tensors in the tensor array, called `cells`, are accessed similarly to how tensor 
 elements are accessed in regular tensors. 
 
 .. code-block:: python
@@ -143,7 +145,7 @@ Broadcast operations
 ====================
 
 Applying a binary operation to a tensor array and a regular tensor corresponds to 
-first broadcasting the tensor to an array of the same size and then applying the operation.
+first broadcasting the tensor to an array of the same size and then applying the operation cellwise.
 
 .. code-block:: python
 
@@ -259,21 +261,21 @@ Tensor arrays can moved back and forth between the host (CPU) and the GPU simila
   >>> C=B.to(0) # Move B back to the host 
 
 
-===============
-Storage details
-===============  
+======================
+Implementation details
+======================  
 
 The default C++ backend class for real tensors arrays is ``RtensorArrayA`` 
 and for complex tensor arrays is ``CtensorArrayA``. 
 ``RtensorArrayA`` stores an :math:`D_1\times \ldots \times D_K` array of  :math:`d_1\times\ldots\times d_k` 
-dimensional tensors essentially the same way that ``RtensorA`` would store a single  
+dimensional tensors in a similar way that ``RtensorA`` would store a single  
 :math:`D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k` dimensional tensor. 
-An important caveat however, is that 
+An important caveat, however, is that 
 the stride between consecutive cells is rounded up to the nearest multiple of 128 bytes. 
 While this facilitates memory access, especially on the GPU, it makes it somewhat harder to 
 convert a ``tensor_array`` object to a single tensor in e.g.. `PyTorch`. 
-``CtensorArrayA`` store a complex tensor array in a single array, essentially as two 
-one tensor array followed by another. 
+The ``CtensorArrayA`` class stores a complex tensor array in a single array, 
+consisting of two real tensor arrays back to back. 
 
 A tensor array object's header, including information about tensor dimensions, strides, etc., is always resident on 
 the host. When a tensor array is moved to the GPU, only the array containing the actual tensor entries 

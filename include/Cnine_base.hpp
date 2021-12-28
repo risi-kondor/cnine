@@ -59,10 +59,24 @@ using namespace std;
 #define CNINE_MOVEASSIGN_WARNING()
 #endif 
 
+#ifdef CNINE_ATEN_CONVERT_WARNINGS
+#define CNINE_CONVERT_FROM_ATEN_WARNING() cout<<"\e[1mcnine:\e[0m ATen tensor converted to "<<classname()<<"."<<endl;
+#define CNINE_CONVERT_TO_ATEN_WARNING() cout<<"\e[1mcnine:\e[0m "<<classname()<<" converted to ATen tensor."<<endl;
+#else 
+#define CNINE_CONVERT_FROM_ATEN_WARNING()
+#define CNINE_CONVERT_TO_ATEN_WARNING()
+#endif 
+
 #ifdef CNINE_RANGE_CHECKING
 #define CNINE_CHECK_RANGE(expr) expr
 #else
 #define CNINE_CHECK_RANGE(expr)
+#endif
+
+#ifdef CNINE_SIZE_CHECKING
+#define CNINE_CHECK_SIZE(expr) expr
+#else
+#define CNINE_CHECK_SIZE(expr)
 #endif
 
 #define CNINE_NOCUDA_ERROR cout<<"Error: Cnine was compiled without GPU support."<<endl;
@@ -265,6 +279,13 @@ namespace cnine{
     const int n=end-beg; 
     for(int i=0; i<n; i++)
       dest[i]+=beg[i];
+  }
+
+  template<typename TYPE>
+  void stdsub(const TYPE* beg, const TYPE* end, TYPE* dest){
+    const int n=end-beg; 
+    for(int i=0; i<n; i++)
+      dest[i]-=beg[i];
   }
 
   template<typename TYPE1, typename TYPE2>

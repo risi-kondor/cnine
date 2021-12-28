@@ -49,11 +49,17 @@ pybind11::class_<CtensorArray>(m,"ctensor_arr")
 //.def("get_k",&RtensorObj::get_k)
 //    .def("getk",&RtensorObj::get_k)
   
-//.def("get_nadims",&CtensorArray::get_adims)
+  .def("get_nadims",&CtensorArray::get_nadims)
   .def("get_adims",&CtensorArray::get_adims)
   .def("get_adim",&CtensorArray::get_adim)
+  .def("nadims",&CtensorArray::get_nadims)
+  .def("adims",&CtensorArray::get_adims)
+  .def("adim",&CtensorArray::get_adim)
 
-//.def("get_ncdims",&CtensorArray::get_cdims)
+  .def("ncdims",&CtensorArray::get_ncdims)
+  .def("cdims",&CtensorArray::get_cdims)
+  .def("cdim",&CtensorArray::get_cdim)
+  .def("get_ncdims",&CtensorArray::get_ncdims)
   .def("get_cdims",&CtensorArray::get_cdims)
   .def("get_cdim",&CtensorArray::get_cdim)
 
@@ -88,6 +94,8 @@ pybind11::class_<CtensorArray>(m,"ctensor_arr")
   .def("__isub__",[](CtensorArray& x, const CtensorArray& y){x.subtract(y); return x;})
 
   .def("__add__",[](const CtensorArray& x, const CtensorObj& y){return x.broadcast_plus(y);})
+  .def("__add__",[](const CtensorObj& y, const CtensorArray& x){return x.broadcast_plus(y);})
+  .def("__sub__",[](const CtensorArray& x, const CtensorObj& y){return x.broadcast_minus(y);})
 
   .def("widen",&CtensorArray::widen)
   .def("reduce",&CtensorArray::reduce)

@@ -514,13 +514,12 @@ namespace cnine{
 #ifdef _WITH_ATEN
 
     CtensorA(const at::Tensor& T){
+      CNINE_CONVERT_FROM_ATEN_WARNING();
       assert(typeid(T.type().scalarType())==typeid(float));
-      T.contiguous();
-      
 
+      T.contiguous();
       k=T.dim()-1;
       if(k<=0 || T.size(0)!=2) throw std::out_of_range("CtensorA: first dimension of tensor must be 2, corresponding to the real and imaginary parts.");
-
       dims=Gdims(k,fill_raw());
       for(int i=0; i<k ; i++){
 	dims[i]=T.size(i+1);
@@ -582,6 +581,19 @@ namespace cnine{
     
 
     at::Tensor torch() const{
+      CNINE_CONVERT_TO_ATEN_WARNING();
+      assert(dev==0);
+      vector<int64_t> v(k+1); 
+      for(int i=0; i<k; i++) v[i+1]=dims[i];
+      v[0]=2;
+      at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+      std::copy(arr,arr+asize,R.data<float>());
+      std::copy(arrc,arrc+asize,R.data<float>()+asize);
+      return R;
+    }
+
+    at::Tensor move_to_torch(){ // TODO 
+      CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
       vector<int64_t> v(k+1); 
       for(int i=0; i<k; i++) v[i+1]=dims[i];
@@ -746,6 +758,7 @@ namespace cnine{
 
     complex<float> operator()(const int i0) const{
       CNINE_ASSERT(dev==0,"CtensorA::operator() not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=1 || i0<0 || i0>=dims[0]) throw std::out_of_range("index "+Gindex(i0).str()+" out of range of dimensions "+dims.str()));
       assert(k==1);
       int t=i0*strides[0];
       return complex<float>(arr[t],arrc[t]);
@@ -753,6 +766,7 @@ namespace cnine{
 
     complex<float> get_value(const int i0) const{
       CNINE_ASSERT(dev==0,"CtensorA::get not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=1 || i0<0 || i0>=dims[0]) throw std::out_of_range("index "+Gindex(i0).str()+" out of range of dimensions "+dims.str()));
       assert(k==1);
       int t=i0*strides[0];
       return complex<float>(arr[t],arrc[t]);
@@ -760,6 +774,7 @@ namespace cnine{
 
     void set_value(const int i0, const complex<float> x){
       CNINE_ASSERT(dev==0,"CtensorA::set not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=1 || i0<0 || i0>=dims[0]) throw std::out_of_range("index "+Gindex(i0).str()+" out of range of dimensions "+dims.str()));
       assert(k==1);
       int t=i0*strides[0];
       arr[t]=std::real(x);
@@ -795,6 +810,7 @@ namespace cnine{
 
     complex<float> operator()(const int i0, const int i1) const{
       CNINE_ASSERT(dev==0,"CtensorA::operator() not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
       assert(k==2);
       int t=i0*strides[0]+i1*strides[1];
       return complex<float>(arr[t],arrc[t]);
@@ -802,6 +818,7 @@ namespace cnine{
 
     complex<float> get_value(const int i0, const int i1) const{
       CNINE_ASSERT(dev==0,"CtensorA::get not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
       assert(k==2);
       int t=i0*strides[0]+i1*strides[1];
       return complex<float>(arr[t],arrc[t]);
@@ -809,6 +826,7 @@ namespace cnine{
 
     void set_value(const int i0, const int i1, const complex<float> x){
       CNINE_ASSERT(dev==0,"CtensorA::set not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
       assert(k==2);
       int t=i0*strides[0]+i1*strides[1];
       arr[t]=std::real(x);
@@ -844,6 +862,7 @@ namespace cnine{
 
     complex<float> operator()(const int i0, const int i1, const int i2) const{
       CNINE_ASSERT(dev==0, "CtensorA::operator() not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       assert(k==3);
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
       return complex<float>(arr[t],arrc[t]);
@@ -851,6 +870,7 @@ namespace cnine{
 
     complex<float> get_value(const int i0, const int i1, const int i2) const{
       CNINE_ASSERT(dev==0, "CtensorA::get not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       assert(k==3);
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
       return complex<float>(arr[t],arrc[t]);
@@ -858,6 +878,7 @@ namespace cnine{
 
     void set_value(const int i0, const int i1, const int i2, const complex<float> x){
       CNINE_ASSERT(dev==0, "CtensorA::set not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       assert(k==3);
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
       arr[t]=std::real(x);
@@ -1445,6 +1466,7 @@ namespace cnine{
 
 
     void set(const CtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
       assert(x.dev==dev);
       if(dev==0){
@@ -1460,6 +1482,7 @@ namespace cnine{
 
 
     void add(const CtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
       assert(x.dev==dev);
       if(dev==0){
@@ -1476,6 +1499,7 @@ namespace cnine{
 
 
     void add(const CtensorA& x, const float c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
       assert(x.dev==dev);
       if(dev==0){
@@ -1491,6 +1515,7 @@ namespace cnine{
 
 
     void add(const CtensorA& x, const complex<float> c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
       assert(x.dev==dev);
       float cr=std::real(c);
@@ -1510,21 +1535,25 @@ namespace cnine{
     }
 
     void add(const CtensorA& x, const RscalarA& c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(c.nbu==-1);
       add(x,c.val);
     }
 
     void add(const CtensorA& x, const CscalarA& c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(c.nbu==-1);
       add(x,c.val);
     }
 
     void add_cconj(const CtensorA& x, const CscalarA& c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(c.nbu==-1);
       add(x,std::conj(c.val));
     }
 
     void add_conj(const CtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
       assert(x.dev==dev);
       if(dev==0){
@@ -1541,6 +1570,7 @@ namespace cnine{
     }
 
     void add_conj(const CtensorA& x, complex<float> c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
       assert(x.dev==dev);
       float cr=std::real(c);
@@ -1560,44 +1590,53 @@ namespace cnine{
     }
 
     void add_conj(const CtensorA& x, const CscalarA& c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(c.nbu==-1);
       add_conj(x,c.val);
     }
 
     void add_prod(const RscalarA& c, const CtensorA& A){
+      CNINE_CHECK_SIZE(dims.check_eq(A.dims));
       assert(c.nbu==-1);
       add(A,c.val);
     }
  
     void add_prod(const CscalarA& c, const CtensorA& A){
+      CNINE_CHECK_SIZE(dims.check_eq(A.dims));
       assert(c.nbu==-1);
       add(A,c.val);
     }
     
     void add_prod_cconj(const CscalarA& c, const CtensorA& A){
+      CNINE_CHECK_SIZE(dims.check_eq(A.dims));
       assert(c.nbu==-1);
       add(A,std::conj(c.val));
     }
  
     void add_prod_c_times_conj(const CscalarA& c, const CtensorA& A){
+      CNINE_CHECK_SIZE(dims.check_eq(A.dims));
       assert(c.nbu==-1);
       add_conj(A,c.val);
     }
 
     void add_divide(const CtensorA& x, const float c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       add(x,1.0/c);
     }
 
     void add_divide(const CtensorA& x, const complex<float> c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       add(x,complex<float>(1.0)/c);
     }
 
     void add_divide(const CtensorA& x, const RscalarA& c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(c.nbu==-1);
       add(x,1.0/c.val);
     }
 
     void add_divide(const CtensorA& x, const CscalarA& c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(c.nbu==-1);
       add(x,complex<float>(1.0)/c.val);
     }
@@ -1629,6 +1668,7 @@ namespace cnine{
     }
 
     void subtract(const CtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(x.dev==dev);
       assert(asize==x.asize);
       if(dev==0){
@@ -1642,6 +1682,8 @@ namespace cnine{
     }
 
     void add_plus(const CtensorA& x, const CtensorA& y){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CHECK_SIZE(dims.check_eq(y.dims));
       assert(asize==x.asize);
       assert(asize==y.asize);
       assert(x.dev==dev);
@@ -1661,6 +1703,8 @@ namespace cnine{
     }
 
     void add_minus(const CtensorA& x, const CtensorA& y){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CHECK_SIZE(dims.check_eq(y.dims));
       assert(asize==x.asize);
       assert(asize==y.asize);
       assert(x.dev==dev);
@@ -1681,6 +1725,7 @@ namespace cnine{
     }
 
     void add_transp(const CtensorA& x, const int n=1) const{
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims.transpose()));
       assert(asize==x.asize);
       assert(x.dev==dev);
       const int J=x.combined_size(0,n);
@@ -1704,6 +1749,7 @@ namespace cnine{
     }
 
     void add_herm(const CtensorA& x, const int n=1) const{
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims.transpose()));
       assert(asize==x.asize);
       assert(x.dev==dev);
       const int J=x.combined_size(0,n);
@@ -1748,6 +1794,7 @@ namespace cnine{
     }
 
     void add_inp_into(CscalarA& r, const CtensorA& A) const{
+      CNINE_CHECK_SIZE(dims.check_eq(A.dims));
       if(nbu==-1){
 	r.val+=inp(A);
       }else{
@@ -2126,6 +2173,7 @@ namespace cnine{
 
 
     void add_ReLU(const CtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(x.asize==asize);
       assert(x.dev==dev);
       for(int i=0; i<asize; i++) arr[i]+=(x.arr[i]>0)*x.arr[i];
@@ -2133,6 +2181,7 @@ namespace cnine{
     }
 
     void add_ReLU(const CtensorA& x, const float alpha){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(x.asize==asize);
       assert(x.dev==dev);
       for(int i=0; i<asize; i++) arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
@@ -2140,6 +2189,8 @@ namespace cnine{
     }
 
     void add_ReLU_back(const CtensorA& g, const CtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CHECK_SIZE(dims.check_eq(g.dims));
       assert(x.asize==asize);
       assert(g.asize==asize);
       assert(x.dev==dev);
@@ -2149,6 +2200,8 @@ namespace cnine{
     }
 
     void add_ReLU_back(const CtensorA& g, const CtensorA& x, const float alpha){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CHECK_SIZE(dims.check_eq(g.dims));
       assert(x.asize==asize);
       assert(g.asize==asize);
       assert(x.dev==dev);

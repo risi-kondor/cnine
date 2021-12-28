@@ -287,6 +287,10 @@ namespace cnine{
       return RtensorArray(CNINE_RTENSORARRAY_IMPL::plus(x));
     }
 
+    RtensorArray broadcast_minus(const RtensorObj& x) const{
+      return RtensorArray(CNINE_RTENSORARRAY_IMPL::minus(x));
+    }
+
 
 
   public: // ---- Cumulative operations ----------------------------------------------------------------------

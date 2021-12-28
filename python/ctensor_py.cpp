@@ -82,8 +82,12 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
   .def("get_k",&CtensorObj::get_k)
   .def("getk",&CtensorObj::get_k)
+  .def("get_ndims",&CtensorObj::get_dims)
   .def("get_dims",&CtensorObj::get_dims)
   .def("get_dim",&CtensorObj::get_dim)
+  .def("ndims",&CtensorObj::get_dims)
+  .def("dims",&CtensorObj::get_dims)
+  .def("dim",&CtensorObj::get_dim)
 
   .def("get",static_cast<CscalarObj(CtensorObj::*)(const Gindex& )const>(&CtensorObj::get))
   .def("get",static_cast<CscalarObj(CtensorObj::*)(const int)const>(&CtensorObj::get))
