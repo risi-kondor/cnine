@@ -5,7 +5,7 @@ from torch.utils.cpp_extension import CppExtension, BuildExtension, CUDAExtensio
 import time 
 
 #os.environ['CUDA_HOME']='/usr/local/cuda'
-os.environ["CC"] = "clang"
+#os.environ["CC"] = "clang"
 cwd = os.getcwd()
 
 #CUDA_HOME='/usr/local/cuda'
@@ -31,6 +31,8 @@ ext_modules=[CppExtension('cnine', ['cnine_py.cpp'],
                                                         '-Wno-sign-compare',
                                                         '-Wno-deprecated-declarations',
                                                         '-Wno-unused-variable',
+                                                        '-Wno-unused-but-set-variable',
+                                                        '-Wno-reorder',
                                                         '-Wno-reorder-ctor',
                                                         '-D_WITH_ATEN',
                                                         '-DCNINE_COPY_WARNINGS',
