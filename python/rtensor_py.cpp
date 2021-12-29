@@ -150,7 +150,9 @@ pybind11::class_<RtensorObj>(m,"rtensor")
 
 //.def("__getitem__",static_cast<CscalarObj(RtensorObj::*)(const int, const int)const>(&RtensorObj::get))
 
+  .def("device",&RtensorObj::get_device)
   .def("to",&RtensorObj::to_device)
+  .def("move_to",[](RtensorObj& x, const int _dev){x.move_to_device(_dev);})
 
   .def("str",&RtensorObj::str,py::arg("indent")="")
   .def("__str__",&RtensorObj::str,py::arg("indent")="")

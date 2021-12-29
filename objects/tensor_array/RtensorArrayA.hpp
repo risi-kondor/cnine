@@ -394,7 +394,7 @@ namespace cnine{
 	*/
       }else{
 	if(dev==0) std::copy(T.data<float>(),T.data<float>()+memsize,arr);
-	if(dev==1) CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+	if(dev==1) CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
     }
 

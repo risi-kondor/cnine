@@ -178,6 +178,9 @@ namespace cnine{
       return as_shape_tmp<RtensorObj>(*this,dims);
     }
 
+    RtensorObj to_device(const int _dev){
+      return RtensorObj(CNINE_RTENSOR_IMPL::to_device(_dev));
+    }
 
 #ifdef _WITH_ATEN
 
@@ -208,6 +211,10 @@ namespace cnine{
     }
 
     int get_dev() const{
+      return dev;
+    }
+
+    int get_device() const{
       return dev;
     }
 

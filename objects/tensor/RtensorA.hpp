@@ -175,11 +175,11 @@ namespace cnine{
       k(_k), dims(_dims), strides(_strides), asize(_asize), memsize(_memsize), cst(_cst), dev(_dev){
 
       if(dev==0){
-	arr=new float[memsize];
+        arr=new float[memsize];
       }
 
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	      CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
       }
 
     }
@@ -315,11 +315,11 @@ namespace cnine{
       RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,x.dev){
       CNINE_COPY_WARNING();
       if(dev==0){
-	std::copy(x.arr,x.arr+asize,arr);
+        std::copy(x.arr,x.arr+asize,arr);
       }
 #ifdef _WITH_CUDA
       if(dev==1){
-	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));
+	      CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
 #endif 
     }
@@ -339,21 +339,21 @@ namespace cnine{
     RtensorA(const RtensorA& x, const int _dev): 
       RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,_dev){
       if(dev==0){
-	if(x.dev==0){
-	  std::copy(x.arr,x.arr+asize,arr);
-	}
-	if(x.dev==1){
-	  CUDA_SAFE(cudaMemcpy(arr,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToHost)); 
-	}
+	      if(x.dev==0){
+	        std::copy(x.arr,x.arr+asize,arr);
+	      }
+	      if(x.dev==1){
+	        CUDA_SAFE(cudaMemcpy(arr,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToHost)); 
+	      }
       }
       if(dev==1){
 #ifdef _WITH_CUDA
-	if(x.dev==0){
-	  CUDA_SAFE(cudaMemcpy(arrg,x.arr,asize*sizeof(float),cudaMemcpyHostToDevice));
-	}
-	if(x.dev==1){
-	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
-	}
+	      if(x.dev==0){
+	        CUDA_SAFE(cudaMemcpy(arrg,x.arr,asize*sizeof(float),cudaMemcpyHostToDevice));
+	      }
+	      if(x.dev==1){
+	        CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
+	      }
 #endif 
       }
     }
@@ -493,7 +493,7 @@ namespace cnine{
 
       if(dev==1){
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
-	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),asize*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
 
     }
@@ -590,6 +590,7 @@ namespace cnine{
     }
 
     RtensorA to_device(const int _dev) const{
+      cout<<"to("<<_dev<<")"<<endl;
       return RtensorA(*this,_dev);
     }
 

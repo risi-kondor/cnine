@@ -543,8 +543,8 @@ namespace cnine{
       if(dev==1){
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	arrgc=arrg+cst; 
-	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),asize*sizeof(TYPE),cudaMemcpyDeviceToDevice));
-	CUDA_SAFE(cudaMemcpy(arrgc,T.data<float>()+asize,asize*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),asize*sizeof(float),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arrgc,T.data<float>()+asize,asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
     }
 

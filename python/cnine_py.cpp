@@ -105,6 +105,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 
   //#include "cmaps_py.cpp"
     
+  /*
   def_inner<RtensorA_add_plus_cop,RtensorArray>(m);
   def_outer<RtensorA_add_plus_cop,RtensorArray>(m);
   def_cellwise<RtensorA_add_plus_cop,RtensorArray>(m);
@@ -118,7 +119,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   def_mprod<CtensorA_add_plus_cop,CtensorArray>(m);
   def_convolve1<CtensorA_add_plus_cop,CtensorArray>(m);
   def_convolve2<CtensorA_add_plus_cop,CtensorArray>(m);
-
+*/
 }
 
 
