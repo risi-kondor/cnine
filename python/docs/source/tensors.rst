@@ -5,9 +5,9 @@ Tensors
 
 The core data types in cnine are real and complex multidimensional arrays. 
 The corresponding classes are ``rtensor`` and ``ctensor``. 
-Currently, to facilitate GP-GPU operations, only single precision arithmetic is supported. 
+Currently, to facilitate GP-GPU operations, `cnine` only supports single precision arithmetic. 
 
-We describe basic tensor functionality for the ``rtensor`` class.  
+In the following, we describe the basic functionality of the ``rtensor`` class.  
 The ``ctensor`` class's interface is analogous. 
 
 

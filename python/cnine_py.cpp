@@ -36,6 +36,8 @@
 
 #include "cmaps_py.cpp"
 
+#include "CnineSession.hpp"
+cnine::cnine_session session;
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 

@@ -1162,6 +1162,7 @@ namespace cnine{
 
     RtensorA plus(const RtensorA& x) const{
       RtensorA R(*this);
+      cout<<"plus"<<endl;
       R.add(x);
       return R;
     }
@@ -1300,12 +1301,14 @@ namespace cnine{
       assert(asize==x.asize);
       assert(x.dev==dev);
       if(dev==0){
-	for(int i=0; i<asize; i++) arr[i]+=x.arr[i];
-	return; 
+        for(int i=0; i<asize; i++) arr[i]+=x.arr[i];
+	      return; 
       }
       if(dev==1){
-	const float alpha = 1.0;
-	CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1));
+        cout<<this->str()<<endl;
+        cout<<"GPU add"<<asize<<endl;
+	      const float alpha = 1.0;
+	      CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1));
       }
     }
 

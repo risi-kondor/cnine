@@ -4,7 +4,7 @@ from setuptools import setup
 from torch.utils.cpp_extension import CppExtension, BuildExtension, CUDAExtension
 import time 
 
-os.environ['CUDA_HOME']='/usr/local/cuda'
+os.environ['CUDA_HOME']='/usr/local/cuda-11-3' #doesn't work, need explicit export 
 #os.environ["CC"] = "clang"
 cwd = os.getcwd()
 
@@ -14,7 +14,7 @@ print(torch.cuda.is_available())
 #CXXFLAGS += '-D_GLIBCXX_USE_CXX11_ABI=0'
 
 setup(name='cnine',
-ext_modules=[CUDAExtension('cnine', ['cnine_py.cpp'],
+ext_modules=[CUDAExtension('cnine', ['cnine_py.cpp','../include/Cnine_base.cu'],
                           include_dirs=['/usr/local/cuda/include',
                                         cwd+'/../include',
                                         cwd+'/../include/cmaps',
@@ -26,7 +26,8 @@ ext_modules=[CUDAExtension('cnine', ['cnine_py.cpp'],
                           #                                 runtime_libraries=['cudart'],
                           #                                 libraries=['cudart','dl'],
                           extra_compile_args = {
-                                                'nvcc': ['-D_WITH_CUDA'],
+                                                'nvcc': [   '-D_WITH_CUDA',
+                                                            '-D_WITH_CUBLAS'],
                                                 'cxx': ['-std=c++14',
                                                         '-Wno-sign-compare',
                                                         '-Wno-deprecated-declarations',
@@ -36,6 +37,7 @@ ext_modules=[CUDAExtension('cnine', ['cnine_py.cpp'],
                                                         '-Wno-reorder-ctor',
                                                         '-D_WITH_ATEN',
                                                         '-D_WITH_CUDA',
+                                                        '-D_WITH_CUBLAS',
                                                         '-DCNINE_COPY_WARNINGS',
                                                         '-DCNINE_ASSIGN_WARNINGS',
                                                         '-DCNINE_MOVE_WARNINGS',
