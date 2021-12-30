@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
         <title>Features - cnine documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
     
     
 
@@ -179,43 +179,68 @@
           </label>
         </div>
         <article role="main">
-          <p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend, offering
-both a C++ and a Python front end API.</p>
-<p>The primary purpose of <cite>cnine</cite> is to provide finer grained control
-GP-GPU functionality than other tensor libraries.</p>
+          <p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend.
+This document gives a high level introduction to <cite>cnine</cite>’s Python front end.</p>
+<p>The primary purpose of <cite>cnine</cite> is to provide fine grained, direct control over
+GP-GPU functionality to Python and C++ developers.</p>
 <p><cite>cnine</cite> was developed by Risi Kondor at the University of Chicago and is released under the
 <a class="reference external" href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla public license v.2.0</a>.</p>
-<p>This document provides documentation for cnine’s Python interface. Not all features in the C++ library
-are available through this interface. The documentation of the C++ API can be found in pdf format
-in the package’s <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory.</p>
+<p>Not all features in the C++ library are available through the Python interface.
+The documentation of the C++ API can be found in pdf format in the package’s <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory.</p>
 <section id="features">
 <h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
 <ol class="arabic simple">
 <li><p>Support for real and complex valued tensors.</p></li>
 <li><p>Transparent block level parallelization on GPUs using the tensor array data structures.</p></li>
+<li><p>Ability to execute custom CUDA kernels in parallel across many cells of a tensor array, even in irregular patterns.</p></li>
 </ol>
 </section>
 <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Installing <cite>cnine</cite> in Python requires the following:</p>
+<p><cite>cnine</cite> can be used with or without PyTorch. However, the installation script uses PyTorch’s
+cpp-extension facility.
+Therefore, installation requires the following:</p>
 <ol class="arabic simple">
 <li><p>C++11 or higher</p></li>
 <li><p>PyTorch</p></li>
+<li><p>CUDA and CUBLAS for GPU functionality</p></li>
 </ol>
-<p>To install cnine follow these steps:</p>
+<p>To install <cite>cnine</cite> follow these steps:</p>
 <ol class="arabic simple">
-<li><p>Download the cnine package from <a class="reference external" href="https://github.com/risi-kondor/cnine">github</a>.</p></li>
-<li><p>Edit the file <code class="docutils literal notranslate"><span class="pre">config.txt</span></code> as necessary.</p></li>
+<li><p>Download the <cite>cnine</cite> package from <a class="reference external" href="https://github.com/risi-kondor/cnine">github</a>.</p></li>
+<li><p>Edit the file <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code> as necessary.</p></li>
 <li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.sty</span> <span class="pre">install</span></code> in the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory to compile the package and install it on your
 system.</p></li>
 </ol>
-<p>To use <cite>cnine</cite> from Python, load the corresponding module the usual way with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cnine</span></code>.
+<p>To use <cite>cnine</cite> from Python, load the module the usual way with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cnine</span></code>.
 In the following we assume that the command <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cnine</span> <span class="pre">import</span> <span class="pre">*</span></code> has been issued,
-obviating the need to prefix all <cite>cnine</cite> classes and classes with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
+obviating the need to prefix all <cite>cnine</cite> classes and funnctions with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
 </section>
 <section id="known-issues">
 <h1>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h1>
 <p>GPU functionality is currently untested.</p>
+</section>
+<section id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic">
+<li><p>If it becomes necessary to change the location where <cite>setuptools</cite>
+will place the compiled module from the default, add a file called <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>
+with content</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">install</span><span class="p">]</span>
+<span class="n">prefix</span><span class="o">=&lt;</span><span class="n">target</span> <span class="n">directory</span> <span class="n">where</span> <span class="n">you</span> <span class="n">want</span> <span class="n">the</span> <span class="n">module</span> <span class="n">to</span> <span class="n">be</span> <span class="n">placed</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>in the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory. Make sure that the new target directory is in Python’s load path.</p>
+</li>
+<li><p>PyTorch requires C++ extensions to be compiled against the same version of CUDA that PyTorch
+itself was compiled with. If this becomes an issue, it might be necessary to install an
+alternative version of CUDA on your system and force <cite>setuptools</cite> to use that version setting
+the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> enironment variable, as, e.g.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">CUDA_HOME</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/&lt;</span><span class="n">desired</span> <span class="n">CUDA</span> <span class="n">version</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</li>
+</ol>
 </section>
 
         </article>
@@ -229,11 +254,9 @@ obviating the need to prefix all <cite>cnine</cite> classes and classes with <co
 
         <div class="related-information">
               Copyright &#169; 2021, Risi Kondor |
-            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
-              and
-              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="_sources/intro.rst.txt"
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            | <a class="muted-link" href="_sources/intro.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -256,6 +279,7 @@ obviating the need to prefix all <cite>cnine</cite> classes and classes with <co
 <li><a class="reference internal" href="#">Features</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 
           </div>
@@ -269,6 +293,6 @@ obviating the need to prefix all <cite>cnine</cite> classes and classes with <co
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/scripts/main.js"></script>
+    <script src="_static/scripts/furo.js"></script>
     </body>
 </html>

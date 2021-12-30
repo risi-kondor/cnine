@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
         <title>Tensors - cnine documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
     
     
 
@@ -183,15 +183,15 @@
 <h1>Tensors<a class="headerlink" href="#tensors" title="Permalink to this headline">¶</a></h1>
 <p>The core data types in cnine are real and complex multidimensional arrays.
 The corresponding classes are <code class="docutils literal notranslate"><span class="pre">rtensor</span></code> and <code class="docutils literal notranslate"><span class="pre">ctensor</span></code>.
-Currently, to facilitate GP-GPU operations, only single precision arithmetic is supported.</p>
-<p>We describe basic tensor functionality for the <code class="docutils literal notranslate"><span class="pre">rtensor</span></code> class.
+Currently, to facilitate GP-GPU operations, <cite>cnine</cite> only supports single precision arithmetic.</p>
+<p>In the following, we describe the basic functionality of the <code class="docutils literal notranslate"><span class="pre">rtensor</span></code> class.
 The <code class="docutils literal notranslate"><span class="pre">ctensor</span></code> class’s interface is analogous.</p>
 <section id="creating-tensors">
 <h2>Creating tensors<a class="headerlink" href="#creating-tensors" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows how to create and print out a <img alt="4\times 4" class="math" src="_images/math/e09ffa3ea05a3d4eea933dfc9ff5f288af38bca5.svg"/>
 dimensional tensor filled with zeros.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 0 0 0 ]</span>
 <span class="go">[ 0 0 0 0 ]</span>
 <span class="go">[ 0 0 0 0 ]</span>
@@ -222,7 +222,7 @@ above tensor could have been initialized simply as <code class="docutils literal
 <p>Tensor indexing in <cite>cnine</cite> starts with 0 along each dimension.
 The following example shows how tensor elements can be set and read.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 1 2 3 ]</span>
 <span class="go">[ 4 5 6 7 ]</span>
 <span class="go">[ 8 9 10 11 ]</span>
@@ -237,7 +237,7 @@ The following example shows how tensor elements can be set and read.</p>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span><span class="o">=</span><span class="mi">99</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="mi">99</span> <span class="c1"># synonym for the above</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 1 2 3 ]</span>
 <span class="go">[ 4 5 99 7 ]</span>
 <span class="go">[ 8 9 10 11 ]</span>
@@ -322,7 +322,7 @@ vice versa.</p>
 between two tensors and the squared Frobenius norm
 <img alt="\vert A\vert^2=\sum_{i_1,\ldots,i_k} \vert A_{i_1,\ldots,i_k}\vert^2" class="math" src="_images/math/8081aafb4f16f2e787ddc81dce695819089114ae.svg"/>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ -1.23974 -0.407472 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 -0.904146 1.87065 ]</span>
 <span class="go">[ -1.66043 -0.688081 0.0757219 1.47339 ]</span>
@@ -336,7 +336,7 @@ between two tensors and the squared Frobenius norm
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">ReLU</span></code> function applies the function <img alt="\textrm{ReLU}(x)=\textrm{max}(0,x)" class="math" src="_images/math/957c22c74da86633352306df1416fca32dc891e0.svg"/> to
 each element of the tensor.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">ReLU</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ReLU</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
 <span class="go">[ 0 0 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 0 1.87065 ]</span>
 <span class="go">[ 0 0 0.0757219 1.47339 ]</span>
@@ -348,7 +348,7 @@ each element of the tensor.</p>
 <h2>Transposes<a class="headerlink" href="#transposes" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">transp</span></code> method returns the transpose of a matrix.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">transp</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">transp</span><span class="p">())</span>
 <span class="go">[ 0 4 8 12 ]</span>
 <span class="go">[ 1 5 9 13 ]</span>
 <span class="go">[ 2 6 10 14 ]</span>
@@ -361,11 +361,11 @@ each element of the tensor.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">slice(i,c)</span></code> method returns the slice of the tensor where the i’th index is
 equal to c. <code class="docutils literal notranslate"><span class="pre">reshape</span></code> reinterprets the tensor as a tensor of a different shape.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
 <span class="go">[ 2 6 10 14 ]</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 1 2 3 4 5 6 7 ]</span>
 <span class="go">[ 8 9 10 11 12 13 14 15 ]</span>
 </pre></div>
@@ -392,13 +392,13 @@ the operation will be performed on the GPU and the result placed on the same GPU
 As an alternative, tensor dimensions and indices can also be specified using the specialized
 classes <cite>gdims</cite> and <cite>gindex</cite>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dims</span><span class="o">=</span><span class="n">gdims</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
 <span class="go">(3,3,5)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dims</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dims</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 <span class="go">5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="mi">7</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
 <span class="go">(3,3,7)</span>
 <span class="go">&gt;&gt;&gt;</span>
 </pre></div>
@@ -410,13 +410,13 @@ classes <cite>gdims</cite> and <cite>gindex</cite>.</p>
 In addition, it also has <code class="docutils literal notranslate"><span class="pre">conj</span></code> and <code class="docutils literal notranslate"><span class="pre">herm</span></code> methods to take the conjugate
 and conjugate transpose (Hermitian conjugate) of the tensor.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">ctensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ (-1.23974,0.584898) (-0.407472,-0.660558) (1.61201,0.534755) (0.399771,-0.607787) ]</span>
 <span class="go">[ (1.3828,0.74589) (0.0523187,-1.75177) (-0.904146,-0.965146) (1.87065,-0.474282) ]</span>
 <span class="go">[ (-1.66043,-0.546571) (-0.688081,-0.0384917) (0.0757219,0.194947) (1.47339,-0.485144) ]</span>
 <span class="go">[ (0.097221,-0.370271) (-0.89237,-1.12408) (-0.228782,1.73664) (1.16493,0.882195) ]</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
 <span class="go">[ (-1.23974,-0.584898) (-0.407472,0.660558) (1.61201,-0.534755) (0.399771,0.607787) ]</span>
 <span class="go">[ (1.3828,-0.74589) (0.0523187,1.75177) (-0.904146,0.965146) (1.87065,0.474282) ]</span>
 <span class="go">[ (-1.66043,0.546571) (-0.688081,0.0384917) (0.0757219,-0.194947) (1.47339,0.485144) ]</span>
@@ -451,11 +451,9 @@ is moved to the  GPU’s global memory.</p>
 
         <div class="related-information">
               Copyright &#169; 2021, Risi Kondor |
-            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
-              and
-              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="_sources/tensors.rst.txt"
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            | <a class="muted-link" href="_sources/tensors.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -502,6 +500,6 @@ is moved to the  GPU’s global memory.</p>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/scripts/main.js"></script>
+    <script src="_static/scripts/furo.js"></script>
     </body>
 </html>

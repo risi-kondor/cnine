@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
         <title>Tensor arrays - cnine documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
     
     
 
@@ -190,10 +190,10 @@ The API of <code class="docutils literal notranslate"><span class="pre">ctensor_
 etc..</p>
 <section id="creating-tensor-arrays">
 <h2>Creating tensor arrays<a class="headerlink" href="#creating-tensor-arrays" title="Permalink to this headline">¶</a></h2>
-<p>The following example shows how to create a <img alt="2\times 2" class="math" src="_images/math/722e9acdc2f80ea3b4a4befe6fb5ef31a07f24ef.svg"/> array of <img alt="4\times 4" class="math" src="_images/math/e09ffa3ea05a3d4eea933dfc9ff5f288af38bca5.svg"/>
+<p>The following example shows how to create a <span class="math">2\times 2</span> array of <span class="math">4\times 4</span>
 dimensional tensors filled with random numbers.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">gaussian</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ -1.23974 -0.407472 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 -0.904146 1.87065 ]</span>
@@ -228,10 +228,10 @@ dimensional tensors filled with random numbers.</p>
 <p>The array dimensions and cell dimensions of a tensor array are accessed as follows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">gaussian</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adims</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">get_adims</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">adims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adims</span><span class="p">)</span>
 <span class="go">(2,2)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cdims</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">get_cdims</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">cdims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cdims</span><span class="p">)</span>
 <span class="go">(4,4)</span>
 </pre></div>
 </div>
@@ -241,7 +241,7 @@ dimensional tensors filled with random numbers.</p>
 <p>Individual tensors in the tensor array, called <cite>cells</cite>, are accessed similarly to how tensor
 elements are accessed in regular tensors.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
 <span class="go">[ -1.50279 0.570759 -0.929941 -0.934988 ]</span>
 <span class="go">[ -0.764676 0.250854 -0.188164 -1.51315 ]</span>
 <span class="go">[ 1.32256 1.93468 1.25244 1.0417 ]</span>
@@ -249,7 +249,7 @@ elements are accessed in regular tensors.</p>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span><span class="o">=</span><span class="n">A</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ -1.23974 -0.407472 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 -0.904146 1.87065 ]</span>
@@ -283,13 +283,13 @@ elements are accessed in regular tensors.</p>
 <h2>Cellwise operations<a class="headerlink" href="#cellwise-operations" title="Permalink to this headline">¶</a></h2>
 <p>Tensor arrays support the same arithmetic operations as regular tensors.
 By default, a given operation is applied to each cell of the array independently.
-For example, the result of adding an <img alt="n\times m" class="math" src="_images/math/819aa26e0dcbbeb8fe9b89e07303d4420d158ccf.svg"/> tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> to another <img alt="n\times m" class="math" src="_images/math/819aa26e0dcbbeb8fe9b89e07303d4420d158ccf.svg"/>
-tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> is an <img alt="n\times m" class="math" src="_images/math/819aa26e0dcbbeb8fe9b89e07303d4420d158ccf.svg"/> array in which the <img alt="(i,j)" class="math" src="_images/math/9a109dd7181dc89387b1cddb5f9cd7468859b440.svg"/> cell is the sum
+For example, the result of adding an <span class="math">n\times m</span> tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> to another <span class="math">n\times m</span>
+tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> is an <span class="math">n\times m</span> array in which the <span class="math">(i,j)</span> cell is the sum
 of the corresponding cells in <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">A</span><span class="o">+</span><span class="n">B</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
@@ -303,7 +303,7 @@ first broadcasting the tensor to an array of the same size and then applying the
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">A</span><span class="o">+</span><span class="n">B</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
@@ -336,7 +336,7 @@ create a new array dimension is called <cite>widening</cite>.
 On the GPU, both these operations are performed in <cite>cnine</cite> with fast, parallelized algorithms.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">gaussian</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
 <span class="go">Cell (0)</span>
 <span class="go">[ -0.610066 -1.75872 0.0605343 0.221048 ]</span>
 <span class="go">[ -0.485987 0.911379 -0.117453 -2.9732 ]</span>
@@ -352,7 +352,7 @@ On the GPU, both these operations are performed in <cite>cnine</cite> with fast,
 
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">B</span><span class="o">.</span><span class="n">widen</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ -0.610066 -1.75872 0.0605343 0.221048 ]</span>
 <span class="go">[ -0.485987 0.911379 -0.117453 -2.9732 ]</span>
@@ -409,9 +409,9 @@ On the GPU, both these operations are performed in <cite>cnine</cite> with fast,
 <h2>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
 <p>The default C++ backend class for real tensors arrays is <code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code>
 and for complex tensor arrays is <code class="docutils literal notranslate"><span class="pre">CtensorArrayA</span></code>.
-<code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code> stores an <img alt="D_1\times \ldots \times D_K" class="math" src="_images/math/acf705b40686b903a367c1a55a843afba22c2dda.svg"/> array of  <img alt="d_1\times\ldots\times d_k" class="math" src="_images/math/32cd00a5e0ce6e93f9d616d3991f6c71e697b7dc.svg"/>
+<code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code> stores an <span class="math">D_1\times \ldots \times D_K</span> array of  <span class="math">d_1\times\ldots\times d_k</span>
 dimensional tensors in a similar way that <code class="docutils literal notranslate"><span class="pre">RtensorA</span></code> would store a single
-<img alt="D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k" class="math" src="_images/math/b17487aa69d14a3b431e07af0bc75bdaa3b39fa7.svg"/> dimensional tensor.
+<span class="math">D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k</span> dimensional tensor.
 An important caveat, however, is that
 the stride between consecutive cells is rounded up to the nearest multiple of 128 bytes.
 While this facilitates memory access, especially on the GPU, it makes it somewhat harder to
@@ -435,11 +435,9 @@ is moved to the  GPU’s global memory.</p>
 
         <div class="related-information">
               Copyright &#169; 2021, Risi Kondor |
-            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
-              and
-              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="_sources/tensor_arrays.rst.txt"
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            | <a class="muted-link" href="_sources/tensor_arrays.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -483,6 +481,6 @@ is moved to the  GPU’s global memory.</p>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/scripts/main.js"></script>
+    <script src="_static/scripts/furo.js"></script>
     </body>
 </html>

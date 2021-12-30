@@ -5,11 +5,11 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/>
         <title>cnine documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
     
     
 
@@ -183,43 +183,68 @@
 <h1>cnine<a class="headerlink" href="#cnine" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend, offering
-both a C++ and a Python front end API.</p>
-<p>The primary purpose of <cite>cnine</cite> is to provide finer grained control
-GP-GPU functionality than other tensor libraries.</p>
+<p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend.
+This document gives a high level introduction to <cite>cnine</cite>’s Python front end.</p>
+<p>The primary purpose of <cite>cnine</cite> is to provide fine grained, direct control over
+GP-GPU functionality to Python and C++ developers.</p>
 <p><cite>cnine</cite> was developed by Risi Kondor at the University of Chicago and is released under the
 <a class="reference external" href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla public license v.2.0</a>.</p>
-<p>This document provides documentation for cnine’s Python interface. Not all features in the C++ library
-are available through this interface. The documentation of the C++ API can be found in pdf format
-in the package’s <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory.</p>
+<p>Not all features in the C++ library are available through the Python interface.
+The documentation of the C++ API can be found in pdf format in the package’s <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory.</p>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li><p>Support for real and complex valued tensors.</p></li>
 <li><p>Transparent block level parallelization on GPUs using the tensor array data structures.</p></li>
+<li><p>Ability to execute custom CUDA kernels in parallel across many cells of a tensor array, even in irregular patterns.</p></li>
 </ol>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>Installing <cite>cnine</cite> in Python requires the following:</p>
+<p><cite>cnine</cite> can be used with or without PyTorch. However, the installation script uses PyTorch’s
+cpp-extension facility.
+Therefore, installation requires the following:</p>
 <ol class="arabic simple">
 <li><p>C++11 or higher</p></li>
 <li><p>PyTorch</p></li>
+<li><p>CUDA and CUBLAS for GPU functionality</p></li>
 </ol>
-<p>To install cnine follow these steps:</p>
+<p>To install <cite>cnine</cite> follow these steps:</p>
 <ol class="arabic simple">
-<li><p>Download the cnine package from <a class="reference external" href="https://github.com/risi-kondor/cnine">github</a>.</p></li>
-<li><p>Edit the file <code class="docutils literal notranslate"><span class="pre">config.txt</span></code> as necessary.</p></li>
+<li><p>Download the <cite>cnine</cite> package from <a class="reference external" href="https://github.com/risi-kondor/cnine">github</a>.</p></li>
+<li><p>Edit the file <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code> as necessary.</p></li>
 <li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.sty</span> <span class="pre">install</span></code> in the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory to compile the package and install it on your
 system.</p></li>
 </ol>
-<p>To use <cite>cnine</cite> from Python, load the corresponding module the usual way with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cnine</span></code>.
+<p>To use <cite>cnine</cite> from Python, load the module the usual way with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cnine</span></code>.
 In the following we assume that the command <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cnine</span> <span class="pre">import</span> <span class="pre">*</span></code> has been issued,
-obviating the need to prefix all <cite>cnine</cite> classes and classes with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
+obviating the need to prefix all <cite>cnine</cite> classes and funnctions with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
 </section>
 <section id="known-issues">
 <h2>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
 <p>GPU functionality is currently untested.</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p>If it becomes necessary to change the location where <cite>setuptools</cite>
+will place the compiled module from the default, add a file called <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>
+with content</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">install</span><span class="p">]</span>
+<span class="n">prefix</span><span class="o">=&lt;</span><span class="n">target</span> <span class="n">directory</span> <span class="n">where</span> <span class="n">you</span> <span class="n">want</span> <span class="n">the</span> <span class="n">module</span> <span class="n">to</span> <span class="n">be</span> <span class="n">placed</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>in the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory. Make sure that the new target directory is in Python’s load path.</p>
+</li>
+<li><p>PyTorch requires C++ extensions to be compiled against the same version of CUDA that PyTorch
+itself was compiled with. If this becomes an issue, it might be necessary to install an
+alternative version of CUDA on your system and force <cite>setuptools</cite> to use that version setting
+the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> enironment variable, as, e.g.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">CUDA_HOME</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/&lt;</span><span class="n">desired</span> <span class="n">CUDA</span> <span class="n">version</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</li>
+</ol>
 <div class="line-block">
 <div class="line"><br/></div>
 </div>
@@ -228,15 +253,15 @@ obviating the need to prefix all <cite>cnine</cite> classes and classes with <co
 <h2>Tensors<a class="headerlink" href="#tensors" title="Permalink to this headline">¶</a></h2>
 <p>The core data types in cnine are real and complex multidimensional arrays.
 The corresponding classes are <code class="docutils literal notranslate"><span class="pre">rtensor</span></code> and <code class="docutils literal notranslate"><span class="pre">ctensor</span></code>.
-Currently, to facilitate GP-GPU operations, only single precision arithmetic is supported.</p>
-<p>We describe basic tensor functionality for the <code class="docutils literal notranslate"><span class="pre">rtensor</span></code> class.
+Currently, to facilitate GP-GPU operations, <cite>cnine</cite> only supports single precision arithmetic.</p>
+<p>In the following, we describe the basic functionality of the <code class="docutils literal notranslate"><span class="pre">rtensor</span></code> class.
 The <code class="docutils literal notranslate"><span class="pre">ctensor</span></code> class’s interface is analogous.</p>
 <section id="creating-tensors">
 <h3>Creating tensors<a class="headerlink" href="#creating-tensors" title="Permalink to this headline">¶</a></h3>
 <p>The following example shows how to create and print out a <img alt="4\times 4" class="math" src="_images/math/e09ffa3ea05a3d4eea933dfc9ff5f288af38bca5.svg"/>
 dimensional tensor filled with zeros.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 0 0 0 ]</span>
 <span class="go">[ 0 0 0 0 ]</span>
 <span class="go">[ 0 0 0 0 ]</span>
@@ -267,7 +292,7 @@ above tensor could have been initialized simply as <code class="docutils literal
 <p>Tensor indexing in <cite>cnine</cite> starts with 0 along each dimension.
 The following example shows how tensor elements can be set and read.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 1 2 3 ]</span>
 <span class="go">[ 4 5 6 7 ]</span>
 <span class="go">[ 8 9 10 11 ]</span>
@@ -282,7 +307,7 @@ The following example shows how tensor elements can be set and read.</p>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span><span class="o">=</span><span class="mi">99</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="mi">99</span> <span class="c1"># synonym for the above</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 1 2 3 ]</span>
 <span class="go">[ 4 5 99 7 ]</span>
 <span class="go">[ 8 9 10 11 ]</span>
@@ -367,7 +392,7 @@ vice versa.</p>
 between two tensors and the squared Frobenius norm
 <img alt="\vert A\vert^2=\sum_{i_1,\ldots,i_k} \vert A_{i_1,\ldots,i_k}\vert^2" class="math" src="_images/math/8081aafb4f16f2e787ddc81dce695819089114ae.svg"/>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ -1.23974 -0.407472 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 -0.904146 1.87065 ]</span>
 <span class="go">[ -1.66043 -0.688081 0.0757219 1.47339 ]</span>
@@ -381,7 +406,7 @@ between two tensors and the squared Frobenius norm
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">ReLU</span></code> function applies the function <img alt="\textrm{ReLU}(x)=\textrm{max}(0,x)" class="math" src="_images/math/957c22c74da86633352306df1416fca32dc891e0.svg"/> to
 each element of the tensor.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">ReLU</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ReLU</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
 <span class="go">[ 0 0 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 0 1.87065 ]</span>
 <span class="go">[ 0 0 0.0757219 1.47339 ]</span>
@@ -393,7 +418,7 @@ each element of the tensor.</p>
 <h3>Transposes<a class="headerlink" href="#transposes" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">transp</span></code> method returns the transpose of a matrix.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">transp</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">transp</span><span class="p">())</span>
 <span class="go">[ 0 4 8 12 ]</span>
 <span class="go">[ 1 5 9 13 ]</span>
 <span class="go">[ 2 6 10 14 ]</span>
@@ -406,11 +431,11 @@ each element of the tensor.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">slice(i,c)</span></code> method returns the slice of the tensor where the i’th index is
 equal to c. <code class="docutils literal notranslate"><span class="pre">reshape</span></code> reinterprets the tensor as a tensor of a different shape.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
 <span class="go">[ 2 6 10 14 ]</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ 0 1 2 3 4 5 6 7 ]</span>
 <span class="go">[ 8 9 10 11 12 13 14 15 ]</span>
 </pre></div>
@@ -437,13 +462,13 @@ the operation will be performed on the GPU and the result placed on the same GPU
 As an alternative, tensor dimensions and indices can also be specified using the specialized
 classes <cite>gdims</cite> and <cite>gindex</cite>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dims</span><span class="o">=</span><span class="n">gdims</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
 <span class="go">(3,3,5)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dims</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dims</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 <span class="go">5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="mi">7</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
 <span class="go">(3,3,7)</span>
 <span class="go">&gt;&gt;&gt;</span>
 </pre></div>
@@ -455,13 +480,13 @@ classes <cite>gdims</cite> and <cite>gindex</cite>.</p>
 In addition, it also has <code class="docutils literal notranslate"><span class="pre">conj</span></code> and <code class="docutils literal notranslate"><span class="pre">herm</span></code> methods to take the conjugate
 and conjugate transpose (Hermitian conjugate) of the tensor.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">ctensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">[ (-1.23974,0.584898) (-0.407472,-0.660558) (1.61201,0.534755) (0.399771,-0.607787) ]</span>
 <span class="go">[ (1.3828,0.74589) (0.0523187,-1.75177) (-0.904146,-0.965146) (1.87065,-0.474282) ]</span>
 <span class="go">[ (-1.66043,-0.546571) (-0.688081,-0.0384917) (0.0757219,0.194947) (1.47339,-0.485144) ]</span>
 <span class="go">[ (0.097221,-0.370271) (-0.89237,-1.12408) (-0.228782,1.73664) (1.16493,0.882195) ]</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
 <span class="go">[ (-1.23974,-0.584898) (-0.407472,0.660558) (1.61201,-0.534755) (0.399771,0.607787) ]</span>
 <span class="go">[ (1.3828,-0.74589) (0.0523187,1.75177) (-0.904146,0.965146) (1.87065,0.474282) ]</span>
 <span class="go">[ (-1.66043,0.546571) (-0.688081,0.0384917) (0.0757219,-0.194947) (1.47339,0.485144) ]</span>
@@ -498,7 +523,7 @@ etc..</p>
 <p>The following example shows how to create a <img alt="2\times 2" class="math" src="_images/math/722e9acdc2f80ea3b4a4befe6fb5ef31a07f24ef.svg"/> array of <img alt="4\times 4" class="math" src="_images/math/e09ffa3ea05a3d4eea933dfc9ff5f288af38bca5.svg"/>
 dimensional tensors filled with random numbers.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">gaussian</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ -1.23974 -0.407472 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 -0.904146 1.87065 ]</span>
@@ -533,10 +558,10 @@ dimensional tensors filled with random numbers.</p>
 <p>The array dimensions and cell dimensions of a tensor array are accessed as follows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">gaussian</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adims</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">get_adims</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">adims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adims</span><span class="p">)</span>
 <span class="go">(2,2)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cdims</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">get_cdims</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">cdims</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cdims</span><span class="p">)</span>
 <span class="go">(4,4)</span>
 </pre></div>
 </div>
@@ -546,7 +571,7 @@ dimensional tensors filled with random numbers.</p>
 <p>Individual tensors in the tensor array, called <cite>cells</cite>, are accessed similarly to how tensor
 elements are accessed in regular tensors.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
 <span class="go">[ -1.50279 0.570759 -0.929941 -0.934988 ]</span>
 <span class="go">[ -0.764676 0.250854 -0.188164 -1.51315 ]</span>
 <span class="go">[ 1.32256 1.93468 1.25244 1.0417 ]</span>
@@ -554,7 +579,7 @@ elements are accessed in regular tensors.</p>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span><span class="o">=</span><span class="n">A</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ -1.23974 -0.407472 1.61201 0.399771 ]</span>
 <span class="go">[ 1.3828 0.0523187 -0.904146 1.87065 ]</span>
@@ -594,7 +619,7 @@ of the corresponding cells in <code class="docutils literal notranslate"><span c
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">A</span><span class="o">+</span><span class="n">B</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
@@ -608,7 +633,7 @@ first broadcasting the tensor to an array of the same size and then applying the
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">A</span><span class="o">+</span><span class="n">B</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
@@ -641,7 +666,7 @@ create a new array dimension is called <cite>widening</cite>.
 On the GPU, both these operations are performed in <cite>cnine</cite> with fast, parallelized algorithms.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">gaussian</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
 <span class="go">Cell (0)</span>
 <span class="go">[ -0.610066 -1.75872 0.0605343 0.221048 ]</span>
 <span class="go">[ -0.485987 0.911379 -0.117453 -2.9732 ]</span>
@@ -657,7 +682,7 @@ On the GPU, both these operations are performed in <cite>cnine</cite> with fast,
 
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">B</span><span class="o">.</span><span class="n">widen</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ -0.610066 -1.75872 0.0605343 0.221048 ]</span>
 <span class="go">[ -0.485987 0.911379 -0.117453 -2.9732 ]</span>
@@ -758,7 +783,7 @@ the module has to be compiled anew.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cellwise_add_plus</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
@@ -790,7 +815,7 @@ the module has to be compiled anew.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">inner_add_plus</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ 2 2 2 ]</span>
 <span class="go">[ 2 2 2 ]</span>
@@ -804,7 +829,7 @@ the module has to be compiled anew.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">outer_add_plus</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0,0)</span>
 <span class="go">[ 1 1 1 ]</span>
 <span class="go">[ 1 1 1 ]</span>
@@ -836,7 +861,7 @@ the module has to be compiled anew.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mprod_add_plus</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
 <span class="go">Cell (0)</span>
 <span class="go">[ 4 4 4 ]</span>
 <span class="go">[ 4 4 4 ]</span>
@@ -872,11 +897,9 @@ the module has to be compiled anew.</p>
 
         <div class="related-information">
               Copyright &#169; 2021, Risi Kondor |
-            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
-              and
-              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="_sources/index.rst.txt"
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            | <a class="muted-link" href="_sources/index.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -900,6 +923,7 @@ the module has to be compiled anew.</p>
 <li><a class="reference internal" href="#features">Features</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 <li><a class="reference internal" href="#tensors">Tensors</a><ul>
 <li><a class="reference internal" href="#creating-tensors">Creating tensors</a></li>
 <li><a class="reference internal" href="#accessing-tensor-elements">Accessing tensor elements</a></li>
@@ -948,6 +972,6 @@ the module has to be compiled anew.</p>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/scripts/main.js"></script>
+    <script src="_static/scripts/furo.js"></script>
     </body>
 </html>
