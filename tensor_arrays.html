@@ -190,7 +190,7 @@ The API of <code class="docutils literal notranslate"><span class="pre">ctensor_
 etc..</p>
 <section id="creating-tensor-arrays">
 <h2>Creating tensor arrays<a class="headerlink" href="#creating-tensor-arrays" title="Permalink to this headline">¶</a></h2>
-<p>The following example shows how to create a <span class="math">2\times 2</span> array of <span class="math">4\times 4</span>
+<p>The following example shows how to create a <img alt="2\times 2" class="math" src="_images/math/722e9acdc2f80ea3b4a4befe6fb5ef31a07f24ef.svg"/> array of <img alt="4\times 4" class="math" src="_images/math/e09ffa3ea05a3d4eea933dfc9ff5f288af38bca5.svg"/>
 dimensional tensors filled with random numbers.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">gaussian</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
@@ -283,8 +283,8 @@ elements are accessed in regular tensors.</p>
 <h2>Cellwise operations<a class="headerlink" href="#cellwise-operations" title="Permalink to this headline">¶</a></h2>
 <p>Tensor arrays support the same arithmetic operations as regular tensors.
 By default, a given operation is applied to each cell of the array independently.
-For example, the result of adding an <span class="math">n\times m</span> tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> to another <span class="math">n\times m</span>
-tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> is an <span class="math">n\times m</span> array in which the <span class="math">(i,j)</span> cell is the sum
+For example, the result of adding an <img alt="n\times m" class="math" src="_images/math/819aa26e0dcbbeb8fe9b89e07303d4420d158ccf.svg"/> tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> to another <img alt="n\times m" class="math" src="_images/math/819aa26e0dcbbeb8fe9b89e07303d4420d158ccf.svg"/>
+tensor array <code class="docutils literal notranslate"><span class="pre">A</span></code> is an <img alt="n\times m" class="math" src="_images/math/819aa26e0dcbbeb8fe9b89e07303d4420d158ccf.svg"/> array in which the <img alt="(i,j)" class="math" src="_images/math/9a109dd7181dc89387b1cddb5f9cd7468859b440.svg"/> cell is the sum
 of the corresponding cells in <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
@@ -399,9 +399,12 @@ On the GPU, both these operations are performed in <cite>cnine</cite> with fast,
 <section id="gpu-functionality">
 <h2>GPU functionality<a class="headerlink" href="#gpu-functionality" title="Permalink to this headline">¶</a></h2>
 <p>Tensor arrays can moved back and forth between the host (CPU) and the GPU similarly to tensors.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">sequential</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Create a copy of A on the first GPU (GPU0)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">B</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Move B back to the host</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor_arr</span><span class="o">.</span><span class="n">sequential</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">device</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># create a tensor array on the GPU</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">device</span><span class="p">()</span> <span class="c1"># print out where A is stored</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Create a copy of A on the CPU</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">.</span><span class="n">device</span><span class="p">()</span> <span class="c1"># print out where B is stored</span>
+<span class="go">0</span>
 </pre></div>
 </div>
 </section>
@@ -409,9 +412,9 @@ On the GPU, both these operations are performed in <cite>cnine</cite> with fast,
 <h2>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
 <p>The default C++ backend class for real tensors arrays is <code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code>
 and for complex tensor arrays is <code class="docutils literal notranslate"><span class="pre">CtensorArrayA</span></code>.
-<code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code> stores an <span class="math">D_1\times \ldots \times D_K</span> array of  <span class="math">d_1\times\ldots\times d_k</span>
+<code class="docutils literal notranslate"><span class="pre">RtensorArrayA</span></code> stores an <img alt="D_1\times \ldots \times D_K" class="math" src="_images/math/acf705b40686b903a367c1a55a843afba22c2dda.svg"/> array of  <img alt="d_1\times\ldots\times d_k" class="math" src="_images/math/32cd00a5e0ce6e93f9d616d3991f6c71e697b7dc.svg"/>
 dimensional tensors in a similar way that <code class="docutils literal notranslate"><span class="pre">RtensorA</span></code> would store a single
-<span class="math">D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k</span> dimensional tensor.
+<img alt="D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k" class="math" src="_images/math/b17487aa69d14a3b431e07af0bc75bdaa3b39fa7.svg"/> dimensional tensor.
 An important caveat, however, is that
 the stride between consecutive cells is rounded up to the nearest multiple of 128 bytes.
 While this facilitates memory access, especially on the GPU, it makes it somewhat harder to
