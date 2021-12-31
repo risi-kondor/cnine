@@ -104,7 +104,10 @@ pybind11::class_<RtensorArray>(m,"rtensor_arr")
   .def("widen",&RtensorArray::widen)
   .def("reduce",&RtensorArray::reduce)
 
+  .def("device",&RtensorArray::get_device)
   .def("to",&RtensorArray::to_device)
+  .def("to_device",&RtensorArray::to_device)
+  .def("move_to",[](RtensorArray& x, const int _dev){x.move_to_device(_dev);})
 
   .def("str",&RtensorArray::str,py::arg("indent")="")
   .def("__str__",&RtensorArray::str,py::arg("indent")="")

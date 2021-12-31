@@ -152,6 +152,7 @@ pybind11::class_<RtensorObj>(m,"rtensor")
 
   .def("device",&RtensorObj::get_device)
   .def("to",&RtensorObj::to_device)
+  .def("to_device",&RtensorObj::to_device)
   .def("move_to",[](RtensorObj& x, const int _dev){x.move_to_device(_dev);})
 
   .def("str",&RtensorObj::str,py::arg("indent")="")

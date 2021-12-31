@@ -195,7 +195,15 @@ namespace cnine{
 
 #endif
 
+  public: // ---- Transport ----------------------------------------------------------------------------------
+  
 
+    CtensorObj to_device(const int _dev){
+      return CtensorObj(CNINE_CTENSOR_IMPL::to_device(_dev));
+    }
+  
+  
+ 
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -216,6 +224,10 @@ namespace cnine{
     }
 
     int get_dev() const{
+      return dev;
+    }
+
+    int get_device() const{
       return dev;
     }
 

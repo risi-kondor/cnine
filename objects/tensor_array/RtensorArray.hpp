@@ -139,7 +139,10 @@ namespace cnine{
       RtensorArray(x.obj.obj.herm()){}
     */
 
-    RtensorArray to(const device& _dev) const{
+  public: // ---- Transport -----------------------------------------------------------------------------------
+
+
+   RtensorArray to(const device& _dev) const{
       return RtensorArray(*this,_dev);
     }
 
@@ -175,6 +178,10 @@ namespace cnine{
     */
 
     int get_dev() const{
+      return dev;
+    }
+
+    int get_device() const{
       return dev;
     }
 

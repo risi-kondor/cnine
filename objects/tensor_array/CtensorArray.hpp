@@ -156,6 +156,9 @@ namespace cnine{
       CtensorArray(x.obj.obj.herm()){}
     */
 
+  public: // ---- Transport -----------------------------------------------------------------------------------
+
+
     CtensorArray to(const device& _dev) const{
       return CtensorArray(*this,_dev);
     }
@@ -192,6 +195,10 @@ namespace cnine{
     */
 
     int get_dev() const{
+      return dev;
+    }
+
+    int get_device() const{
       return dev;
     }
 

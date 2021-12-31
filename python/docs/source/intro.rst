@@ -32,11 +32,12 @@ Therefore, installation requires the following:
 To install `cnine` follow these steps:
 
 #. Download the `cnine` package from `github <https://github.com/risi-kondor/cnine>`_. 
-#. Edit the file ``python/setup.py`` as necessary. 
+#. Edit the user configurable variables in ``python/setup.py`` as necessary. 
 #. Run ``python setup.sty install`` in the ``python`` directory to compile the package and install it on your 
    system.
  
 To use `cnine` from Python, load the module the usual way with ``import cnine``. 
+If `cnine` waas compiled with GPU support, you must first ``import torch``. 
 In the following we assume that the command ``from cnine import *`` has been issued,  
 obviating the need to prefix all `cnine` classes and funnctions with ``cnine.``.
 
@@ -44,7 +45,7 @@ obviating the need to prefix all `cnine` classes and funnctions with ``cnine.``.
 Known issues
 ************
 
-GPU functionality is currently untested. 
+GPU functionality is currently not fully tested.  
 
 ***************
 Troubleshooting
@@ -61,12 +62,12 @@ Troubleshooting
 
    in the ``python`` directory. Make sure that the new target directory is in Python's load path.
 
-#. PyTorch requires C++ extensions to be compiled against the same version of CUDA that PyTorch 
+#. PyTorch requires C++ extensions to be compiled against the same version of CUDA that it  
    itself was compiled with. If this becomes an issue, it might be necessary to install an 
    alternative version of CUDA on your system and force `setuptools` to use that version by setting 
    the ``CUDA_HOME`` enironment variable, as, e.g. 
 
    .. code-block:: none
    
-    export CUDA_HOME=/usr/local/<desired CUDA version>
+    export CUDA_HOME=/usr/local/cuda-11.3
 

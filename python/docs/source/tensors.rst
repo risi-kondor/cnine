@@ -251,18 +251,34 @@ use the ``copy()`` method.
 GPU functionality
 =================
 
-Tensors can moved back and forth between the host (CPU) and the GPU with the ``to`` method. 
-
+In `cnine` device number 0 is the host (CPU) and device number 1 is the GPU. 
+The optional ``device`` argument makes it possible to create a tensor on either the CPU or 
+the GPU. 
+ 
 .. code-block:: python
 
-  >>> A=rtensor.sequential(4,4)
-  >>> B=A.to(1) # Create a copy of A on the first GPU (GPU0)
-  >>> C=B.to(0) # Move B back to the host 
+  >>> A=rtensor.sequential([4,4],device=1) # Create a 4x4 tensor on the GPU 
 
 Almost all operations that `cnine` offers on the host are also available on the GPU. 
 In general, if the operands are on the host, the operation will be performed on the host and 
 the result is placed on the host. Conversely, if the operands are on the GPU, 
 the operation will be performed on the GPU and the result placed on the same GPU.
+The ``device`` method tells us whether a given tensor is resident on the CPU or the GPU. 
+
+.. code-block:: python
+ 
+ >>> A.device()
+ 1
+
+Tensors can moved back and forth between the CPU and the GPU using the ``to_device`` method. 
+
+.. code-block:: python
+
+  >>> A=rtensor.sequential(4,4)
+  >>> B=A.to(1) # Create a copy of A on the GPU
+  >>> C=B.to(0) # Move B back to the host 
+
+Support for multiple GPUs is in development. 
 
 
 ================
@@ -315,7 +331,7 @@ and conjugate transpose (Hermitian conjugate) of the tensor.
 Implementation details
 ======================
 
-`cnine` is designed in a way that allows it to switch between different backend classes for its core data types. 
+`cnine` is designed to be able to switch between different backend classes for its core data types. 
 The default backend class for real tensors is ``RtensorA`` and for complex tensors is ``CtensorA``. 
 ``RtensorA`` stores a tensor of dimensions :math:`d_1\times\ldots\times d_k` as a single contiguous array of 
 :math:`d_1 d_2 \ldots d_k` floating point numbers in row major order. 
@@ -324,6 +340,6 @@ real part of the tensor followed by the imaginary part.
 To facilitate memory access on the GPU, the offset of the imaginary part is rounded up to the nearest 
 multiple of 128 bytes. 
 
-A tensor object's header, including information about tensor dimensions, strides, etc., is always resident on 
-the host. When a tensor array is moved to the GPU, only the array containing the tensor entries 
+A tensor object's header, including information about tensor dimensions, strides, etc., is always stored on 
+the host. When a tensor is moved to the GPU, the array containing the tensor entries 
 is moved to the  GPU's global memory. 
