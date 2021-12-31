@@ -79,6 +79,13 @@ using namespace std;
 #define CNINE_CHECK_SIZE(expr)
 #endif
 
+#ifdef CNINE_DEVICE_CHECKING
+#define CNINE_CHECK_DEV(expr) expr
+#else
+#define CNINE_CHECK_DEV(expr)
+#endif
+
+
 #define CNINE_NOCUDA_ERROR cout<<"Error: Cnine was compiled without GPU support."<<endl;
 #define CNINE_CPUONLY() if(dev!=0) {printf("Cnine error: CUDA code for \"%s\" not implemented.\n",__PRETTY_FUNCTION__); exit(-1);}
 
@@ -388,7 +395,7 @@ namespace cnine{
 
 
 #ifdef _WITH_CUDA
-#define CUDA_SAFE(err) __cudaSafeCall( err, __FILE__, __LINE__ );
+#define CUDA_SAFE(err) __cudaSafeCall(err, __FILE__, __LINE__ );
 inline void __cudaSafeCall(cudaError err, const char *file, const int line){
   if(cudaSuccess!=err){
     fprintf(stderr,"cudaSafeCall() failed at %s:%i : %s\n",file,line,cudaGetErrorString(err));

@@ -98,6 +98,8 @@ namespace cnine{
     RtensorA(const Gdims& _dims, const int _dev=0): 
       dims(_dims), dev(_dev), strides(_dims.size()){
 
+      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("cnine error in RtensorA: device must be 0 or 1"));
+
       k=dims.size();
       strides[k-1]=1;
       for(int i=k-2; i>=0; i--)
@@ -119,6 +121,8 @@ namespace cnine{
 
     RtensorA(const Gdims& _adims, const Gdims& _dims, const int _dev=0): // for RtensorArray
       dims(_adims,_dims), dev(_dev), strides(_adims.size()+_dims.size()){
+
+      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("cnine error in RtensorA: device must be 0 or 1"));
 
       k=dims.size();
       const int ak=_adims.size();
@@ -150,6 +154,8 @@ namespace cnine{
 
     RtensorA(const Gdims& _adims, const Gdims& _dims, const fill_noalloc& dummy, const int _dev=0): // for RtensorArray
       dims(_adims,_dims), dev(_dev), strides(_adims.size()+_dims.size()){
+
+      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("cnine error in RtensorA: device must be 0 or 1"));
 
       k=dims.size();
       const int ak=_adims.size();
@@ -338,22 +344,23 @@ namespace cnine{
         
     RtensorA(const RtensorA& x, const int _dev): 
       RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,_dev){
+      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("cnine error in RtensorA: device must be 0 or 1"));
       if(dev==0){
-	      if(x.dev==0){
-	        std::copy(x.arr,x.arr+asize,arr);
-	      }
-	      if(x.dev==1){
-	        CUDA_SAFE(cudaMemcpy(arr,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToHost)); 
-	      }
+	if(x.dev==0){
+	  std::copy(x.arr,x.arr+asize,arr);
+	}
+	if(x.dev==1){
+	  CUDA_SAFE(cudaMemcpy(arr,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToHost)); 
+	}
       }
       if(dev==1){
 #ifdef _WITH_CUDA
-	      if(x.dev==0){
-	        CUDA_SAFE(cudaMemcpy(arrg,x.arr,asize*sizeof(float),cudaMemcpyHostToDevice));
-	      }
-	      if(x.dev==1){
-	        CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
-	      }
+	if(x.dev==0){
+	  CUDA_SAFE(cudaMemcpy(arrg,x.arr,asize*sizeof(float),cudaMemcpyHostToDevice));
+	}
+	if(x.dev==1){
+	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
+	}
 #endif 
       }
     }
@@ -393,26 +400,20 @@ namespace cnine{
 	  std::copy(x.arr,x.arr+asize,arr);
 	}
 	if(dev==1){
-#ifdef _WITH_CUDA
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
-#endif 
 	}
 	return *this;
       }
 
       delete arr;
-#ifdef _WITH_CUDA
       if(arrg){CUDA_SAFE(cudaFree(arrg));}
-#endif
       if(dev==0){
 	arr=new float[memsize]; 
 	std::copy(x.arr,x.arr+asize,arr);
       }
       if(dev==1){
-#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
-#endif 
       }
       
       return *this;
@@ -555,6 +556,7 @@ namespace cnine{
 
 
     RtensorA& move_to_device(const int _dev){
+      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("Cnine error in RtensorA: device must be 0 or 1"));
 
       if(_dev==0){
 	if(dev==0) return *this;

@@ -31,8 +31,8 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
 
-  template<typename OBJ>
-  class Flock;
+  //template<typename OBJ>
+  //class Flock;
 
 
   class CtensorArrayA;
@@ -43,13 +43,12 @@ namespace cnine{
 
     int k;
     Gdims dims;
-    //bool bundle=false;
     int nbu=-1;
     int dev=0;
 
     friend class CtensorArrayA;
-    friend class CtensorAflock;
-    friend class Flock<CtensorA>;
+    //friend class CtensorAflock;
+    //friend class Flock<CtensorA>;
 
     //protected:
 
@@ -79,7 +78,6 @@ namespace cnine{
     }
 
     string describe() const{
-      //if(nbu>=0) return "CtensorA"+dims.str()+"["+to_string(nbu)+"]";
       return "CtensorA"+dims.str();
     }
 
@@ -100,6 +98,8 @@ namespace cnine{
     
     CtensorA(const Gdims& _dims, const int _dev=0): 
       dims(_dims), dev(_dev), strides(_dims.size()){
+
+      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("Cnine error in CtensorA: device must be 0 or 1"));
 
       k=dims.size();
       strides[k-1]=1;

@@ -51,10 +51,10 @@ Troubleshooting
 ***************
 
 #. If it becomes necessary to change the location where `setuptools` 
-   will place the compiled module from the default, add a file called ``setup.cfg`` 
+   places the compiled module, add a file called ``setup.cfg`` 
    with content 
 
-   .. code-block:: python
+   .. code-block:: none
    
     [install]
     prefix=<target directory where you want the module to be placed>
@@ -63,10 +63,10 @@ Troubleshooting
 
 #. PyTorch requires C++ extensions to be compiled against the same version of CUDA that PyTorch 
    itself was compiled with. If this becomes an issue, it might be necessary to install an 
-   alternative version of CUDA on your system and force `setuptools` to use that version setting 
+   alternative version of CUDA on your system and force `setuptools` to use that version by setting 
    the ``CUDA_HOME`` enironment variable, as, e.g. 
 
-   .. code-block:: python
+   .. code-block:: none
    
     export CUDA_HOME=/usr/local/<desired CUDA version>
 

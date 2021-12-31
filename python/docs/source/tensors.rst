@@ -34,14 +34,14 @@ initialized),
 with the numbers 0,1,2,... in sequence, ``identity`` (used to construct an identity matrix), 
 and ``gaussian`` (a tensor whose elements are drawn i.i.d. from a standard normal distribution). 
 
-For first, second and third order tensors, the list notation can be dropped, for example the 
-above tensor could have been initialized simply as ``A=rtensor.zero(4,4)``. 
+For first, second and third order tensors, the list notation can be dropped. 
+For example the above tensor could have been initialized simply as ``A=rtensor.zero(4,4)``. 
 
 The number of tensor dimensions and the size of the individual dimensions can be read out as follows.
 
 .. code-block:: python
 
-  >>> A=rtensor.zero([4,4])
+  >>> A=rtensor.zero(4,4)
   >>> A.ndims()
   2
   >>> A.dim(0)
@@ -73,7 +73,7 @@ The following example shows how tensor elements can be set and read.
   6.0
   >>> A[1,2] # synonym for the above 
   6.0 
-  >>> A(1,2) # synonym for the above, but only for first, send and third order tensors
+  >>> A(1,2) # synonym for the above, but only for tensor order up to 3
   6.0
 
   >>> A[[1,2]]=99
@@ -96,7 +96,7 @@ The following example shows how tensor elements can be set and read.
 Arithmetic operations
 =====================
 
-Tensors support the usual arithmetic operations. 
+Tensors support the usual arithmetic operations of addition, subtraction, multiplication, etc..  
 
 .. code-block:: python
 
