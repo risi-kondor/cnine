@@ -10,6 +10,7 @@ pybind11::class_<RtensorArray>(m,"rtensor_arr")
 
   .def(pybind11::init<const int, const at::Tensor&>())
   .def("torch",&RtensorArray::torch)
+  .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&, const int)>(&RtensorArray::is_viewable))
 
   .def_static("raw",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::raw))
   .def_static("raw",[](const Gdims& adims, const Gdims& dims, const int dev){

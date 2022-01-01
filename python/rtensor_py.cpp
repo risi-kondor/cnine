@@ -21,6 +21,7 @@ pybind11::class_<RtensorObj>(m,"rtensor")
   .def(pybind11::init<const at::Tensor&>())
 //.def_static("view",static_cast<RtensorA(*)(const at::Tensor&)>(&RtensorA_view))
   .def_static("view",static_cast<RtensorObj(*)(at::Tensor&)>(&RtensorObj::view))
+  .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&)>(&RtensorObj::is_viewable))
 //.def_static("const_view",static_cast<RtensorObj>(*)(const at::Tensor&)>(&RtensorObj::const_view))
   .def("torch",&RtensorObj::torch)
 

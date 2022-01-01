@@ -8,6 +8,10 @@ pybind11::class_<CtensorArray>(m,"ctensor_arr")
   .def(pybind11::init<const Gdims&, const Gdims&, const fill_gaussian&>())
   .def(pybind11::init<const Gdims&, const Gdims&, const fill_sequential&>())
 
+  .def(pybind11::init<const int, const at::Tensor&>())
+  .def("torch",&CtensorArray::torch)
+  .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&, const int)>(&CtensorArray::is_viewable))
+
   .def_static("raw",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&CtensorArray::raw))
   .def_static("raw",[](const Gdims& adims, const Gdims& dims, const int dev){
       return CtensorArray::raw(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)

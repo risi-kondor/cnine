@@ -8,6 +8,9 @@ import time
 
 compile_with_cuda=True
 
+copy_warnings=True
+torch_convert_warnings=True 
+
 # ------------------------------------------------------------------------------------------------------------
 
 
@@ -33,14 +36,23 @@ _cxx_compile_args=['-std=c++14',
                   '-Wno-reorder',
                   '-Wno-reorder-ctor',
                   '-D_WITH_ATEN',
-                  '-DCNINE_COPY_WARNINGS',
-                  '-DCNINE_ASSIGN_WARNINGS',
-                  '-DCNINE_MOVE_WARNINGS',
-                  '-DCNINE_MOVEASSIGN_WARNINGS',
                   '-DCNINE_RANGE_CHECKING',
                   '-DCNINE_SIZE_CHECKING',
                   '-DCNINE_DEVICE_CHECKING'
                   ]
+
+if copy_warnings:
+    _cxx_compile_args.extend([
+        '-DCNINE_COPY_WARNINGS',
+        '-DCNINE_ASSIGN_WARNINGS',
+        '-DCNINE_MOVE_WARNINGS',
+        '-DCNINE_MOVEASSIGN_WARNINGS'
+        ])
+
+if torch_convert_warnings:
+    _cxx_compile_args.extend([
+        '-DCNINE_ATEN_CONVERT_WARNINGS'
+        ])
 
 if compile_with_cuda:
     _cxx_compile_args.extend(['-D_WITH_CUDA','-D_WITH_CUBLAS'])

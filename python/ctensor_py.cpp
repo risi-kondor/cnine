@@ -20,6 +20,7 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
   .def(pybind11::init<const at::Tensor&>())
   .def_static("view",static_cast<CtensorObj(*)(at::Tensor&)>(&CtensorObj::view))
+  .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&)>(&CtensorObj::is_viewable))
 //.def_static("view",static_cast<CtensorObj>(*)(const at::Tensor&)>(&CtensorObj::view))
 //.def_static("const_view",static_cast<CtensorObj>(*)(at::Tensor&)>(&CtensorObj::const_view))
   .def("torch",&CtensorObj::torch)

@@ -41,6 +41,26 @@ If `cnine` waas compiled with GPU support, you must first ``import torch``.
 In the following we assume that the command ``from cnine import *`` has been issued,  
 obviating the need to prefix all `cnine` classes and funnctions with ``cnine.``.
 
+*************
+Configuration
+*************
+
+The `cnine` installation can be configured by setting the corresponding variables in ``python/setup.py``.
+
+``compile_with_cuda``
+  If set to ``True``, `cnine` will be compiled with GPU suport. This requires a working CUDA and CUBLAS installation 
+  on your system and PyTorch itself having been compiled with CUDA enabled. To make sure that the appropriate 
+  runtime libraries are loaded, you must always import ``torch`` before importing ``cnine``.
+
+``copy_warnings``
+  If set to ``True``, `cnine` will print a message to the terminal whenever a tensor or tensor array object 
+  is copied or move-copied. This option is useful for code optimization. 
+
+``torch_convert_warnings`` 
+  If set to ``True``, `cnine` will print a message to the terminal whenver a tensor is explicitly converted 
+  (as opposed to just forming a tensor view) to/from PyTorch format. 
+
+
 ************
 Known issues
 ************

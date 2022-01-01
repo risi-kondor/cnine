@@ -355,13 +355,18 @@ namespace cnine{
 
     RtensorA to_device(const int _dev) const{
       return RtensorArrayA(*this,_dev);
-    }
+    } 
 
 
   public: // ---- ATEN Conversions ---------------------------------------------------------------------------
 
 
 #ifdef _WITH_ATEN
+
+    static bool is_viewable(const at::Tensor& T, const int _ak){
+      if(T.dim()>=_ak && T.stride(_ak)%32==0) return true;
+      else return false;
+    }
 
     RtensorArrayA(const int _ak, const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();

@@ -119,6 +119,86 @@ elements are accessed in regular tensors.
   [ -1.1945 1.06918 -1.2115 -2.1947 ]
 
 
+==================================
+Conversion to/from PyTorch tensors
+==================================
+
+A tensors array with :math:`d` cell dimensions and :math:`D` array dimensions can be converted to 
+a ``torch.tensor`` with :math:`D+d` dimensions.
+
+.. code-block:: python
+
+  >>> A=rtensor_arr.sequential([2,2],[3,3])
+  >>> print(A)
+  Cell (0,0)
+  [ 0 1 2 ]
+  [ 3 4 5 ]
+  [ 6 7 8 ]
+
+  Cell (0,1)
+  [ 9 10 11 ]
+  [ 12 13 14 ]
+  [ 15 16 17 ]
+
+  Cell (1,0)
+  [ 18 19 20 ]
+  [ 21 22 23 ]
+  [ 24 25 26 ]
+
+  Cell (1,1)
+  [ 27 28 29 ]
+  [ 30 31 32 ]
+  [ 33 34 35 ]
+
+  >>> B=A.torch()
+  >>> B
+  tensor([[[[ 0.,  1.,  2.],
+            [ 3.,  4.,  5.],
+            [ 6.,  7.,  8.]],
+  
+           [[ 9., 10., 11.],
+            [12., 13., 14.],
+            [15., 16., 17.]]],
+  
+  
+          [[[18., 19., 20.],
+            [21., 22., 23.],
+            [24., 25., 26.]],
+  
+           [[27., 28., 29.],
+            [30., 31., 32.],
+            [33., 34., 35.]]]])
+
+Conversely, a ``torch.tensor`` can be converted into a ``rtensor_arr`` but we need to specify how many of its 
+leading dimensions are to be interpreted as array dimensions. 
+
+.. code-block:: python
+
+  >>> A=torch.rand([2,3,3])
+  >>> A
+  tensor([[[0.3004, 0.4147, 0.5666],
+          [0.7969, 0.2912, 0.8442],
+           [0.9161, 0.7182, 0.4490]],
+
+          [[0.5466, 0.3649, 0.1898],
+           [0.5851, 0.2558, 0.2237],
+           [0.8992, 0.7448, 0.0836]]])
+  >>> B=rtensor_arr(1,A)
+  >>> print(B)
+  Cell (0)
+  [ 0.30044 0.414732 0.566644 ]
+  [ 0.796893 0.291165 0.844217 ]
+  [ 0.916076 0.718188 0.449004 ]
+
+  Cell (1)
+  [ 0.546558 0.36489 0.189827 ]
+  [ 0.585105 0.255816 0.223677 ]
+  [ 0.899194 0.744844 0.083603 ]
+
+
+Complex tensor arrays are converted similarly, with the resulting ``torch.tensor`` acquiring an extra 
+leading dimension of size two corresponding to the real and imaginary parts. 
+
 =====================
 Cellwise operations 
 =====================

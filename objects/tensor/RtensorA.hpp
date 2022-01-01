@@ -458,6 +458,10 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
+    static bool is_viewable(const at::Tensor& T){
+      return true;
+    }  
+
     RtensorA(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
 

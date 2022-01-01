@@ -278,7 +278,8 @@ Tensors can moved back and forth between the CPU and the GPU using the ``to_devi
   >>> B=A.to(1) # Create a copy of A on the GPU
   >>> C=B.to(0) # Move B back to the host 
 
-Support for multiple GPUs is in development. 
+Support for multiple GPUs is in development. When converting a PyTorch tensor to cnine tensor 
+or vice versa, the destination tensor will generally be on the same host/device as the source. 
 
 
 ================

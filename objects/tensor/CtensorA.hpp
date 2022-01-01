@@ -513,7 +513,12 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
-    CtensorA(const at::Tensor& T){
+ static bool is_viewable(const at::Tensor& T){
+    if(T.dim()>0 && T.size(0)==2 && T.stride(0)%32==0) return true;
+    else return false;
+  }
+
+  CtensorA(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
       assert(typeid(T.type().scalarType())==typeid(float));
 
@@ -2224,6 +2229,8 @@ namespace cnine{
    
   };
 
+
+  
   /*
   inline CtensorA& asCtensorA(Cobject* x, const char* s){
     return downcast<CtensorA>(x,s);

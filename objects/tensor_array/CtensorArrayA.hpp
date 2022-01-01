@@ -357,6 +357,11 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
+   static bool is_viewable(const at::Tensor& T, const int _ak){
+      if(T.dim()>=_ak+1 && T.size(0)==2&& T.stride(_ak+1)%32==0) return true;
+      else return false;
+    }
+
     CtensorArrayA(const int _ak, const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
 
