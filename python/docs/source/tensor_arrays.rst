@@ -256,9 +256,13 @@ Tensor arrays can moved back and forth between the host (CPU) and the GPU simila
 
 .. code-block:: python
 
-  >>> A=rtensor_arr.sequential([2,2],[4,4])
-  >>> B=A.to(1) # Create a copy of A on the first GPU (GPU0)
-  >>> C=B.to(0) # Move B back to the host 
+  >>> A=rtensor_arr.sequential([2,2],[4,4],device=1) # create a tensor array on the GPU
+  >>> A.device() # print out where A is stored
+  1
+  >>> B=A.to(0) # Create a copy of A on the CPU
+  >>> B.device() # print out where B is stored 
+  0
+
 
 
 ======================

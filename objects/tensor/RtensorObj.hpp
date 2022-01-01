@@ -178,10 +178,6 @@ namespace cnine{
       return as_shape_tmp<RtensorObj>(*this,dims);
     }
 
-    RtensorObj to_device(const int _dev){
-      return RtensorObj(CNINE_RTENSOR_IMPL::to_device(_dev));
-    }
-
 #ifdef _WITH_ATEN
 
     static RtensorObj view(at::Tensor& T){
@@ -191,6 +187,14 @@ namespace cnine{
 #endif
 
 
+  public: // ---- Transport ----------------------------------------------------------------------------------
+  
+
+    RtensorObj to_device(const int _dev){
+      return RtensorObj(CNINE_RTENSOR_IMPL::to_device(_dev));
+    }
+  
+  
   public: // ---- Access -------------------------------------------------------------------------------------
 
 

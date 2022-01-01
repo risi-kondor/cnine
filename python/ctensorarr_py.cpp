@@ -100,7 +100,10 @@ pybind11::class_<CtensorArray>(m,"ctensor_arr")
   .def("widen",&CtensorArray::widen)
   .def("reduce",&CtensorArray::reduce)
 
+  .def("device",&CtensorArray::get_device)
   .def("to",&CtensorArray::to_device)
+  .def("to_device",&CtensorArray::to_device)
+  .def("move_to",[](CtensorArray& x, const int _dev){x.move_to_device(_dev);})
 
   .def("str",&CtensorArray::str,py::arg("indent")="")
   .def("__str__",&CtensorArray::str,py::arg("indent")="")

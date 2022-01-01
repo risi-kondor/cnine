@@ -150,6 +150,11 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
 //.def("__getitem__",static_cast<CscalarObj(CtensorObj::*)(const int, const int)const>(&CtensorObj::get))
 
+  .def("device",&CtensorObj::get_device)
+  .def("to",&CtensorObj::to_device)
+  .def("to_device",&CtensorObj::to_device)
+  .def("move_to",[](CtensorObj& x, const int _dev){x.move_to_device(_dev);})
+
   .def("str",&CtensorObj::str,py::arg("indent")="")
   .def("__str__",&CtensorObj::str,py::arg("indent")="")
   .def("__repr__",&CtensorObj::str,py::arg("indent")="");
