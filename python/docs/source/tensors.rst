@@ -262,7 +262,7 @@ the GPU.
 Almost all operations that `cnine` offers on the host are also available on the GPU. 
 In general, if the operands are on the host, the operation will be performed on the host and 
 the result is placed on the host. Conversely, if the operands are on the GPU, 
-the operation will be performed on the GPU and the result placed on the same GPU.
+the operation will be performed on the GPU and the result will be placed on the same GPU.
 The ``device`` method tells us whether a given tensor is resident on the CPU or the GPU. 
 
 .. code-block:: python
@@ -325,6 +325,56 @@ and conjugate transpose (Hermitian conjugate) of the tensor.
   [ (1.3828,-0.74589) (0.0523187,1.75177) (-0.904146,0.965146) (1.87065,0.474282) ]
   [ (-1.66043,0.546571) (-0.688081,0.0384917) (0.0757219,-0.194947) (1.47339,0.485144) ]
   [ (0.097221,0.370271) (-0.89237,1.12408) (-0.228782,-1.73664) (1.16493,-0.882195) ]
+
+When converting a ``ctensor`` to a Pytorch tensor, the resulting ``torch.tensor`` acquires an 
+extra dimension of size two corresponding to the real/imaginary parts of the tensor. 
+In contrast to some other libraries, this extra dimension becomes the first (outer) dimension 
+of the resulting tensor.
+
+.. code-block:: python
+
+  >>> A=ctensor.gaussian(3,3)
+  >>> A
+  [ (-0.121966,0.200699) (-1.08682,2.12468) (0.68429,0.371721) ]
+  [ (-1.07519,1.02096) (0.0332695,0.783408) (0.744836,-0.127842) ]
+  [ (0.0336061,-0.336813) (-0.526637,-0.687155) (0.462532,1.30842) ]
+
+  >>> B=A.torch()
+  >>> B
+  tensor([[[-0.1220, -1.0868,  0.6843],
+           [-1.0752,  0.0333,  0.7448],
+           [ 0.0336, -0.5266,  0.4625]],
+
+          [[ 0.2007,  2.1247,  0.3717],
+           [ 1.0210,  0.7834, -0.1278],
+           [-0.3368, -0.6872,  1.3084]]])
+
+
+Pytorch tensors can be converted to ``ctensor`` objects similarly as to how they are converted to 
+``rtensor`` s, as long as they follow the above format.
+
+.. code-block:: python
+
+  >>> A=torch.rand([3,3])
+  >>> A
+  tensor([[0.4290, 0.3434, 0.9867],
+          [0.8319, 0.2585, 0.7662],
+          [0.0404, 0.6710, 0.9135]])
+  >>> A=torch.rand([2,3,3])
+  >>> A
+  tensor([[[0.5157, 0.5582, 0.5580],
+           [0.6738, 0.0106, 0.0503],
+           [0.9813, 0.5605, 0.0902]],
+
+          [[0.2107, 0.8239, 0.4831],
+           [0.2320, 0.3593, 0.6258],
+           [0.3902, 0.5848, 0.7717]]])
+  >>> B=ctensor(A)
+  >>> B
+  [ (0.515746,0.210717) (0.55815,0.823855) (0.558013,0.483094) ]
+  [ (0.673824,0.231981) (0.0106288,0.35925) (0.050261,0.62581) ]
+  [ (0.981344,0.39019) (0.560545,0.584823) (0.0902345,0.771727) ]
+
 
 
 ======================
