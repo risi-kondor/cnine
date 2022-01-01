@@ -352,6 +352,67 @@ namespace cnine{
     }
 
 
+  public: // ---- ATEN Conversions ---------------------------------------------------------------------------
+
+
+#ifdef _WITH_ATEN
+
+    CtensorArrayA(const int _ak, const at::Tensor& T){
+      CNINE_CONVERT_FROM_ATEN_WARNING();
+
+      int _n=T.dim();
+      Gdims _adims(_ak,fill_raw());
+      for(int i=0; i<_ak; i++) _adims[i]=T.size(i);
+      Gdims _cdims(_n-_ak,fill_raw());
+      for(int i=0; i<_n-_ak; i++) _cdims[i]=T.size(i+_ak);
+
+      dev=T.type().is_cuda();
+      (*this)=CtensorArrayA(_adims,_cdims,dev);
+
+      if(T.stride(_ak-1)%32!=0){
+	int tstride=T.stride(_ak-1);
+	if(dev==0){
+	  for(int i=0; i<aasize; i++)
+	    std::copy(T.data<float>()+i*tstride,T.data<float>()+i*tstride+asize,arr+i*cellstride);
+	}
+	if(dev==0){
+	  for(int i=0; i<aasize; i++)
+	    CUDA_SAFE(cudaMemcpy(arrg+i*cellstride,T.data<float>()+i*tstride,asize*sizeof(float),cudaMemcpyDeviceToDevice));
+	}
+      }else{
+	if(dev==0) std::copy(T.data<float>(),T.data<float>()+memsize,arr);
+	if(dev==1) CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
+      }
+    }
+
+    at::Tensor torch() const{
+      CNINE_CONVERT_TO_ATEN_WARNING();
+
+      assert(dev==0);
+      vector<int64_t> v(1); 
+      v[0]=cst;
+      at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+      std::copy(arr,arr+cst,R.data<float>());
+
+      //std::vector<long long> v(k+ak);
+      //for(int i=0; i<ak; i++) v[i]=adims[i];
+      //for(int i=0; i<k; i++) v[i+ak]=cdims[i];
+
+      //std::vector<long long> v(k+ak);
+      //for(int i=0; i<ak; i++) v[i]=adims[i];
+      //for(int i=0; i<k; i++) v[i+ak]=cdims[i];
+
+      vector<int64_t> _strides(CtensorA::strides.size());
+      for(int i=0; i<CtensorA::strides.size(); i++)
+	_strides[i]=CtensorA::strides[i];
+
+      at::Tensor Rd=R.as_strided(CtensorA::dims.to_vec<int64_t>(),_strides);
+      return Rd;
+    }
+
+#endif 
+
+
   public: // ---- Variants -----------------------------------------------------------------------------------
 
 

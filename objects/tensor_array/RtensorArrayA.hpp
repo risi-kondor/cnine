@@ -358,14 +358,15 @@ namespace cnine{
     }
 
 
-  public: // ---- Conversions --------------------------------------------------------------------------------
+  public: // ---- ATEN Conversions ---------------------------------------------------------------------------
 
 
 #ifdef _WITH_ATEN
 
     RtensorArrayA(const int _ak, const at::Tensor& T){
-      int _n=T.dim();
+      CNINE_CONVERT_FROM_ATEN_WARNING();
 
+      int _n=T.dim();
       Gdims _adims(_ak,fill_raw());
       for(int i=0; i<_ak; i++) _adims[i]=T.size(i);
       Gdims _cdims(_n-_ak,fill_raw());
@@ -380,18 +381,10 @@ namespace cnine{
 	  for(int i=0; i<aasize; i++)
 	    std::copy(T.data<float>()+i*tstride,T.data<float>()+i*tstride+asize,arr+i*cellstride);
 	}
-
-	/*
-	std::vector<long long> v=T.strides().vec();
-	v[_ak-1]=roundup(v[_ak-1],32);
-	for(int i=_ak-2; i>=0; i--)
-	  v[i]=v[i+1]*T.size(i+1);
-	for(int i=0; i<_n; i++)
-	  cout<<v[i]<<endl;
-	at::Tensor Td=T.as_strided(T.sizes(),v);
-	cout<<"pad"<<endl;
-	(*this)=RtensorArrayA(_ak,Td);
-	*/
+	if(dev==0){
+	  for(int i=0; i<aasize; i++)
+	    CUDA_SAFE(cudaMemcpy(arrg+i*cellstride,T.data<float>()+i*tstride,asize*sizeof(float),cudaMemcpyDeviceToDevice));
+	}
       }else{
 	if(dev==0) std::copy(T.data<float>(),T.data<float>()+memsize,arr);
 	if(dev==1) CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
@@ -399,6 +392,8 @@ namespace cnine{
     }
 
     at::Tensor torch() const{
+      CNINE_CONVERT_TO_ATEN_WARNING();
+
       assert(dev==0);
       vector<int64_t> v(1); 
       v[0]=cst;
