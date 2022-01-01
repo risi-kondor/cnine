@@ -217,6 +217,22 @@ If <cite>cnine</cite> waas compiled with GPU support, you must first <code class
 In the following we assume that the command <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cnine</span> <span class="pre">import</span> <span class="pre">*</span></code> has been issued,
 obviating the need to prefix all <cite>cnine</cite> classes and funnctions with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
 </section>
+<section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>The <cite>cnine</cite> installation can be configured by setting the corresponding variables in <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code>.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">compile_with_cuda</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will be compiled with GPU suport. This requires a working CUDA and CUBLAS installation
+on your system and PyTorch itself having been compiled with CUDA enabled. To make sure that the appropriate
+runtime libraries are loaded, you must always import <code class="docutils literal notranslate"><span class="pre">torch</span></code> before importing <code class="docutils literal notranslate"><span class="pre">cnine</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">copy_warnings</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will print a message to the terminal whenever a tensor or tensor array object
+is copied or move-copied. This option is useful for code optimization.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">torch_convert_warnings</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will print a message to the terminal whenver a tensor is explicitly converted
+(as opposed to just forming a tensor view) to/from PyTorch format.</p>
+</dd>
+</dl>
+</section>
 <section id="known-issues">
 <h1>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h1>
 <p>GPU functionality is currently not fully tested.</p>
@@ -279,6 +295,7 @@ the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span
             <ul>
 <li><a class="reference internal" href="#">Features</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 <li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>

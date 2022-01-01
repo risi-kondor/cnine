@@ -203,10 +203,10 @@ initialized),
 <code class="docutils literal notranslate"><span class="pre">ones</span></code> (a tensor filled with 1s), <code class="docutils literal notranslate"><span class="pre">sequential</span></code> (a tensor filled
 with the numbers 0,1,2,… in sequence, <code class="docutils literal notranslate"><span class="pre">identity</span></code> (used to construct an identity matrix),
 and <code class="docutils literal notranslate"><span class="pre">gaussian</span></code> (a tensor whose elements are drawn i.i.d. from a standard normal distribution).</p>
-<p>For first, second and third order tensors, the list notation can be dropped, for example the
-above tensor could have been initialized simply as <code class="docutils literal notranslate"><span class="pre">A=rtensor.zero(4,4)</span></code>.</p>
+<p>For first, second and third order tensors, the list notation can be dropped.
+For example the above tensor could have been initialized simply as <code class="docutils literal notranslate"><span class="pre">A=rtensor.zero(4,4)</span></code>.</p>
 <p>The number of tensor dimensions and the size of the individual dimensions can be read out as follows.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">ndims</span><span class="p">()</span>
 <span class="go">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">dim</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -232,7 +232,7 @@ The following example shows how tensor elements can be set and read.</p>
 <span class="go">6.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># synonym for the above</span>
 <span class="go">6.0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># synonym for the above, but only for first, send and third order tensors</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># synonym for the above, but only for tensor order up to 3</span>
 <span class="go">6.0</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span><span class="o">=</span><span class="mi">99</span>
@@ -247,7 +247,7 @@ The following example shows how tensor elements can be set and read.</p>
 </section>
 <section id="arithmetic-operations">
 <h2>Arithmetic operations<a class="headerlink" href="#arithmetic-operations" title="Permalink to this headline">¶</a></h2>
-<p>Tensors support the usual arithmetic operations.</p>
+<p>Tensors support the usual arithmetic operations of addition, subtraction, multiplication, etc..</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">+</span><span class="n">B</span>
@@ -375,16 +375,29 @@ use the <code class="docutils literal notranslate"><span class="pre">copy()</spa
 </section>
 <section id="gpu-functionality">
 <h2>GPU functionality<a class="headerlink" href="#gpu-functionality" title="Permalink to this headline">¶</a></h2>
-<p>Tensors can moved back and forth between the host (CPU) and the GPU with the <code class="docutils literal notranslate"><span class="pre">to</span></code> method.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Create a copy of A on the first GPU (GPU0)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">B</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Move B back to the host</span>
+<p>In <cite>cnine</cite> device number 0 is the host (CPU) and device number 1 is the GPU.
+The optional <code class="docutils literal notranslate"><span class="pre">device</span></code> argument makes it possible to create a tensor on either the CPU or
+the GPU.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">device</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Create a 4x4 tensor on the GPU</span>
 </pre></div>
 </div>
 <p>Almost all operations that <cite>cnine</cite> offers on the host are also available on the GPU.
 In general, if the operands are on the host, the operation will be performed on the host and
 the result is placed on the host. Conversely, if the operands are on the GPU,
-the operation will be performed on the GPU and the result placed on the same GPU.</p>
+the operation will be performed on the GPU and the result will be placed on the same GPU.
+The <code class="docutils literal notranslate"><span class="pre">device</span></code> method tells us whether a given tensor is resident on the CPU or the GPU.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">device</span><span class="p">()</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>Tensors can moved back and forth between the CPU and the GPU using the <code class="docutils literal notranslate"><span class="pre">to_device</span></code> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">rtensor</span><span class="o">.</span><span class="n">sequential</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Create a copy of A on the GPU</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">=</span><span class="n">B</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Move B back to the host</span>
+</pre></div>
+</div>
+<p>Support for multiple GPUs is in development. When converting a PyTorch tensor to cnine tensor
+or vice versa, the destination tensor will generally be on the same host/device as the source.</p>
 </section>
 <section id="gdims-and-gindex">
 <h2>gdims and gindex<a class="headerlink" href="#gdims-and-gindex" title="Permalink to this headline">¶</a></h2>
@@ -423,10 +436,54 @@ and conjugate transpose (Hermitian conjugate) of the tensor.</p>
 <span class="go">[ (0.097221,0.370271) (-0.89237,1.12408) (-0.228782,-1.73664) (1.16493,-0.882195) ]</span>
 </pre></div>
 </div>
+<p>When converting a <code class="docutils literal notranslate"><span class="pre">ctensor</span></code> to a Pytorch tensor, the resulting <code class="docutils literal notranslate"><span class="pre">torch.tensor</span></code> acquires an
+extra dimension of size two corresponding to the real/imaginary parts of the tensor.
+In contrast to some other libraries, this extra dimension becomes the first (outer) dimension
+of the resulting tensor.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">ctensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span>
+<span class="go">[ (-0.121966,0.200699) (-1.08682,2.12468) (0.68429,0.371721) ]</span>
+<span class="go">[ (-1.07519,1.02096) (0.0332695,0.783408) (0.744836,-0.127842) ]</span>
+<span class="go">[ (0.0336061,-0.336813) (-0.526637,-0.687155) (0.462532,1.30842) ]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">torch</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span>
+<span class="go">tensor([[[-0.1220, -1.0868,  0.6843],</span>
+<span class="go">         [-1.0752,  0.0333,  0.7448],</span>
+<span class="go">         [ 0.0336, -0.5266,  0.4625]],</span>
+
+<span class="go">        [[ 0.2007,  2.1247,  0.3717],</span>
+<span class="go">         [ 1.0210,  0.7834, -0.1278],</span>
+<span class="go">         [-0.3368, -0.6872,  1.3084]]])</span>
+</pre></div>
+</div>
+<p>Pytorch tensors can be converted to <code class="docutils literal notranslate"><span class="pre">ctensor</span></code> objects similarly as to how they are converted to
+<code class="docutils literal notranslate"><span class="pre">rtensor</span></code> s, as long as they follow the above format.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span>
+<span class="go">tensor([[0.4290, 0.3434, 0.9867],</span>
+<span class="go">        [0.8319, 0.2585, 0.7662],</span>
+<span class="go">        [0.0404, 0.6710, 0.9135]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span>
+<span class="go">tensor([[[0.5157, 0.5582, 0.5580],</span>
+<span class="go">         [0.6738, 0.0106, 0.0503],</span>
+<span class="go">         [0.9813, 0.5605, 0.0902]],</span>
+
+<span class="go">        [[0.2107, 0.8239, 0.4831],</span>
+<span class="go">         [0.2320, 0.3593, 0.6258],</span>
+<span class="go">         [0.3902, 0.5848, 0.7717]]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">ctensor</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span>
+<span class="go">[ (0.515746,0.210717) (0.55815,0.823855) (0.558013,0.483094) ]</span>
+<span class="go">[ (0.673824,0.231981) (0.0106288,0.35925) (0.050261,0.62581) ]</span>
+<span class="go">[ (0.981344,0.39019) (0.560545,0.584823) (0.0902345,0.771727) ]</span>
+</pre></div>
+</div>
 </section>
 <section id="implementation-details">
 <h2>Implementation details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
-<p><cite>cnine</cite> is designed in a way that allows it to switch between different backend classes for its core data types.
+<p><cite>cnine</cite> is designed to be able to switch between different backend classes for its core data types.
 The default backend class for real tensors is <code class="docutils literal notranslate"><span class="pre">RtensorA</span></code> and for complex tensors is <code class="docutils literal notranslate"><span class="pre">CtensorA</span></code>.
 <code class="docutils literal notranslate"><span class="pre">RtensorA</span></code> stores a tensor of dimensions <img alt="d_1\times\ldots\times d_k" class="math" src="_images/math/32cd00a5e0ce6e93f9d616d3991f6c71e697b7dc.svg"/> as a single contiguous array of
 <img alt="d_1 d_2 \ldots d_k" class="math" src="_images/math/951165f1299e909eeaec47bbd6ed946df3ef4c51.svg"/> floating point numbers in row major order.
@@ -434,8 +491,8 @@ The default backend class for real tensors is <code class="docutils literal notr
 real part of the tensor followed by the imaginary part.
 To facilitate memory access on the GPU, the offset of the imaginary part is rounded up to the nearest
 multiple of 128 bytes.</p>
-<p>A tensor object’s header, including information about tensor dimensions, strides, etc., is always resident on
-the host. When a tensor array is moved to the GPU, only the array containing the tensor entries
+<p>A tensor object’s header, including information about tensor dimensions, strides, etc., is always stored on
+the host. When a tensor is moved to the GPU, the array containing the tensor entries
 is moved to the  GPU’s global memory.</p>
 </section>
 </section>

@@ -180,9 +180,9 @@
         </div>
         <article role="main">
           <p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend.
+The primary purpose of <cite>cnine</cite> is to provide fine grained, direct control over
+GP-GPU functionality to Python and C++ developers.
 This document gives a high level introduction to <cite>cnine</cite>’s Python front end.</p>
-<p>The primary purpose of <cite>cnine</cite> is to provide fine grained, direct control over
-GP-GPU functionality to Python and C++ developers.</p>
 <p><cite>cnine</cite> was developed by Risi Kondor at the University of Chicago and is released under the
 <a class="reference external" href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla public license v.2.0</a>.</p>
 <p>Not all features in the C++ library are available through the Python interface.
@@ -208,35 +208,52 @@ Therefore, installation requires the following:</p>
 <p>To install <cite>cnine</cite> follow these steps:</p>
 <ol class="arabic simple">
 <li><p>Download the <cite>cnine</cite> package from <a class="reference external" href="https://github.com/risi-kondor/cnine">github</a>.</p></li>
-<li><p>Edit the file <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code> as necessary.</p></li>
+<li><p>Edit the user configurable variables in <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code> as necessary.</p></li>
 <li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.sty</span> <span class="pre">install</span></code> in the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory to compile the package and install it on your
 system.</p></li>
 </ol>
 <p>To use <cite>cnine</cite> from Python, load the module the usual way with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cnine</span></code>.
+If <cite>cnine</cite> waas compiled with GPU support, you must first <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch</span></code>.
 In the following we assume that the command <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">cnine</span> <span class="pre">import</span> <span class="pre">*</span></code> has been issued,
 obviating the need to prefix all <cite>cnine</cite> classes and funnctions with <code class="docutils literal notranslate"><span class="pre">cnine.</span></code>.</p>
 </section>
+<section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>The <cite>cnine</cite> installation can be configured by setting the corresponding variables in <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code>.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">compile_with_cuda</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will be compiled with GPU suport. This requires a working CUDA and CUBLAS installation
+on your system and PyTorch itself having been compiled with CUDA enabled. To make sure that the appropriate
+runtime libraries are loaded, you must always import <code class="docutils literal notranslate"><span class="pre">torch</span></code> before importing <code class="docutils literal notranslate"><span class="pre">cnine</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">copy_warnings</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will print a message to the terminal whenever a tensor or tensor array object
+is copied or move-copied. This option is useful for code optimization.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">torch_convert_warnings</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will print a message to the terminal whenver a tensor is explicitly converted
+(as opposed to just forming a tensor view) to/from PyTorch format.</p>
+</dd>
+</dl>
+</section>
 <section id="known-issues">
 <h1>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h1>
-<p>GPU functionality is currently untested.</p>
+<p>GPU functionality is currently not fully tested.</p>
 </section>
 <section id="troubleshooting">
 <h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
 <ol class="arabic">
 <li><p>If it becomes necessary to change the location where <cite>setuptools</cite>
-will place the compiled module from the default, add a file called <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>
+places the compiled module, add a file called <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>
 with content</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">install</span><span class="p">]</span>
-<span class="n">prefix</span><span class="o">=&lt;</span><span class="n">target</span> <span class="n">directory</span> <span class="n">where</span> <span class="n">you</span> <span class="n">want</span> <span class="n">the</span> <span class="n">module</span> <span class="n">to</span> <span class="n">be</span> <span class="n">placed</span><span class="o">&gt;</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[install]
+prefix=&lt;target directory where you want the module to be placed&gt;
 </pre></div>
 </div>
 <p>in the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory. Make sure that the new target directory is in Python’s load path.</p>
 </li>
-<li><p>PyTorch requires C++ extensions to be compiled against the same version of CUDA that PyTorch
+<li><p>PyTorch requires C++ extensions to be compiled against the same version of CUDA that it
 itself was compiled with. If this becomes an issue, it might be necessary to install an
-alternative version of CUDA on your system and force <cite>setuptools</cite> to use that version setting
+alternative version of CUDA on your system and force <cite>setuptools</cite> to use that version by setting
 the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> enironment variable, as, e.g.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">CUDA_HOME</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/&lt;</span><span class="n">desired</span> <span class="n">CUDA</span> <span class="n">version</span><span class="o">&gt;</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>export CUDA_HOME=/usr/local/cuda-11.3
 </pre></div>
 </div>
 </li>
@@ -278,6 +295,7 @@ the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span
             <ul>
 <li><a class="reference internal" href="#">Features</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
 <li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
