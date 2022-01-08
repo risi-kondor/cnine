@@ -20,6 +20,10 @@ namespace cnine{
     
     int I;
 
+    CellwiseBinaryCmap(){
+      I=1;
+    }
+
     template<typename OP, typename ARR>
     CellwiseBinaryCmap(const OP& op, ARR& r, const ARR& x, const ARR& y, const int add_flag=0){
       I=r.aasize;
