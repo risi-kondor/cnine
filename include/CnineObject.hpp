@@ -24,7 +24,7 @@ namespace cnine{
 
     virtual ~CnineObject(){}
 
-    virtual CnineObject& operator=(const CnineObject& x){CNINE_UNIMPL(); return *this;}
+    // virtual CnineObject& operator=(const CnineObject& x){CNINE_UNIMPL(); return *this;}
 
     //virtual CnineObject* clone() const=0;
     //virtual CnineObject* spawn(const fill_zero& fill) const{CNINE_UNIMPL(); return nullptr;}

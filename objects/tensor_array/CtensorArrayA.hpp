@@ -1082,7 +1082,7 @@ namespace cnine{
     void broadcast_add(const CtensorA& x){
       assert(dev==x.dev);
       assert(nbu==x.nbu);
-      assert(x.cdims==cdims);
+      assert(x.dims==cdims);
       if(dev==0){
 	for(int i=0; i<aasize; i++){
 	  stdadd(x.arr,x.arr+x.asize,arr+i*cellstride);
@@ -1094,7 +1094,7 @@ namespace cnine{
     void broadcast_subtract(const CtensorA& x){
       assert(dev==x.dev);
       assert(nbu==x.nbu);
-      assert(x.cdims==cdims);
+      assert(x.dims==cdims);
       if(dev==0){
 	for(int i=0; i<aasize; i++){
 	  stdsub(x.arr,x.arr+x.asize,arr+i*cellstride);
