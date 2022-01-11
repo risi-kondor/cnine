@@ -103,6 +103,9 @@ namespace cnine{
     CtensorObj(const CNINE_CTENSOR_IMPL& x):
       CNINE_CTENSOR_IMPL(x){};
       
+    CtensorObj(CNINE_CTENSOR_IMPL&& x):
+      CNINE_CTENSOR_IMPL(std::move(x)){};
+      
     CtensorObj(const CtensorObj& x):
       CNINE_CTENSOR_IMPL(x){};
       

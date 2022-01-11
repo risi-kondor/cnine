@@ -380,7 +380,16 @@ namespace cnine{
       arr=x.arr; x.arr=nullptr; 
       arrg=x.arrg; x.arrg=nullptr;
       is_view=x.is_view;
-      //cout<<"move RtensorA "<<endl; 
+      //cout<<"move RtensorA 0"<<endl; 
+    }
+
+    RtensorA(RtensorA& x, const string _dummy): // deprecated debugging only
+      RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,x.dev){
+      CNINE_MOVE_WARNING();
+      arr=x.arr; x.arr=nullptr; 
+      arrg=x.arrg; x.arrg=nullptr;
+      is_view=x.is_view;
+      cout<<"move RtensorA 1"<<endl; 
     }
 
     RtensorA(const RtensorA& x, const fill_raw& dummy): 
@@ -494,6 +503,8 @@ namespace cnine{
       if(dev==0){
 	arr=new float[memsize];
 	std::copy(T.data<float>(),T.data<float>()+asize,arr);
+	//std::copy(T.data<complex<float> >(),T.data<complex<float> >()+asize,arr);
+	//memmove((void*)(arr),(void*)(T.data<float>()),asize*sizeof(float));
       }
 
       if(dev==1){
@@ -529,6 +540,7 @@ namespace cnine{
 	R.arrg=T.data<float>();
       }
 
+      cout<<"a"<<endl;
       return R;
     }
 

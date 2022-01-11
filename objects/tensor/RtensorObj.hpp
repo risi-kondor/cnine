@@ -103,6 +103,10 @@ namespace cnine{
     RtensorObj(const CNINE_RTENSOR_IMPL& x):
       CNINE_RTENSOR_IMPL(x){};
       
+    RtensorObj(CNINE_RTENSOR_IMPL&& x):
+      CNINE_RTENSOR_IMPL(std::move(x)){cout<<"mv"<<endl;};
+    //CNINE_RTENSOR_IMPL(x,"dummy"){cout<<"mv"<<endl;};
+      
     RtensorObj(const RtensorObj& x):
       CNINE_RTENSOR_IMPL(x){};
       
