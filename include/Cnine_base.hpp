@@ -33,6 +33,7 @@ using namespace std;
 
 #define CNINE_ASSERT(condition, message) \
   if (!(condition)) {cout<<message<<endl; assert ((condition)); exit(-1); }
+
 #define CNINE_UNIMPL() printf("Cnine error: function \"%s\" not implemented.\n",__PRETTY_FUNCTION__);
 
 #ifdef CNINE_COPY_WARNINGS
@@ -385,7 +386,7 @@ namespace cnine{
 // ---- CUDA STUFF ------------------------------------------------------------------------------------------
 
 
-#define GELIB_CPUONLY() if(device>0) {printf("Cengine error: CUDA code for \"%s\" not implemented.\n",__PRETTY_FUNCTION__); exit(-1);}
+//#define GELIB_CPUONLY() if(device>0) {printf("Cengine error: CUDA code for \"%s\" not implemented.\n",__PRETTY_FUNCTION__); exit(-1);}
 
 #ifdef _WITH_CUDA
 #define IFCUDA(cmds) cmds 
