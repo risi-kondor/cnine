@@ -4,7 +4,8 @@ include $(ROOTDIR)/common.txt
 INCLUDE= -I$(INCLUDEDIR) -I$(SCALARDIR) -I$(TENSORDIR) 
 
 TESTS= testRtensorObj testRtensorObj2 testRtensorObj3 \
-testCtensorObj testCtensorObj2 testCtensorObj3 testCtensorSlice testCtensorPackObj 
+testCtensorObj testCtensorObj2 testCtensorObj3 testCtensorSlice testCtensorPackObj \
+testCtensorB
 
 DEPS=$(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(SCALARDIR)/*.hpp  
 
@@ -85,6 +86,25 @@ ifdef WITH_CUDA
 	$(NVCC) $(NVCCFLAGS) -o testCtensorPackObj testCtensorPackObj.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else
 	$(CC) -o testCtensorPackObj testCtensorPackObj.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+endif
+
+
+# -------------------------------------------------------------------------------------------------------------
+
+
+testCtensorB: testCtensorB.cpp $(DEPS)
+ifdef WITH_CUDA
+	$(NVCC) $(NVCCFLAGS) -o testCtensorB testCtensorB.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+else
+	$(CC) -o testCtensorB testCtensorB.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+endif
+
+
+testSet: testSet.cpp $(DEPS)
+ifdef WITH_CUDA
+	$(NVCC) $(NVCCFLAGS) -o testSet testSet.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+else
+	$(CC) -o testSet testSet.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
 endif
 
 
