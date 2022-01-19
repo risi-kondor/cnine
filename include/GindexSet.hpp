@@ -19,9 +19,53 @@ namespace cnine{
   class GindexSet: public set<int>{
   public:
 
-    using set<int>::set<int>;
+    using set::set;
 
 
+  public:
+
+    int first() const{
+      return *this->begin();
+    }
+
+    int last() const{
+      return *this->rbegin();
+    }
+
+    bool is_contiguous() const{
+      int i=first()-1;
+      for(auto p:*this)
+	if(p!=(i++)) return false;
+      return true;
+    }
+
+    bool is_disjoint(const GindexSet& y) const{
+      for(auto p:*this)
+	if(y.find(p)!=y.end()) return false;
+      return true;
+    }
+
+    bool covers(const int n) const{
+      for(int i=0; i<n; i++)
+	if(this->find(i)==this->end()) return false;
+      return true;
+    }
+
+    bool covers(const int n, const GindexSet& x) const{
+      for(int i=0; i<n; i++)
+	if((this->find(i)==this->end())&&(x.find(i)==x.end())) return false;
+      return true;
+    }
+
+    bool covers(const int n, const GindexSet& x, const GindexSet& y) const{
+      for(int i=0; i<n; i++)
+	if((this->find(i)==this->end())&&(x.find(i)==x.end())&&(x.find(i)==x.end())) return false;
+      return true;
+    }
+
+    int back() const{
+      return *(this->rbegin());
+    }
 
 
   };

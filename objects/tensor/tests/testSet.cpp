@@ -30,4 +30,6 @@ int main(int argc, char** argv){
 
   cout<<(A==B)<<endl;
 
+  cout<<*A.rbegin()<<endl;
+
 }

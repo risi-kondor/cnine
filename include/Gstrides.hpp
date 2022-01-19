@@ -19,6 +19,8 @@ namespace cnine{
   class Gstrides: public vector<int>{
   public:
 
+    bool regular;
+
     Gstrides(){}
 
     Gstrides(const int k, const fill_raw& dummy): 
@@ -31,6 +33,14 @@ namespace cnine{
       (*this)[k-1]=s0;
       for(int i=k-2; i>=0; i--)
 	(*this)[i]=(*this)[i+1]*dims[i+1];
+      regular=true;
+    }
+
+
+  public:
+
+    bool is_regular() const{
+      return regular;
     }
 
   };

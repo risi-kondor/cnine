@@ -1,6 +1,6 @@
 //  This file is part of cnine, a lightweight C++ tensor library. 
 // 
-//  Copyright (c) 2021, Imre Risi Kondor
+//  Copyright (c) 2022, Imre Risi Kondor
 //
 //  This Source Code Form is subject to the terms of the Mozilla
 //  Public License v. 2.0. If a copy of the MPL was not distributed
@@ -12,6 +12,8 @@
 
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
+
+#include "Ctensor1_view.hpp"
 
 
 namespace cnine{
@@ -38,13 +40,43 @@ namespace cnine{
 
     Ctensor3_view(float* _arr, const int _n0, const int _n1, const int _n2, 
       const int _s0, const int _s1, const int _s2, const int _coffs=1): 
-      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), s0(_s0), s1(_s1) s2(_s2){}
+      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), s0(_s0), s1(_s1), s2(_s2){}
+
+    Ctensor3_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1):
+      arr(_arr), arrc(_arr+_coffs){
+      assert(_dims.size()==3);
+      n0=_dims[0];
+      n1=_dims[1];
+      n2=_dims[2];
+      s0=_strides[0];
+      s1=_strides[1];
+      s2=_strides[2];
+    }
+
+    Ctensor3_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
+      const GindexSet& a, const GindexSet& b, const GindexSet& c, const int _coffs=1):
+      arr(_arr), arrc(_arr+_coffs){
+      assert(_strides.is_regular());
+      assert(a.is_contiguous());
+      assert(b.is_contiguous());
+      assert(c.is_contiguous());
+      assert(a.is_disjoint(b));
+      assert(a.is_disjoint(c));
+      assert(b.is_disjoint(c));
+      assert(a.covers(_dims.size(),b,c));
+      n0=_dims.unite(a);
+      n1=_dims.unite(b);
+      n2=_dims.unite(c);
+      s0=_strides[a.back()];
+      s1=_strides[b.back()];
+      s2=_strides[c.back()];
+    }
 
 
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
-    complex<float> operator()(const int i0, const int i1, const int i2){
+    complex<float> operator()(const int i0, const int i1, const int i2) const{
       int t=s0*i0+s1*i1+s2*i2;
       return complex<float>(arr[t],arrc[t]);
     }
@@ -81,6 +113,34 @@ namespace cnine{
       return Ctensor2_view(arr+i*s2,arrc+i*s2,n0,n1,s0,s1);
     }
 
+
+
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+    
+    Gtensor<complex<float> > gtensor() const{
+      Gtensor<complex<float> > R({n0,n1,n2},fill::raw);
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++)
+	  for(int i2=0; i2<n2; i2++){
+	    R(i0,i1,i2)=(*this)(i0,i1,i2);
+	  }
+      return R;
+    }
+    
+    
+  public: // ---- I/O ----------------------------------------------------------------------------------------
+
+  
+    string str(const string indent="") const{
+      return gtensor().str(indent);
+    }
+
+    friend ostream& operator<<(ostream& stream, const Ctensor3_view& x){
+      stream<<x.str(); return stream;
+    }
+
+    
 
   };
 

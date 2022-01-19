@@ -108,6 +108,14 @@ else
 endif
 
 
+testViews: testViews.cpp $(DEPS)
+ifdef WITH_CUDA
+	$(NVCC) $(NVCCFLAGS) -o testViews testViews.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+else
+	$(CC) -o testViews testViews.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+endif
+
+
 
 
 

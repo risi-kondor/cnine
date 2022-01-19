@@ -678,6 +678,7 @@ namespace cnine{
     TYPE operator()(const int i0, const int i1, const int i2) const{
       CNINE_ASSERT(dev==0, "Gtensor::operator() not implemented for GPU.\n");
       assert(k==3);
+      //cout<<i0*strides[0]+i1*strides[1]+i2*strides[2]<<endl; 
       return arr[i0*strides[0]+i1*strides[1]+i2*strides[2]];
     }
 
@@ -1426,11 +1427,10 @@ namespace cnine{
 	    for(int j=0; j<dims[2]; j++)
 	      oss<<(*this)({u,i,j})<<" ";
 	    oss<<"]";
-	    if(i<dims[1]-1) oss<<"\n";
+	    oss<<"\n";
 	  }
 	  oss<<"\n";
 	}
-	oss<<"\n";
 	return oss.str();  
       }
 

@@ -11,6 +11,7 @@
 #define __Gdims
 
 #include "Cnine_base.hpp"
+#include "GindexSet.hpp"
 //#include "Bifstream.hpp"
 //#include "Bofstream.hpp"
 
@@ -204,6 +205,28 @@ namespace cnine{
       for(int i=0; i<y.size()-1; i++) R[i+size()-1]=y[i];
       return R;
     }
+
+
+  public:
+
+    Gdims select(const GindexSet& s) const{
+      Gdims r;
+      for(auto p: s){
+	assert(p<size());
+	r.push_back((*this)[p]);
+      }
+      return r;
+    }
+
+    int unite(const GindexSet& s) const{
+      int r=1;
+      for(auto p: s){
+	assert(p<size());
+	r*=(*this)[p];
+      }
+      return r;
+    }
+
 
   public:
     

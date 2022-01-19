@@ -17,6 +17,9 @@
 #include "Gtensor.hpp"
 #include "CtensorB_accessor.hpp"
 
+#include "Ctensor1_view.hpp"
+#include "Ctensor2_view.hpp"
+#include "Ctensor3_view.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -84,7 +87,6 @@ namespace cnine{
       asize=strides[0]*dims[0]/2; 
       memsize=strides[0]*dims[0]; 
       coffs=1;
-      cout<<memsize<<endl;
 
       if(dev==0){
 	arr=new float[memsize];
@@ -509,8 +511,30 @@ namespace cnine{
   public: // ---- Access views --------------------------------------------------------------------------------
 
 
+    Ctensor1_view view1D(){
+      return Ctensor1_view(arr,dims,strides,coffs);
+    }
+
+    Ctensor1_view view1D(const GindexSet& a){
+      return Ctensor1_view(arr,dims,strides,a,coffs);
+    }
+
+
+    Ctensor2_view view2D(){
+      return Ctensor2_view(arr,dims,strides,coffs);
+    }
+
     Ctensor2_view view2D(const GindexSet& a, const GindexSet& b){
-      return Ctensor2_view();
+      return Ctensor2_view(arr,dims,strides,a,b,coffs);
+    }
+
+
+    Ctensor3_view view3D(){
+      return Ctensor3_view(arr,dims,strides,coffs);
+    }
+
+    Ctensor3_view view3D(const GindexSet& a, const GindexSet& b, const GindexSet& c){
+      return Ctensor3_view(arr,dims,strides,a,b,c,coffs);
     }
 
 
@@ -572,7 +596,8 @@ namespace cnine{
       assert(M.getk()==2);
       assert(_x.getk()>d);
       assert(_x.dims(d)==M.dims(1));
-      
+
+      /*
       auto x=_x.like_matrix();
       auto r=this->like_matrix();
 
@@ -588,6 +613,7 @@ namespace cnine{
 	  }
 	}
       }
+      */
     }
 
       
