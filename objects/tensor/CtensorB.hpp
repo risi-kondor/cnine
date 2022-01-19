@@ -21,6 +21,8 @@
 #include "Ctensor2_view.hpp"
 #include "Ctensor3_view.hpp"
 
+#include "Ctensor_mprodFn.hpp"
+
 #ifdef _WITH_CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -349,15 +351,16 @@ namespace cnine{
     CtensorB(const Gtensor<complex<float> >& x, const int _dev=0): 
       CtensorB(x.dims,fill::raw){
       assert(x.dev==0);
+      int s=strides[getk()-1];
       for(int i=0; i<asize; i++){
-	arr[i]=std::real(x.arr[i]);
-	arr[i+coffs]=std::imag(x.arr[i]);
+	arr[s*i]=std::real(x.arr[i]);
+	arr[s*i+coffs]=std::imag(x.arr[i]);
       }
       move_to_device(_dev);
     }
     
     Gtensor<complex<float> > gtensor() const{
-      if(dev>0) return CtensorB(*this,0).gtensor();
+      //if(dev>0) return CtensorB(*this,0).gtensor();
       Gtensor<complex<float> > R(dims,fill::raw);
       assert(dev==0);
       int s=strides[getk()-1];

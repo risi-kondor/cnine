@@ -7,8 +7,8 @@
 //  with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-#ifndef _MatmulFn
-#define _MatmulFn
+#ifndef _Ctensor_mprodFn
+#define _Ctensor_mprodFn
 
 #include "CtensorB_accessor.hpp"
 
@@ -25,12 +25,30 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
-  class matmulFn{
+  class Ctensor_add_mprod_AA{
   public:
 
-    matmulFn();
+    void operator()(Ctensor2_view& r, const Ctensor2_view& x, const Ctensor2_view& y){
+      int I=r.n0;
+      int J=r.n1;
+      int K=x.n1;
 
-    matmul
-  }
+      assert(x.n0==I);
+      assert(y.n1==J);
+      assert(y.n0==K);
+
+      for(int i=0; i<I; i++)
+	for(int j=0; j<J; j++){
+	  decltype(r(0,0)) t=0;
+	  for(int k=0; k<K; k++)
+	    t+=x(i,k)*y(k,j);
+	  r.inc(i,j,t);
+	}
+    }
+
+  };
 
 }
+
+
+#endif 
