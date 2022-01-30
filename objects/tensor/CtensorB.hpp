@@ -187,10 +187,12 @@ namespace cnine{
       CtensorB(x.dims,x.strides,x.asize,x.memsize,x.coffs,x.dev){
       CNINE_COPY_WARNING();
       if(dev==0){
+	arr=new float[memsize];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
 #ifdef _WITH_CUDA
       if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
 #endif 
@@ -199,10 +201,12 @@ namespace cnine{
     CtensorB(const CtensorB& x, const nowarn_flag& dummy): 
       CtensorB(x.dims,x.strides,x.asize,x.memsize,x.coffs,x.dev){
       if(dev==0){
+	arr=new float[memsize];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
 #ifdef _WITH_CUDA
       if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
 #endif 
@@ -212,6 +216,7 @@ namespace cnine{
       CtensorB(x.dims,x.strides,x.asize,x.memsize,x.coffs,_dev){
       if(dev==0){
 	if(x.dev==0){
+	  arr=new float[memsize];
 	  std::copy(x.arr,x.arr+memsize,arr);
 	}
 	if(x.dev==1){
@@ -220,6 +225,7 @@ namespace cnine{
       }
       if(dev==1){
 #ifdef _WITH_CUDA
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	if(x.dev==0){
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice));
 	}
@@ -410,6 +416,7 @@ namespace cnine{
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
+      //cout<<*this<<endl;
     }
 
     static CtensorB view(at::Tensor& T){
