@@ -56,7 +56,7 @@ namespace cnine{
 
   public:
 
-    //CtensorA(){}
+    CtensorB(){}
 
     ~CtensorB(){
       if(!is_view && arr) {delete[] arr;}
@@ -122,18 +122,20 @@ namespace cnine{
       if(_dev==1) move_to_device(_dev);
     }
 
-    CtensorB(const Gdims& _dims, const fill_gaussian& dummy, const int _dev):
+    CtensorB(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       CtensorB(_dims,fill::raw,0){
       normal_distribution<double> distr;
       for(int i=0; i<memsize; i++) arr[i]=distr(rndGen);
     }
-
+    
+    /*
     CtensorB(const Gdims& _dims, const fill_gaussian& dummy, const float c, const int _dev):
       CtensorB(_dims,fill::raw,0){
       normal_distribution<double> distr;
       for(int i=0; i<memsize; i++) arr[i]=c*distr(rndGen);
       move_to_device(_dev);
     }
+    */
 
     CtensorB(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       CtensorB(_dims,fill::zero,0){
@@ -183,6 +185,7 @@ namespace cnine{
 
     CtensorB(const CtensorB& x): 
       CtensorB(x.dims,x.strides,x.asize,x.memsize,x.coffs,x.dev){
+      CNINE_COPY_WARNING();
       if(dev==0){
 	std::copy(x.arr,x.arr+memsize,arr);
       }
@@ -236,6 +239,7 @@ namespace cnine{
         
     CtensorB(CtensorB&& x): 
       CtensorB(x.dims,x.strides,x.asize,x.memsize,x.coffs,x.dev){
+      CNINE_MOVE_WARNING();
       arr=x.arr; x.arr=nullptr; 
       arrg=x.arrg; x.arrg=nullptr;
       is_view=x.is_view;
@@ -247,6 +251,7 @@ namespace cnine{
     }
 
     CtensorB& operator=(const CtensorB& x){
+      CNINE_ASSIGN_WARNING();
       dims=x.dims; strides=x.strides; 
       asize=x.asize; 
       memsize=x.memsize; 
@@ -285,6 +290,7 @@ namespace cnine{
 
 
     CtensorB& operator=(CtensorB&& x){
+      CNINE_MOVEASSIGN_WARNING();
       dims=x.dims; strides=x.strides; 
       asize=x.asize; 
       memsize=x.memsize; 
@@ -376,12 +382,8 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
-    static bool is_viewable(const at::Tensor& T){
-      if(T.dim()>0 && T.size(T.dim()-1)==2) return true;
-      else return false;
-    }
 
-    CtensorA(const at::Tensor& T){
+    CtensorB(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
       assert(typeid(T.type().scalarType())==typeid(float));
 
@@ -392,7 +394,7 @@ namespace cnine{
       for(int i=0; i<k ; i++){
 	dims[i]=T.size(i);
       }
-      strides(dims,2);
+      strides=Gstrides(dims,2);
       asize=strides[0]*dims[0]/2; 
       memsize=strides[0]*dims[0]; 
       coffs=1;
@@ -400,6 +402,7 @@ namespace cnine{
       dev=T.type().is_cuda();
       if(dev==0){
 	arr=new float[memsize];
+	//std::copy(T.data<complex<float> >(),T.data<complex<float> >()+asize,reinterpret_cast<complex<float>* >(arr));
 	std::copy(T.data<float>(),T.data<float>()+memsize,arr);
       }
 
@@ -409,18 +412,18 @@ namespace cnine{
       }
     }
 
-
-    static CtensorA view(at::Tensor& T){
+    static CtensorB view(at::Tensor& T){
       T.contiguous();
       
-      CtensorA R;
+      CtensorB R;
       int k=T.dim()-1;
-      R.dims.resize(R.k);
-      for(int i=0; i<R.k ; i++)
+      if(k<=0 || T.size(k)!=2) throw std::out_of_range("CtensorB: last dimension of tensor must be 2, corresponding to the real and imaginary parts.");
+      R.dims.resize(k);
+      for(int i=0; i<k ; i++)
 	R.dims[i]=T.size(i);
-      R.strides(R.dims,2);
-      R.asize=strides[0]*dims[0]/2; 
-      R.memsize=strides[0]*dims[0]; 
+      R.strides=Gstrides(R.dims,2);
+      R.asize=R.strides[0]*R.dims[0]/2; 
+      R.memsize=R.strides[0]*R.dims[0]; 
       R.coffs=1;
       R.dev=T.type().is_cuda();
       R.is_view=true;
@@ -435,12 +438,12 @@ namespace cnine{
 
       return R;
     }
-    
 
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
-      k=getk();
+      assert(coffs==1);
+      int k=getk();
       vector<int64_t> v(k+1); 
       for(int i=0; i<k; i++) v[i]=dims[i];
       v[k]=2;
@@ -498,17 +501,17 @@ namespace cnine{
   public: // ---- Accessors ----------------------------------------------------------------------------------
 
     
-    CtensorB_accessor1 access_as_1D() const{
-      return CtensorB_accessor1(strides);
-    }
+    //CtensorB_accessor1 access_as_1D() const{
+    //return CtensorB_accessor1(strides);
+    //}
 
-    CtensorB_accessor2 access_as_2D() const{
-      return CtensorB_accessor2(strides);
-    }
+    //CtensorB_accessor2 access_as_2D() const{
+    //return CtensorB_accessor2(strides);
+    //}
 
-    CtensorB_accessor3 access_as_3D() const{
-      return CtensorB_accessor3(strides);
-    }
+    //CtensorB_accessor3 access_as_3D() const{
+    //return CtensorB_accessor3(strides);
+    //}
 
 
   public: // ---- Access views --------------------------------------------------------------------------------
@@ -567,6 +570,7 @@ namespace cnine{
       }
 
       assert(false);
+      return r;
     }
 
     
@@ -574,19 +578,19 @@ namespace cnine{
     
 
     complex<float> operator()(const int i0) const{
-      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0]) throw std::out_of_range("index "+Gindex(i0).str()+" out of range of dimensions "+dims.str()));
+      CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0]) throw std::out_of_range("index "+Gindex(i0).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0];  
       return complex<float>(arr[t],arr[t+coffs]);
     }
 
     complex<float> operator()(const int i0, const int i1) const{
-      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
+      CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0]+i1*strides[1];  
       return complex<float>(arr[t],arr[t+coffs]);
     }
 
     complex<float> operator()(const int i0, const int i1, const int i2) const{
-      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
+      CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
       return complex<float>(arr[t],arr[t+coffs]);
     }
@@ -630,6 +634,10 @@ namespace cnine{
 
     string str(const string indent="") const{
       return gtensor().str(indent);
+    }
+
+    string repr() const{
+      return "<cnine::CtensorB"+dims.str()+">";
     }
 
     friend ostream& operator<<(ostream& stream, const CtensorB& x){

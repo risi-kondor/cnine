@@ -7,8 +7,8 @@
 //  with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-#ifndef _CnineCtensorA_accessor
-#define _CnineCtensorA_accessor
+#ifndef _CnineCtensorB_accessor
+#define _CnineCtensorB_accessor
 
 #include "Gstrides.hpp"
 
