@@ -446,6 +446,33 @@ namespace cnine{
       return R;
     }
 
+    static CtensorB* viewp(at::Tensor& T){
+      T.contiguous();
+      
+      CtensorB* R=new CtensorB();
+      int k=T.dim()-1;
+      if(k<=0 || T.size(k)!=2) throw std::out_of_range("CtensorB: last dimension of tensor must be 2, corresponding to the real and imaginary parts.");
+      R->dims.resize(k);
+      for(int i=0; i<k ; i++)
+	R->dims[i]=T.size(i);
+      R->strides=Gstrides(R->dims,2);
+      R->asize=R->strides[0]*R->dims[0]/2; 
+      R->memsize=R->strides[0]*R->dims[0]; 
+      R->coffs=1;
+      R->dev=T.type().is_cuda();
+      R->is_view=true;
+
+      if(R->dev==0){
+	R->arr=T.data<float>();
+      }
+      
+      if(R->dev==1){
+	R->arrg=T.data<float>();
+      }
+
+      return R;
+    }
+
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
