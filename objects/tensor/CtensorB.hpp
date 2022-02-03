@@ -222,6 +222,7 @@ namespace cnine{
 	}
 	if(x.dev==1){
 	  CNINE_REQUIRES_CUDA();
+	  arr=new float[memsize];
 	  CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost)); 
 	}
       }
