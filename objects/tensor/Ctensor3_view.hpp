@@ -13,7 +13,7 @@
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
 
-#include "Ctensor1_view.hpp"
+#include "Ctensor2_view.hpp"
 
 
 namespace cnine{
