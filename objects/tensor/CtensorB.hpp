@@ -95,6 +95,7 @@ namespace cnine{
       }
 
       if(dev==1){
+	CNINE_REQUIRES_CUDA()
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
       }
 
@@ -220,10 +221,12 @@ namespace cnine{
 	  std::copy(x.arr,x.arr+memsize,arr);
 	}
 	if(x.dev==1){
+	  CNINE_REQUIRES_CUDA();
 	  CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost)); 
 	}
       }
       if(dev==1){
+	CNINE_REQUIRES_CUDA();
 #ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	if(x.dev==0){
@@ -372,7 +375,7 @@ namespace cnine{
     }
     
     Gtensor<complex<float> > gtensor() const{
-      //if(dev>0) return CtensorB(*this,0).gtensor();
+      if(dev>0) return CtensorB(*this,0).gtensor();
       Gtensor<complex<float> > R(dims,fill::raw);
       assert(dev==0);
       int s=strides[getk()-1];

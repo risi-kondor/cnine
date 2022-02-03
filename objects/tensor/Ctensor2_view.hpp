@@ -52,8 +52,8 @@ namespace cnine{
     }
 
     Ctensor2_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
-      const GindexSet& a, const GindexSet& b, const int _coffs=1):
-      arr(_arr), arrc(_arr+_coffs){
+      const GindexSet& a, const GindexSet& b, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
       assert(_strides.is_regular());
       assert(a.is_contiguous());
       assert(b.is_contiguous());

@@ -26,6 +26,7 @@ namespace cnine{
     float* arrc;
     int n0,n1,n2;
     int s0,s1,s2;
+    int dev=0;
 
   public:
 
@@ -35,15 +36,15 @@ namespace cnine{
       arr(_arr), arrc(_arrc){}
 
     Ctensor3_view(float* _arr, float* _arrc, 
-      const int _n0, const int _n1, const int _n2, const int _s0, const int _s1, const int _s2): 
-      arr(_arr), arrc(_arrc), n0(_n0), n1(_n1), n2(_n2), s0(_s0), s1(_s1), s2(_s2){}
+      const int _n0, const int _n1, const int _n2, const int _s0, const int _s1, const int _s2, const int _dev=0): 
+      arr(_arr), arrc(_arrc), n0(_n0), n1(_n1), n2(_n2), s0(_s0), s1(_s1), s2(_s2), dev(_dev){}
 
     Ctensor3_view(float* _arr, const int _n0, const int _n1, const int _n2, 
-      const int _s0, const int _s1, const int _s2, const int _coffs=1): 
-      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), s0(_s0), s1(_s1), s2(_s2){}
+      const int _s0, const int _s1, const int _s2, const int _coffs=1, const int _dev=0): 
+      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), s0(_s0), s1(_s1), s2(_s2), dev(_dev){}
 
-    Ctensor3_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1):
-      arr(_arr), arrc(_arr+_coffs){
+    Ctensor3_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
       assert(_dims.size()==3);
       n0=_dims[0];
       n1=_dims[1];
@@ -54,8 +55,8 @@ namespace cnine{
     }
 
     Ctensor3_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
-      const GindexSet& a, const GindexSet& b, const GindexSet& c, const int _coffs=1):
-      arr(_arr), arrc(_arr+_coffs){
+      const GindexSet& a, const GindexSet& b, const GindexSet& c, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
       assert(_strides.is_regular());
       assert(a.is_contiguous());
       assert(b.is_contiguous());
@@ -102,15 +103,15 @@ namespace cnine{
 
 
     Ctensor2_view slice0(const int i){
-      return Ctensor2_view(arr+i*s0,arrc+i*s0,n1,n2,s1,s2);
+      return Ctensor2_view(arr+i*s0,arrc+i*s0,n1,n2,s1,s2,dev);
     }
 
     Ctensor2_view slice1(const int i){
-      return Ctensor2_view(arr+i*s1,arrc+i*s1,n0,n2,s0,s2);
+      return Ctensor2_view(arr+i*s1,arrc+i*s1,n0,n2,s0,s2,dev);
     }
 
     Ctensor2_view slice2(const int i){
-      return Ctensor2_view(arr+i*s2,arrc+i*s2,n0,n1,s0,s1);
+      return Ctensor2_view(arr+i*s2,arrc+i*s2,n0,n1,s0,s1,dev);
     }
 
 

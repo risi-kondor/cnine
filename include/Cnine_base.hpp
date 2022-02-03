@@ -396,6 +396,12 @@ namespace cnine{
 
 
 #ifdef _WITH_CUDA
+#define CNINE_REQUIRES_CUDA() 
+#else
+#define CNINE_REQUIRES_CUDA() printf("Cnine error in \"%s\":  cnine was compiled without CUDA.\n",__PRETTY_FUNCTION__);
+#endif 
+
+#ifdef _WITH_CUDA
 #define CUDA_SAFE(err) __cudaSafeCall(err, __FILE__, __LINE__ );
 inline void __cudaSafeCall(cudaError err, const char *file, const int line){
   if(cudaSuccess!=err){
