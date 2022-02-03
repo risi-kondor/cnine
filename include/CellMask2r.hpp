@@ -13,6 +13,7 @@
 #include <map>
 
 #include "Gdims.hpp"
+#include "RtensorObj.hpp"
 
 
 namespace cnine{
@@ -64,14 +65,15 @@ namespace cnine{
       xstrides=x.xstrides;
       ystrides=x.ystrides;
       n=x.n;
-      for(auto& p:x.lists)
-	lists[p.first]=new CellTlist2(p.second);
+      //for(auto& p:x.lists)
+      //lists[p.first]=new CellTlist2(p.second);
     }
 
 
   public:
 
-    static CellMask2r list(const Rtensor& M, const int nr, const int nx, const int ny){
+    /*
+    static CellMask2r list(const RtensorObj& M, const int nr, const int nx, const int ny){
       CellMask2r R(Gdims(nr),Gdims(nx),Gdims(ny)); 
       assert(M.get_k()==2);
       assert(M.dims[1]=3);
@@ -80,6 +82,7 @@ namespace cnine{
 	R.push(Gindex(M(i,0),M(i,1),M(i,2));
       return R;
     }
+    */
 
 
   public:
@@ -91,8 +94,8 @@ namespace cnine{
       auto it=lists.find(r);
       if(it!=lists.end()) lst=it->second;
       else{
-	lst=new CellTlist2();
-	lists[r]=lst;
+	//lst=new CellTlist2();
+	//lists[r]=lst;
       }
       lst->push_back(pair<int,int>(xix(xstrides),yix(ystrides)));
     }

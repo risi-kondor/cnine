@@ -11,7 +11,7 @@
 #define __Gstrides
 
 #include "Cnine_base.hpp"
-
+#include "Gdims.hpp"
 
 namespace cnine{
 

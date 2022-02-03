@@ -27,6 +27,7 @@ namespace cnine{
     float* arrc;
     int n0,n1;
     int s0,s1;
+    int dev=0;
 
   public:
 
@@ -35,14 +36,14 @@ namespace cnine{
     Ctensor2_view(float* _arr, float* _arrc): 
       arr(_arr), arrc(_arrc){}
 
-    Ctensor2_view(float* _arr, float* _arrc, const int _n0, const int _n1, const int _s0, const int _s1): 
-      arr(_arr), arrc(_arrc), n0(_n0), n1(_n1), s0(_s0), s1(_s1){}
+    Ctensor2_view(float* _arr, float* _arrc, const int _n0, const int _n1, const int _s0, const int _s1, const int _dev=0): 
+      arr(_arr), arrc(_arrc), n0(_n0), n1(_n1), s0(_s0), s1(_s1), dev(_dev){}
 
-    Ctensor2_view(float* _arr, const int _n0, const int _n1, const int _s0, const int _s1, const int _coffs=1): 
-      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), s0(_s0), s1(_s1){}
+    Ctensor2_view(float* _arr, const int _n0, const int _n1, const int _s0, const int _s1, const int _coffs=1, const int _dev=0): 
+      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), s0(_s0), s1(_s1), dev(_dev){}
 
-    Ctensor2_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1):
-      arr(_arr), arrc(_arr+_coffs){
+    Ctensor2_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
       assert(_dims.size()==2);
       n0=_dims[0];
       n1=_dims[1];
