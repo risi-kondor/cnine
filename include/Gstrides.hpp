@@ -36,6 +36,10 @@ namespace cnine{
       regular=true;
     }
 
+    Gstrides(const vector<int>& x):
+      vector<int>(x){
+    }
+
 
   public:
 

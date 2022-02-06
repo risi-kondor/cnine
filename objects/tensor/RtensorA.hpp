@@ -17,6 +17,8 @@
 #include "RscalarA.hpp"
 #include "RtensorA_accessor.hpp"
 
+#include "Rtensor2_view.hpp"
+
 #ifdef _WITH_CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -875,6 +877,33 @@ namespace cnine{
       }
     }
 
+
+  public: // ---- Access views --------------------------------------------------------------------------------
+
+
+    Rtensor2_view view2D(){
+      return Rtensor2_view(arr,dims,strides);
+    }
+
+    const Rtensor2_view view2D() const{
+      return Rtensor2_view(arr,dims,strides);
+    }
+
+    Rtensor2_view view2D(const GindexSet& a, const GindexSet& b){
+      return Rtensor2_view(arr,dims,strides,a,b);
+    }
+
+    Rtensor2_view view2D_block(const int i0, const int i1, const int n0, const int n1){
+      assert(dims.size()==2);
+      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
+    }
+
+    const Rtensor2_view view2D_block(const int i0, const int i1, const int n0, const int n1) const{
+      assert(dims.size()==2);
+      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
+    }
+
+    
 
   public: // ---- Chunks -------------------------------------------------------------------------------------
 
