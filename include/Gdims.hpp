@@ -157,7 +157,14 @@ namespace cnine{
       return R;
     }
 
-    Gdims prepend(const int i) const{
+    Gdims cat(const Gdims& y) const{
+      Gdims R(size()+y.size(),fill_raw());
+      for(int i=0; i<size(); i++) R[i]=(*this)[i];
+      for(int i=0; i<y.size(); i++) R[size()+i]=y[i];
+      return R;
+    }
+
+     Gdims prepend(const int i) const{
       if(i<0) return *this;
       Gdims R;
       R.push_back(i);

@@ -18,6 +18,8 @@
 #include "RtensorA_accessor.hpp"
 
 #include "Rtensor2_view.hpp"
+#include "Rtensor3_view.hpp"
+#include "Rtensor4_view.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -858,6 +860,54 @@ namespace cnine{
     }
 
 
+  public: // ---- k=4 special cases ----
+
+
+    float operator()(const int i0, const int i1, const int i2, const int i3) const{
+      CNINE_ASSERT(dev==0, "RtensorA::operator() not implemented for GPU.\n");
+      assert(k==4);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      return arr[t];
+    }
+
+    float get_value(const int i0, const int i1, const int i2, const int i3) const{
+      CNINE_ASSERT(dev==0, "RtensorA::get not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
+      assert(k==4);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      return arr[t];
+    }
+
+    void set_value(const int i0, const int i1, const int i2, const int i3, const float x){
+      CNINE_ASSERT(dev==0, "RtensorA::set not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
+      assert(k==4);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      arr[t]=x;
+    }
+
+    void inc(const int i0, const int i1, const int i2, const int i3, const float x){
+      CNINE_ASSERT(dev==0, "RtensorA::inc not implemented for GPU.\n");
+      assert(k==4);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      arr[t]+=x;
+    }
+
+    RscalarA get(const int i0, const int i1, const int i2, const int i3) const{
+      CNINE_ASSERT(dev==0, "RtensorA::get not implemented for GPU.\n");
+      assert(k==4);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      return RscalarA(arr[t]);
+    }
+
+    void set(const int i0, const int i1, const int i2, const int i3, const RscalarA& x){
+      CNINE_ASSERT(dev==0, "RtensorA::set not implemented for GPU.\n");
+      assert(k==4);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      arr[t]=std::real(x.val);
+    }
+
+
     // ---- Cumulative 
 
 
@@ -902,6 +952,26 @@ namespace cnine{
       assert(dims.size()==2);
       return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
     }
+
+
+    Rtensor3_view view3D(){
+      return Rtensor3_view(arr,dims,strides);
+    }
+
+    const Rtensor3_view view3D() const{
+      return Rtensor3_view(arr,dims,strides);
+    }
+
+
+    Rtensor4_view view4D(){
+      return Rtensor4_view(arr,dims,strides);
+    }
+
+    const Rtensor4_view view4D() const{
+      return Rtensor4_view(arr,dims,strides);
+    }
+
+
 
     
 
@@ -1323,6 +1393,18 @@ namespace cnine{
       CNINE_NOCUDA_ERROR;
 #endif       
       return a;
+    }
+
+    RtensorA tensor_product(const RtensorA& y){
+      RtensorA R(dims.cat(y.dims),fill_raw());
+      assert(dims.size()==2);
+      assert(y.dims.size()==2);
+      for(int a=0; a<dims(0); a++)
+	for(int b=0; b<dims(1); b++)
+	  for(int c=0; c<y.dims(0); c++)
+	    for(int d=0; d<y.dims(1); d++)
+	      R.set_value(a,b,c,d,(*this)(a,b)*y(c,d));
+      return R;
     }
 
 
@@ -1849,6 +1931,10 @@ namespace cnine{
 
     string str(const string indent="") const{
       return gtensor().str(indent);
+    }
+
+    string str(const string indent, const float eps) const{
+      return gtensor().str(indent,eps);
     }
 
     friend ostream& operator<<(ostream& stream, const RtensorA& x){

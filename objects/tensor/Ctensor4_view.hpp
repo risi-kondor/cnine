@@ -86,6 +86,17 @@ namespace cnine{
       return Ctensor3_view(arr+i*s3,arrc+i*s3,n0,n1,n2,s0,s1,s2);
     }
 
+    Ctensor3_view fuse01(){
+      return Ctensor3_view(arr,arrc,n0*n1,n2,n3,s1,s2,s3);
+    }    
+
+    Ctensor3_view fuse12(){
+      return Ctensor3_view(arr,arrc,n0,n1*n2,n3,s0,s2,s3);
+    }    
+
+    Ctensor3_view fuse23(){
+      return Ctensor3_view(arr,arrc,n0,n1,n2*n3,s0,s1,s3);
+    }    
 
   };
 

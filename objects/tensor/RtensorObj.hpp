@@ -622,8 +622,8 @@ namespace cnine{
       return "Ctensor"+dims.str();
     } 
 
-    string str(const string indent="") const{
-      return CNINE_RTENSOR_IMPL::str(indent);
+    string str(const string indent="", const float eps=0) const{
+      return CNINE_RTENSOR_IMPL::str(indent,eps);
     }
 
     string repr() const{

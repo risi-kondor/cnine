@@ -1384,15 +1384,18 @@ namespace cnine{
     }
     */
 
-    string str(const string indent="") const{
-      if(dev>0) return Gtensor(*this,device(0)).str(indent);
+    string str(const string indent="", const float eps=0) const{
+      if(dev>0) return Gtensor(*this,device(0)).str(indent,eps);
       assert(dev==0);
       ostringstream oss;
 
       if(k==1){
 	oss<<indent<<"[ ";
 	for(int j=0; j<dims[0]; j++)
-	  oss<<arr[j]<<" ";
+	  if(eps==0) oss<<arr[j]<<" ";
+	  else 
+	    if(std::abs(arr[j])>eps) oss<<arr[j]<<" ";
+	      else oss<<TYPE()<<endl;
 	oss<<"]";
 	oss<<"\n";
       }
@@ -1401,8 +1404,12 @@ namespace cnine{
 	for(int i=0; i<dims[0]; i++){
 	  oss<<indent<<"[ ";
 	  for(int j=0; j<dims[1]; j++)
-	    oss<<(*this)({i,j})<<" ";
-	  oss<<"]";
+	    //oss<<(*this)({i,j})<<" ";
+	    if(eps==0) oss<<(*this)({i,j})<<" ";
+	    else 
+	      if(std::abs((*this)({i,j}))>eps) oss<<(*this)({i,j})<<" ";
+		else oss<<TYPE()<<" ";
+		oss<<"]";
 	  if(i<dims[0]-1) oss<<"\n";
 	}
 	oss<<"\n";

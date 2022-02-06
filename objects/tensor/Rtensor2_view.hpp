@@ -118,6 +118,18 @@ namespace cnine{
       return R;
     }
 
+    /*
+    Rtensor3_view split0(const int i, const int j){
+      assert(i*j==n0);
+      return Rtensor3_view(arr,i,j,n1,s0*j,s0,s1);
+    }
+
+    Rtensor3_view split1(const int i, const int j){
+      assert(i*j==n1);
+      return Rtensor3_view(arr,n0,i,j,s0,s1*j,s1);
+    }
+    */
+
 
   public: // ---- Conversions -------------------------------------------------------------------------------
 
