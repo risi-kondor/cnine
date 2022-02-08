@@ -1745,6 +1745,7 @@ namespace cnine{
       if(x.asize==0 || y.asize==0) return;
 
       const int K=x.combined_size(x.k-nx,x.k);
+      //cout<<dims<<"="<<x.dims<<"*"<<y.dims<<endl;
       assert(y.combined_size(0,ny)==K);
 
       const int I=x.combined_size(0,x.k-nx);

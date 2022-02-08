@@ -3,6 +3,7 @@ include $(ROOTDIR)/config.txt
 INCLUDEDIR=$(ROOTDIR)/include
 SCALARDIR=$(ROOTDIR)/objects/scalar
 TENSORDIR=$(ROOTDIR)/objects/tensor
+TENSORVIEWDIR=$(ROOTDIR)/objects/tensor_views
 TENSORARRAYDIR=$(ROOTDIR)/objects/tensor_array
 
 MANAGEDDIR=$(ROOTDIR)/managed
@@ -18,6 +19,8 @@ CENGINE_INCLUDES=-I$(CENGINE_ROOT)/include -I$(CENGINE_ROOT)/engine
 CFLAGS= -std=c++11 -O3 #-ferror-limit=1 
 INCLUDE= -I $(ROOTDIR)/include 
 LIBS= -lstdc++ -lm -lpthread 
+
+CFLAGS+=-DCNINE_RANGE_CHECKING
 
 MACROS=
 

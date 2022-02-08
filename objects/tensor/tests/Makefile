@@ -1,7 +1,7 @@
 ROOTDIR=../../..
 include $(ROOTDIR)/common.txt
 
-INCLUDE= -I$(INCLUDEDIR) -I$(SCALARDIR) -I$(TENSORDIR) 
+INCLUDE= -I$(INCLUDEDIR) -I$(SCALARDIR) -I$(TENSORDIR) -I$(TENSORVIEWDIR) 
 
 TESTS= testRtensorObj testRtensorObj2 testRtensorObj3 \
 testCtensorObj testCtensorObj2 testCtensorObj3 testCtensorSlice testCtensorPackObj \
@@ -26,7 +26,7 @@ endif
 # -------------------------------------------------------------------------------------------------------------
 
 
-testRtensorObj: testCtensorObj.cpp $(DEPS)
+testRtensorObj: testRtensorObj.cpp $(DEPS)
 ifdef WITH_CUDA
 	$(NVCC) $(NVCCFLAGS) -o testRtensorObj testRtensorObj.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else

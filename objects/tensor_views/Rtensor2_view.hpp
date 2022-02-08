@@ -1,6 +1,6 @@
 //  This file is part of cnine, a lightweight C++ tensor library. 
 // 
-//  Copyright (c) 2021, Imre Risi Kondor
+//  Copyright (c) 2022, Imre Risi Kondor
 //
 //  This Source Code Form is subject to the terms of the Mozilla
 //  Public License v. 2.0. If a copy of the MPL was not distributed
@@ -14,7 +14,7 @@
 #include "Gstrides.hpp"
 #include "Gtensor.hpp"
 
-//#include "Rtensor1_view.hpp"
+#include "Rtensor1_view.hpp"
 
 
 namespace cnine{
@@ -66,19 +66,38 @@ namespace cnine{
 
 
     float operator()(const int i0, const int i1) const{
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
+	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
       return arr[s0*i0+s1*i1];
     }
 
     void set(const int i0, const int i1, float x){
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
+	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
       arr[s0*i0+s1*i1]=x;
     }
 
     void inc(const int i0, const int i1, float x){
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
+	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
       arr[s0*i0+s1*i1]+=x;
+    }
+
+    Rtensor2_view block(const int i0, const int i1, const int m0, const int m1) const{
+      return Rtensor2_view(arr+i0*s0+i1*s1,m0,m1,s0,s1,dev);
     }
 
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
+
+
+    void add(const Rtensor2_view& y){
+      assert(y.n0==n0);
+      assert(y.n1==n1);
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++)
+	  set(i0,i1,y(i0,i1));
+    }
 
 
     void add_matmul_AA(const Rtensor2_view& x, const Rtensor2_view& y){
@@ -100,13 +119,21 @@ namespace cnine{
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
-    //Rtensor1_view slice0(const int i){
-    //return Rtensor1_view(arr+i*s0,arrc+i*s0,n1,s1);
-    //}
+    Rtensor1_view slice0(const int i){
+      CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
+	  throw std::out_of_range("cnine::Rtensor2_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
+	return Rtensor1_view(arr+i*s0,n1,s1,dev);
+    }
 
-    //Rtensor1_view slice1(const int i){
-    //return Rtensor1_view(arr+i*s1,arrc+i*s1,n0,s0);
-    //}
+    Rtensor1_view slice1(const int i){
+      CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
+	  throw std::out_of_range("cnine::Rtensor2_view:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
+	return Rtensor1_view(arr+i*s1,n0,s0,dev);
+    }
+
+    Rtensor1_view fuse01() const{
+      return Rtensor1_view(arr,n0*n1,s1,dev);
+    }
 
 
     Rtensor2_view transp(){
@@ -115,22 +142,11 @@ namespace cnine{
       R.n1=n0;
       R.s0=s1;
       R.s1=s0;
+      R.dev=dev;
       return R;
     }
 
-    /*
-    Rtensor3_view split0(const int i, const int j){
-      assert(i*j==n0);
-      return Rtensor3_view(arr,i,j,n1,s0*j,s0,s1);
-    }
-
-    Rtensor3_view split1(const int i, const int j){
-      assert(i*j==n1);
-      return Rtensor3_view(arr,n0,i,j,s0,s1*j,s1);
-    }
-    */
-
-
+ 
   public: // ---- Conversions -------------------------------------------------------------------------------
 
     
@@ -154,8 +170,13 @@ namespace cnine{
       stream<<x.str(); return stream;
     }
 
-
   };
+
+
+  inline Rtensor2_view split0(const Rtensor1_view& x, const int i, const int j){
+    assert(i*j==x.n0);
+    return Rtensor2_view(x.arr,i,j,x.s0*j,x.s0,x.dev);
+  }
 
 
 
