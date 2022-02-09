@@ -115,6 +115,19 @@ namespace cnine{
     return R;
   }
 
+
+  RtensorObj operator*(const RtensorObj& x, const Rtensor2_view& y){
+    RtensorObj R(dims(x.dims(0),y.n1),fill::zero,x.dev);
+    R.view2().add_matmul_AA(x.view2(),y);
+    return R;
+  }
+
+  RtensorObj operator*(const Rtensor2_view& x, const Rtensor2_view& y){
+    RtensorObj R(dims(x.n0,y.n1),fill::zero,x.dev);
+    R.view2().add_matmul_AA(x,y);
+    return R;
+  }
+
   
   // ---- Other functions ----------------------------------------------------------------------------------
 
