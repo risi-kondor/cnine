@@ -327,6 +327,13 @@ namespace cnine{
     return stream;
   }
 
+  /*
+  template<class TYPE>
+  int sameb(const TYPE& x, const TYPE& y){
+    assert(x.dims(0)==y.dims(0));
+    return x.dims(0);
+  }
+  */
 
   // --- Variadics -------------------------------------------------------------------------------------------
 

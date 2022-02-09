@@ -931,12 +931,47 @@ namespace cnine{
   public: // ---- Access views --------------------------------------------------------------------------------
 
 
+
+    Rtensor1_view view1(){
+      return Rtensor1_view(arr,dims,strides);
+    }
+
+    const Rtensor1_view view1() const{
+      return Rtensor1_view(arr,dims,strides);
+    }
+
+    Rtensor1_view view1D(){
+      return Rtensor1_view(arr,dims,strides);
+    }
+
+    const Rtensor1_view view1D() const{
+      return Rtensor1_view(arr,dims,strides);
+    }
+
+
+
+    Rtensor2_view view2(){
+      return Rtensor2_view(arr,dims,strides);
+    }
+
+    const Rtensor2_view view2() const{
+      return Rtensor2_view(arr,dims,strides);
+    }
+
     Rtensor2_view view2D(){
       return Rtensor2_view(arr,dims,strides);
     }
 
     const Rtensor2_view view2D() const{
       return Rtensor2_view(arr,dims,strides);
+    }
+
+    //const Rtensor2_view view2D() const{
+    //return Rtensor2_view(arr,dims,strides);
+    //}
+
+    Rtensor2_view view2(const GindexSet& a, const GindexSet& b){
+      return Rtensor2_view(arr,dims,strides,a,b);
     }
 
     Rtensor2_view view2D(const GindexSet& a, const GindexSet& b){
@@ -954,6 +989,33 @@ namespace cnine{
     }
 
 
+
+    Rtensor3_view view3(){
+      return Rtensor3_view(arr,dims,strides);
+    }
+
+    const Rtensor3_view view3() const{
+      return Rtensor3_view(arr,dims,strides);
+    }
+
+    Rtensor3_view block3(const int i0, const int i1, const int i2, 
+      int m0=-1, int m1=-1, int m2=-1){
+      assert(dims.size()==3);
+      if(m0==-1) m0=dims(0)-i0;
+      if(m1==-1) m1=dims(1)-i1;
+      if(m2==-1) m2=dims(2)-i2;
+      return Rtensor3_view(arr+i0*strides[0]+i1*strides[1]+i2*strides[2],m0,m1,m2,strides[0],strides[1],strides[2],dev);
+    }
+
+    const Rtensor3_view block3(const int i0, const int i1, const int i2, 
+      int m0=-1, int m1=-1, int m2=-1) const{
+      assert(dims.size()==3);
+      if(m0==-1) m0=dims(0)-i0;
+      if(m1==-1) m1=dims(1)-i1;
+      if(m2==-1) m2=dims(2)-i2;
+      return Rtensor3_view(arr+i0*strides[0]+i1*strides[1]+i2*strides[2],m0,m1,m2,strides[0],strides[1],strides[2],dev);
+    }
+
     Rtensor3_view view3D(){
       return Rtensor3_view(arr,dims,strides);
     }
@@ -962,6 +1024,14 @@ namespace cnine{
       return Rtensor3_view(arr,dims,strides);
     }
 
+
+    Rtensor4_view view4(){
+      return Rtensor4_view(arr,dims,strides);
+    }
+
+    const Rtensor4_view view4() const{
+      return Rtensor4_view(arr,dims,strides);
+    }
 
     Rtensor4_view view4D(){
       return Rtensor4_view(arr,dims,strides);
@@ -1461,6 +1531,21 @@ namespace cnine{
       add(x,c.val);
     }
 
+    void add(const Rtensor1_view& x){
+      view1().add(x);
+    }
+
+    void add(const Rtensor2_view& x){
+      view2().add(x);
+    }
+
+    void add(const Rtensor3_view& x){
+      view3().add(x);
+    }
+
+    void add(const Rtensor4_view& x){
+      view4().add(x);
+    }
 
     void add_prod(const RscalarA& c, const RtensorA& A){
       assert(c.nbu==-1);

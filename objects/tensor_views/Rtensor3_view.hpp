@@ -80,6 +80,16 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
+    void add(const Rtensor3_view& y){
+      assert(y.n0==n0);
+      assert(y.n1==n1);
+      assert(y.n2==n2);
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++)
+	  for(int i2=0; i2<n2; i2++)
+	    set(i0,i1,i2,y(i0,i1,i2));
+    }
+
 
   public: // ---- Other views -------------------------------------------------------------------------------
 

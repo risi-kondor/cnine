@@ -82,6 +82,18 @@ namespace cnine{
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
+    
+    void add(const Rtensor4_view& y){
+      assert(y.n0==n0);
+      assert(y.n1==n1);
+      assert(y.n2==n2);
+      assert(y.n3==n3);
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++)
+	  for(int i2=0; i2<n2; i2++)
+	    for(int i3=0; i3<n3; i3++)
+	      set(i0,i1,i2,i3,y(i0,i1,i2,i3));
+    }
 
 
   public: // ---- Other views -------------------------------------------------------------------------------
