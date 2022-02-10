@@ -3,10 +3,16 @@
 
 # ---- CENGINE OPTIONS ----------------------------------
 
+
 CENGINE_ROOT=$(ROOTDIR)/../cengine/v2
 
 
-# ---- CUDA OPTIONS ----------------------------------
+# ---- EIGEN OPTIONS ------------------------------------
+
+EIGENDIR=/usr/local/include
+
+
+# ---- CUDA OPTIONS ------------------------------------
 
 #WITH_CUDA=t
 #CUDA_HOME=/usr/local/cuda

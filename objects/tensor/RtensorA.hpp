@@ -988,6 +988,20 @@ namespace cnine{
       return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
     }
 
+    Rtensor2_view block2(const int i0, const int i1, int m0=0, int m1=0){
+      assert(dims.size()==2);
+      if(m0==-1) m0=dims(0)-i0;
+      if(m1==-1) m1=dims(1)-i1;
+      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],m0,m1,strides[0],strides[1],dev);
+    }
+
+    const Rtensor2_view block2(const int i0, const int i1, int m0=0, int m1=0) const{
+      assert(dims.size()==2);
+      if(m0==-1) m0=dims(0)-i0;
+      if(m1==-1) m1=dims(1)-i1;
+      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],m0,m1,strides[0],strides[1],dev);
+    }
+
 
 
     Rtensor3_view view3(){

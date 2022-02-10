@@ -90,6 +90,25 @@ namespace cnine{
 	    set(i0,i1,i2,y(i0,i1,i2));
     }
 
+    void add_matmul_AA(const Rtensor3_view& x, const Rtensor2_view& y){
+      const int I=x.n2;
+      const int nb=x.n0;
+      assert(n0==nb);
+      assert(x.n1==n1);
+      assert(y.n1==n1);
+      assert(y.n0==I);
+
+      for(int _b=0; _b<nb; _b++)
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    float t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(_b,a,i)*y(i,b);
+	    inc(_b,a,b,t);
+	}
+    }
+    
+
 
   public: // ---- Other views -------------------------------------------------------------------------------
 

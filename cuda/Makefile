@@ -1,7 +1,8 @@
 ROOTDIR=..
 include $(ROOTDIR)/common.txt
 
-INCLUDE= -I$(INCLUDEDIR) -I$(INCLUDEDIR)/cmaps -I$(SCALARDIR) -I$(TENSORDIR) -I$(TENSORARRAYDIR) -I$(TENSORARRAYDIR)/cell_ops \
+INCLUDE= -I$(INCLUDEDIR) -I$(INCLUDEDIR)/cmaps -I$(SCALARDIR) -I$(TENSORDIR) -I$(TENSORVIEWDIR)\
+-I$(TENSORARRAYDIR) -I$(TENSORARRAYDIR)/cell_ops \
 -I$(MANAGEDDIR) -I$(MSCALARDIR) -I$(MTENSORDIR) \
 $(CENGINE_INCLUDES) 
 
@@ -10,6 +11,8 @@ TESTS=
 DEPS= $(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(INCLUDEDIR)/cmaps/*.hpp $(SCALARDIR)/*.hpp $(MSCALARDIR)/*.hpp $(MTENSORDIR)/*.hpp
 
 EXECS= 
+
+OBJECTS=EigenRoutines.o 
 
 CUDA_OBJECTS=  
 CUDA_EXTERNS=
@@ -41,6 +44,8 @@ CtensorA_copy.o: CtensorA_copy.cu Makefile
 CtensorA_plus.o: CtensorA_plus.cu Makefile  
 	$(NVCC) $(NVCCFLAGS) -c CtensorA_plus.cu $(CFLAGS) $(MACROS) $(INCLUDE) 
 
+EigenRoutines.o: EigenRoutines.cpp Makefile  
+	$(CC) -c EigenRoutines.cpp $(CFLAGS) $(INCLUDE) -I$(EIGENDIR) -D_WITH_EIGEN 
 
 
 objects: $(OBJECTS) $(CUDA_OBJECTS)

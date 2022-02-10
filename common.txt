@@ -1,6 +1,7 @@
 include $(ROOTDIR)/config.txt
 
 INCLUDEDIR=$(ROOTDIR)/include
+CUDADIR=$(ROOTDIR)/cuda
 SCALARDIR=$(ROOTDIR)/objects/scalar
 TENSORDIR=$(ROOTDIR)/objects/tensor
 TENSORVIEWDIR=$(ROOTDIR)/objects/tensor_views
@@ -23,6 +24,10 @@ LIBS= -lstdc++ -lm -lpthread
 CFLAGS+=-DCNINE_RANGE_CHECKING
 
 MACROS=
+
+ifdef EIGENDIR
+MACROS+=-D_WITH_EIGEN
+endif 
 
 ifdef WITH_CUDA
 MACROS+=-D_WITH_CUDA
