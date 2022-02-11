@@ -86,10 +86,17 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
-    void add(const Rtensor1_view& y){
+    void set(const Rtensor1_view& y){
       assert(y.n0==n0);
       for(int i0=0; i0<n0; i0++)
 	set(i0,y(i0));
+    }
+
+
+    void add(const Rtensor1_view& y){
+      assert(y.n0==n0);
+      for(int i0=0; i0<n0; i0++)
+	inc(i0,y(i0));
     }
 
 

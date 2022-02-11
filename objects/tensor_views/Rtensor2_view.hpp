@@ -91,12 +91,27 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
+    void set(const Rtensor2_view& y){
+      assert(y.n0==n0);
+      assert(y.n1==n1);
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++){
+	  //cout<<(*this)(i0,i1)<<endl;
+	  //cout<<y(i0,i1)<<endl;
+	  set(i0,i1,y(i0,i1));
+	}
+    }
+
+
     void add(const Rtensor2_view& y){
       assert(y.n0==n0);
       assert(y.n1==n1);
       for(int i0=0; i0<n0; i0++)
-	for(int i1=0; i1<n1; i1++)
-	  set(i0,i1,y(i0,i1));
+	for(int i1=0; i1<n1; i1++){
+	  //cout<<(*this)(i0,i1)<<endl;
+	  //cout<<y(i0,i1)<<endl;
+	  inc(i0,i1,y(i0,i1));
+	}
     }
 
 
@@ -133,6 +148,11 @@ namespace cnine{
 
     Rtensor1_view fuse01() const{
       return Rtensor1_view(arr,n0*n1,s1,dev);
+    }
+
+    Rtensor1_view diag() const{
+      assert(n0==n1);
+      return Rtensor1_view(arr,n0,s0+s1,dev);
     }
 
 

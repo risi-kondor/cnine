@@ -931,6 +931,12 @@ namespace cnine{
   public: // ---- Access views --------------------------------------------------------------------------------
 
 
+    RtensorA(const Rtensor1_view& x):
+      RtensorA({x.n0},fill_raw(),x.dev){
+      for(int i=0; i<x.n0; i++)
+	set(i,x(i));
+    }
+      
 
     Rtensor1_view view1(){
       return Rtensor1_view(arr,dims,strides);
@@ -947,7 +953,6 @@ namespace cnine{
     const Rtensor1_view view1D() const{
       return Rtensor1_view(arr,dims,strides);
     }
-
 
 
     Rtensor2_view view2(){
@@ -978,28 +983,36 @@ namespace cnine{
       return Rtensor2_view(arr,dims,strides,a,b);
     }
 
-    Rtensor2_view view2D_block(const int i0, const int i1, const int n0, const int n1){
-      assert(dims.size()==2);
-      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
-    }
+    //Rtensor2_view view2D_block(const int i0, const int i1, const int n0, const int n1){
+    //assert(dims.size()==2);
+    //return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
+    //}
 
-    const Rtensor2_view view2D_block(const int i0, const int i1, const int n0, const int n1) const{
-      assert(dims.size()==2);
-      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
-    }
+    //const Rtensor2_view view2D_block(const int i0, const int i1, const int n0, const int n1) const{
+    //assert(dims.size()==2);
+    //return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],n0,n1,strides[0],strides[1],dev);
+    //}
 
-    Rtensor2_view block2(const int i0, const int i1, int m0=0, int m1=0){
+    Rtensor2_view block2(const int i0, const int i1, int m0=-1, int m1=-1){
       assert(dims.size()==2);
       if(m0==-1) m0=dims(0)-i0;
       if(m1==-1) m1=dims(1)-i1;
-      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],m0,m1,strides[0],strides[1],dev);
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=dims(0) || i1>=dims(1)) 
+	  throw std::out_of_range("cnine::RtensorA::block2: index "+Gindex({i0,i1}).str()+" out of range of size "+dims.str()));
+      CNINE_CHECK_RANGE(if(i0+m0<0 || i1+m1<0 || i0+m0>dims(0) || i1+m1>dims(1)) 
+	 throw std::out_of_range("cnine::RtensorA::block2: end index "+Gindex({i0+m0,i1+m1}).str()+" out of range of size "+dims.str()));
+      return Rtensor2_view(arr+i0*strides[0]+i1*strides[1],m0,m1,strides[0],strides[1],dev);
     }
 
-    const Rtensor2_view block2(const int i0, const int i1, int m0=0, int m1=0) const{
+    const Rtensor2_view block2(const int i0, const int i1, int m0=-1, int m1=-1) const{
       assert(dims.size()==2);
       if(m0==-1) m0=dims(0)-i0;
       if(m1==-1) m1=dims(1)-i1;
-      return Rtensor2_view(arr+i0*strides[0]+i1*strides[i1],m0,m1,strides[0],strides[1],dev);
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=dims(0) || i1>=dims(1)) 
+	  throw std::out_of_range("cnine::RtensorA::block2: index "+Gindex({i0,i1}).str()+" out of range of size "+dims.str()));
+      CNINE_CHECK_RANGE(if(i0+m0<0 || i1+m1<0 || i0+m0>dims(0) || i1+m1>dims(1)) 
+	 throw std::out_of_range("cnine::RtensorA::block2: end index "+Gindex({i0+m0,i1+m1}).str()+" out of range of size "+dims.str()));
+      return Rtensor2_view(arr+i0*strides[0]+i1*strides[1],m0,m1,strides[0],strides[1],dev);
     }
 
 
@@ -1018,6 +1031,10 @@ namespace cnine{
       if(m0==-1) m0=dims(0)-i0;
       if(m1==-1) m1=dims(1)-i1;
       if(m2==-1) m2=dims(2)-i2;
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i0>=dims(0) || i1>=dims(1) || i2>=dims(2)) 
+	  throw std::out_of_range("cnine::RtensorA::block3: index "+Gindex({i0,i1,i2}).str()+" out of range of size "+dims.str()));
+      CNINE_CHECK_RANGE(if(i0+m0<0 || i1+m1<0 || i2+m2<0 || i0+m0>dims(0) || i1+m1>dims(1)|| i2+m2>dims(2)) 
+	  throw std::out_of_range("cnine::RtensorA::block3: end index "+Gindex({i0+m0,i1+m1,i2+m2}).str()+" out of range of size "+dims.str()));
       return Rtensor3_view(arr+i0*strides[0]+i1*strides[1]+i2*strides[2],m0,m1,m2,strides[0],strides[1],strides[2],dev);
     }
 
@@ -1027,6 +1044,10 @@ namespace cnine{
       if(m0==-1) m0=dims(0)-i0;
       if(m1==-1) m1=dims(1)-i1;
       if(m2==-1) m2=dims(2)-i2;
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i0>=dims(0) || i1>=dims(1) || i2>=dims(2)) 
+	  throw std::out_of_range("cnine::RtensorA::block3: index "+Gindex({i0,i1,i2}).str()+" out of range of size "+dims.str()));
+      CNINE_CHECK_RANGE(if(i0+m0<0 || i1+m1<0 || i2+m2<0 || i0+m0>dims(0) || i1+m1>dims(1)|| i2+m2>dims(2)) 
+	  throw std::out_of_range("cnine::RtensorA::block3: end index "+Gindex({i0+m0,i1+m1,i2+m2}).str()+" out of range of size "+dims.str()));
       return Rtensor3_view(arr+i0*strides[0]+i1*strides[1]+i2*strides[2],m0,m1,m2,strides[0],strides[1],strides[2],dev);
     }
 

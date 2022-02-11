@@ -1395,7 +1395,7 @@ namespace cnine{
 	  if(eps==0) oss<<arr[j]<<" ";
 	  else 
 	    if(std::abs(arr[j])>eps) oss<<arr[j]<<" ";
-	      else oss<<TYPE()<<endl;
+	      else oss<<TYPE()<<" ";
 	oss<<"]";
 	oss<<"\n";
       }

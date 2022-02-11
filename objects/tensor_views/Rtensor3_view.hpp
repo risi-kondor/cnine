@@ -86,8 +86,9 @@ namespace cnine{
       assert(y.n2==n2);
       for(int i0=0; i0<n0; i0++)
 	for(int i1=0; i1<n1; i1++)
-	  for(int i2=0; i2<n2; i2++)
-	    set(i0,i1,i2,y(i0,i1,i2));
+	  for(int i2=0; i2<n2; i2++){
+	    inc(i0,i1,i2,y(i0,i1,i2));
+	  }
     }
 
     void add_matmul_AA(const Rtensor3_view& x, const Rtensor2_view& y){
