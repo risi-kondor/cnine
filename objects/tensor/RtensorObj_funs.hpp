@@ -141,6 +141,12 @@ namespace cnine{
     return R;
   }
 
+  RtensorObj operator*(const Rtensor2_view& x, const float c){
+    RtensorObj R(dims(x.n0,x.n1),fill_zero(),x.dev);
+    R.view2().add(x,c);
+    return R;
+  }
+
   
   // ---- Other functions ----------------------------------------------------------------------------------
 

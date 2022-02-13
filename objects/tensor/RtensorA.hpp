@@ -932,12 +932,12 @@ namespace cnine{
 
 
     RtensorA(const Rtensor1_view& x):
-      RtensorA({x.n0},fill_raw(),x.dev){
-      for(int i=0; i<x.n0; i++)
-	set(i,x(i));
+      RtensorA({x.n0},fill_zero(),x.dev){
+      view1D().add(x);
     }
+      //for(int i=0; i<x.n0; i++)
+      //set(i,x(i));
       
-
     Rtensor1_view view1(){
       return Rtensor1_view(arr,dims,strides);
     }
@@ -954,6 +954,12 @@ namespace cnine{
       return Rtensor1_view(arr,dims,strides);
     }
 
+
+
+    RtensorA(const Rtensor2_view& x):
+      RtensorA({x.n0,x.n1},fill_zero(),x.dev){
+      view2D().add(x);
+    }
 
     Rtensor2_view view2(){
       return Rtensor2_view(arr,dims,strides);
@@ -1017,6 +1023,11 @@ namespace cnine{
 
 
 
+    RtensorA(const Rtensor3_view& x):
+      RtensorA({x.n0,x.n1,x.n2},fill_zero(),x.dev){
+      view3D().add(x);
+    }
+
     Rtensor3_view view3(){
       return Rtensor3_view(arr,dims,strides);
     }
@@ -1059,6 +1070,12 @@ namespace cnine{
       return Rtensor3_view(arr,dims,strides);
     }
 
+
+
+    RtensorA(const Rtensor4_view& x):
+      RtensorA({x.n0,x.n1,x.n2,x.n3},fill_zero(),x.dev){
+      view4D().add(x);
+    }
 
     Rtensor4_view view4(){
       return Rtensor4_view(arr,dims,strides);

@@ -83,7 +83,9 @@ namespace cnine{
       arr[s0*i0+s1*i1]+=x;
     }
 
-    Rtensor2_view block(const int i0, const int i1, const int m0, const int m1) const{
+    Rtensor2_view block(const int i0, const int i1, int m0=-1, int m1=-1) const{
+      if(m0<0) m0=n0-i0;
+      if(m1<0) m1=n1-i1;
       return Rtensor2_view(arr+i0*s0+i1*s1,m0,m1,s0,s1,dev);
     }
 
@@ -111,6 +113,17 @@ namespace cnine{
 	  //cout<<(*this)(i0,i1)<<endl;
 	  //cout<<y(i0,i1)<<endl;
 	  inc(i0,i1,y(i0,i1));
+	}
+    }
+
+    void add(const Rtensor2_view& y, const float c){
+      assert(y.n0==n0);
+      assert(y.n1==n1);
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++){
+	  //cout<<(*this)(i0,i1)<<endl;
+	  //cout<<y(i0,i1)<<endl;
+	  inc(i0,i1,c*y(i0,i1));
 	}
     }
 

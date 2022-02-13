@@ -38,6 +38,24 @@ namespace cnine{
     return make_pair(U,D);
   }
 
+
+  RtensorObj eigen_linsolve(const Rtensor2_view& _A, const Rtensor1_view& _b){
+    int I=_A.n0;
+    int J=_A.n1;
+    assert(I==_b.n0);
+
+    Eigen::MatrixXd A(I,J);
+    for(int i=0; i<I; i++) for(int j=0; j<J; j++) A(i,j)=_A(i,j);
+    Eigen::VectorXd b(I);
+    for(int i=0; i<I; i++) b(i)=_b(i);
+
+    RtensorObj _x(dims(J),fill_raw());
+    auto x=A.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b);
+    for(int i=0; i<J; i++) _x(i)=x(i);
+
+    return _x;
+  }
+
 }
 
 #endif 

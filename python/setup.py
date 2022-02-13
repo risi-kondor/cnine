@@ -21,6 +21,7 @@ _include_dirs=[#'/usr/local/cuda/include',
               cwd+'/../include/cmaps',
               cwd+'/../objects/scalar',
               cwd+'/../objects/tensor',
+              cwd+'/../objects/tensor_views',
               cwd+'/../objects/tensor_array',
               cwd+'/../objects/tensor_array/cell_ops']
 
