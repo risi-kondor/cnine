@@ -452,7 +452,7 @@ namespace cnine{
 
     static CtensorB view(at::Tensor& T){
       T.contiguous();
-      if(!is_regular(T)) return CtensorB(T);
+      if(!is_regular(T)){cout<<"irregular!"<<endl; return CtensorB(T);}
       
       CtensorB R;
       int k=T.dim()-1;
@@ -480,6 +480,7 @@ namespace cnine{
 
     static CtensorB* viewp(at::Tensor& T){
       T.contiguous();
+      if(!is_regular(T)){cout<<"irregular!"<<endl; return new CtensorB(T);}
       
       CtensorB* R=new CtensorB();
       int k=T.dim()-1;
@@ -487,13 +488,11 @@ namespace cnine{
       R->dims.resize(k);
       for(int i=0; i<k ; i++)
 	R->dims[i]=T.size(i);
-      for(int i=0; i<k+1 ; i++)
-	cout<<T.stride(i)<<endl;
       R->strides=Gstrides(R->dims,2);
       R->asize=R->strides[0]*R->dims[0]/2; 
       R->memsize=R->strides[0]*R->dims[0]; 
       R->coffs=1;
-      R->dev=0; //T.type().is_cuda();
+      R->dev=T.type().is_cuda();
       R->is_view=true;
 
       if(R->dev==0){
@@ -503,7 +502,6 @@ namespace cnine{
       if(R->dev==1){
 	R->arrg=T.data<float>();
       }
-      cout<<*R<<endl;
 
       return R;
     }
