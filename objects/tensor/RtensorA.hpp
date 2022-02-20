@@ -13,6 +13,7 @@
 #include "Cnine_base.hpp"
 #include "CnineObject.hpp"
 #include "Gdims.hpp"
+#include "Gstrides.hpp"
 #include "Gtensor.hpp"
 #include "RscalarA.hpp"
 #include "RtensorA_accessor.hpp"
@@ -475,6 +476,17 @@ namespace cnine{
       return true;
     }  
 
+    static bool is_regular(const at::Tensor& T){
+      int k=T.dim();
+      Gdims Tdims(k,fill_raw());
+      for(int i=0; i<k ; i++)
+	Tdims[i]=T.size(i);
+      Gstrides Tstrides(Tdims,1);
+      for(int i=0; i<k; i++)
+	if(Tstrides[i]!=T.stride(i)) return false;
+      return true;
+    }
+
     RtensorA(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
 
@@ -502,8 +514,21 @@ namespace cnine{
       asize=strides[0]*dims[0];
       cst=roundup(asize,32); 
       memsize=cst; 
-
       dev=T.type().is_cuda();
+
+      bool reg=true;
+      for(int i=0; i<k; i++)
+	if(T.stride(i)!=strides[i]){reg=false; break;}
+      if(!reg){
+	CNINE_CPUONLY();
+	auto src=T.data<float>();
+	arr=new float[memsize];
+	Gstrides sstrides(k,fill_raw());
+	for(int i=0; i<k; i++) sstrides[i]=T.stride(i);
+	for(int i=0; i<asize; i++)
+	  arr[i]=src[sstrides.offs(i,strides)];
+      }
+
       if(dev==0){
 	arr=new float[memsize];
 	std::copy(T.data<float>(),T.data<float>()+asize,arr);
@@ -521,6 +546,7 @@ namespace cnine{
 
     static RtensorA view(at::Tensor& T){
       T.contiguous();
+      if(!is_regular(T)) return RtensorA(T);
       
       RtensorA R;
       R.k=T.dim();
@@ -534,8 +560,8 @@ namespace cnine{
       R.cst=R.asize; 
       R.memsize=R.cst; 
       R.dev=T.type().is_cuda();
-      R.is_view=true;
 
+      R.is_view=true;
       if(R.dev==0){
 	R.arr=T.data<float>();
       }
@@ -544,7 +570,6 @@ namespace cnine{
 	R.arrg=T.data<float>();
       }
 
-      cout<<"a"<<endl;
       return R;
     }
 

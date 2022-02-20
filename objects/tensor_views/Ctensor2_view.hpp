@@ -94,7 +94,7 @@ namespace cnine{
       const int I=x.n1;
       assert(x.n0==n0);
       assert(y.n1==n1);
-      assert(y.n1==I);
+      assert(y.n0==I);
 
       for(int a=0; a<n0; a++)
 	for(int b=0; b<n1; b++){

@@ -392,6 +392,17 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
+    static bool is_regular(const at::Tensor& T){
+      int k=T.dim();
+      Gdims Tdims(k,fill_raw());
+      for(int i=0; i<k ; i++)
+	Tdims[i]=T.size(i);
+      Gstrides Tstrides(Tdims,1);
+      for(int i=0; i<k; i++)
+	if(Tstrides[i]!=T.stride(i)) return false;
+      return true;
+    }
+
 
     CtensorB(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
@@ -408,8 +419,24 @@ namespace cnine{
       asize=strides[0]*dims[0]/2; 
       memsize=strides[0]*dims[0]; 
       coffs=1;
-
       dev=T.type().is_cuda();
+
+      bool reg=true;
+      for(int i=0; i<k; i++)
+	if(T.stride(i)!=strides[i]){reg=false; break;}
+      if(T.stride(k)!=2) reg=false;
+      if(!reg){
+	CNINE_CPUONLY();
+	auto src=T.data<float>();
+	arr=new float[memsize];
+	Gstrides sstrides(k+1,fill_raw());
+	Gstrides xstrides(strides); 
+	xstrides.push_back(2);
+	for(int i=0; i<k+1; i++) sstrides[i]=T.stride(i);
+	for(int i=0; i<memsize; i++)
+	  arr[i]=src[sstrides.offs(i,xstrides)];
+      }
+
       if(dev==0){
 	arr=new float[memsize];
 	//std::copy(T.data<complex<float> >(),T.data<complex<float> >()+asize,reinterpret_cast<complex<float>* >(arr));
@@ -425,6 +452,7 @@ namespace cnine{
 
     static CtensorB view(at::Tensor& T){
       T.contiguous();
+      if(!is_regular(T)) return CtensorB(T);
       
       CtensorB R;
       int k=T.dim()-1;
@@ -459,11 +487,13 @@ namespace cnine{
       R->dims.resize(k);
       for(int i=0; i<k ; i++)
 	R->dims[i]=T.size(i);
+      for(int i=0; i<k+1 ; i++)
+	cout<<T.stride(i)<<endl;
       R->strides=Gstrides(R->dims,2);
       R->asize=R->strides[0]*R->dims[0]/2; 
       R->memsize=R->strides[0]*R->dims[0]; 
       R->coffs=1;
-      R->dev=T.type().is_cuda();
+      R->dev=0; //T.type().is_cuda();
       R->is_view=true;
 
       if(R->dev==0){
@@ -473,6 +503,7 @@ namespace cnine{
       if(R->dev==1){
 	R->arrg=T.data<float>();
       }
+      cout<<*R<<endl;
 
       return R;
     }
@@ -631,6 +662,18 @@ namespace cnine{
       CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
       return complex<float>(arr[t],arr[t+coffs]);
+    }
+
+
+  public: // ---- Operations ---------------------------------------------------------------------------------
+
+
+    CtensorB operator-(const CtensorB& y) const{
+      CtensorB R(*this);
+      assert(R.asize==y.asize);
+      for(int i=0; i<memsize; i++)
+	R.arr[i]-=y.arr[i];
+      return R;
     }
 
 

@@ -47,6 +47,17 @@ namespace cnine{
       return regular;
     }
 
+    int offs(int j, const Gstrides& source) const{
+      assert(source.size()==size());
+      int t=0;
+      for(int i=0; i<size(); i++){
+	int r=j/source[i];
+	t+=(*this)[i]*r;
+	j-=r*source[i];
+      }
+      return t;
+    }
+
   };
 
 }
