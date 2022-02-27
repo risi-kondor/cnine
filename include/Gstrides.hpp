@@ -26,6 +26,9 @@ namespace cnine{
     Gstrides(const int k, const fill_raw& dummy): 
       vector<int>(k){}
 
+    Gstrides(const initializer_list<int>& lst):
+      vector<int>(lst){}
+
     Gstrides(const Gdims& dims, const int s0=1): 
       vector<int>(dims.size()){
       int k=dims.size();
@@ -43,8 +46,20 @@ namespace cnine{
 
   public:
 
+    int operator()(const int i) const{
+      return (*this)[i];
+    }
+
     bool is_regular() const{
       return regular;
+    }
+
+    Gstrides chunk(const int beg, int n=-1) const{
+      if(n==-1) n=size()-beg;
+      Gstrides R(n);
+      for(int i=0; i<n; i++)
+	R[i]=(*this)[beg+i];
+      return R;
     }
 
     int offs(int j, const Gstrides& source) const{

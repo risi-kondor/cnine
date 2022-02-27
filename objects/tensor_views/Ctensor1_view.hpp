@@ -81,6 +81,19 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
+    void add(const Ctensor1_view& x){
+      assert(n0==x.n0);
+      for(int i=0; i<n0; i++)
+	inc(i,x(i));
+    }
+
+    template<typename TYPE>
+    void add(const Ctensor1_view& x, const TYPE c){
+      assert(n0==x.n0);
+      for(int i=0; i<n0; i++)
+	inc(i,x(i)*c);
+    }
+
 
   public: // ---- Conversions -------------------------------------------------------------------------------
 

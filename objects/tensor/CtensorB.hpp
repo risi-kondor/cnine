@@ -584,6 +584,10 @@ namespace cnine{
   public: // ---- Access views --------------------------------------------------------------------------------
 
 
+    Ctensor1_view view1(){
+      return Ctensor1_view(arr,dims,strides,coffs);
+    }
+
     Ctensor1_view view1D(){
       return Ctensor1_view(arr,dims,strides,coffs);
     }
@@ -593,6 +597,10 @@ namespace cnine{
     }
 
 
+    Ctensor2_view view2(){
+      return Ctensor2_view(arr,dims,strides,coffs);
+    }
+
     Ctensor2_view view2D(){
       return Ctensor2_view(arr,dims,strides,coffs);
     }
@@ -601,6 +609,10 @@ namespace cnine{
       return Ctensor2_view(arr,dims,strides,a,b,coffs);
     }
 
+
+    Ctensor3_view view3(){
+      return Ctensor3_view(arr,dims,strides,coffs);
+    }
 
     Ctensor3_view view3D(){
       return Ctensor3_view(arr,dims,strides,coffs);

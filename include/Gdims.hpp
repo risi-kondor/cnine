@@ -100,6 +100,11 @@ namespace cnine{
       return (*this)[size()-1];
     }
 
+    int back(const int i=0) const{
+      assert(size()>=i+1);
+      return (*this)[size()-i-1];
+    }
+
     bool operator==(const Gdims& x) const{
       if(size()!=x.size()) return false;
       for(int i=0; i<size(); i++)

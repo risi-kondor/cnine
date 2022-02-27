@@ -66,7 +66,7 @@ namespace cnine{
     static CellMask1r list(const Rtensor& M, const int nr, const int nx){
       CellMask1r R(Gdims(nr),Gdims(nx)); 
       assert(M.get_k()==2);
-      assert(M.dims[1]=2);
+      assert(M.dims[1]==2);
       int N=M.dims[0];
       for(int i=0; i<N; i++)
 	R.push(Gindex(M(i,0),M(i,1)));
