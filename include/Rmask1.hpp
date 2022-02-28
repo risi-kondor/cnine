@@ -1,0 +1,173 @@
+// This file is part of cnine, a lightweight C++ tensor library. 
+// 
+// Copyright (c) 2022, Imre Risi Kondor
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+#ifndef _Rmask1
+#define _Rmask1
+
+#include <map>
+
+#include "Gdims.hpp"
+#include "Rtensor2_view.hpp"
+
+namespace cnine{
+
+
+  //class CellTlist2: public vector<pair<int,int> >{
+  //public:
+    //vector<pair<int,int> > lst;
+  //};
+
+
+  class Rmask1{
+  public:
+
+    map<int,vector<pair<int,float> > > lists;
+    //vector<int> rstrides;
+    //vector<int> xstrides;
+
+    //mutable int n=0;
+    mutable float* arrg=nullptr;
+    mutable int* ptrg=nullptr;
+    mutable bool current=false;
+
+
+    ~Rmask1(){
+      //for(auto p:lists) delete p.second;
+      if(arrg) CUDA_SAFE(cudaFree(arrg));
+      if(ptrg) CUDA_SAFE(cudaFree(ptrg));
+    }
+
+
+  public:
+
+    Rmask1(){}
+    
+    //Rmask1(const Gdims& rdims, const Gdims& xdims):
+    //rstrides(rdims.strides()), 
+    //xstrides(xdims.strides()){
+    //}
+
+
+  public:
+
+
+    Rmask1(const Rmask1& x):
+      lists(x.lists){
+    }
+
+    Rmask1(Rmask1&& x):
+      lists(std::move(x.lists)){
+      arrg=x.arrg; x.arrg=nullptr;
+      ptrg=x.ptrg; x.ptrg=nullptr;
+      current=x.current;
+      x.current=false;
+    }
+
+
+  public:
+
+    /*
+    static Rmask1 list(const Rtensor& M, const int nr, const int nx){
+      Rmask1 R(Gdims(nr),Gdims(nx)); 
+      assert(M.get_k()==2);
+      assert(M.dims[1]=2);
+      int N=M.dims[0];
+      for(int i=0; i<N; i++)
+	R.push(Gindex(M(i,0),M(i,1)));
+      return R;
+    }
+    */
+
+    static Rmask1 matrix(const Rtensor2_view& M){
+      int N=M.n0;
+      assert(M.n1==N);
+      Rmask1 R; 
+      for(int i=0; i<N; i++)
+	for(int j=0; j<N; j++)
+	  if(M(i,j)!=0) R.push(i,j,M(i,j));
+      return R;
+    }
+
+
+  public:
+ 
+    void push(const int i, const int j, const float v){
+      current=false;
+      lists[i].push_back(pair<int,float>(j,v));
+    }
+
+    void prepare(const int dev) const{
+      if(current) return;
+
+#ifdef _WITH_CUDA
+
+      int memsize=0;
+      for(auto& p:lists)
+	memsize+=2+2*p.second->size();
+      float* arr=new float[memsize];
+
+      int n=lists.size();
+      float* ptr=new int[n];
+      //for(int i=0; i<n; i++) ptr[i]=-1;
+
+      int head=0;
+      int i=0;
+      for(auto& p:lists){
+	auto& lst=p.second;
+	const int m=lst.size();
+	arr[head]=p.first;
+	arr[head+1]=m;
+	ptr[i++]=head;
+	for(int j=0; j<m; j++){
+	  arr[head+2+2*j]=lst[j].first;
+	  arr[head+2+2*j+1]=lst[j].second;
+	}
+	head+=2+2*m;
+      }
+
+      if(arrg) CUDA_SAFE(cudaFree(arrg));
+      CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+      CUDA_SAFE(cudaMemcpy(arrg,arr,N*sizeof(float),cudaMemcpyHostToDevice));
+      delete[] arr;
+
+      if(ptrg) CUDA_SAFE(cudaFree(ptrg));
+      CUDA_SAFE(cudaMalloc((void **)&ptrg, n*sizeof(int)));
+      CUDA_SAFE(cudaMemcpy(ptrg,ptr,N*sizeof(int),cudaMemcpyHostToDevice));
+      delete[] ptr;
+
+#endif
+    }
+
+
+    string str(const string indent="") const{
+      ostringstream oss;
+      for(auto it: lists){
+	oss<<indent<<"X["<<it.first<<"] <- ";
+	//for(auto p:it.second->lst)
+	auto& lst=it.second;
+	for(int i=0; i<lst.size(); i++){
+	  oss<<lst[i].second<<"*Y["<<lst[i].first<<"]";
+	  if(i<lst.size()-1) oss<<"+";
+	}
+	oss<<endl;
+      }
+      return oss.str();
+    }
+
+
+    friend ostream& operator<<(ostream& stream, const Rmask1& x){
+      stream<<x.str(); return stream;
+    }
+
+  };
+
+
+}
+
+#endif 
