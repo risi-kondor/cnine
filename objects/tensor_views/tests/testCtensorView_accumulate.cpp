@@ -33,18 +33,20 @@ int main(int argc, char** argv){
   Rmask1 mask=Rmask1::matrix(M.view2());
   cout<<mask<<endl;
 
-  Ctensor1view_add op;
-  AccumulateCmap(op,A.view2(),B.view2(),mask);
+  //Ctensor1view_add op;
+  //AccumulateCmap(op,A.view2(),B.view2(),mask);
+  //print(A);
+
+  A.view2().accumulate(B.view2(),mask);
   print(A);
 
 #ifdef _WITH_CUDA 
 
-  //CtensorArray Ag=A.to(dev);
-  //CtensorArray Bg=B.to(dev);
+  CtensorArray Ag=ctensor::zero({n,1},1);
+  CtensorArray Bg=B.to(dev);
 
-  //CtensorArray Cg(dims(4),dims(2,2),fill::zero,dev);
-  //add_accumulate<CtensorA_plus>(mask,Cg,Ag,Bg);
-  //printl("add_accumulate<CtensorA_plus>(mask,Cg,Ag,Bg)",Cg);
+  A.view2().accumulate(B.view2(),mask);
+  print(A);
 
 #endif 
 

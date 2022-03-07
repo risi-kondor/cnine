@@ -15,10 +15,10 @@
 
 namespace cnine{
 
-  //#ifdef _WITH_CUDA
-//template<typename CMAP>
-  //void CtensorA_add_cu(const CMAP& map, CtensorArrayA& r, const CtensorArrayA& x, const cudaStream_t& stream);
-  //#endif 
+#ifdef _WITH_CUDA
+  template<typename CMAP>
+  void Ctensor1view_add_cu(const CMAP& map, Ctensor1_view& r, const Ctensor1_view& x, const cudaStream_t& stream);
+#endif 
 
 
   class Ctensor1view_add{
@@ -30,20 +30,25 @@ namespace cnine{
       r.add(x,v);
     }
 
-    /*
     template<typename IMAP>
-    void operator()(const IMAP& map, CtensorArrayA& r, const CtensorArrayA& x) const{
+    void operator()(const IMAP& map, Ctensor2_view& r, const Ctensor2_view& x, const bool add_flag=true) const{
+
+      if(r.dev==0){
+	// TODO 
+      }
+
+      if(r.dev==1){
 #ifdef _WITH_CUDA
-      cudaStream_t stream;
-      CUDA_SAFE(cudaStreamCreate(&stream));
-      CtensorA_add_cu(map,r,x,stream);
-      CUDA_SAFE(cudaStreamSynchronize(stream));
-      CUDA_SAFE(cudaStreamDestroy(stream));
+	cudaStream_t stream;
+	CUDA_SAFE(cudaStreamCreate(&stream));
+	Ctensor1view_add_cu(map,r,x,stream);
+	CUDA_SAFE(cudaStreamSynchronize(stream));
+	CUDA_SAFE(cudaStreamDestroy(stream));
 #else
-      CNINE_NOCUDA_ERROR;
+	CNINE_NOCUDA_ERROR;
 #endif
+      }
     }
-    */
 
   };
 

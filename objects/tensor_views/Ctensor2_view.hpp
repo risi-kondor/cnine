@@ -13,8 +13,13 @@
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
 #include "Gtensor.hpp"
+#include "Rmask1.hpp"
 
 #include "Ctensor1_view.hpp"
+
+#ifdef _WITH_CUDA
+void Ctensor2view_accumulator_cu(Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const const cudaStream_t& stream);
+#endif 
 
 
 namespace cnine{
@@ -103,6 +108,31 @@ namespace cnine{
 	    t+=x(a,i)*y(i,b);
 	  inc(a,b,t);
 	}
+    }
+
+
+    void accumulate(const Ctensor2_view& x, const Rmask1& mask){
+      if(dev==0){
+	assert(x.dev==0);
+	for(auto it: mask.lists){
+	  auto t=slice0(it.first);
+	  auto& lst=it.second;
+	  for(int i=0; i<lst.size(); i++)
+	    t.add(x.slice0(lst[i].first),lst[i].second);
+	}
+      }
+      if(dev==1){
+#ifdef _WITH_CUDA
+	cudaStream_t stream;
+	CUDA_SAFE(cudaStreamCreate(&stream));
+	Ctensor2view_accumulator_cu(*this,x,mask,stream);
+	CUDA_SAFE(cudaStreamSynchronize(stream));
+	CUDA_SAFE(cudaStreamDestroy(stream));
+#else
+	CNINE_NOCUDA_ERROR;
+#endif
+      }
+      
     }
     
 

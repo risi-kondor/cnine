@@ -45,7 +45,7 @@ namespace cnine{
 	mask.prepare(1);
 	//n=mask.n;
 	//arrg=mask.arrg;
-	//op.accumulate(*this,r,x,y,add_flag);
+	op.accumulate(*this,r,x,add_flag);
       }
 
     }
