@@ -60,23 +60,23 @@ namespace cnine{
 #ifdef _WITH_CUDA
 
     dim3 blockdims() const{
-      return n;
+      return 0; //TODO
     }
 
     __device__ int n_accum(const int b) const{
-      return arrg[arrg[b]+1];
+      return mask.arrg[mask.ptrg[b]+1];
     }
 
     __device__ int target(const int b) const{
-      return arrg[arrg[b]];
+      return mask.arrg[mask.ptrg[b]];
     }
 
     __device__ int lst_ptr(const int b) const{
-      return arrg[b]+2;
+      return mask.arrg[b]+2;
     }
 
     __device__ thrust::tuple<int,int> source(const int lst, const int b, const int j) const{
-      return thrust::make_tuple(arrg[lst+2*j],arrg[lst+2*j+1]);
+      return thrust::make_tuple(mask.arrg[lst+2*j],mask.arrg[lst+2*j+1]);
     }
 
     // dummy function should be possible to eliminate

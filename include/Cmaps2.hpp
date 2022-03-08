@@ -12,6 +12,13 @@
 
 #include "Cnine_base.hpp"
 
+#ifdef _WITH_CUDA
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <thrust/complex.h>
+#include <thrust/tuple.h>
+#endif 
+
 namespace cnine{
 
 

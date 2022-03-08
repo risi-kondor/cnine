@@ -102,18 +102,18 @@ namespace cnine{
       lists[i].push_back(pair<int,float>(j,v));
     }
 
-    void prepare(const int dev) const{
+    void prepare(const int dev=1) const{
       if(current) return;
 
 #ifdef _WITH_CUDA
 
       int memsize=0;
       for(auto& p:lists)
-	memsize+=2+2*p.second->size();
+	memsize+=2+2*p.second.size();
       float* arr=new float[memsize];
 
       int n=lists.size();
-      float* ptr=new int[n];
+      int* ptr=new int[n];
       //for(int i=0; i<n; i++) ptr[i]=-1;
 
       int head=0;
@@ -133,12 +133,12 @@ namespace cnine{
 
       if(arrg) CUDA_SAFE(cudaFree(arrg));
       CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
-      CUDA_SAFE(cudaMemcpy(arrg,arr,N*sizeof(float),cudaMemcpyHostToDevice));
+      CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(float),cudaMemcpyHostToDevice));
       delete[] arr;
 
       if(ptrg) CUDA_SAFE(cudaFree(ptrg));
       CUDA_SAFE(cudaMalloc((void **)&ptrg, n*sizeof(int)));
-      CUDA_SAFE(cudaMemcpy(ptrg,ptr,N*sizeof(int),cudaMemcpyHostToDevice));
+      CUDA_SAFE(cudaMemcpy(ptrg,ptr,n*sizeof(int),cudaMemcpyHostToDevice));
       delete[] ptr;
 
 #endif

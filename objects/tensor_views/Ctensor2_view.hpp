@@ -13,13 +13,14 @@
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
 #include "Gtensor.hpp"
-#include "Rmask1.hpp"
+//#include "Rmask1.hpp"
 
 #include "Ctensor1_view.hpp"
 
-#ifdef _WITH_CUDA
-void Ctensor2view_accumulator_cu(Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const const cudaStream_t& stream);
-#endif 
+//#ifdef _WITH_CUDA
+//class Ctensor2_view; 
+//void Ctensor2view_accumulator_cu(Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const cudaStream_t& stream);
+//#endif 
 
 
 namespace cnine{
@@ -110,7 +111,7 @@ namespace cnine{
 	}
     }
 
-
+/*
     void accumulate(const Ctensor2_view& x, const Rmask1& mask){
       if(dev==0){
 	assert(x.dev==0);
@@ -134,7 +135,7 @@ namespace cnine{
       }
       
     }
-    
+  */  
 
   public: // ---- Other views -------------------------------------------------------------------------------
 

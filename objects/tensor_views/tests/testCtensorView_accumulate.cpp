@@ -4,6 +4,8 @@
 #include "Rmask1.hpp"
 #include "AccumulateCmap.hpp"
 #include "Ctensor1view_add.hpp"
+#include "TensorView_accumulator.hpp"
+
 #include "CnineSession.hpp"
 
 
@@ -37,18 +39,32 @@ int main(int argc, char** argv){
   //AccumulateCmap(op,A.view2(),B.view2(),mask);
   //print(A);
 
-  A.view2().accumulate(B.view2(),mask);
+  //A.view2().accumulate(B.view2(),mask);
+  auto t=A.view2();
+  Ctensor2view_accumulator(t,B.view2(),mask);
   print(A);
 
 #ifdef _WITH_CUDA 
 
-  CtensorArray Ag=ctensor::zero({n,1},1);
-  CtensorArray Bg=B.to(dev);
+  ctensor Ag=ctensor::zero({n,1},1);
+  ctensor Bg=B.to(dev);
 
-  A.view2().accumulate(B.view2(),mask);
-  print(A);
+  //A.view2().accumulate(B.view2(),mask);
+  auto t2=Ag.view2();
+  print(Ag);
+  Ctensor2view_accumulator(t2,Bg.view2(),mask);
+  print(Ag);
 
 #endif 
+
+
+//ctensor B=ctensor::zero({n,3,3});
+//ctensor C=ctensor::sequential({n,3,3});
+
+//auto t=A.view2();
+//Ctensor2view_accumulator(t,B.view2(),mask);
+//print(A);
+
 
 }
 

@@ -25,7 +25,8 @@ namespace cnine{
     float* arrc;
     int n0,n1;
     int s0,s1;
-
+    int dev=0;
+    
   public:
 
     Ctensor1_view(){}
@@ -39,8 +40,8 @@ namespace cnine{
     Ctensor1_view(float* _arr, const int _n0, const int _s0, const int _s1, const int _coffs=1): 
       arr(_arr), arrc(_arr+_coffs), n0(_n0), s0(_s0){}
 
-    Ctensor1_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1):
-      arr(_arr), arrc(_arr+_coffs){
+    Ctensor1_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
       assert(_dims.size()==1);
       n0=_dims[0];
       s0=_strides[0];

@@ -585,11 +585,11 @@ namespace cnine{
 
 
     Ctensor1_view view1(){
-      return Ctensor1_view(arr,dims,strides,coffs);
+      return Ctensor1_view(arr,dims,strides,coffs,dev);
     }
 
     Ctensor1_view view1D(){
-      return Ctensor1_view(arr,dims,strides,coffs);
+      return Ctensor1_view(arr,dims,strides,coffs,dev);
     }
 
     Ctensor1_view view1D(const GindexSet& a){
@@ -598,11 +598,12 @@ namespace cnine{
 
 
     Ctensor2_view view2(){
-      return Ctensor2_view(arr,dims,strides,coffs);
+      if(dev==0) return Ctensor2_view(arr,dims,strides,coffs,dev);
+      else return Ctensor2_view(arrg,dims,strides,coffs,dev);
     }
 
     Ctensor2_view view2D(){
-      return Ctensor2_view(arr,dims,strides,coffs);
+      return Ctensor2_view(arr,dims,strides,coffs,dev);
     }
 
     Ctensor2_view view2D(const GindexSet& a, const GindexSet& b){
@@ -611,11 +612,11 @@ namespace cnine{
 
 
     Ctensor3_view view3(){
-      return Ctensor3_view(arr,dims,strides,coffs);
+      return Ctensor3_view(arr,dims,strides,coffs,dev);
     }
 
     Ctensor3_view view3D(){
-      return Ctensor3_view(arr,dims,strides,coffs);
+      return Ctensor3_view(arr,dims,strides,coffs,dev);
     }
 
     Ctensor3_view view3D(const GindexSet& a, const GindexSet& b, const GindexSet& c){
