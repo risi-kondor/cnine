@@ -28,13 +28,13 @@ namespace cnine{
   public:
 
     map<int,vector<pair<int,float> > > lists;
-    //vector<int> rstrides;
-    //vector<int> xstrides;
 
-    //mutable int n=0;
     mutable float* arrg=nullptr;
     mutable int* ptrg=nullptr;
     mutable bool current=false;
+    mutable bool inv_current=false;
+    
+    mutable Rmask1* inverse=nullptr;
 
 
     ~Rmask1(){
@@ -96,11 +96,21 @@ namespace cnine{
 
 
   public:
+
  
     void push(const int i, const int j, const float v){
       current=false;
+      inv_current=false;
       lists[i].push_back(pair<int,float>(j,v));
     }
+
+    const Rmask1& inv() const{
+      if(!inverse || !inv_current) make_inverse();
+      return *inverse;
+    }
+
+
+  public:
 
     void prepare(const int dev=1) const{
       if(current) return;
@@ -143,6 +153,24 @@ namespace cnine{
 
 #endif
     }
+
+
+  private:
+
+
+    void make_inverse() const{
+      if(inverse) delete inverse;
+      inverse=new Rmask1();
+      for(auto& p:lists){
+	int i=p.first;
+	for(auto q:p.second)
+	  inverse->push(q.first,i,q.second);
+      }
+      inv_current=true;
+    }
+
+
+  public: // ---- I/O ----------------------------------------------------------------------------------------
 
 
     string str(const string indent="") const{

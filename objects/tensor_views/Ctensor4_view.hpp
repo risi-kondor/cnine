@@ -22,8 +22,9 @@ namespace cnine{
 
     float* arr;
     float* arrc;
-    int n0,n1,n2,n2;
+    int n0,n1,n2,n3;
     int s0,s1,s2,s3;
+    int dev=0;
 
   public:
 
@@ -39,7 +40,20 @@ namespace cnine{
 
     Ctensor4_view(float* _arr, const int _n0, const int _n1, const int _n2, const int _n3,
       const int _s0, const int _s1, const int _s2, const int _s3, const int _coffs=1): 
-      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), n3(_n3), s0(_s0), s1(_s1) s2(_s2), s3(_s3){}
+      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), n3(_n3), s0(_s0), s1(_s1), s2(_s2), s3(_s3){}
+
+    Ctensor4_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
+      assert(_dims.size()==4);
+      n0=_dims[0];
+      n1=_dims[1];
+      n2=_dims[2];
+      n3=_dims[3];
+      s0=_strides[0];
+      s1=_strides[1];
+      s2=_strides[2];
+      s3=_strides[3];
+    }
 
 
   public: // ---- Access ------------------------------------------------------------------------------------
@@ -86,15 +100,15 @@ namespace cnine{
       return Ctensor3_view(arr+i*s3,arrc+i*s3,n0,n1,n2,s0,s1,s2);
     }
 
-    Ctensor3_view fuse01(){
+    Ctensor3_view fuse01() const{
       return Ctensor3_view(arr,arrc,n0*n1,n2,n3,s1,s2,s3);
     }    
 
-    Ctensor3_view fuse12(){
+    Ctensor3_view fuse12() const{
       return Ctensor3_view(arr,arrc,n0,n1*n2,n3,s0,s2,s3);
     }    
 
-    Ctensor3_view fuse23(){
+    Ctensor3_view fuse23() const{
       return Ctensor3_view(arr,arrc,n0,n1,n2*n3,s0,s1,s3);
     }    
 

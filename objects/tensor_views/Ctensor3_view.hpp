@@ -115,6 +115,13 @@ namespace cnine{
       return Ctensor2_view(arr+i*s2,arrc+i*s2,n0,n1,s0,s1,dev);
     }
 
+    Ctensor2_view fuse01() const{
+      return Ctensor2_view(arr,arrc,n0*n1,n2,s1,s2,dev);
+    }    
+
+    Ctensor2_view fuse12() const{
+      return Ctensor2_view(arr,arrc,n0,n1*n2,s0,s2,dev);
+    }    
 
 
   public: // ---- Conversions -------------------------------------------------------------------------------

@@ -4,7 +4,8 @@
 #include "Rmask1.hpp"
 #include "AccumulateCmap.hpp"
 #include "Ctensor1view_add.hpp"
-#include "TensorView_accumulator.hpp"
+//#include "TensorView_accumulator.hpp"
+#include "Aggregator.hpp"
 
 #include "CnineSession.hpp"
 
@@ -34,14 +35,15 @@ int main(int argc, char** argv){
 
   Rmask1 mask=Rmask1::matrix(M.view2());
   cout<<mask<<endl;
+  cout<<mask.inv()<<endl;
 
   //Ctensor1view_add op;
   //AccumulateCmap(op,A.view2(),B.view2(),mask);
   //print(A);
 
-  //A.view2().accumulate(B.view2(),mask);
-  auto t=A.view2();
-  Ctensor2view_accumulator(t,B.view2(),mask);
+  //Aggregator(A.view2(),B.view2(),mask);
+  //Aggregator(A,B,mask);
+  A.add_gather(B,mask);
   print(A);
 
 #ifdef _WITH_CUDA 
@@ -49,21 +51,21 @@ int main(int argc, char** argv){
   ctensor Ag=ctensor::zero({n,1},1);
   ctensor Bg=B.to(dev);
 
-  //A.view2().accumulate(B.view2(),mask);
-  auto t2=Ag.view2();
-  print(Ag);
-  Ctensor2view_accumulator(t2,Bg.view2(),mask);
+  //Aggregator(Ag.view2(),Bg.view2(),mask);
+  //Aggregator(Ag,Bg,mask);
+  Ag.add_gather(Bg,mask);
   print(Ag);
 
 #endif 
 
+  
+  ctensor C=ctensor::zero({n,3,3});
+  ctensor D=ctensor::sequential({n,3,3});
 
-//ctensor B=ctensor::zero({n,3,3});
-//ctensor C=ctensor::sequential({n,3,3});
-
-//auto t=A.view2();
-//Ctensor2view_accumulator(t,B.view2(),mask);
-//print(A);
+  //Aggregator(C.view3(),D.view3(),mask);
+  //Aggregator(C,D,mask);
+  C.add_gather(D,mask);
+  print(C);
 
 
 }

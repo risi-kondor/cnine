@@ -20,6 +20,8 @@
 #include "Ctensor1_view.hpp"
 #include "Ctensor2_view.hpp"
 #include "Ctensor3_view.hpp"
+#include "Ctensor4_view.hpp"
+#include "Aggregator.hpp"
 
 #include "Ctensor_mprodFn.hpp"
 
@@ -564,6 +566,10 @@ namespace cnine{
       return dev;
     }
 
+    float* true_arr() const{
+      if(dev==0) return arr;
+      else return arrg;
+    }
 
   public: // ---- Accessors ----------------------------------------------------------------------------------
 
@@ -584,44 +590,50 @@ namespace cnine{
   public: // ---- Access views --------------------------------------------------------------------------------
 
 
-    Ctensor1_view view1(){
+    Ctensor1_view view1() const{
       return Ctensor1_view(arr,dims,strides,coffs,dev);
     }
 
-    Ctensor1_view view1D(){
+    Ctensor1_view view1D() const{
       return Ctensor1_view(arr,dims,strides,coffs,dev);
     }
 
-    Ctensor1_view view1D(const GindexSet& a){
+    Ctensor1_view view1D(const GindexSet& a) const{
       return Ctensor1_view(arr,dims,strides,a,coffs);
     }
 
 
-    Ctensor2_view view2(){
+    Ctensor2_view view2() const{
       if(dev==0) return Ctensor2_view(arr,dims,strides,coffs,dev);
       else return Ctensor2_view(arrg,dims,strides,coffs,dev);
     }
 
-    Ctensor2_view view2D(){
+    Ctensor2_view view2D() const{
       return Ctensor2_view(arr,dims,strides,coffs,dev);
     }
 
-    Ctensor2_view view2D(const GindexSet& a, const GindexSet& b){
+    Ctensor2_view view2D(const GindexSet& a, const GindexSet& b) const{
       return Ctensor2_view(arr,dims,strides,a,b,coffs);
     }
 
 
-    Ctensor3_view view3(){
-      return Ctensor3_view(arr,dims,strides,coffs,dev);
+    Ctensor3_view view3() const{
+      return Ctensor3_view(true_arr(),dims,strides,coffs,dev);
     }
 
-    Ctensor3_view view3D(){
-      return Ctensor3_view(arr,dims,strides,coffs,dev);
+    Ctensor3_view view3D() const{
+      return Ctensor3_view(true_arr(),dims,strides,coffs,dev);
     }
 
-    Ctensor3_view view3D(const GindexSet& a, const GindexSet& b, const GindexSet& c){
+    Ctensor3_view view3D(const GindexSet& a, const GindexSet& b, const GindexSet& c) const{
       return Ctensor3_view(arr,dims,strides,a,b,c,coffs);
     }
+
+
+    Ctensor4_view view4() const{
+      return Ctensor4_view(true_arr(),dims,strides,coffs,dev);
+    }
+
 
 
     Ctensor2_view pick_dimension(const int ix=0){
@@ -716,7 +728,13 @@ namespace cnine{
     }
 
       
-   
+    void add_gather(const CtensorB& x, const Rmask1& mask){
+      int k=dims.size();
+      assert(x.dims.size()==k);
+      if(k==2) Aggregator(view2(),x.view2(),mask);
+      if(k==3) Aggregator(view3(),x.view3(),mask);
+      if(k==4) Aggregator(view4(),x.view4(),mask);
+    }
 
 
 	

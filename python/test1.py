@@ -21,5 +21,9 @@ print(T)
 
 print(T.transp())
 
+M=torch.tensor([[0,1,0],[0,0,0],[1,1,1]],dtype=torch.float32);
+mask=cnine.Rmask1(M)
+print(mask)
+
 #print(T[1,2])
 
