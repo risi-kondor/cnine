@@ -22,25 +22,31 @@ extern cublasHandle_t cnine_cublas;
 #endif
 
 
+
 namespace cnine{
+
+  extern thread_local int nthreads;
+
 
   class cnine_session{
   public:
 
-#ifdef _WITH_CENGINE
+    #ifdef _WITH_CENGINE
     Cengine::CengineSession* cengine_session=nullptr;
-#endif
+    #endif
 
 
-    cnine_session(){
+    cnine_session(const int _nthreads=1){
 
-#ifdef _WITH_CENGINE
+      nthreads=_nthreads;
+
+      #ifdef _WITH_CENGINE
       cengine_session=new Cengine::CengineSession();
-#endif
+      #endif
 
-#ifdef _WITH_CUBLAS
+      #ifdef _WITH_CUBLAS
       cublasCreate(&cnine_cublas);
-#endif 
+      #endif 
 
     }
 

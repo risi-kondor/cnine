@@ -393,8 +393,6 @@ namespace cnine{
 // ---- CUDA STUFF ------------------------------------------------------------------------------------------
 
 
-//#define GELIB_CPUONLY() if(device>0) {printf("Cengine error: CUDA code for \"%s\" not implemented.\n",__PRETTY_FUNCTION__); exit(-1);}
-
 #ifdef _WITH_CUDA
 #define IFCUDA(cmds) cmds 
 #else 
@@ -451,7 +449,18 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 #endif 
 
 
- 
+#ifdef _WITH_CUDA
+#define CUDA_STREAM(cmd)({\
+      cudaStream_t stream;\
+      CUDA_SAFE(cudaStreamCreate(&stream));\
+      cmd;						\
+      CUDA_SAFE(cudaStreamSynchronize(stream));\
+      CUDA_SAFE(cudaStreamDestroy(stream));\
+      )}
+#else
+#define CUDA_STREAM(cmd) CNINE_NOCUDA_ERROR
+#endif
+
 
 // ---- Cengine stuff ----------------------------------------------------------------------------------------
 

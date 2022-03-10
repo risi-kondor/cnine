@@ -13,6 +13,10 @@
 #include "Cengine_base.cpp"
 #endif 
 
+namespace cnine{
+  thread_local int nthreads=1;
+}
+
 std::default_random_engine rndGen;
 
 mutex cnine::CoutLock::mx;
@@ -35,11 +39,12 @@ int Cengine::ctensor_add_op::_batcher_id=0;
 
 namespace cnine{
 
- template<> int ctensor_add_Mprod_op<0,0>::_batcher_id=0; 
- template<> int ctensor_add_Mprod_op<0,1>::_batcher_id=0; 
- template<> int ctensor_add_Mprod_op<0,2>::_batcher_id=0; 
- template<> int ctensor_add_Mprod_op<0,3>::_batcher_id=0; 
 
+  template<> int ctensor_add_Mprod_op<0,0>::_batcher_id=0; 
+  template<> int ctensor_add_Mprod_op<0,1>::_batcher_id=0; 
+  template<> int ctensor_add_Mprod_op<0,2>::_batcher_id=0; 
+  template<> int ctensor_add_Mprod_op<0,3>::_batcher_id=0; 
+  
  template<> int ctensor_add_Mprod_op<1,0>::_batcher_id=0; 
  template<> int ctensor_add_Mprod_op<1,1>::_batcher_id=0; 
  template<> int ctensor_add_Mprod_op<1,2>::_batcher_id=0; 
