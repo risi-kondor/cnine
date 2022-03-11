@@ -93,9 +93,14 @@ using namespace std;
 #define COUT(cmd) {CoutLock lk; cout<<cmd<<endl;}
 #define CNINE_COUT(cmd) {CoutLock lk; cout<<cmd<<endl;}
 
-#define CNINE_CHECK_DIMS(a,b,fn) if(a!=b) {{CoutLock lk; cerr<<"GEnet error in function "<<fn<<": dimension mismatch."<<endl;} exit(1);}
-#define CNINE_CHECK_DIMS2(a,b,c,fn) if(a!=b||a!=c) {{CoutLock lk; cerr<<"GEnet error in function "<<fn<<": dimension mismatch."<<endl;} exit(1);}
+#define CNINE_CHECK_DIMS(a,b,fn) if(a!=b) {{CoutLock lk; cerr<<"cnine error in function "<<fn<<": dimension mismatch."<<endl;} exit(1);}
+#define CNINE_CHECK_DIMS2(a,b,c,fn) if(a!=b||a!=c) {{CoutLock lk; cerr<<"cnine error in function "<<fn<<": dimension mismatch."<<endl;} exit(1);}
 
+#define CNINE_CHECK_BATCH2(x,y) if(x.n0!=y.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
+#define CNINE_CHECK_BATCH3(x,y,z) if(x.n0!=y.n0 || x.n0!=z.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
+
+#define CNINE_CHECK_DEV2(x,y) if(x.dev!=y.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
+#define CNINE_CHECK_DEV3(x,y,z) if(x.dev!=y.dev || x.dev!=z.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
 
 #define CNINE_CONST_MEM_SIZE 32276
 
