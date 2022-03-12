@@ -115,6 +115,19 @@ namespace cnine{
   };
 
 
+  // variant where the "3" dimension is tiled
+  class Ctensor4_view_t3: public Ctensor4_view{
+  public:
+
+    int last;
+
+    Ctensor4_view_t3(const Ctensor3_view& x, const int n):
+      Ctensor4_view(x.arr,x.arrc,x.n0,x.n1,(x.n2-1)/n+1,n,x.s0,x.s1,x.s2*n,x.s2,x.dev){
+      last=x.n2-((x.n2-1)/n)*n;
+    }
+
+  };
+
   inline Ctensor4_view split2(const Ctensor3_view& x, const int n){
     return Ctensor4_view(x.arr,x.arrc,x.n0,x.n1,(x.n2-1)/n+1,n,x.s0,x.s1,x.s2*n,x.s2,x.dev);
   }
