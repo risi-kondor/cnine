@@ -154,6 +154,19 @@ namespace cnine{
   };
 
 
+  class Ctensor3_view_t2: public Ctensor3_view{
+  public:
+
+    int tilesize;
+    int nt;
+    int st;
+
+    Ctensor3_view_t2(const Ctensor3_view& x, const int n):
+      Ctensor3_view(x), tilesize(n), nt((x.n2-1)/n+1), st(x.s2*n){
+    }
+
+  };
+
 
 }
 
