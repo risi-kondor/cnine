@@ -461,7 +461,7 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
       cmd;						\
       CUDA_SAFE(cudaStreamSynchronize(stream));\
       CUDA_SAFE(cudaStreamDestroy(stream));\
-      )}
+      })
 #else
 #define CUDA_STREAM(cmd) CNINE_NOCUDA_ERROR
 #endif

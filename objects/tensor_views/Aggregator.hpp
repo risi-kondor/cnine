@@ -21,7 +21,7 @@
 namespace cnine{
 
     #ifdef _WITH_CUDA
-    void Ctensor2view_accumulator_cu(Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const cudaStream_t& stream);
+    void Ctensor2view_accumulator_cu(const Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const cudaStream_t& stream);
     #endif 
 
 
