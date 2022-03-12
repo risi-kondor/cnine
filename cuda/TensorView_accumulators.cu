@@ -63,7 +63,7 @@ __global__ void accumulator_kernel(float* rarr, float* xarr, const int* ptr, con
 
 namespace cnine{
 
-  void Ctensor2view_accumulator_cu(Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const cudaStream_t& stream){
+  void Ctensor2view_accumulator_cu(const Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const cudaStream_t& stream){
 
     mask.prepare();
 

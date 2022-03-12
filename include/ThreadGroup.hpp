@@ -13,7 +13,8 @@
 #define _ThreadGroup
 
 #include <thread>
-
+#include <condition_variable>
+#include <atomic>
 
 namespace cnine{
 
