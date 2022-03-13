@@ -129,6 +129,7 @@ namespace cnine{
       CtensorB(_dims,fill::raw,0){
       normal_distribution<double> distr;
       for(int i=0; i<memsize; i++) arr[i]=distr(rndGen);
+      if(_dev==1) move_to_device(_dev);
     }
     
     /*
