@@ -90,7 +90,7 @@ using namespace std;
 #define CNINE_NOCUDA_ERROR cout<<"Error: Cnine was compiled without GPU support."<<endl;
 #define CNINE_CPUONLY() if(dev!=0) {printf("Cnine error: CUDA code for \"%s\" not implemented.\n",__PRETTY_FUNCTION__); exit(-1);}
 
-#define COUT(cmd) {CoutLock lk; cout<<cmd<<endl;}
+#define COUT(cmd) {cnine::CoutLock lk; cout<<cmd<<endl;}
 #define CNINE_COUT(cmd) {CoutLock lk; cout<<cmd<<endl;}
 
 #define CNINE_CHECK_DIMS(a,b,fn) if(a!=b) {{CoutLock lk; cerr<<"cnine error in function "<<fn<<": dimension mismatch."<<endl;} exit(1);}
@@ -101,9 +101,6 @@ using namespace std;
 
 #define CNINE_CHECK_DEV2(x,y) if(x.dev!=y.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
 #define CNINE_CHECK_DEV3(x,y,z) if(x.dev!=y.dev || x.dev!=z.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
-
-#define CNINE_CONST_MEM_SIZE 32276
-
 
 
 
@@ -396,6 +393,9 @@ namespace cnine{
 }
 
 // ---- CUDA STUFF ------------------------------------------------------------------------------------------
+
+
+#define CNINE_CONST_MEM_SIZE 32278
 
 
 #ifdef _WITH_CUDA

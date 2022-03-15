@@ -56,7 +56,7 @@ namespace cnine{
     ~Gtensor(){
       if(!is_view && arr) delete arr;
 #ifdef _WITH_CUDA
-      if(!is_view && arrg) CUDA_SAFE(cudaFree(arrg)); 
+      if(!is_view && arrg) {cout<<"deleting"<<endl; CUDA_SAFE(cudaFree(arrg));}
 #endif
     }
 
