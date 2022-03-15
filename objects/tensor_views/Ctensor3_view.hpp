@@ -103,15 +103,15 @@ namespace cnine{
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
-    Ctensor2_view slice0(const int i){
+    Ctensor2_view slice0(const int i) const{
       return Ctensor2_view(arr+i*s0,arrc+i*s0,n1,n2,s1,s2,dev);
     }
 
-    Ctensor2_view slice1(const int i){
+    Ctensor2_view slice1(const int i) const{
       return Ctensor2_view(arr+i*s1,arrc+i*s1,n0,n2,s0,s2,dev);
     }
 
-    Ctensor2_view slice2(const int i){
+    Ctensor2_view slice2(const int i) const{
       return Ctensor2_view(arr+i*s2,arrc+i*s2,n0,n1,s0,s1,dev);
     }
 
@@ -137,6 +137,19 @@ namespace cnine{
       return R;
     }
     
+
+  public: // ---- Operations ---------------------------------------------------------------------------------
+
+
+    Ctensor3_view flip() const{
+      Ctensor3_view R(*this);
+      R.arr=arr+(n1-1)*s1+(n2-1)*s2;
+      R.arrc=arrc+(n1-1)*s1+(n2-1)*s2;
+      R.s1=-s1;
+      R.s2=-s2;
+      return R;
+    }
+
     
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
