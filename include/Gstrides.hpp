@@ -29,6 +29,37 @@ namespace cnine{
     Gstrides(const initializer_list<int>& lst):
       vector<int>(lst){}
 
+    Gstrides(const int i0): vector<int>(1){
+      (*this)[0]=i0;
+    }
+
+    Gstrides(const int i0, const int i1): vector<int>(2){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+    }
+
+    Gstrides(const int i0, const int i1, const int i2): vector<int>(3){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+    }
+
+    Gstrides(const int i0, const int i1, const int i2, const int i3): vector<int>(4){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+    }
+
+    Gstrides(const int i0, const int i1, const int i2, const int i3, const int i4): vector<int>(5){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+    }
+
+
     Gstrides(const Gdims& dims, const int s0=1): 
       vector<int>(dims.size()){
       int k=dims.size();
@@ -53,6 +84,25 @@ namespace cnine{
     bool is_regular() const{
       return regular;
     }
+
+    int offs(const int i0){
+      return i0*(*this)[0];
+    }
+
+    int offs(const int i0, const int i1){
+      return i0*(*this)[0]+i1*(*this)[1];
+    }
+
+    int offs(const int i0, const int i1, const int i2){
+      return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2];
+    }
+
+    int offs(const int i0, const int i1, const int i2, const int i3){
+      return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];
+    }
+
+
+  public:
 
     Gstrides chunk(const int beg, int n=-1) const{
       if(n==-1) n=size()-beg;

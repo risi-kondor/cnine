@@ -59,19 +59,19 @@ namespace cnine{
 
     float operator()(const int i0, const int i1, const int i2, const int i3) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3) 
-	  throw std::out_of_range("cnine::Rtensor3_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
+	  throw std::out_of_range("cnine::Rtensor4_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
       return arr[s0*i0+s1*i1+s2*i2+s3*i3];
     }
 
     void set(const int i0, const int i1, const int i2, const int i3, float x){
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3) 
-	  throw std::out_of_range("cnine::Rtensor3_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
+	  throw std::out_of_range("cnine::Rtensor4_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
       arr[s0*i0+s1*i1+s2*i2+s3*i3]=x;
     }
 
     void inc(const int i0, const int i1, const int i2, const int i3, float x){
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3) 
-	  throw std::out_of_range("cnine::Rtensor3_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
+	  throw std::out_of_range("cnine::Rtensor4_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
       arr[s0*i0+s1*i1+s2*i2+s3*i3]+=x;
     }
 

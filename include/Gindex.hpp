@@ -79,6 +79,13 @@ namespace cnine{
       return size();
     }
 
+    int asize() const{
+      int t=1;
+      for(int i=0; i<size(); i++)
+	t*=(*this)[i];
+      return t;
+    }
+
     int operator()(const int i) const{
       return (*this)[i];
     }

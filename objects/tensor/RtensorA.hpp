@@ -289,6 +289,14 @@ namespace cnine{
     }
 
 
+  public: // ---- Named constructors --------------------------------------------------------------------------
+
+
+    static RtensorA zero(const Gdims& _dims, const int _dev=0){
+      return RtensorA(_dims,fill_zero(),_dev);
+    }
+
+
   public: // ---- Lambda constructors -------------------------------------------------------------------------
 
 
