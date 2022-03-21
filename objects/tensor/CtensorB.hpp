@@ -194,12 +194,12 @@ namespace cnine{
 	arr=new float[memsize];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
-#ifdef _WITH_CUDA
       if(dev==1){
+	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
+	#endif 
       }
-#endif 
     }
         
     CtensorB(const CtensorB& x, const nowarn_flag& dummy): 
@@ -208,12 +208,12 @@ namespace cnine{
 	arr=new float[memsize];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
-#ifdef _WITH_CUDA
       if(dev==1){
+	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
+	#endif 
       }
-#endif 
     }
         
     CtensorB(const CtensorB& x, const int _dev): 
@@ -231,7 +231,7 @@ namespace cnine{
       }
       if(dev==1){
 	CNINE_REQUIRES_CUDA();
-#ifdef _WITH_CUDA
+	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	if(x.dev==0){
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice));
@@ -239,7 +239,7 @@ namespace cnine{
 	if(x.dev==1){
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	}
-#endif 
+	#endif 
       }
     }
 
@@ -276,26 +276,26 @@ namespace cnine{
 	  std::copy(x.arr,x.arr+memsize,arr);
 	}
 	if(dev==1){
-#ifdef _WITH_CUDA
+	  #ifdef _WITH_CUDA
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
-#endif 
+	  #endif 
 	}
 	return *this;
       }
 
       delete arr;
-#ifdef _WITH_CUDA
+      #ifdef _WITH_CUDA
       if(arrg){CUDA_SAFE(cudaFree(arrg));}
-#endif
+      #endif
       if(dev==0){
 	arr=new float[memsize]; 
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-#ifdef _WITH_CUDA
+	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
-#endif 
+	#endif 
       }
       
       return *this;
@@ -677,14 +677,28 @@ namespace cnine{
     }
 
     complex<float> operator()(const int i0, const int i1) const{
-      CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
+      CNINE_CHECK_RANGE(if(dims.size()!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0]+i1*strides[1];  
       return complex<float>(arr[t],arr[t+coffs]);
     }
 
     complex<float> operator()(const int i0, const int i1, const int i2) const{
-      CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
+      CNINE_CHECK_RANGE(if(dims.size()!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
+      return complex<float>(arr[t],arr[t+coffs]);
+    }
+
+    complex<float> operator()(const int i0, const int i1, const int i2, const int i3) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=4 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>=dims[3]) 
+	  throw std::out_of_range("index "+Gindex(i0,i1,i2,i3).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      return complex<float>(arr[t],arr[t+coffs]);
+    }
+
+    complex<float> operator()(const int i0, const int i1, const int i2, const int i3, const int i4) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=4 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>=dims[3] || i4<0 || i4>=dims[4]) 
+	  throw std::out_of_range("index "+Gindex(i0,i1,i2,i3,i4).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
       return complex<float>(arr[t],arr[t+coffs]);
     }
 
@@ -692,11 +706,15 @@ namespace cnine{
   public: // ---- Operations ---------------------------------------------------------------------------------
 
 
+    CtensorB operator+(const CtensorB& y) const{
+      CtensorB R(*this);
+      R.add(y);
+      return R;
+    }
+
     CtensorB operator-(const CtensorB& y) const{
       CtensorB R(*this);
-      assert(R.asize==y.asize);
-      for(int i=0; i<memsize; i++)
-	R.arr[i]-=y.arr[i];
+      R.subtract(y);
       return R;
     }
 
@@ -704,12 +722,78 @@ namespace cnine{
   public: // ---- Cumulative operations ----------------------------------------------------------------------
 
 
+    void add(const CtensorB& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(asize==x.asize);
+      assert(x.dev==dev);
+      if(dev==0){
+	for(int i=0; i<memsize; i++) arr[i]+=x.arr[i];
+	return; 
+      }
+      if(dev==1){
+	const float alpha = 1.0;
+	CUBLAS_SAFE(cublasSaxpy(cnine_cublas, memsize, &alpha, x.arrg, 1, arrg, 1));
+      }
+    }
+
+
+    void add(const CtensorB& x, const float c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(asize==x.asize);
+      assert(x.dev==dev);
+      if(dev==0){
+	for(int i=0; i<memsize; i++) arr[i]+=x.arr[i]*c;
+	return;
+      }
+      if(dev==1){
+	CUBLAS_SAFE(cublasSaxpy(cnine_cublas, memsize, &c, x.arrg, 1, arrg, 1));
+      }
+    }
+
+
+    void add(const CtensorB& x, const complex<float> c){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(asize==x.asize);
+      assert(x.dev==dev);
+      float cr=std::real(c);
+      float ci=std::imag(c);
+      if(dev==0){
+	//for(int i=0; i<asize; i++) arr[i]+=x.arr[i]*cr-x.arrc[i]*ci;
+	//for(int i=0; i<asize; i++) arrc[i]+=x.arrc[i]*cr+x.arr[i]*ci;
+	return;
+      }
+      if(dev==1){
+	const float mci=-ci; 
+	//CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &cr, x.arrg, 1, arrg, 1));
+	//CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &mci, x.arrgc, 1, arrg, 1));
+	//CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &ci, x.arrg, 1, arrgc, 1));
+	//CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &cr, x.arrgc, 1, arrgc, 1));
+      }
+    }
+
+
+    void subtract(const CtensorB& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(asize==x.asize);
+      assert(x.dev==dev);
+      if(dev==0){
+	for(int i=0; i<memsize; i++) arr[i]-=x.arr[i];
+	return; 
+      }
+      if(dev==1){
+	const float alpha = -1.0;
+	CUBLAS_SAFE(cublasSaxpy(cnine_cublas, memsize, &alpha, x.arrg, 1, arrg, 1));
+      }
+    }
+
+
+
+    /*
     void add_matmul(const CtensorB& _x, const CtensorB& M, const int d){
       assert(M.getk()==2);
       assert(_x.getk()>d);
       assert(_x.dims(d)==M.dims(1));
 
-      /*
       auto x=_x.like_matrix();
       auto r=this->like_matrix();
 
@@ -725,8 +809,8 @@ namespace cnine{
 	  }
 	}
       }
-      */
     }
+    */
 
       
     void add_gather(const CtensorB& x, const Rmask1& mask){
