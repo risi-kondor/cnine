@@ -55,6 +55,14 @@ namespace cnine{
       (*this)[3]=i3;
     }
 
+    Gindex(const int i0, const int i1, const int i2, const int i3, const int i4): vector<int>(5){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+    }
+
     Gindex(int a, const Gdims& dims): 
       vector<int>(dims.size()){
       for(int i=size()-1; i>=0; i--){
