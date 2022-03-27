@@ -408,7 +408,7 @@ namespace cnine{
 	CoutLock lk;
 	cout<<"Warning: ATen tensor of dims "<<Tdims<<" has strides [ ";
 	for(int i=0; i<k; i++) cout<<T.stride(i)<<" ";
-	cout<<"]"<<endl;
+	cout<<"] instead of "<<Tstrides<<endl;
 	return false; 
       }
       return true;
