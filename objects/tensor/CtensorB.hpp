@@ -401,8 +401,16 @@ namespace cnine{
       for(int i=0; i<k ; i++)
 	Tdims[i]=T.size(i);
       Gstrides Tstrides(Tdims,1);
+      bool t=true;
       for(int i=0; i<k; i++)
-	if(Tstrides[i]!=T.stride(i)) return false;
+	if(Tstrides[i]!=T.stride(i)) {t=false; break;}
+      if(t==false){
+	CoutLock lk;
+	cout<<"Warning: ATen tensor of dims "<<Tdims<<" has strides [ ";
+	for(int i=0; i<k; i++) cout<<T.stride(i)<<" ";
+	cout<<"]"<<endl;
+	return false; 
+      }
       return true;
     }
 
@@ -736,6 +744,9 @@ namespace cnine{
       }
     }
 
+    void operator+=(const CtensorB& x){
+      add(x);
+    }
 
     void add(const CtensorB& x, const float c){
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
@@ -784,6 +795,10 @@ namespace cnine{
 	const float alpha = -1.0;
 	CUBLAS_SAFE(cublasSaxpy(cnine_cublas, memsize, &alpha, x.arrg, 1, arrg, 1));
       }
+    }
+
+    void operator-=(const CtensorB& x){
+      subtract(x);
     }
 
 

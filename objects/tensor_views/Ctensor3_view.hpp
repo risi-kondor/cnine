@@ -98,6 +98,14 @@ namespace cnine{
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
+    /*
+    void add_mprod2(const Ctensor2_view& x, const Ctensor2_view& M) const{
+      const int B=n0;
+      asset(x.n0==B);
+      cnine::MultiLoop(B,[&](const int b){
+	  slice0(b).add_mprod2(x.slice0(b),M);});
+    }
+    */
 
 
   public: // ---- Other views -------------------------------------------------------------------------------
