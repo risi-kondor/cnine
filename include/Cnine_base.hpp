@@ -253,6 +253,17 @@ namespace cnine{
     size_spec(const int _n): n(_n){}
   };
 
+  template<typename TYPE>
+  class _viewof{
+  public:
+    TYPE& obj;
+    _viewof(TYPE& _obj): obj(_obj){}
+  };
+
+  template<typename TYPE>
+  _viewof<TYPE> viewof(TYPE& obj){
+    return _viewof<TYPE>(obj);
+  }
 
   class Printable{
   public:
