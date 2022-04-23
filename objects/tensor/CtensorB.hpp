@@ -726,6 +726,18 @@ namespace cnine{
       return R;
     }
 
+    
+    float diff2(const CtensorB& y){
+      assert(dev==0);
+      assert(memsize==y.memsize);
+      float t=0;
+      for(int i=0; i<memsize; i++){
+	float d=arr[i]-y.arr[i];
+	t+=d*d;
+      }
+      return t;
+    }
+
 
   public: // ---- Cumulative operations ----------------------------------------------------------------------
 
