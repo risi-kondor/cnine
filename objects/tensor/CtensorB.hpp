@@ -727,7 +727,16 @@ namespace cnine{
     }
 
     
-    float diff2(const CtensorB& y){
+    float norm2() const{
+      assert(dev==0);
+      float t=0;
+      for(int i=0; i<memsize; i++){
+	t+=arr[i]*arr[i];
+      }
+      return t;
+    }
+
+    float diff2(const CtensorB& y) const{
       assert(dev==0);
       assert(memsize==y.memsize);
       float t=0;
