@@ -555,6 +555,10 @@ namespace cnine{
       return dims.size();
     }
 
+    int ndims() const{
+      return dims.size();
+    }
+
     Gdims get_dims() const{
       return dims;
     }
@@ -600,7 +604,8 @@ namespace cnine{
 
 
     Ctensor1_view view1() const{
-      return Ctensor1_view(arr,dims,strides,coffs,dev);
+      if(dev==0) return Ctensor1_view(arr,dims,strides,coffs,dev);
+      else return Ctensor1_view(arrg,dims,strides,coffs,dev);
     }
 
     Ctensor1_view view1D() const{
@@ -627,7 +632,8 @@ namespace cnine{
 
 
     Ctensor3_view view3() const{
-      return Ctensor3_view(true_arr(),dims,strides,coffs,dev);
+     if(dev==0) return Ctensor3_view(arr,dims,strides,coffs,dev);
+     else return Ctensor3_view(arrg,dims,strides,coffs,dev);
     }
 
     Ctensor3_view view3D() const{
@@ -639,7 +645,11 @@ namespace cnine{
     }
 
 
-    Ctensor4_view view4() const{
+    const Ctensor4_view view4() const{
+      return Ctensor4_view(true_arr(),dims,strides,coffs,dev);
+    }
+
+    Ctensor4_view view4(){
       return Ctensor4_view(true_arr(),dims,strides,coffs,dev);
     }
 
@@ -709,6 +719,22 @@ namespace cnine{
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
       return complex<float>(arr[t],arr[t+coffs]);
     }
+
+
+    void set(const int i0, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0]) throw std::out_of_range("index "+Gindex(i0).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0];  
+      arr[t]=std::real(x);
+      arr[t+coffs]=std::imag(x);
+    }
+
+    void set(const int i0, const int i1, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1];  
+      arr[t]=std::real(x);
+      arr[t+coffs]=std::imag(x);
+    }
+
 
 
   public: // ---- Operations ---------------------------------------------------------------------------------

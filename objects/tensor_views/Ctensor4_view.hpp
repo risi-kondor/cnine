@@ -59,18 +59,18 @@ namespace cnine{
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
-    complex<float> operator()(const int i0, const int i1, const int i2, const int i3){
+    complex<float> operator()(const int i0, const int i1, const int i2, const int i3) const{
       int t=s0*i0+s1*i1+s2*i2+s3*i3;
       return complex<float>(arr[t],arrc[t]);
     }
 
-    void set(const int i0, const int i1, const int i2, const int i3, complex<float> x){
+    void set(const int i0, const int i1, const int i2, const int i3, complex<float> x) const{
       int t=s0*i0+s1*i1+s2*i2+s3*i3;
       arr[t]=std::real(x);
       arrc[t]=std::imag(x);
     }
 
-    void inc(const int i0, const int i1, const int i2, const int i3, complex<float> x){
+    void inc(const int i0, const int i1, const int i2, const int i3, complex<float> x) const{
       int t=s0*i0+s1*i1+s2*i2+s3*i3;
       arr[t]+=std::real(x);
       arrc[t]+=std::imag(x);
@@ -79,6 +79,53 @@ namespace cnine{
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
+
+   // Product type: abcd,be -> aecd
+    void add_mix_1_0(const Ctensor4_view& x, const Ctensor2_view& y){
+      fuse23().add_mix_1_0(x.fuse23(),y);
+    }
+
+
+   // Product type: abcd,de -> abce
+    void add_mix_3_0(const Ctensor4_view& x, const Ctensor2_view& y) const{
+      fuse01().add_mix_2_0(x.fuse01(),y);
+    }
+
+
+   // Product type: abc,dbc -> abdc
+    void add_expand_2(const Ctensor3_view& x, const Ctensor3_view& y){
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      assert(x.n2==n3);
+      assert(y.n0==n2);
+      assert(y.n1==x.n1);
+      assert(y.n2==x.n2);
+
+      for(int a=0; a<n0; a++)
+	for(int b=0; a<n1; b++)
+	  for(int d=0; d<n2; d++)
+	    for(int c=0; c<n3; c++)
+	      inc(a,b,d,c,x(a,b,c)*y(d,b,c));
+    }
+
+   // Product type: abic,bic -> abc
+    void add_contract_abic_bic_abc_to(const Ctensor3_view& r, const Ctensor3_view& y) const{
+      assert(r.n0==n0);
+      assert(r.n1==n1);
+      assert(r.n2==n3);
+      assert(y.n0==n1);
+      assert(y.n1==n2);
+      assert(y.n2==n3);
+
+      for(int a=0; a<r.n0; a++)
+	for(int b=0; b<r.n1; b++)
+	  for(int c=0; c<r.n2; c++){
+      	    complex<float> t=0;
+	    for(int i=0; i<n2; i++)
+	      t+=(*this)(a,b,i,c)*y(b,i,c);
+	    r.inc(a,b,c,t);
+	  }
+    }
 
 
   public: // ---- Other views -------------------------------------------------------------------------------

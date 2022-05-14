@@ -191,6 +191,22 @@ namespace cnine{
 
   };
 
+  inline Ctensor2_view split0(const Ctensor1_view& x, const int i, const int j){
+    assert(i*j==x.n0);
+    return Ctensor2_view(x.arr,x.arrc,i,j,x.s0*j,x.s0,x.dev);
+  }
+
+
+  inline Ctensor2_view unsqueeze0(const Ctensor1_view& x){
+    return Ctensor2_view(x.arr,x.arrc,1,x.n0,x.s0*x.n0,x.s0,x.dev);
+  }
+
+  inline Ctensor2_view unsqueeze1(const Ctensor1_view& x){
+    return Ctensor2_view(x.arr,x.arrc,x.n0,1,x.s0,x.s0,x.dev);
+  }
+
+
+
 
 
 }

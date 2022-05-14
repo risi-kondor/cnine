@@ -83,13 +83,13 @@ namespace cnine{
       return complex<float>(arr[t],arrc[t]);
     }
 
-    void set(const int i0, const int i1, const int i2, complex<float> x){
+    void set(const int i0, const int i1, const int i2, complex<float> x) const{
       int t=s0*i0+s1*i1+s2*i2;
       arr[t]=std::real(x);
       arrc[t]=std::imag(x);
     }
 
-    void inc(const int i0, const int i1, const int i2, complex<float> x){
+    void inc(const int i0, const int i1, const int i2, complex<float> x) const{
       int t=s0*i0+s1*i1+s2*i2;
       arr[t]+=std::real(x);
       arrc[t]+=std::imag(x);
@@ -107,6 +107,50 @@ namespace cnine{
     }
     */
 
+    // Product type: aic,ib -> abc
+    void add_mix_1_0(const Ctensor3_view& x, const Ctensor2_view& y){
+      assert(x.dev==0);
+      assert(y.dev==0);
+      assert(dev==0);
+
+      const int I=x.n1;
+      assert(y.n0==I);
+      assert(x.n0==n0);
+      assert(y.n1==n1);
+      assert(x.n2==n2);
+
+      for(int a=0; a<n0; a++)
+	for(int b=0; b<n1; b++)
+	  for(int c=0; c<n2; c++){
+	    complex<float> t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,i,c)*y(i,b);
+	    inc(a,b,c,t);
+	  }
+    }
+    
+    // Product type: abi,ic -> abc
+    void add_mix_2_0(const Ctensor3_view& x, const Ctensor2_view& y){
+      assert(x.dev==0);
+      assert(y.dev==0);
+      assert(dev==0);
+
+      const int I=x.n2;
+      assert(y.n0==I);
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      assert(y.n1==n2);
+
+      for(int a=0; a<n0; a++)
+	for(int b=0; b<n1; b++)
+	  for(int c=0; c<n2; c++){
+	    complex<float> t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,b,i)*y(i,c);
+	    inc(a,b,c,t);
+	  }
+    }
+    
 
   public: // ---- Other views -------------------------------------------------------------------------------
 
@@ -173,6 +217,20 @@ namespace cnine{
     
 
   };
+
+
+  inline Ctensor3_view unsqueeze0(const Ctensor2_view& x){
+    return Ctensor3_view(x.arr,x.arrc,1,x.n0,x.n1,x.s1*x.n0,x.s1,x.s1,x.dev);
+  }
+
+  inline Ctensor3_view unsqueeze1(const Ctensor2_view& x){
+    return Ctensor3_view(x.arr,x.arrc,x.n0,1,x.n1,x.s1,x.s1,x.s1,x.dev);
+  }
+
+  inline Ctensor3_view unsqueeze2(const Ctensor2_view& x){
+    return Ctensor3_view(x.arr,x.arrc,x.n0,x.n1,1,x.s0,x.s1,x.s1,x.dev);
+  }
+
 
 
   /*
