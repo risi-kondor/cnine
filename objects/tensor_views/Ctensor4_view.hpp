@@ -77,6 +77,20 @@ namespace cnine{
     }
 
 
+  public: // ---- foreach ------------------------------------------------------------------------------------
+
+
+    template<typename VIEW>
+    void foreach_slice0(std::function<void(const Ctensor3_view& self_slice, const Ctensor2_view& x_slice)> lambda, 
+      const VIEW& x) const{
+      //const _bind0<VIEW>& _x){
+      //const VIEW& x=_x.obj;
+      assert(n0==x.n0);
+      for(int i=0; i<n0; i++)
+	lambda(slice0(i),x.slice0(i));
+    }
+
+
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
@@ -92,46 +106,35 @@ namespace cnine{
     }
 
 
-   // Product type: abc,dbc -> abdc
+   // Product type: abc,bdc -> abdc
     void add_expand_2(const Ctensor3_view& x, const Ctensor3_view& y){
+      CNINE_CHECK_DEV3((*this),x,y);
       assert(x.n0==n0);
       assert(x.n1==n1);
       assert(x.n2==n3);
-      assert(y.n0==n2);
-      assert(y.n1==x.n1);
+      assert(y.n0==x.n1);
+      assert(y.n1==n2);
       assert(y.n2==x.n2);
 
-      for(int a=0; a<n0; a++)
-	for(int b=0; a<n1; b++)
-	  for(int d=0; d<n2; d++)
-	    for(int c=0; c<n3; c++)
-	      inc(a,b,d,c,x(a,b,c)*y(d,b,c));
+      BasicCproduct_4<float>(arr,arrc,y.arr,y.arrc,r.arr,r.arrc,
+	n0,n1,n2,n3, s0,s1,s2,s3, x.s0,x.s1,0,x.s2, 0,y.s0,y.s1,y.s2, dev);
+
     }
+
 
    // Product type: abic,bic -> abc
     void add_contract_abic_bic_abc_to(const Ctensor3_view& r, const Ctensor3_view& y) const{
-      assert(r.n0==n0);
-      assert(r.n1==n1);
-      assert(r.n2==n3);
-      assert(y.n0==n1);
-      assert(y.n1==n2);
-      assert(y.n2==n3);
-
-      for(int a=0; a<r.n0; a++)
-	for(int b=0; b<r.n1; b++)
-	  for(int c=0; c<r.n2; c++){
-      	    complex<float> t=0;
-	    for(int i=0; i<n2; i++)
-	      t+=(*this)(a,b,i,c)*y(b,i,c);
-	    r.inc(a,b,c,t);
-	  }
+      foreach_slice0([&](const Ctensor3_view& xslice, const Ctensor2_view& rslice){
+	  xslice.add_contract_aib_aib_ab_to(rslice,y);
+	},r);
+      return; 
     }
 
 
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
-    Ctensor3_view slice0(const int i){
+    Ctensor3_view slice0(const int i) const{
       return Ctensor3_view(arr+i*s0,arrc+i*s0,n1,n2,n3,s1,s2,s3);
     }
 
@@ -185,3 +188,41 @@ namespace cnine{
 
 
 #endif 
+      // deprecated
+      /*
+      CNINE_CHECK_DEV3((*this),r,y); 
+      assert(r.n0==n0);
+      assert(r.n1==n1);
+      assert(r.n2==n3);
+      assert(y.n0==n1);
+      assert(y.n1==n2);
+      assert(y.n2==n3);
+
+      if(dev==0){
+	for(int a=0; a<r.n0; a++)
+	  for(int b=0; b<r.n1; b++)
+	    for(int c=0; c<r.n2; c++){
+	      complex<float> t=0;
+	      for(int i=0; i<n2; i++)
+		t+=(*this)(a,b,i,c)*y(b,i,c);
+	      r.inc(a,b,c,t);
+	    }
+      }
+
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+      */
+      /*
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; a<n1; b++)
+	    for(int d=0; d<n2; d++)
+	      for(int c=0; c<n3; c++)
+		inc(a,b,d,c,x(a,b,c)*y(b,d,c));
+      }
+
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+      */

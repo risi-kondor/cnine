@@ -71,6 +71,7 @@ namespace cnine{
       s1=_strides[b.back()];
     }
 
+    
 
   public: // ---- Access ------------------------------------------------------------------------------------
 
@@ -80,36 +81,60 @@ namespace cnine{
       return complex<float>(arr[t],arrc[t]);
     }
 
-    void set(const int i0, const int i1, complex<float> x){
+    void set(const int i0, const int i1, complex<float> x) const{
       int t=s0*i0+s1*i1;
       arr[t]=std::real(x);
       arrc[t]=std::imag(x);
     }
 
-    void inc(const int i0, const int i1, complex<float> x){
+    void inc(const int i0, const int i1, complex<float> x) const{
       int t=s0*i0+s1*i1;
       arr[t]+=std::real(x);
       arrc[t]+=std::imag(x);
+    }
+
+    bool is_regular() const{
+      if(arrc-arr!=1) return false;
+      if(s1!=2) return false;
+      if(s0!=s1*n1) return false;
+      return true;
     }
 
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
+    void add_matmul(const Ctensor2_view& x, const Ctensor2_view& y){
+      add_matmul_AA(x,y);
+    }
+
     void add_matmul_AA(const Ctensor2_view& x, const Ctensor2_view& y){
-      const int I=x.n1;
+      CNINE_CHECK_DEV3((*this),x,y);
       assert(x.n0==n0);
       assert(y.n1==n1);
-      assert(y.n0==I);
+      assert(y.n0==x.n1);
+      const int I=x.n1;
 
-      for(int a=0; a<n0; a++)
-	for(int b=0; b<n1; b++){
-	  complex<float> t=0;
-	  for(int i=0; i<I; i++)
-	    t+=x(a,i)*y(i,b);
-	  inc(a,b,t);
-	}
+
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    complex<float> t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,i)*y(i,b);
+	    inc(a,b,t);
+	  }
+      }
+
+      if(dev==1){
+	float alpha=1.0;
+	assert(is_regular());
+	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,x.n1,&alpha,
+	    y.arr,n1,x.arr,x.n1,&alpha,arr,n1)); 
+      }
     }
+
+
 
 /*
     void accumulate(const Ctensor2_view& x, const Rmask1& mask){

@@ -265,6 +265,20 @@ namespace cnine{
     return _viewof<TYPE>(obj);
   }
 
+  template<typename TYPE>
+  class _bind0{
+  public:
+    const TYPE& obj;
+    _bind0(const TYPE& _obj): obj(_obj){}
+  };
+
+  template<typename TYPE>
+  _bind0<TYPE> bind0(const TYPE& obj){
+    return _bind0<TYPE>(obj);
+  }
+
+  
+
   class Printable{
   public:
     virtual string str(const string ident="") const=0;

@@ -14,6 +14,7 @@
 #include "Gstrides.hpp"
 
 #include "Ctensor2_view.hpp"
+#include "BasicCtensorProducts.hpp"
 
 
 namespace cnine{
@@ -95,23 +96,33 @@ namespace cnine{
       arrc[t]+=std::imag(x);
     }
 
+    bool is_regular() const{
+      if(arrc-arr!=1) return false;
+      if(s2!=2) return false;
+      if(s1!=s2*n2) return false;
+      if(s0!=s1*n1) return false;
+      return true;
+    }
+
+
+  public: // ---- foreach ------------------------------------------------------------------------------------
+
+
+    template<typename VIEW, typename SLICE>
+    void foreach_slice0(std::function<void(const Ctensor2_view& self_slice, const SLICE& x_slice)> lambda, 
+      const _bind0<VIEW>& _x){
+      assert(n0==_x.obj.n0);
+      for(int i=0; i<n0; i++)
+	lambda(slice0(i),_x.obj.slice0(i));
+    }
+
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
-    /*
-    void add_mprod2(const Ctensor2_view& x, const Ctensor2_view& M) const{
-      const int B=n0;
-      asset(x.n0==B);
-      cnine::MultiLoop(B,[&](const int b){
-	  slice0(b).add_mprod2(x.slice0(b),M);});
-    }
-    */
 
     // Product type: aic,ib -> abc
     void add_mix_1_0(const Ctensor3_view& x, const Ctensor2_view& y){
-      assert(x.dev==0);
-      assert(y.dev==0);
-      assert(dev==0);
+      CNINE_CHECK_DEV3((*this),x,y);
 
       const int I=x.n1;
       assert(y.n0==I);
@@ -119,38 +130,46 @@ namespace cnine{
       assert(y.n1==n1);
       assert(x.n2==n2);
 
-      for(int a=0; a<n0; a++)
-	for(int b=0; b<n1; b++)
-	  for(int c=0; c<n2; c++){
-	    complex<float> t=0;
-	    for(int i=0; i<I; i++)
-	      t+=x(a,i,c)*y(i,b);
-	    inc(a,b,c,t);
-	  }
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++)
+	    for(int c=0; c<n2; c++){
+	      complex<float> t=0;
+	      for(int i=0; i<I; i++)
+		t+=x(a,i,c)*y(i,b);
+	      inc(a,b,c,t);
+	    }
+      }
+
+      if(dev==1){
+	float alpha=1.0;
+	assert(is_regular()); // stride this!!
+	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
+	    x.arr,x.n2,y.arr,y.n1,&alpha,arr,n2)); 
+      }
     }
     
+
     // Product type: abi,ic -> abc
     void add_mix_2_0(const Ctensor3_view& x, const Ctensor2_view& y){
-      assert(x.dev==0);
-      assert(y.dev==0);
-      assert(dev==0);
-
-      const int I=x.n2;
-      assert(y.n0==I);
-      assert(x.n0==n0);
-      assert(x.n1==n1);
-      assert(y.n1==n2);
-
-      for(int a=0; a<n0; a++)
-	for(int b=0; b<n1; b++)
-	  for(int c=0; c<n2; c++){
-	    complex<float> t=0;
-	    for(int i=0; i<I; i++)
-	      t+=x(a,b,i)*y(i,c);
-	    inc(a,b,c,t);
-	  }
+      fuse01().add_matmul(x.fuse01(),y);
     }
     
+
+   // Product type: aib,aib -> ab
+    void add_contract_aib_aib_ab_to(const Ctensor2_view& r, const Ctensor3_view& y) const{
+      CNINE_CHECK_DEV3((*this),r,y); 
+      assert(r.n0==n0);
+      assert(r.n1==n2);
+      assert(y.n0==n0);
+      assert(y.n1==n1);
+      assert(y.n2==n2);
+
+      BasicCproduct_2_1<float>(arr,arrc,y.arr,y.arrc,r.arr,r.arrc,n0,n2,n1,s0,s2,s1,y.s0,y.s2,y.s1,r.s0,r.s1,dev);
+      return;
+
+    }
+
 
   public: // ---- Other views -------------------------------------------------------------------------------
 
@@ -252,3 +271,49 @@ namespace cnine{
 
 
 #endif 
+
+      /*
+      assert(x.dev==0);
+      assert(y.dev==0);
+      assert(dev==0);
+
+      const int I=x.n2;
+      assert(y.n0==I);
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      assert(y.n1==n2);
+
+      for(int a=0; a<n0; a++)
+	for(int b=0; b<n1; b++)
+	  for(int c=0; c<n2; c++){
+	    complex<float> t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,b,i)*y(i,c);
+	    inc(a,b,c,t);
+	  }
+      */
+    /*
+    void add_mprod2(const Ctensor2_view& x, const Ctensor2_view& M) const{
+      const int B=n0;
+      asset(x.n0==B);
+      cnine::MultiLoop(B,[&](const int b){
+	  slice0(b).add_mprod2(x.slice0(b),M);});
+    }
+    */
+
+      /*
+      if(dev==0){// Deprecated 
+	for(int a=0; a<r.n0; a++)
+	  for(int b=0; b<r.n1; b++){
+	      complex<float> t=0;
+	      for(int i=0; i<n1; i++)
+		t+=(*this)(a,i,b)*y(a,i,b);
+	      r.inc(a,b,t);
+	    }
+      }
+
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+      */
+

@@ -1,0 +1,102 @@
+//  This file is part of cnine, a lightweight C++ tensor library. 
+// 
+//  Copyright (c) 2022, Imre Risi Kondor
+//
+//  This Source Code Form is subject to the terms of the Mozilla
+//  Public License v. 2.0. If a copy of the MPL was not distributed
+//  with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+#ifndef _BasicCtensorProducts
+#define _BasicCtensorProducts
+
+#include "Cnine_base.hpp"
+#include "Gstrides.hpp"
+
+#include "Ctensor2_view.hpp"
+
+
+namespace cnine{
+
+
+  // ---- no summation ----------------------------------------------------------------------------------------
+
+
+  template<typename TYPE>
+  void BasicCproduct_4(const float* xarr, const float* xarrc, const float* yarr, const float* yarrc, float* rarr, float* rarrc, 
+    const int n0, const int n1, const int n2, const int n3, 
+    const int xs0, const int xs1, const int xs2, const int xs3, 
+    const int ys0, const int ys1, const int ys2, const int ys3, 
+    const int rs0, const int rs1,  const int rs2, const int rs3, 
+    const int dev=0){
+
+    if(dev==0){
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++)
+	  for(int i2=0; i2<n2; i2++)
+	    for(int i3=0; i3<n3; i3++)
+	      complex<TYPE> t=
+		complex<TYPE>(xarr[i0*xs0+i1*xs1+i2*xs2+i3*xs3],xarrc[i0*xs0+i1*xs1+i2*xs2+i3*xs3])*
+		complex<TYPE>(yarr[i0*ys0+i1*ys1+i2*ys2+i3*ys3],yarrc[i0*ys0+i1*ys1+i2*ys2+i3*ys3]);
+	  rarr[i0*rs0+i1*rs1+i2*rs2+i3*rs3]=std::real(t);
+	  rarrc[i0*rs0+i1*rs1+i2*rs2+i3*rs3]=std::imag(t);
+    }
+    if(dev==1){
+      CNINE_CPUONLY();
+    }
+  }
+
+
+  // ---- one summed index -----------------------------------------------------------------------------------
+
+
+  template<typename TYPE>
+  void BasicCproduct_1_1(const float* xarr, const float* xarrc, const float* yarr, const float* yarrc, 
+    float* rarr, float* rarrc, const int n0, const int n1, const int xs0, const int xs1, 
+    const int ys0, const int ys1, const int rs0, const int dev=0){
+    if(dev==0){
+      for(int i0=0; i0<n0; i0++){
+	complex<TYPE> t=0;
+	for(int i1=0; i1<n1; i1++)
+	  t+=complex<TYPE>(xarr[i0*xs0+i1*xs1],xarrc[i0*xs0+i1*xs1])*
+	    complex<TYPE>(yarr[i0*ys0+i1*ys1],yarrc[i0*ys0+i1*ys1]);
+	rarr[i0*rs0]=std::real(t);
+	rarrc[i0*rs0]=std::imag(t);
+      }
+    }
+    if(dev==1){
+      CNINE_CPUONLY();
+    }
+  }
+
+
+  template<typename TYPE>
+  void BasicCproduct_2_1(const float* xarr, const float* xarrc, const float* yarr, const float* yarrc, float* rarr, float* rarrc, 
+    const int n0, const int n1, const int n2, 
+    const int xs0, const int xs1, const int xs2, 
+    const int ys0, const int ys1, const int ys2, 
+    const int rs0, const int rs1,
+    const int dev=0){
+
+    if(dev==0){
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++){
+	  complex<TYPE> t=0;
+	  for(int i2=0; i2<n2; i2++)
+	    t+=complex<TYPE>(xarr[i0*xs0+i1*xs1+i2*xs2],xarrc[i0*xs0+i1*xs1+i2*xs2])*
+	      complex<TYPE>(yarr[i0*ys0+i1*ys1+i2*ys2],yarrc[i0*ys0+i1*ys1+i2*ys2]);
+	  rarr[i0*rs0+i1*rs1]=std::real(t);
+	  rarrc[i0*rs0+i1*rs1]=std::imag(t);
+	}
+    }
+    if(dev==1){
+      CNINE_CPUONLY();
+    }
+  }
+
+
+
+
+}
+
+#endif 
