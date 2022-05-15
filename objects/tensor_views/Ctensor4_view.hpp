@@ -116,8 +116,8 @@ namespace cnine{
       assert(y.n1==n2);
       assert(y.n2==x.n2);
 
-      BasicCproduct_4<float>(arr,arrc,y.arr,y.arrc,r.arr,r.arrc,
-	n0,n1,n2,n3, s0,s1,s2,s3, x.s0,x.s1,0,x.s2, 0,y.s0,y.s1,y.s2, dev);
+      BasicCproduct_4<float>(x.arr,x.arrc,y.arr,y.arrc,arr,arrc,
+	n0,n1,n2,n3, x.s0,x.s1,0,x.s2, 0,y.s0,y.s1,y.s2, s0,s1,s2,s3, dev);
 
     }
 

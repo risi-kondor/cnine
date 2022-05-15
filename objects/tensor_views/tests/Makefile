@@ -7,6 +7,7 @@ INCLUDE= -I$(INCLUDEDIR) -I$(INCLUDEDIR)/cmaps -I$(SCALARDIR) -I$(TENSORDIR) -I$
 
 TESTS= testRtensor_view testCtensorView_accumulate \
 testTensorViewAdapter 
+TESTS+= testCtensorProducts
 
 DEPS=$(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(SCALARDIR)/*.hpp  $(TENSORVIEWDIR)/*.hpp 
 
@@ -49,6 +50,14 @@ ifdef WITH_CUDA
 	$(NVCC) $(NVCCFLAGS) -o testTensorViewAdapter testTensorViewAdapter.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else
 	$(CC) -o testTensorViewAdapter testTensorViewAdapter.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+endif
+
+
+testCtensorProducts: testCtensorProducts.cpp $(DEPS)
+ifdef WITH_CUDA
+	$(NVCC) $(NVCCFLAGS) -o testCtensorProducts testCtensorProducts.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+else
+	$(CC) -o testCtensorProducts testCtensorProducts.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
 endif
 
 

@@ -1441,6 +1441,23 @@ namespace cnine{
 	return oss.str();  
       }
 
+      if(k==4){
+	for(int u=0; u<dims[0]; u++){
+	  for(int v=0; v<dims[1]; v++){
+	    for(int i=0; i<dims[2]; i++){
+	      oss<<indent<<"[ ";
+	      for(int j=0; j<dims[3]; j++)
+		oss<<(*this)({u,v,i,j})<<" ";
+	      oss<<"]";
+	      oss<<"\n";
+	    }
+	    oss<<"\n";
+	  }
+	  oss<<"\n";
+	}
+	return oss.str();  
+      }
+
       /*
       if(k>2){
 	for(int offs=0; offs<asize; offs+=strides[k-3]){
