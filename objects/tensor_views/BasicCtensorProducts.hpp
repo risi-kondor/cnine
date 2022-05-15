@@ -15,17 +15,30 @@
 
 #include "Ctensor2_view.hpp"
 
+#ifdef _WITH_CUBLAS
+#include <cublas_v2.h>
+extern cublasHandle_t cnine_cublas;
+#endif 
 
 namespace cnine{
 
 
   #ifdef _WITH_CUDA
+
   void BasicCproduct_4_cu(const float* xarr, const float* xarrc, const float* yarr, const float* yarrc, float* rarr, float* rarrc, 
     const int n0, const int n1, const int n2, const int n3, 
     const int xs0, const int xs1, const int xs2, const int xs3, 
     const int ys0, const int ys1, const int ys2, const int ys3, 
     const int rs0, const int rs1,  const int rs2, const int rs3,
     const cudaStream_t& stream);
+
+  void BasicCproduct_2_1_cu(const float* xarr, const float* xarrc, const float* yarr, const float* yarrc, float* rarr, float* rarrc, 
+    const int n0, const int n1, const int n2,  
+    const int xs0, const int xs1, const int xs2, 
+    const int ys0, const int ys1, const int ys2, 
+    const int rs0, const int rs1,  
+    const cudaStream_t& stream);
+
   #endif 
 
 
@@ -105,7 +118,8 @@ namespace cnine{
 	}
     }
     if(dev==1){
-      CNINE_CPUONLY();
+      CUDA_STREAM(BasicCproduct_2_1_cu(xarr,xarrc,yarr,yarrc,rarr,rarrc,
+	  n0,n1,n2,xs0,xs1,xs2,ys0,ys1,ys2,rs0,rs1,stream));
     }
   }
 

@@ -17,6 +17,12 @@
 
 #include "Ctensor1_view.hpp"
 
+#ifdef _WITH_CUBLAS
+#include <cublas_v2.h>
+extern cublasHandle_t cnine_cublas;
+#endif 
+
+
 //#ifdef _WITH_CUDA
 //class Ctensor2_view; 
 //void Ctensor2view_accumulator_cu(Ctensor2_view& r, const Ctensor2_view& x, const Rmask1& mask, const cudaStream_t& stream);
@@ -127,10 +133,18 @@ namespace cnine{
       }
 
       if(dev==1){
-	float alpha=1.0;
 	assert(is_regular());
+	#ifdef _WITH_CUBLAS
+	cuComplex alpha;
+	alpha.x=1.0f;
+	alpha.y=0.0f;
+	#ifndef _OBJFILE
 	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,x.n1,&alpha,
-	    y.arr,n1,x.arr,x.n1,&alpha,arr,n1)); 
+	    reinterpret_cast<cuComplex*>(y.arr),n1, 
+	    reinterpret_cast<cuComplex*>(x.arr),x.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(arr),n1)); 
+	#endif
+	#endif
       }
     }
 

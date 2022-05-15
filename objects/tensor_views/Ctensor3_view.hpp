@@ -144,8 +144,10 @@ namespace cnine{
       if(dev==1){
 	float alpha=1.0;
 	assert(is_regular()); // stride this!!
-	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
-	    x.arr,x.n2,y.arr,y.n1,&alpha,arr,n2)); 
+	#ifndef _OBJFILE
+	//CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
+	//x.arr,x.n2,y.arr,y.n1,&alpha,arr,n2)); 
+	#endif
       }
     }
     
