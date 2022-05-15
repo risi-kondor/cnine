@@ -21,6 +21,7 @@ ifdef WITH_CUDA
 INCLUDE+=-I$(CUDA_HOME)/include
 CUDA_OBJECTS+=Flock.o CtensorA_add.o CtensorA_add_plus.o CtensorA_copy.o CtensorA_plus.o
 CUDA_OBJECTS+=TensorView_accumulators.o  
+CUDA_OBJECTS+=BasicCtensorProducts.o  
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
 NVCCFLAGS+= -D_WITH_CUDA -D_WITH_CUBLAS
 endif 
@@ -50,6 +51,10 @@ TensorView_accumulators.o: TensorView_accumulators.cu Makefile
 
 EigenRoutines.o: EigenRoutines.cpp Makefile  
 	$(CC) -c EigenRoutines.cpp $(CFLAGS) $(INCLUDE) -I$(EIGENDIR) -D_WITH_EIGEN 
+
+BasicCtensorProducts.o: TensorView_accumulators.cu Makefile  
+	$(NVCC) $(NVCCFLAGS) -c BasicCtensorProducts.cu $(CFLAGS) $(MACROS) $(INCLUDE) 
+
 
 
 objects: $(OBJECTS) $(CUDA_OBJECTS)
