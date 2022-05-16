@@ -291,7 +291,7 @@ namespace cnine{
       if(!is_view){
 	if(arr){delete arr; arr=nullptr;}
 	#ifdef _WITH_CUDA
-	if(arrg){CUDA_SAFE(cudaFree(arrg)); arrg=nullptr}
+	if(arrg){CUDA_SAFE(cudaFree(arrg)); arrg=nullptr;}
 	#endif
       }
 
