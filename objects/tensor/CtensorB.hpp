@@ -736,7 +736,7 @@ namespace cnine{
     }
 
     void set(const int i0, const int i1, const int i2, complex<float> x) const{
-      CNINE_CHECK_RANGE(if(dims.size()!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
+      CNINE_CHECK_RANGE(if(dims.size()!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
       arr[t]=std::real(x);
       arr[t+coffs]=std::imag(x);
