@@ -120,7 +120,7 @@ namespace cnine{
     }
 
     CtensorB(const Gdims& _dims, const fill_ones& dummy, const int _dev=0): 
-      CtensorB(_dims,fill::raw,0){
+      CtensorB(_dims,fill::raw){
       std::fill(arr,arr+memsize,1);
       if(_dev==1) move_to_device(_dev);
     }
@@ -195,6 +195,7 @@ namespace cnine{
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
+	CNINE_REQUIRES_CUDA();
 	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
@@ -209,6 +210,7 @@ namespace cnine{
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
+	CNINE_REQUIRES_CUDA();
 	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
@@ -271,33 +273,41 @@ namespace cnine{
       coffs=x.coffs;
       dev=x.dev;
 
+      /*
       if(is_view){
 	if(dev==0){
 	  std::copy(x.arr,x.arr+memsize,arr);
 	}
 	if(dev==1){
+	  CNINE_REQUIRES_CUDA();
 	  #ifdef _WITH_CUDA
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	  #endif 
 	}
 	return *this;
       }
+      */
 
-      delete arr;
-      #ifdef _WITH_CUDA
-      if(arrg){CUDA_SAFE(cudaFree(arrg));}
-      #endif
+      if(!is_view){
+	if(arr){delete arr; arr=nullptr;}
+	#ifdef _WITH_CUDA
+	if(arrg){CUDA_SAFE(cudaFree(arrg)); arrg=nullptr}
+	#endif
+      }
+
       if(dev==0){
 	arr=new float[memsize]; 
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
+	CNINE_REQUIRES_CUDA();
 	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	#endif 
       }
       
+      is_view=false;
       return *this;
     }
 
@@ -309,8 +319,8 @@ namespace cnine{
       memsize=x.memsize; 
       coffs=x.coffs; 
       dev=x.dev; 
-      if(!is_view && arr) delete arr;
-      if(!is_view && arrg) {CUDA_SAFE(cudaFree(arrg));}
+      if(!is_view && arr) {delete arr; arr=nullptr;}
+      if(!is_view && arrg) {CUDA_SAFE(cudaFree(arrg)); arrg=nullptr;}
       arr=x.arr; x.arr=nullptr; 
       arrg=x.arrg; x.arrg=nullptr; 
       is_view=x.is_view;
