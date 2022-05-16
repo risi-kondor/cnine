@@ -153,9 +153,9 @@ namespace cnine{
 	alpha.x=1.0f;
 	alpha.y=0.0f;
 	CUBLAS_SAFE(cublasCgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
-	    reinterpret_cast<cuComplex*>(x.arr),x.n2,x.s0,
-	    reinterpret_cast<cuComplex*>(y.arr),y.n1,0,&alpha,
-	    reinterpret_cast<cuComplex*>(arr),n2,s0,n0)); 
+	  reinterpret_cast<cuComplex*>(x.arr),x.n2,x.s0/2,
+	  reinterpret_cast<cuComplex*>(y.arr),y.n1,0,&alpha,
+	  reinterpret_cast<cuComplex*>(arr),n2,s0/2,n0)); 
 	//CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
 	//  reinterpret_cast<cuComplex*>(x.arr),x.n2,
 	//  reinterpret_cast<cuComplex*>(y.arr),y.n1,&alpha,
@@ -187,6 +187,7 @@ namespace cnine{
       }
 
       if(dev==1){
+	CNINE_UNIMPL();
 	assert(is_regular()); // stride this!!
 	CNINE_CPUONLY();
 	#ifdef _WITH_CUBLAS
