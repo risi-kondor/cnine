@@ -735,6 +735,13 @@ namespace cnine{
       arr[t+coffs]=std::imag(x);
     }
 
+    void set(const int i0, const int i1, const int i2, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
+      arr[t]=std::real(x);
+      arr[t+coffs]=std::imag(x);
+    }
+
 
 
   public: // ---- Operations ---------------------------------------------------------------------------------
@@ -749,6 +756,21 @@ namespace cnine{
     CtensorB operator-(const CtensorB& y) const{
       CtensorB R(*this);
       R.subtract(y);
+      return R;
+    }
+
+    CtensorB operator/(const CtensorB& y) const{ // TODO
+      CNINE_CPUONLY();
+      assert(y.memsize==memsize);
+      CtensorB R=zeros_like(*this);
+      for(int i=0; i<asize; i++){
+	complex<float> t=complex<float>(arr[i*2],arr[i*2+coffs])/complex<float>(y.arr[i*2],y.arr[i*2+coffs]);
+	R.arr[i*2]=std::real(t);
+	R.arr[i*2+coffs]=std::imag(t);
+      }
+      for(int i=0; i<memsize; i++){
+	R.arr[i]=arr[i]/y.arr[i];
+      }
       return R;
     }
 

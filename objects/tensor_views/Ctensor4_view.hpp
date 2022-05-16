@@ -99,10 +99,18 @@ namespace cnine{
       fuse23().add_mix_1_0(x.fuse23(),y);
     }
 
+    void add_mix_1_H(const Ctensor4_view& x, const Ctensor2_view& y){
+      fuse23().add_mix_1_H(x.fuse23(),y);
+    }
+
 
    // Product type: abcd,de -> abce
     void add_mix_3_0(const Ctensor4_view& x, const Ctensor2_view& y) const{
       fuse01().add_mix_2_0(x.fuse01(),y);
+    }
+
+    void add_mix_3_H(const Ctensor4_view& x, const Ctensor2_view& y) const{
+      fuse01().add_mix_2_H(x.fuse01(),y);
     }
 
 

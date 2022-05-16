@@ -144,9 +144,50 @@ namespace cnine{
       if(dev==1){
 	float alpha=1.0;
 	assert(is_regular()); // stride this!!
-	#ifndef _OBJFILE
-	//CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
-	//x.arr,x.n2,y.arr,y.n1,&alpha,arr,n2)); 
+	#ifdef _WITH_CUBLAS
+	cuComplex alpha;
+	alpha.x=1.0f;
+	alpha.y=0.0f;
+	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(x.arr),x.n2,
+	    reinterpret_cast<cuComplex*>(y.arr),y.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(arr),n2)); 
+	#endif
+      }
+    }
+    
+
+    void add_mix_1_H(const Ctensor3_view& x, const Ctensor2_view& y){
+      CNINE_CHECK_DEV3((*this),x,y);
+
+      const int I=x.n1;
+      assert(y.n1==I);
+      assert(x.n0==n0);
+      assert(y.n0==n1);
+      assert(x.n2==n2);
+
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++)
+	    for(int c=0; c<n2; c++){
+	      complex<float> t=0;
+	      for(int i=0; i<I; i++)
+		t+=x(a,i,c)*std::conj(y(b,i));
+	      inc(a,b,c,t);
+	    }
+      }
+
+      if(dev==1){
+	float alpha=1.0;
+	assert(is_regular()); // stride this!!
+	#ifdef _WITH_CUBLAS
+	cuComplex alpha;
+	alpha.x=1.0f;
+	alpha.y=0.0f;
+	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha, //want C!
+	    reinterpret_cast<cuComplex*>(x.arr),x.n2,
+	    reinterpret_cast<cuComplex*>(y.arr),y.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(arr),n2)); 
 	#endif
       }
     }
@@ -155,6 +196,10 @@ namespace cnine{
     // Product type: abi,ic -> abc
     void add_mix_2_0(const Ctensor3_view& x, const Ctensor2_view& y){
       fuse01().add_matmul(x.fuse01(),y);
+    }
+    
+    void add_mix_2_H(const Ctensor3_view& x, const Ctensor2_view& y){
+      fuse01().add_matmul_AH(x.fuse01(),y);
     }
     
 
