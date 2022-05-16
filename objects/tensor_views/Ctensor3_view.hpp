@@ -142,21 +142,30 @@ namespace cnine{
       }
 
       if(dev==1){
-	float alpha=1.0;
 	assert(is_regular()); // stride this!!
 	#ifdef _WITH_CUBLAS
+	//cout<<x.arr<<endl;
+	//cout<<y.arr<<endl;
+	//cout<<arr<<endl;
+	//cout<<n2<<n1<<y.n1<<x.n2<<n2<<endl;
+
 	cuComplex alpha;
 	alpha.x=1.0f;
 	alpha.y=0.0f;
-	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
-	    reinterpret_cast<cuComplex*>(x.arr),x.n2,
-	    reinterpret_cast<cuComplex*>(y.arr),y.n1,&alpha,
-	    reinterpret_cast<cuComplex*>(arr),n2)); 
+	CUBLAS_SAFE(cublasCgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(x.arr),x.n2,x.s0,
+	    reinterpret_cast<cuComplex*>(y.arr),y.n1,0,&alpha,
+	    reinterpret_cast<cuComplex*>(arr),n2,s0,n0)); 
+	//CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha,
+	//  reinterpret_cast<cuComplex*>(x.arr),x.n2,
+	//  reinterpret_cast<cuComplex*>(y.arr),y.n1,&alpha,
+	//  reinterpret_cast<cuComplex*>(arr),n2)); 
 	#endif
       }
     }
-    
 
+    
+    // Product type: aic,(ib)^H -> abc
     void add_mix_1_H(const Ctensor3_view& x, const Ctensor2_view& y){
       CNINE_CHECK_DEV3((*this),x,y);
 
@@ -178,16 +187,16 @@ namespace cnine{
       }
 
       if(dev==1){
-	float alpha=1.0;
 	assert(is_regular()); // stride this!!
+	CNINE_CPUONLY();
 	#ifdef _WITH_CUBLAS
 	cuComplex alpha;
 	alpha.x=1.0f;
 	alpha.y=0.0f;
-	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1,&alpha, //want C!
-	    reinterpret_cast<cuComplex*>(x.arr),x.n2,
-	    reinterpret_cast<cuComplex*>(y.arr),y.n1,&alpha,
-	    reinterpret_cast<cuComplex*>(arr),n2)); 
+	//CUBLAS_SAFE(cublasCgemmStridedBatched(cnine_cublas,CUBLAS_OP_H,CUBLAS_OP_N,n1,n0,x.n1,&alpha,
+	//  reinterpret_cast<cuComplex*>(y.arr),y.n1,0,
+	//  reinterpret_cast<cuComplex*>(x.arr),x.n1,x.s2,&alpha,
+	//    reinterpret_cast<cuComplex*>(arr),n1,s2)); 
 	#endif
       }
     }

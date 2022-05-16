@@ -143,31 +143,31 @@ namespace cnine{
 
 
     Ctensor3_view slice0(const int i) const{
-      return Ctensor3_view(arr+i*s0,arrc+i*s0,n1,n2,n3,s1,s2,s3);
+      return Ctensor3_view(arr+i*s0,arrc+i*s0,n1,n2,n3,s1,s2,s3,dev);
     }
 
     Ctensor3_view slice1(const int i){
-      return Ctensor3_view(arr+i*s1,arrc+i*s1,n0,n2,n3,s0,s2,s3);
+      return Ctensor3_view(arr+i*s1,arrc+i*s1,n0,n2,n3,s0,s2,s3,dev);
     }
 
     Ctensor3_view slice2(const int i){
-      return Ctensor3_view(arr+i*s2,arrc+i*s2,n0,n1,n3,s0,s1,s3);
+      return Ctensor3_view(arr+i*s2,arrc+i*s2,n0,n1,n3,s0,s1,s3,dev);
     }
 
     Ctensor3_view slice3(const int i){
-      return Ctensor3_view(arr+i*s3,arrc+i*s3,n0,n1,n2,s0,s1,s2);
+      return Ctensor3_view(arr+i*s3,arrc+i*s3,n0,n1,n2,s0,s1,s2,dev);
     }
 
     Ctensor3_view fuse01() const{
-      return Ctensor3_view(arr,arrc,n0*n1,n2,n3,s1,s2,s3);
+      return Ctensor3_view(arr,arrc,n0*n1,n2,n3,s1,s2,s3,dev);
     }    
 
     Ctensor3_view fuse12() const{
-      return Ctensor3_view(arr,arrc,n0,n1*n2,n3,s0,s2,s3);
+      return Ctensor3_view(arr,arrc,n0,n1*n2,n3,s0,s2,s3,dev);
     }    
 
     Ctensor3_view fuse23() const{
-      return Ctensor3_view(arr,arrc,n0,n1,n2*n3,s0,s1,s3);
+      return Ctensor3_view(arr,arrc,n0,n1,n2*n3,s0,s1,s3,dev);
     }    
 
   };

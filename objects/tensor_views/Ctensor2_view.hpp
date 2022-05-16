@@ -213,15 +213,15 @@ namespace cnine{
 
 
     Ctensor1_view slice0(const int i) const{
-      return Ctensor1_view(arr+i*s0,arrc+i*s0,n1,s1);
+      return Ctensor1_view(arr+i*s0,arrc+i*s0,n1,s1,dev);
     }
 
     Ctensor1_view slice1(const int i) const{
-      return Ctensor1_view(arr+i*s1,arrc+i*s1,n0,s0);
+      return Ctensor1_view(arr+i*s1,arrc+i*s1,n0,s0,dev);
     }
 
     Ctensor1_view fuse01() const{
-      return Ctensor1_view(arr,arrc,n0*s0,s1);
+      return Ctensor1_view(arr,arrc,n0*s0,s1,dev);
     }
 
 
