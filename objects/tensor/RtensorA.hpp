@@ -21,6 +21,7 @@
 #include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
 #include "Rtensor4_view.hpp"
+#include "RtensorView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -294,6 +295,18 @@ namespace cnine{
 
     static RtensorA zero(const Gdims& _dims, const int _dev=0){
       return RtensorA(_dims,fill_zero(),_dev);
+    }
+
+    static RtensorA zeros(const Gdims& _dims, const int _dev=0){
+      return RtensorA(_dims,fill_zero(),_dev);
+    }
+
+    static RtensorA gaussian(const Gdims& _dims, const int _dev=0){
+      return RtensorA(_dims,fill_gaussian(),_dev);
+    }
+
+    static RtensorA sequential(const Gdims& _dims, const int _dev=0){
+      return RtensorA(_dims,fill_sequential(),_dev);
     }
 
 
@@ -1124,6 +1137,15 @@ namespace cnine{
 
     const Rtensor4_view view4D() const{
       return Rtensor4_view(arr,dims,strides);
+    }
+
+
+    RtensorView viewx(){
+      return RtensorView(arr,dims,strides);
+    }
+
+    const RtensorView viewx() const{
+      return RtensorView(arr,dims,strides);
     }
 
 

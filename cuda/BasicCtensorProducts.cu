@@ -64,7 +64,7 @@ __global__ void BasicCproduct_4_3_1_kernel(const float* xarr, const float* xarrc
   const int i0=blockIdx.x;
   const int i1=blockIdx.y;
   const int i2=blockIdx.z;
-  const int i3=threadIdx.y;
+  const int i3=threadIdx.x;
 
   float xr=xarr[i0*xs0+i1*xs1+i2*xs2+i3*xs3];
   float xi=xarrc[i0*xs0+i1*xs1+i2*xs2+i3*xs3];

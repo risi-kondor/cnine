@@ -85,20 +85,32 @@ namespace cnine{
       return regular;
     }
 
-    int offs(const int i0){
+    int offs(const int i0) const{
       return i0*(*this)[0];
     }
 
-    int offs(const int i0, const int i1){
+    int offs(const int i0, const int i1) const{
       return i0*(*this)[0]+i1*(*this)[1];
     }
 
-    int offs(const int i0, const int i1, const int i2){
+    int offs(const int i0, const int i1, const int i2) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2];
     }
 
-    int offs(const int i0, const int i1, const int i2, const int i3){
+    int offs(const int i0, const int i1, const int i2, const int i3) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];
+    }
+
+
+  public:
+
+    int combine(const vector<int>& v) const{
+      int t=0;
+      for(auto p:v){
+	assert(p<size());
+	t+=(*this)[p];
+      }
+      return t;
     }
 
 

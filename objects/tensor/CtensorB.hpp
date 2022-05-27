@@ -21,6 +21,7 @@
 #include "Ctensor2_view.hpp"
 #include "Ctensor3_view.hpp"
 #include "Ctensor4_view.hpp"
+#include "CtensorView.hpp"
 #include "Aggregator.hpp"
 
 #include "Ctensor_mprodFn.hpp"
@@ -663,6 +664,14 @@ namespace cnine{
       return Ctensor4_view(true_arr(),dims,strides,coffs,dev);
     }
 
+
+    CtensorView viewx(){
+      return CtensorView(arr,arr+coffs,dims,strides);
+    }
+
+    const CtensorView viewx() const{
+      return CtensorView(arr,arr+coffs,dims,strides);
+    }
 
 
     Ctensor2_view pick_dimension(const int ix=0){

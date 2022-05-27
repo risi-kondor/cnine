@@ -253,6 +253,19 @@ namespace cnine{
     size_spec(const int _n): n(_n){}
   };
 
+
+  template<typename TYPE>
+  class triple{
+  public:
+    TYPE first;
+    TYPE second;
+    TYPE third;
+  public:
+    triple(const TYPE& _first, const TYPE& _second, const TYPE& _third):
+      first(_first), second(_second), third(_third){}
+  };
+
+
   template<typename TYPE>
   class _viewof{
   public:
@@ -276,6 +289,7 @@ namespace cnine{
   _bind0<TYPE> bind0(const TYPE& obj){
     return _bind0<TYPE>(obj);
   }
+
 
   
 
@@ -350,9 +364,17 @@ namespace cnine{
   }
 
   inline ostream& operator<<(ostream& stream, const vector<int>& v){
-    //stream<<"gg";
+    stream<<"(";
+    int I=v.size()-1;
+    for(int i=0; i<I; i++)
+      stream<<v[i]<<",";
+    if(v.size()>0) 
+      stream<<v[v.size()-1];
+    stream<<")";
     return stream;
   }
+
+  #define PRINTL(x) printl("x",x);
 
   /*
   template<class TYPE>
