@@ -18,58 +18,68 @@
 #include "Cnine_base.hpp"
 
 
+template<int TIX>
+__device__ void REP_getix(int& i0);
 
 template<>
-__device__ REP_getix<0>(int& i0){
+__device__ void REP_getix<0>(int& i0){
   i0=blockIdx.x;
 }
 
 template<>
-__device__ REP_getix<1>(int& i0){
-  i1=threadIdx.x;
+__device__ void REP_getix<1>(int& i0){
+  i0=threadIdx.x;
 }
 
+
+template<int TIX>
+__device__ void REP_getix(int& i0, int& i1);
+
 template<>
-__device__ REP_getix<0>(int& i0, int& i1){
+__device__ void REP_getix<0>(int& i0, int& i1){
   i0=blockIdx.x;
   i1=blockIdx.y;
 }
 
 template<>
-__device__ REP_getix<1>(int& i0, int& i1){
+__device__ void REP_getix<1>(int& i0, int& i1){
   i0=blockIdx.x;
   i1=threadIdx.x;
 }
 
 template<>
-__device__ REP_getix<2>(int& i0, int& i1){
+__device__ void REP_getix<2>(int& i0, int& i1){
   i0=threadIdx.x;
   i1=threadIdx.y;
 }
 
+
+template<int TIX>
+__device__ void REP_getix(int& i0, int& i1, int& i2);
+
 template<>
-__device__ REP_getix<0>(int& i0, int& i1, int& i2){
+__device__ void REP_getix<0>(int& i0, int& i1, int& i2){
   i0=blockIdx.x;
   i1=blockIdx.y;
   i2=blockIdx.z;
 }
 
 template<>
-__device__ REP_getix<1>(int& i0, int& i1, int& i2){
+__device__ void REP_getix<1>(int& i0, int& i1, int& i2){
   i0=blockIdx.x;
   i1=blockIdx.y;
   i2=threadIdx.x;
 }
 
 template<>
-__device__ REP_getix<2>(int& i0, int& i1, int& i2){
+__device__ void REP_getix<2>(int& i0, int& i1, int& i2){
   i0=blockIdx.x;
   i1=threadIdx.x;
   i2=threadIdx.y;
 }
 
 template<>
-__device__ REP_getix<3>(int& i0, int& i1, int& i2){
+__device__ void REP_getix<3>(int& i0, int& i1, int& i2){
   i0=threadIdx.x;
   i1=threadIdx.y;
   i2=threadIdx.z;
@@ -80,12 +90,12 @@ __device__ REP_getix<3>(int& i0, int& i1, int& i2){
 
 
 template<int TIX>
-__global__ Rtensor_addEinsum_0_0_0_kernel(const float* xarr, const float* yarr, float* rarr){
+__global__ void Rtensor_addEinsum_0_0_0_kernel(const float* xarr, const float* yarr, float* rarr){
   rarr[0]+=xarr[0]*yarr[0];
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_1_0_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_1_0_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int y0, const int r0){
   int i0;
   REP_getix<TIX>(i0);
@@ -93,7 +103,7 @@ __global__ Rtensor_addEinsum_1_0_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_2_0_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_2_0_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, 
   const int y0, const int y1, 
   const int r0, const int r1){
@@ -103,7 +113,7 @@ __global__ Rtensor_addEinsum_2_0_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_3_0_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_3_0_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, const int x2, 
   const int y0, const int y1, const int y2, 
   const int r0, const int r1, const int r2){
@@ -117,12 +127,10 @@ __global__ Rtensor_addEinsum_3_0_0_kernel(const float* xarr, const float* yarr, 
 
 
 template<int TIX>
-__global__ Rtensor_addEinsum_0_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_0_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, 
   const int y0, 
   const int J0){
-  int i0;
-  REP_getix<TIX>(i0);
   float t=0;
   for(int j0=0; j0<J0; j0++)
     t+=xarr[j0*x0]*yarr[j0*y0];
@@ -130,7 +138,7 @@ __global__ Rtensor_addEinsum_0_1_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_1_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_1_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, 
   const int y0, const int y1, 
   const int r0, 
@@ -144,7 +152,7 @@ __global__ Rtensor_addEinsum_1_1_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_2_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_2_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, const int x2,  
   const int y0, const int y1, const int y2, 
   const int r0, const int r1,
@@ -158,7 +166,7 @@ __global__ Rtensor_addEinsum_2_1_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_3_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_3_1_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, const int x2, const int x3,
   const int y0, const int y1, const int y2, const int y3, 
   const int r0, const int r1, const int r2, 
@@ -177,12 +185,10 @@ __global__ Rtensor_addEinsum_3_1_0_kernel(const float* xarr, const float* yarr, 
 
 
 template<int TIX>
-__global__ Rtensor_addEinsum_0_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_0_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, 
   const int y0, const int y1, 
   const int J0, const int J1){
-  int i0;
-  REP_getix<TIX>(i0);
   float t=0;
   for(int j0=0; j0<J0; j0++)
     for(int j1=0; j1<J1; j1++)
@@ -191,7 +197,7 @@ __global__ Rtensor_addEinsum_0_2_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_1_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_1_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, const int x2, 
   const int y0, const int y1, const int y2, 
   const int r0, 
@@ -206,7 +212,7 @@ __global__ Rtensor_addEinsum_1_2_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_2_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_2_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, const int x2, const int x3,  
   const int y0, const int y1, const int y2, const int y3, 
   const int r0, const int r1,
@@ -221,7 +227,7 @@ __global__ Rtensor_addEinsum_2_2_0_kernel(const float* xarr, const float* yarr, 
 }
 
 template<int TIX>
-__global__ Rtensor_addEinsum_3_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
+__global__ void Rtensor_addEinsum_3_2_0_kernel(const float* xarr, const float* yarr, float* rarr,
   const int x0, const int x1, const int x2, const int x3, const int x4,  
   const int y0, const int y1, const int y2, const int y3, const int y4, 
   const int r0, const int r1, const int r2, 
@@ -245,12 +251,12 @@ __global__ Rtensor_addEinsum_3_2_0_kernel(const float* xarr, const float* yarr, 
 
 namespace cnine{
 
-  void Rtensor_addEinsum_0_0_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_0_0_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const cudaStream_t& stream){
     Rtensor_addEinsum_0_0_0_kernel<1><<<1,1,0,stream>>>(xarr,yarr,rarr);
   }
 
-  void Rtensor_addEinsum_1_0_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_1_0_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int y0, const int r0,
     const int n0, 
     const cudaStream_t& stream){
@@ -261,7 +267,7 @@ namespace cnine{
     Rtensor_addEinsum_1_0_0_kernel<0><<<n0,1,0,stream>>>(xarr,yarr,rarr,x0,y0,r0);
   }
 
-  void Rtensor_addEinsum_2_0_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_2_0_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, 
     const int y0, const int y1, 
     const int r0, const int r1,
@@ -280,7 +286,7 @@ namespace cnine{
     Rtensor_addEinsum_2_0_0_kernel<0><<<blocks,1,0,stream>>>(xarr,yarr,rarr,x0,x1,y0,y1,r0,r1);
   }
 
-  void Rtensor_addEinsum_3_0_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_3_0_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, const int x2, 
     const int y0, const int y1, const int y2,
     const int r0, const int r1, const int r2,
@@ -288,25 +294,25 @@ namespace cnine{
     const cudaStream_t& stream){
     if(n0*n1*n2<=1024){
       dim3 threads(n0,n1,n2);
-      Rtensor_addEinsum_2_0_0_kernel<3><<<1,n0*n1,0,stream>>>(xarr,yarr,rarr,x0,x1,y0,y1,r0,r1);
+      Rtensor_addEinsum_3_0_0_kernel<3><<<1,n0*n1,0,stream>>>(xarr,yarr,rarr,x0,x1,x2,y0,y1,y2,r0,r1,r2);
       return;
     }
     if(n1*n2<=1024){
       dim3 threads(n1,n2);
-      Rtensor_addEinsum_2_0_0_kernel<2><<<n0,theads,0,stream>>>(xarr,yarr,rarr,x0,x1,y0,y1,r0,r1);
+      Rtensor_addEinsum_3_0_0_kernel<2><<<n0,threads,0,stream>>>(xarr,yarr,rarr,x0,x1,x2,y0,y1,y2,r0,r1,r2);
       return;
     }
     if(n2<=1024){
       dim3 blocks(n0,n1);
-      Rtensor_addEinsum_2_0_0_kernel<1><<<blocks,n2,0,stream>>>(xarr,yarr,rarr,x0,x1,y0,y1,r0,r1);
+      Rtensor_addEinsum_3_0_0_kernel<1><<<blocks,n2,0,stream>>>(xarr,yarr,rarr,x0,x1,x2,y0,y1,y2,r0,r1,r2);
       return;
     }
     dim3 blocks(n0,n1,n2);
-    Rtensor_addEinsum_2_0_0_kernel<0><<<blocks,1,0,stream>>>(xarr,yarr,rarr,x0,x1,y0,y1,r0,r1);
+    Rtensor_addEinsum_3_0_0_kernel<0><<<blocks,1,0,stream>>>(xarr,yarr,rarr,x0,x1,x2,y0,y1,y2,r0,r1,r2);
   }
 
   
-  void Rtensor_addEinsum_0_1_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_0_1_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, 
     const int y0, 
     const int J0, 
@@ -314,7 +320,7 @@ namespace cnine{
     Rtensor_addEinsum_0_1_0_kernel<1><<<1,1,0,stream>>>(xarr,yarr,rarr,x0,y0,J0);
   }
  
-  void Rtensor_addEinsum_1_1_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_1_1_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, 
     const int y0, const int y1, 
     const int r0,
@@ -328,7 +334,7 @@ namespace cnine{
     Rtensor_addEinsum_1_1_0_kernel<0><<<n0,1,0,stream>>>(xarr,yarr,rarr,x0,x1,y0,y1,r0,J0);
   }
  
-  void Rtensor_addEinsum_2_1_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_2_1_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, const int x2,
     const int y0, const int y1, const int y2,
     const int r0, const int r1, 
@@ -348,7 +354,7 @@ namespace cnine{
     Rtensor_addEinsum_2_1_0_kernel<0><<<blocks,1,0,stream>>>(xarr,yarr,rarr,x0,x1,x2,y0,y1,y2,r0,r1,J0);
   }
  
-  void Rtensor_addEinsum_3_1_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_3_1_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, const int x2, const int x3,
     const int y0, const int y1, const int y2, const int y3,
     const int r0, const int r1, const int r2,
@@ -375,7 +381,7 @@ namespace cnine{
   }
 
  
-  void Rtensor_addEinsum_0_2_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_0_2_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, 
     const int y0, const int y1, 
     const int J0, const int J1, 
@@ -383,9 +389,9 @@ namespace cnine{
     Rtensor_addEinsum_0_2_0_kernel<1><<<1,1,0,stream>>>(xarr,yarr,rarr,x0,x1,y0,y0,J0,J1);
   }
  
-  void Rtensor_addEinsum_1_2_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_1_2_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, const int x2, 
-    const int y0, const int 12, const int y2,
+    const int y0, const int y1, const int y2,
     const int r0, 
     const int n0, 
     const int J0, const int J1, 
@@ -397,9 +403,9 @@ namespace cnine{
     Rtensor_addEinsum_1_2_0_kernel<0><<<n0,1,0,stream>>>(xarr,yarr,rarr,x0,x1,x2,y0,y1,y2,r0,J0,J1);
   }
  
-  void Rtensor_addEinsum_2_2_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_2_2_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, const int x2, const int x3, 
-    const int y0, const int 12, const int y2, const int y3,
+    const int y0, const int y1, const int y2, const int y3,
     const int r0, const int r1,
     const int n0, const int n1, 
     const int J0, const int J1, 
@@ -417,10 +423,10 @@ namespace cnine{
     Rtensor_addEinsum_2_2_0_kernel<0><<<blocks,1,0,stream>>>(xarr,yarr,rarr,x0,x1,x2,x3,y0,y1,y2,y3,r0,r1,J0,J1);
   }
  
-  void Rtensor_addEinsum_3_2_0_cu(const float* xarr, const float* yarr, float& rarr, 
+  void Rtensor_addEinsum_3_2_0_cu(const float* xarr, const float* yarr, float* rarr, 
     const int x0, const int x1, const int x2, const int x3, const int x4, 
-    const int y0, const int 12, const int y2, const int y3, const int y4,
-    const int r0, const int r1, const int r2
+    const int y0, const int y1, const int y2, const int y3, const int y4,
+    const int r0, const int r1, const int r2,
     const int n0, const int n1, const int n2,
     const int J0, const int J1, 
     const cudaStream_t& stream){
