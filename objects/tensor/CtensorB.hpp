@@ -21,6 +21,8 @@
 #include "Ctensor2_view.hpp"
 #include "Ctensor3_view.hpp"
 #include "Ctensor4_view.hpp"
+#include "CtensorD_view.hpp"
+
 #include "CtensorView.hpp"
 #include "Aggregator.hpp"
 
@@ -81,6 +83,15 @@ namespace cnine{
     CtensorB(const Gdims& _dims, const Gstrides& _strides, 
       const int _asize, const int _memsize, const int _coffs, const int _dev):
      dims(_dims), strides(_strides), asize(_asize), memsize(_memsize), coffs(_coffs), dev(_dev){}
+
+
+    CtensorB(const Gdims& _dims, const fill_noalloc& dummy, const int _dev=0): 
+      dims(_dims), dev(_dev), strides(_dims,2){
+      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("Cnine error in CtensorB: device must be 0 or 1"));
+      asize=strides[0]*dims[0]/2; 
+      memsize=strides[0]*dims[0]; 
+      coffs=1;
+    }
 
 
     // Root constructor: elements are uninitialized
@@ -762,6 +773,31 @@ namespace cnine{
     }
 
 
+  public: // ---- Cells --------------------------------------------------------------------------------------
+
+
+    CtensorB view_of_cell(const Gindex& cix){
+      assert(coffs==1);
+      assert(cix.size()<dims.size());
+      CtensorB R(dims.chunk(cix.size()),fill_noalloc(),dev);
+      R.arr=arr+cix(strides);
+      R.is_view=true;
+      return R;
+    }
+
+    const CtensorB view_of_cell(const Gindex& cix) const{
+      assert(coffs==1);
+      assert(cix.size()<dims.size());
+      CtensorB R(dims.chunk(cix.size()),fill_noalloc(),dev);
+      R.arr=arr+cix(strides);
+      R.is_view=true;
+      return R;
+    }
+
+    CtensorB get_cell(const Gindex& cix) const{
+      return CtensorB(view_of_cell(cix),nowarn_flag());
+    }
+
 
   public: // ---- Operations ---------------------------------------------------------------------------------
 
@@ -932,6 +968,17 @@ namespace cnine{
 
     string str(const string indent="") const{
       return gtensor().str(indent);
+    }
+
+    string str_as_array(const int k, const string indent="") const{
+      ostringstream oss;
+      assert(k<dims.size());
+      Gdims arraydims=dims.chunk(0,k);
+      arraydims.foreach_index([&](const vector<int>& ix){
+	  oss<<indent<<"Cell"<<Gindex(ix)<<endl;
+	  oss<<get_cell(ix).str(indent)<<endl;
+	});
+      return oss.str();
     }
 
     string repr() const{

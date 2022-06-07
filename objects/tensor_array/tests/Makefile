@@ -1,13 +1,16 @@
 ROOTDIR=../../..
 include $(ROOTDIR)/common.txt
 
-INCLUDE= -I$(INCLUDEDIR) -I$(INCLUDEDIR)/cmaps -I$(SCALARDIR) -I$(TENSORDIR) -I$(TENSORARRAYDIR) -I$(TENSORARRAYDIR)/cell_ops 
+INCLUDE= -I$(INCLUDEDIR) -I$(INCLUDEDIR)/cmaps -I$(SCALARDIR) -I$(TENSORDIR) 
+INCLUDE+= -I$(TENSORARRAYDIR) -I$(TENSORARRAYDIR)/cell_ops 
+INCLUDE+= -I$(TENSORVIEWDIR) -I$(TENSORVIEWDIR)/ops -I$(TENSORVIEWDIR)/functions  
 
 TESTS= testRtensorArray \
 testCtensorArray testCtensorArray2 testCtensorArray_Cmaps testCtensorArray_Cmaps3 \
 testCtensorArray_accumulator \
 testCtensorArray_constructors testCtensorArray_broadcast testCtensorArray_devices testCtensorArray_reshape \
 testCtensorArray_copy_kernel testCtensorArray_plus_kernel
+TESTS+= test_CtensorB_array
 
 DEPS=$(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(INCLUDEDIR)/cmaps/*.hpp $(SCALARDIR)/*.hpp $(TENSORARRAYDIR)/*.hpp \
 $(TENSORARRAYDIR)/cell_ops/*.hpp  
@@ -103,6 +106,14 @@ ifdef WITH_CUDA
 	$(NVCC) $(NVCCFLAGS) -o testCtensorArray_plus_kernel testCtensorArray_plus_kernel.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else
 	$(CC) -ferror-limit=1 -o testCtensorArray_plus_kernel testCtensorArray_plus_kernel.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+endif
+
+
+test_CtensorB_array: test_CtensorB_array.cpp $(DEPS)
+ifdef WITH_CUDA
+	$(NVCC) $(NVCCFLAGS) -o test_CtensorB_array test_CtensorB_array.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+else
+	$(CC) -ferror-limit=1 -o test_CtensorB_array test_CtensorB_array.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
 endif
 
 

@@ -27,6 +27,9 @@ namespace cnine{
   class Rmask1{
   public:
 
+    int N0=0;
+    int M0=0;
+
     map<int,vector<pair<int,float> > > lists;
 
     mutable float* arrg=nullptr;
@@ -85,11 +88,11 @@ namespace cnine{
     */
 
     static Rmask1 matrix(const Rtensor2_view& M){
-      int N=M.n0;
-      assert(M.n1==N);
+      int N0=M.n0;
+      int M0=M.n1;
       Rmask1 R; 
-      for(int i=0; i<N; i++)
-	for(int j=0; j<N; j++)
+      for(int i=0; i<N0; i++)
+	for(int j=0; j<M0; j++)
 	  if(M(i,j)!=0) R.push(i,j,M(i,j));
       return R;
     }
@@ -99,6 +102,8 @@ namespace cnine{
 
  
     void push(const int i, const int j, const float v){
+      if(i>=N0) N0=i+1;
+      if(j>=M0) M0=j+1;
       current=false;
       inv_current=false;
       lists[i].push_back(pair<int,float>(j,v));

@@ -1048,7 +1048,7 @@ namespace cnine{
       CNINE_CHECK_SIZE(cdims.check_cell_eq(x.dims));
       assert(dev==x.dev);
       assert(nbu==x.nbu);
-      assert(x.cdims==cdims);
+      //assert(x.cdims==cdims);
       if(dev==0){
 	for(int i=0; i<aasize; i++){
 	  stdadd(x.arr,x.arr+x.asize,arr+i*cellstride);
@@ -1061,7 +1061,7 @@ namespace cnine{
       CNINE_CHECK_SIZE(cdims.check_cell_eq(x.dims));
       assert(dev==x.dev);
       assert(nbu==x.nbu);
-      assert(x.cdims==cdims);
+      //assert(x.cdims==cdims);
       if(dev==0){
 	for(int i=0; i<aasize; i++){
 	  stdsub(x.arr,x.arr+x.asize,arr+i*cellstride);

@@ -81,6 +81,10 @@ namespace cnine{
       return (*this)[i];
     }
 
+    int back(const int i=0) const{
+      return (*this)[size()-1-i];
+    }
+
     bool is_regular() const{
       return regular;
     }

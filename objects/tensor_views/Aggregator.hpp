@@ -15,6 +15,9 @@
 #include "Ctensor2_view.hpp"
 #include "Ctensor3_view.hpp"
 #include "Ctensor4_view.hpp"
+#include "CtensorD_view.hpp"
+#include "CtensorView.hpp"
+
 #include "CtensorB.hpp"
 
 
@@ -60,6 +63,13 @@ public:
 
   Aggregator(const Ctensor4_view& r, const Ctensor4_view& x, const Rmask1& mask){
     Aggregator(r.fuse23(),x.fuse23(),mask);
+  }
+
+  Aggregator(const CtensorView& r, const CtensorView& x, const Rmask1& mask){
+    Aggregator(r.fuse0X(),x.fuse0X(),mask);
+  }
+  Aggregator(const CtensorD_view& r, const CtensorD_view& x, const Rmask1& mask){
+    Aggregator(r.fuse0X(),x.fuse0X(),mask);
   }
 
   

@@ -83,6 +83,10 @@ namespace cnine{
       return (*this)[i];
     }
 
+    int back(const int i=0) const{
+      return (*this)[size()-1-i];
+    }
+
     void set(const int i, const int x){
       (*this)[i]=x;
     }
@@ -98,11 +102,6 @@ namespace cnine{
 
     int last() const{
       return (*this)[size()-1];
-    }
-
-    int back(const int i=0) const{
-      assert(size()>=i+1);
-      return (*this)[size()-i-1];
     }
 
     bool operator==(const Gdims& x) const{
@@ -190,6 +189,8 @@ namespace cnine{
       return R;
     }
 
+  public:
+
     Gdims Mprod(const Gdims& y) const{
       Gdims R(size()+y.size()-2,fill::raw);
       for(int i=0; i<size()-1; i++) R[i]=(*this)[i];
@@ -217,7 +218,6 @@ namespace cnine{
       for(int i=0; i<y.size()-1; i++) R[i+size()-1]=y[i];
       return R;
     }
-
 
   public:
 
@@ -258,6 +258,28 @@ namespace cnine{
       for(int i=0; i<size(); i++)
 	R[i]=(*this)[i];
       return R;
+    }
+
+
+  public:
+
+    void foreach_index(const std::function<void(const vector<int>&)>& lambda){
+      int k=size();
+      if(k==0) return;
+      vector<int> strides(k);
+      strides[k-1]=1;
+      for(int i=k-2; i>=0; i--) 
+	strides[i]=strides[i+1]*(*this)[i+1];
+      int tot=strides[0]*(*this)[0];
+      for(int i=0; i<tot; i++){
+	vector<int> ix(k);
+	int t=i;
+	for(int j=0; j<k; j++){
+	  ix[j]=t/strides[j];
+	  t-=ix[j]*strides[j];
+	}
+	lambda(ix);
+      }
     }
 
 

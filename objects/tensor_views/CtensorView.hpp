@@ -14,7 +14,7 @@
 #include "Gstrides.hpp"
 #include "Gtensor.hpp"
 
-#include "Ctensor3_view.hpp"
+#include "Ctensor2_view.hpp"
 
 
 namespace cnine{
@@ -41,7 +41,7 @@ namespace cnine{
 
     CtensorView(float* _arr, float* _arrc, const int _n0, const int _n1, const int _s0, const int _s1, const int _dev=0): 
       arr(_arr), arrc(_arrc), dims(_n0,_n1), strides(_s0,_s1), dev(_dev){}
-
+    
     CtensorView(float* _arr, float* _arrc, const int _n0, const int _n1, const int _n2, 
       const int _s0, const int _s1, const int _s2, const int _dev=0): 
       arr(_arr), arrc(_arrc), dims(_n0,_n1,_n2), strides(_s0,_s1,_s2), dev(_dev){}
@@ -83,6 +83,12 @@ namespace cnine{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i0>=dims[0] || i1>=dims[1] || i2>=dims[2] || i3>=dims[3]) 
 	  throw std::out_of_range("cnine::CtensorView: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+dims.str()));
       return std::complex<float>(arr[strides.offs(i0,i1,i2,i3)],arrc[strides.offs(i0,i1,i2,i3)]);
+    }
+
+    complex<float> operator()(const Gindex& ix) const{
+      CNINE_CHECK_RANGE(ix.check_range(dims));
+      int t=ix(strides);
+      return complex<float>(arr[t],arrc[t]);
     }
 
 
@@ -164,29 +170,30 @@ namespace cnine{
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
+    Ctensor2_view fuse0X() const{
+      if(dims.size()==0) return Ctensor2_view(arr,arrc,1,1,0,0,dev);
+      if(dims.size()==1) return Ctensor2_view(arr,arrc,dims[0],1,strides[0],0,dev);
+      return Ctensor2_view(arr,arrc,dims[0],strides[0]/strides.back(),strides[0],strides.back(),dev);
+    }    
+
 
   public: // ---- Conversions -------------------------------------------------------------------------------
 
 
-    /*
-    Gtensor<float> gtensor() const{
-      Gtensor<float> R({n0,n1,n2,n3},fill::raw);
-      for(int i0=0; i0<n0; i0++)
-	for(int i1=0; i1<n1; i1++)
-	  for(int i2=0; i2<n2; i2++)
-	    for(int i3=0; i3<n3; i3++)
-	      R(i0,i1,i2,i3)=(*this)(i0,i1,i2,i3);
+    Gtensor<complex<float> > gtensor() const{
+      assert(dev==0);
+      Gtensor<complex<float> > R(dims,fill::raw);
+      for(int i=0; i<R.asize; i++)
+	R.arr[i]=(*this)(Gindex(i,strides));
       return R;
     }
-    */
     
     
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
   
     string str(const string indent="") const{
-      return ("");
-      //return gtensor().str(indent);
+      return gtensor().str(indent);
     }
 
     friend ostream& operator<<(ostream& stream, const CtensorView& x){

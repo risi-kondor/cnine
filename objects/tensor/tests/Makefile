@@ -5,7 +5,7 @@ INCLUDE= -I$(INCLUDEDIR) -I$(SCALARDIR) -I$(TENSORDIR) -I$(TENSORVIEWDIR)
 
 TESTS= testRtensorObj testRtensorObj2 testRtensorObj3 \
 testCtensorObj testCtensorObj2 testCtensorObj3 testCtensorSlice testCtensorPackObj \
-testCtensorB testEigen 
+testCtensorB testCtensorB_array testEigen 
 
 DEPS=$(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(SCALARDIR)/*.hpp  
 
@@ -97,6 +97,14 @@ ifdef WITH_CUDA
 	$(NVCC) $(NVCCFLAGS) -o testCtensorB testCtensorB.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else
 	$(CC) -o testCtensorB testCtensorB.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+endif
+
+
+testCtensorB_array: testCtensorB_array.cpp $(DEPS)
+ifdef WITH_CUDA
+	$(NVCC) $(NVCCFLAGS) -o testCtensorB_array testCtensorB_array.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+else
+	$(CC) -o testCtensorB_array testCtensorB_array.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
 endif
 
 
