@@ -142,6 +142,10 @@ namespace cnine{
       return CtensorB_array(CtensorB::view(T),_ak);
     }
 
+    static CtensorB_array* viewp(at::Tensor& T, const int _ak){
+      return new CtensorB_array(CtensorB::view(T),_ak);
+    }
+
 #endif 
 
 
