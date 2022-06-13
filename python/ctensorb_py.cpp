@@ -138,7 +138,6 @@ pybind11::class_<CtensorB>(m,"ctensorb")
 
 //.def("__getitem__",static_cast<CscalarObj(CtensorB::*)(const int, const int)const>(&CtensorB::get))
 
-  .def("get_dim",&CtensorB::get_dim)
   .def("get_dev",&CtensorB::get_dev)
   .def("device",&CtensorB::get_device)
   .def("to",&CtensorB::to_device)
