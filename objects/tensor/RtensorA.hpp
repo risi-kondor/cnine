@@ -1619,6 +1619,10 @@ namespace cnine{
     }
 
 
+    void operator+=(const RtensorA& x){
+      add(x);
+    }
+
     void add(const RtensorA& x, const float c){
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
