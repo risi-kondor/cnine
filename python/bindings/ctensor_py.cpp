@@ -1,4 +1,3 @@
-
 //  This file is part of cnine, a lightweight C++ tensor library. 
 // 
 //  Copyright (c) 2021, Imre Risi Kondor
@@ -43,6 +42,15 @@ pybind11::class_<CtensorObj>(m,"ctensor")
   .def_static("zero",[](const int i0, const int i1){return CtensorObj::zero(Gdims({i0,i1}));})
   .def_static("zero",[](const int i0, const int i1, const int i2){return CtensorObj::zero(Gdims({i0,i1,i2}));})
 
+  .def_static("zeros",static_cast<CtensorObj (*)(const Gdims&, const int, const int)>(&CtensorObj::zero))
+  .def_static("zeros",[](const Gdims& dims, const int dev){return CtensorObj::zero(dims,-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("zeros",[](const vector<int>& v, const int dev){return CtensorObj::zero(Gdims(v),-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("zeros",[](const int i0){return CtensorObj::zero(Gdims({i0}));})
+  .def_static("zeros",[](const int i0, const int i1){return CtensorObj::zero(Gdims({i0,i1}));})
+  .def_static("zeros",[](const int i0, const int i1, const int i2){return CtensorObj::zero(Gdims({i0,i1,i2}));})
+
   .def_static("ones",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::ones))
   .def_static("ones",[](const Gdims& dims, const int dev){return CtensorObj::ones(dims,-1,dev);},
     py::arg("dims"),py::arg("device")=0)
@@ -69,6 +77,15 @@ pybind11::class_<CtensorObj>(m,"ctensor")
   .def_static("gaussian",[](const int i0){return CtensorObj::gaussian(Gdims({i0}));})
   .def_static("gaussian",[](const int i0, const int i1){return CtensorObj::gaussian(Gdims({i0,i1}));})
   .def_static("gaussian",[](const int i0, const int i1, const int i2){return CtensorObj::gaussian(Gdims({i0,i1,i2}));})
+
+  .def_static("randn",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::gaussian))
+  .def_static("randn",[](const Gdims& dims, const int dev){return CtensorObj::gaussian(dims,-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("randn",[](const vector<int>& v, const int dev){return CtensorObj::gaussian(Gdims(v),-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("randn",[](const int i0){return CtensorObj::gaussian(Gdims({i0}));})
+  .def_static("randn",[](const int i0, const int i1){return CtensorObj::gaussian(Gdims({i0,i1}));})
+  .def_static("randn",[](const int i0, const int i1, const int i2){return CtensorObj::gaussian(Gdims({i0,i1,i2}));})
 
   .def_static("sequential",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::sequential))
   .def_static("sequential",[](const Gdims& dims, const int dev){return CtensorObj::sequential(dims,-1,dev);},

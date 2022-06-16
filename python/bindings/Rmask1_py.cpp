@@ -1,4 +1,3 @@
-
 //  This file is part of cnine, a lightweight C++ tensor library. 
 // 
 //  Copyright (c) 2021, Imre Risi Kondor
