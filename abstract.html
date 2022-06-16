@@ -2,9 +2,12 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="#" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/><title>Search - cnine  documentation</title><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
+        <title>&lt;no title&gt; - cnine documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
     
@@ -145,7 +148,7 @@
   
   <span class="sidebar-brand-text">cnine  documentation</span>
   
-</a><form class="sidebar-search-container" method="get" action="#" role="search">
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
@@ -153,8 +156,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rtensor.html">Real tensors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctensor.html">Complex tensors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensors.html">Tensors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tensor_arrays.html">Tensor arrays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cell_maps.html">Cell maps and cell operators</a></li>
 </ul>
@@ -183,17 +185,14 @@
           </label>
         </div>
         <article role="main">
-          
-<noscript>
-<div class="admonition error">
-  <p class="admonition-title">Error</p>
-  <p>
-    Please activate JavaScript to enable the search functionality.
-  </p>
-</div>
-</noscript>
-
-<div id="search-results"></div>
+          <p><cite>cnine</cite> is a lightweight C++ tensor library with a CUDA backend.
+The primary purpose of <cite>cnine</cite> is to provide provide direct control over
+GP-GPU functionality to Python and C++ developers.
+This document gives a high level introduction to <cite>cnine</cite>’s PyTorch interface.</p>
+<p><cite>cnine</cite> is developed by Risi Kondor and released under the
+<a class="reference external" href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla public license v.2.0</a>.</p>
+<p>Not all features in the C++ library are available through the PyTorch interface.
+The documentation of the C++ API can be found in pdf format in the package’s <code class="docutils literal notranslate"><span class="pre">doc</span></code> directory.</p>
 
         </article>
       </div>
@@ -209,7 +208,11 @@
             Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
+            <a class="muted-link" href="_sources/abstract.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
         </div>
         
       </footer>
@@ -225,8 +228,5 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/scripts/main.js"></script>
-    
-<script src="_static/searchtools.js"></script>
-<script src="_static/language_data.js"></script>
-<script src="searchindex.js"></script></body>
+    </body>
 </html>

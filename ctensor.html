@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Real tensors" href="tensors.html" /><link rel="prev" title="cnine" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Tensor arrays" href="tensor_arrays.html" /><link rel="prev" title="Real tensors" href="tensors.html" />
 
     <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
-        <title>Introduction - cnine documentation</title>
+        <title>Complex tensors - cnine documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -155,9 +155,9 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tensors.html">Real tensors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ctensor.html">Complex tensors</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Complex tensors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tensor_arrays.html">Tensor arrays</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cell_maps.html">Cell maps and cell operators</a></li>
 </ul>
@@ -180,73 +180,79 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<section id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic simple">
-<li><p>Support for real and complex valued tensors.</p></li>
-<li><p>Transparent block level parallelization on GPUs using the tensor array data structures.</p></li>
-<li><p>Ability to execute custom CUDA kernels in parallel across many cells of a tensor array, even in irregular patterns.</p></li>
-</ol>
-</section>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>Installing <cite>cnine</cite> requires the following:</p>
-<ol class="arabic simple">
-<li><p>C++11 or higher</p></li>
-<li><p>PyTorch</p></li>
-<li><p>CUDA and CUBLAS for GPU functionality</p></li>
-</ol>
-<p><cite>cnine</cite> is easiest to install with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<ol class="arabic simple">
-<li><p>Download <cite>cnine</cite> from <a class="reference external" href="https://github.com/risi-kondor/cnine">github</a>.</p></li>
-<li><p>Edit the user configurable variables in <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code> as necessary.</p></li>
-<li><p>Run the command <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> in the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory to compile the package and install it on your
-system.</p></li>
-</ol>
-<p>To use <cite>cnine</cite> from Python, load the module the usual way with <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cnine</span></code>.
-If <cite>cnine</cite> was compiled with GPU support, you must first <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch</span></code>.</p>
-</section>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>The <cite>cnine</cite> installation can be configured by setting the corresponding variables in <code class="docutils literal notranslate"><span class="pre">python/setup.py</span></code>.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">compile_with_cuda</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will be compiled with GPU suport. This requires a working CUDA and CUBLAS installation
-on your system and PyTorch itself having been compiled with CUDA enabled. To make sure that the appropriate
-runtime libraries are loaded, you must always import <code class="docutils literal notranslate"><span class="pre">torch</span></code> before importing <code class="docutils literal notranslate"><span class="pre">cnine</span></code>.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">copy_warnings</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will print a message to the terminal whenever a tensor or tensor array object
-is copied or move-copied. This option is useful for code optimization.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">torch_convert_warnings</span></code></dt><dd><p>If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, <cite>cnine</cite> will print a message to the terminal whenver a tensor is explicitly converted
-(as opposed to just forming a tensor view) to/from PyTorch format.</p>
-</dd>
-</dl>
-</section>
-<section id="known-issues">
-<h2>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
-<p>GPU functionality is currently not fully tested.</p>
-</section>
-<section id="troubleshooting">
-<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic">
-<li><p>PyTorch requires C++ extensions to be compiled against the same version of CUDA that it
-itself was compiled with. If this becomes an issue, it might be necessary to install an
-alternative version of CUDA on your system and force <cite>setuptools</cite> to use that version by setting
-the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> enironment variable, as, e.g.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>export CUDA_HOME=/usr/local/cuda-11.3
+          <section id="complex-tensors">
+<h1>Complex tensors<a class="headerlink" href="#complex-tensors" title="Permalink to this headline">¶</a></h1>
+<p>Complex tensors are stored in the <code class="docutils literal notranslate"><span class="pre">ctensor</span></code> class.
+<code class="docutils literal notranslate"><span class="pre">ctensor</span></code> supports all the same operations as <code class="docutils literal notranslate"><span class="pre">rtensor</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">cnine</span><span class="o">.</span><span class="n">ctensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span>
+<span class="go">[ (1.3828,0.74589) (0.0523187,-1.75177) (-0.904146,-0.965146) (1.87065,-0.474282) ]</span>
+<span class="go">[ (-1.66043,-0.546571) (-0.688081,-0.0384917) (0.0757219,0.194947) (1.47339,-0.485144) ]</span>
+<span class="go">[ (0.097221,-0.370271) (-0.89237,-1.12408) (-0.228782,1.73664) (1.16493,0.882195) ]</span>
+<span class="go">[ (0.584898,-1.50279) (-0.660558,0.570759) (0.534755,-0.929941) (-0.607787,-0.934988) ]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">(0.075721874833107+0.1949467808008194j)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="mi">3</span><span class="o">+</span><span class="mi">4j</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span>
+<span class="go">[ (1.3828,0.74589) (0.0523187,-1.75177) (-0.904146,-0.965146) (1.87065,-0.474282) ]</span>
+<span class="go">[ (-1.66043,-0.546571) (-0.688081,-0.0384917) (3,4) (1.47339,-0.485144) ]</span>
+<span class="go">[ (0.097221,-0.370271) (-0.89237,-1.12408) (-0.228782,1.73664) (1.16493,0.882195) ]</span>
+<span class="go">[ (0.584898,-1.50279) (-0.660558,0.570759) (0.534755,-0.929941) (-0.607787,-0.934988) ]</span>
 </pre></div>
 </div>
-</li>
-</ol>
-</section>
+<p>In addition, it also has <code class="docutils literal notranslate"><span class="pre">conj</span></code> and <code class="docutils literal notranslate"><span class="pre">herm</span></code> methods to take the conjugate
+and conjugate transpose (Hermitian conjugate) of the tensor.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">cnine</span><span class="o">.</span><span class="n">ctensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span>
+<span class="go">[ (-1.23974,-0.584898) (-0.407472,0.660558) (1.61201,-0.534755) (0.399771,0.607787) ]</span>
+<span class="go">[ (1.3828,-0.74589) (0.0523187,1.75177) (-0.904146,0.965146) (1.87065,0.474282) ]</span>
+<span class="go">[ (-1.66043,0.546571) (-0.688081,0.0384917) (0.0757219,-0.194947) (1.47339,0.485144) ]</span>
+<span class="go">[ (0.097221,0.370271) (-0.89237,1.12408) (-0.228782,-1.73664) (1.16493,-0.882195) ]</span>
+</pre></div>
+</div>
+<p>When converting a <code class="docutils literal notranslate"><span class="pre">ctensor</span></code> to a Pytorch tensor, the resulting <code class="docutils literal notranslate"><span class="pre">torch.tensor</span></code> acquires an
+extra dimension of size two corresponding to the real/imaginary parts of the tensor.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">cnine</span><span class="o">.</span><span class="n">ctensor</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span>
+<span class="go">[ (-0.121966,0.200699) (-1.08682,2.12468) (0.68429,0.371721) ]</span>
+<span class="go">[ (-1.07519,1.02096) (0.0332695,0.783408) (0.744836,-0.127842) ]</span>
+<span class="go">[ (0.0336061,-0.336813) (-0.526637,-0.687155) (0.462532,1.30842) ]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">torch</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span>
+<span class="go">tensor([[[-0.1220, -1.0868,  0.6843],</span>
+<span class="go">         [-1.0752,  0.0333,  0.7448],</span>
+<span class="go">         [ 0.0336, -0.5266,  0.4625]],</span>
+
+<span class="go">        [[ 0.2007,  2.1247,  0.3717],</span>
+<span class="go">         [ 1.0210,  0.7834, -0.1278],</span>
+<span class="go">         [-0.3368, -0.6872,  1.3084]]])</span>
+</pre></div>
+</div>
+<p>Pytorch tensors can also be converted to <code class="docutils literal notranslate"><span class="pre">ctensor</span></code> objects as long as they follow the above format.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span>
+<span class="go">tensor([[[0.5157, 0.5582, 0.5580],</span>
+<span class="go">         [0.6738, 0.0106, 0.0503],</span>
+<span class="go">         [0.9813, 0.5605, 0.0902]],</span>
+
+<span class="go">        [[0.2107, 0.8239, 0.4831],</span>
+<span class="go">         [0.2320, 0.3593, 0.6258],</span>
+<span class="go">         [0.3902, 0.5848, 0.7717]]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span><span class="o">=</span><span class="n">cnine</span><span class="o">.</span><span class="n">ctensor</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B</span>
+<span class="go">[ (0.515746,0.210717) (0.55815,0.823855) (0.558013,0.483094) ]</span>
+<span class="go">[ (0.673824,0.231981) (0.0106288,0.35925) (0.050261,0.62581) ]</span>
+<span class="go">[ (0.981344,0.39019) (0.560545,0.584823) (0.0902345,0.771727) ]</span>
+</pre></div>
+</div>
 </section>
 
         </article>
@@ -254,23 +260,23 @@ the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="tensors.html">
+          <a class="next-page" href="tensor_arrays.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Real tensors</div>
+                <div class="title">Tensor arrays</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="tensors.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Home</div>
+                <div class="title">Real tensors</div>
                 
               </div>
             </a>
@@ -282,7 +288,7 @@ the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
               <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="_sources/intro.rst.txt"
+            <a class="muted-link" href="_sources/ctensor.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -290,31 +296,8 @@ the <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            Contents
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Introduction</a><ul>
-<li><a class="reference internal" href="#features">Features</a></li>
-<li><a class="reference internal" href="#installation">Installation</a></li>
-<li><a class="reference internal" href="#configuration">Configuration</a></li>
-<li><a class="reference internal" href="#known-issues">Known issues</a></li>
-<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
