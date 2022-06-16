@@ -13,7 +13,7 @@ cnine
    :caption: Contents:
 
   intro.rst
-  tensors.rst
+  rtensor.rst
   ctensor.rst
   tensor_arrays.rst
   cell_maps.rst
