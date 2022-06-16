@@ -43,6 +43,15 @@ pybind11::class_<RtensorObj>(m,"rtensor")
   .def_static("zero",[](const int i0, const int i1){return RtensorObj::zero(Gdims({i0,i1}));})
   .def_static("zero",[](const int i0, const int i1, const int i2){return RtensorObj::zero(Gdims({i0,i1,i2}));})
 
+  .def_static("zeros",static_cast<RtensorObj (*)(const Gdims&, const int, const int)>(&RtensorObj::zero))
+  .def_static("zeros",[](const Gdims& dims, const int dev){return RtensorObj::zero(dims,-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("zeros",[](const vector<int>& v, const int dev){return RtensorObj::zero(Gdims(v),-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("zeros",[](const int i0){return RtensorObj::zero(Gdims({i0}));})
+  .def_static("zeros",[](const int i0, const int i1){return RtensorObj::zero(Gdims({i0,i1}));})
+  .def_static("zeros",[](const int i0, const int i1, const int i2){return RtensorObj::zero(Gdims({i0,i1,i2}));})
+
   .def_static("ones",static_cast<RtensorObj (*)(const Gdims&,const int, const int)>(&RtensorObj::ones))
   .def_static("ones",[](const Gdims& dims, const int dev){return RtensorObj::ones(dims,-1,dev);},
     py::arg("dims"),py::arg("device")=0)
@@ -69,6 +78,15 @@ pybind11::class_<RtensorObj>(m,"rtensor")
   .def_static("gaussian",[](const int i0){return RtensorObj::gaussian(Gdims({i0}));})
   .def_static("gaussian",[](const int i0, const int i1){return RtensorObj::gaussian(Gdims({i0,i1}));})
   .def_static("gaussian",[](const int i0, const int i1, const int i2){return RtensorObj::gaussian(Gdims({i0,i1,i2}));})
+
+  .def_static("randn",static_cast<RtensorObj (*)(const Gdims&,const int, const int)>(&RtensorObj::gaussian))
+  .def_static("randn",[](const Gdims& dims, const int dev){return RtensorObj::gaussian(dims,-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("randn",[](const vector<int>& v, const int dev){return RtensorObj::gaussian(Gdims(v),-1,dev);},
+    py::arg("dims"),py::arg("device")=0)
+  .def_static("randn",[](const int i0){return RtensorObj::gaussian(Gdims({i0}));})
+  .def_static("randn",[](const int i0, const int i1){return RtensorObj::gaussian(Gdims({i0,i1}));})
+  .def_static("randn",[](const int i0, const int i1, const int i2){return RtensorObj::gaussian(Gdims({i0,i1,i2}));})
 
   .def_static("sequential",static_cast<RtensorObj (*)(const Gdims&,const int, const int)>(&RtensorObj::sequential))
   .def_static("sequential",[](const Gdims& dims, const int dev){return RtensorObj::sequential(dims,-1,dev);},

@@ -1,13 +1,6 @@
-`cnine` is a lightweight C++ tensor library with a CUDA backend. 
-The primary purpose of `cnine` is to provide fine grained, direct control over  
-GP-GPU functionality to Python and C++ developers. 
-This document gives a high level introduction to `cnine`'s Python front end.  
-
-`cnine` was developed by Risi Kondor at the University of Chicago and is released under the 
-`Mozilla public license v.2.0 <https://www.mozilla.org/en-US/MPL/2.0/>`_.   
-
-Not all features in the C++ library are available through the Python interface. 
-The documentation of the C++ API can be found in pdf format in the package's ``doc`` directory.
+############
+Introduction
+############
 
 ********
 Features
@@ -21,25 +14,30 @@ Features
 Installation
 ************
 
-`cnine` can be used with or without PyTorch. However, the installation script uses PyTorch's 
-cpp-extension facility. 
-Therefore, installation requires the following:
+.. 
+ `cnine` can be used with or without PyTorch. However, the installation script uses PyTorch's 
+ cpp-extension facility. 
+ Therefore, installation requires the following:
+
+Installing `cnine` requires the following: 
 
 #. C++11 or higher
 #. PyTorch
 #. CUDA and CUBLAS for GPU functionality 
 
-To install `cnine` follow these steps:
+`cnine` is easiest to install with ``pip``:
 
-#. Download the `cnine` package from `github <https://github.com/risi-kondor/cnine>`_. 
+#. Download `cnine` from `github <https://github.com/risi-kondor/cnine>`_. 
 #. Edit the user configurable variables in ``python/setup.py`` as necessary. 
-#. Run ``python setup.sty install`` in the ``python`` directory to compile the package and install it on your 
+#. Run the command ``pip install -e .`` in the ``python`` directory to compile the package and install it on your 
    system.
  
 To use `cnine` from Python, load the module the usual way with ``import cnine``. 
-If `cnine` waas compiled with GPU support, you must first ``import torch``. 
-In the following we assume that the command ``from cnine import *`` has been issued,  
-obviating the need to prefix all `cnine` classes and funnctions with ``cnine.``.
+If `cnine` was compiled with GPU support, you must first ``import torch``. 
+
+.. 
+ In the following we assume that the command ``from cnine import *`` has been issued,  
+ obviating the need to prefix all `cnine` classes and funnctions with ``cnine.``.
 
 *************
 Configuration
@@ -71,7 +69,8 @@ GPU functionality is currently not fully tested.
 Troubleshooting
 ***************
 
-#. If it becomes necessary to change the location where `setuptools` 
+.. 
+   If it becomes necessary to change the location where `setuptools` 
    places the compiled module, add a file called ``setup.cfg`` 
    with content 
 

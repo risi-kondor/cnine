@@ -1,102 +1,127 @@
 import sys,os
 import torch 
 from setuptools import setup
+from setuptools import find_packages
 from torch.utils.cpp_extension import CppExtension, BuildExtension, CUDAExtension
 import time 
+from glob import glob
 
-# --- User settings ------------------------------------------------------------------------------------------
-
-compile_with_cuda=True
-
-copy_warnings=True
-torch_convert_warnings=True 
-
-# ------------------------------------------------------------------------------------------------------------
+def main():
+    
+ # --- User settings ------------------------------------------------------------------------------------------
 
 
-cwd = os.getcwd()
+ compile_with_cuda=True
 
-_include_dirs=[#'/usr/local/cuda/include',
-              cwd+'/../include',
-              cwd+'/../include/cmaps',
-              cwd+'/../objects/scalar',
-              cwd+'/../objects/tensor',
-              cwd+'/../objects/tensor_views',
-              cwd+'/../objects/tensor_array',
-              cwd+'/../objects/tensor_array/cell_ops']
+ copy_warnings=True
+ torch_convert_warnings=True 
 
-_nvcc_compile_args=['-D_WITH_CUDA',
-                   '-D_WITH_CUBLAS'
+
+ # ------------------------------------------------------------------------------------------------------------
+
+
+ if 'CUDAHOME' in os.environ:
+     print("CUDA found at "+os.environ['CUDAHOME'])
+ else:
+     print("No CUDA found, installing without GPU support.")
+     compile_with_cuda=False
+
+ cwd = os.getcwd()
+
+ _include_dirs=[
+     cwd+'/../include',
+     cwd+'/../include/cmaps',
+     cwd+'/../objects/scalar',
+     cwd+'/../objects/tensor',
+     cwd+'/../objects/tensor_views',
+     cwd+'/../objects/tensor_array',
+     cwd+'/../objects/tensor_array/cell_ops'
+     ]
+
+ _nvcc_compile_args=[
+     '-D_WITH_CUDA',
+     '-D_WITH_CUBLAS'
+     ]
+
+ _cxx_compile_args=['-std=c++14',
+                   '-Wno-sign-compare',
+                   '-Wno-deprecated-declarations',
+                   '-Wno-unused-variable',
+                   '-Wno-unused-but-set-variable',
+                   '-Wno-reorder',
+                   '-Wno-reorder-ctor',
+                   '-D_WITH_ATEN',
+                   '-DCNINE_RANGE_CHECKING',
+                   '-DCNINE_SIZE_CHECKING',
+                   '-DCNINE_DEVICE_CHECKING'
                    ]
 
-_cxx_compile_args=['-std=c++14',
-                  '-Wno-sign-compare',
-                  '-Wno-deprecated-declarations',
-                  '-Wno-unused-variable',
-                  '-Wno-unused-but-set-variable',
-                  '-Wno-reorder',
-                  '-Wno-reorder-ctor',
-                  '-D_WITH_ATEN',
-                  '-DCNINE_RANGE_CHECKING',
-                  '-DCNINE_SIZE_CHECKING',
-                  '-DCNINE_DEVICE_CHECKING'
-                  ]
+ if copy_warnings:
+     _cxx_compile_args.extend([
+         '-DCNINE_COPY_WARNINGS',
+         '-DCNINE_ASSIGN_WARNINGS',
+         '-DCNINE_MOVE_WARNINGS',
+         '-DCNINE_MOVEASSIGN_WARNINGS'
+         ])
 
-if copy_warnings:
-    _cxx_compile_args.extend([
-        '-DCNINE_COPY_WARNINGS',
-        '-DCNINE_ASSIGN_WARNINGS',
-        '-DCNINE_MOVE_WARNINGS',
-        '-DCNINE_MOVEASSIGN_WARNINGS'
-        ])
+ if torch_convert_warnings:
+     _cxx_compile_args.extend([
+         '-DCNINE_ATEN_CONVERT_WARNINGS'
+         ])
 
-if torch_convert_warnings:
-    _cxx_compile_args.extend([
-        '-DCNINE_ATEN_CONVERT_WARNINGS'
-        ])
+ if compile_with_cuda:
+     _cxx_compile_args.extend([
+         '-D_WITH_CUDA',
+         '-D_WITH_CUBLAS'
+         ])
 
-if compile_with_cuda:
-    _cxx_compile_args.extend(['-D_WITH_CUDA','-D_WITH_CUBLAS'])
-    
-_depends=['setup.py',
-          'cnine_py.cpp',
-          'rtensor_py.cpp',
-          'ctensor_py.cpp',
-          'rtensorarr_py.cpp',
-          'ctensorarr_py.cpp',
-          'cmaps_py.cpp',
-          'build/*/*'
-          ]
+ _depends=['setup.py',
+           'bindings/*.cpp',
+           #'cnine_py.cpp',
+           #'rtensor_py.cpp',
+           #'ctensor_py.cpp',
+           #'rtensorarr_py.cpp',
+           #'ctensorarr_py.cpp',
+           #'cmaps_py.cpp',
+           'build/*/*'
+           ]
 
 
-# ---- Compilation commands ----------------------------------------------------------------------------------
+ # ---- Compilation commands ----------------------------------------------------------------------------------
 
 
-if compile_with_cuda:
+ if compile_with_cuda:
+     ext_modules=[CUDAExtension('cnine',
+                                ['bindings/cnine_py.cpp','../include/Cnine_base.cu'],
+                                include_dirs=_include_dirs,
+                                extra_compile_args = {
+                                    'nvcc': _nvcc_compile_args,
+                                    'cxx': _cxx_compile_args},
+                                depends=_depends,
+                                )] 
+ else:
+     ext_modules=[CppExtension('cnine',
+                               ['bindings/cnine_py.cpp'],
+                               include_dirs=_include_dirs,
+                               extra_compile_args = {
+                                   'cxx': _cxx_compile_args},
+                               depends=_depends,
+                               )]
 
-    setup(name='cnine',
-          ext_modules=[CUDAExtension('cnine', ['cnine_py.cpp','../include/Cnine_base.cu'],
-                                     include_dirs=_include_dirs,
-                                     extra_compile_args = {
-                                         'nvcc': _nvcc_compile_args,
-                                         'cxx': _cxx_compile_args},
-                                     depends=_depends,
-                                     )], 
-          cmdclass={'build_ext': BuildExtension}
-        )
 
-else:
+ setup(name='cnine',
+       ext_modules=ext_modules,
+       packages=find_packages('src'),
+       package_dir={'': 'src'},
+       py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+       include_package_data=True,
+       zip_safe=False,
+     cmdclass={'build_ext': BuildExtension}
+ )
 
-    setup(name='cnine',
-          ext_modules=[CppExtension('cnine', ['cnine_py.cpp'],
-                                     include_dirs=_include_dirs,
-                                     extra_compile_args = {
-                                         'cxx': _cxx_compile_args},
-                                     depends=_depends,
-                                     )], 
-          cmdclass={'build_ext': BuildExtension}
-        )
-    
+
+if __name__ == "__main__":
+    main()
 
 print("Compilation finished:",time.ctime(time.time()))
 

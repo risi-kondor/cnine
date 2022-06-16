@@ -6,17 +6,17 @@
 cnine
 =================================
 
+.. include:: abstract.rst 
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-.. include:: intro.rst
-
-| 
-
-.. include:: tensors.rst
-.. include:: tensor_arrays.rst
-.. include:: cell_maps.rst
+  intro.rst
+  tensors.rst
+  ctensor.rst
+  tensor_arrays.rst
+  cell_maps.rst
 
 
 
