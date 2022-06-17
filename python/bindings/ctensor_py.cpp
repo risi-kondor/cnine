@@ -19,78 +19,78 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
   .def(pybind11::init<const at::Tensor&>())
   .def_static("view",static_cast<CtensorObj(*)(at::Tensor&)>(&CtensorObj::view))
-  .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&)>(&CtensorObj::is_viewable))
+//.def_static("is_viewable",static_cast<bool(*)(const at::Tensor&)>(&CtensorObj::is_viewable))
 //.def_static("view",static_cast<CtensorObj>(*)(const at::Tensor&)>(&CtensorObj::view))
 //.def_static("const_view",static_cast<CtensorObj>(*)(at::Tensor&)>(&CtensorObj::const_view))
   .def("torch",&CtensorObj::torch)
 
-  .def_static("raw",static_cast<CtensorObj (*)(const Gdims&, const int, const int)>(&CtensorObj::raw))
-  .def_static("raw",[](const Gdims& dims, const int dev){return CtensorObj::raw(dims,-1,dev);},
+  .def_static("raw",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::raw))
+  .def_static("raw",[](const Gdims& dims, const int dev){return CtensorObj::raw(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("raw",[](const vector<int>& v, const int dev){return CtensorObj::raw(Gdims(v),-1,dev);},
+  .def_static("raw",[](const vector<int>& v, const int dev){return CtensorObj::raw(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("raw",[](const int i0){return CtensorObj::raw(Gdims({i0}));})
   .def_static("raw",[](const int i0, const int i1){return CtensorObj::raw(Gdims({i0,i1}));})
   .def_static("raw",[](const int i0, const int i1, const int i2){return CtensorObj::raw(Gdims({i0,i1,i2}));})
 
-  .def_static("zero",static_cast<CtensorObj (*)(const Gdims&, const int, const int)>(&CtensorObj::zero))
-  .def_static("zero",[](const Gdims& dims, const int dev){return CtensorObj::zero(dims,-1,dev);},
+  .def_static("zero",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::zero))
+  .def_static("zero",[](const Gdims& dims, const int dev){return CtensorObj::zero(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("zero",[](const vector<int>& v, const int dev){return CtensorObj::zero(Gdims(v),-1,dev);},
+  .def_static("zero",[](const vector<int>& v, const int dev){return CtensorObj::zero(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("zero",[](const int i0){return CtensorObj::zero(Gdims({i0}));})
   .def_static("zero",[](const int i0, const int i1){return CtensorObj::zero(Gdims({i0,i1}));})
   .def_static("zero",[](const int i0, const int i1, const int i2){return CtensorObj::zero(Gdims({i0,i1,i2}));})
 
-  .def_static("zeros",static_cast<CtensorObj (*)(const Gdims&, const int, const int)>(&CtensorObj::zero))
-  .def_static("zeros",[](const Gdims& dims, const int dev){return CtensorObj::zero(dims,-1,dev);},
+  .def_static("zeros",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::zero))
+  .def_static("zeros",[](const Gdims& dims, const int dev){return CtensorObj::zero(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("zeros",[](const vector<int>& v, const int dev){return CtensorObj::zero(Gdims(v),-1,dev);},
+  .def_static("zeros",[](const vector<int>& v, const int dev){return CtensorObj::zero(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("zeros",[](const int i0){return CtensorObj::zero(Gdims({i0}));})
   .def_static("zeros",[](const int i0, const int i1){return CtensorObj::zero(Gdims({i0,i1}));})
   .def_static("zeros",[](const int i0, const int i1, const int i2){return CtensorObj::zero(Gdims({i0,i1,i2}));})
 
-  .def_static("ones",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::ones))
-  .def_static("ones",[](const Gdims& dims, const int dev){return CtensorObj::ones(dims,-1,dev);},
+  .def_static("ones",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::ones))
+  .def_static("ones",[](const Gdims& dims, const int dev){return CtensorObj::ones(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("ones",[](const vector<int>& v, const int dev){return CtensorObj::ones(Gdims(v),-1,dev);},
+  .def_static("ones",[](const vector<int>& v, const int dev){return CtensorObj::ones(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("ones",[](const int i0){return CtensorObj::ones(Gdims({i0}));})
   .def_static("ones",[](const int i0, const int i1){return CtensorObj::ones(Gdims({i0,i1}));})
   .def_static("ones",[](const int i0, const int i1, const int i2){return CtensorObj::ones(Gdims({i0,i1,i2}));})
 
-  .def_static("identity",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::identity))
-  .def_static("identity",[](const Gdims& dims, const int dev){return CtensorObj::identity(dims,-1,dev);},
+  .def_static("identity",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::identity))
+  .def_static("identity",[](const Gdims& dims, const int dev){return CtensorObj::identity(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("identity",[](const vector<int>& v, const int dev){return CtensorObj::identity(Gdims(v),-1,dev);},
+  .def_static("identity",[](const vector<int>& v, const int dev){return CtensorObj::identity(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("identity",[](const int i0){return CtensorObj::identity(Gdims({i0}));})
   .def_static("identity",[](const int i0, const int i1){return CtensorObj::identity(Gdims({i0,i1}));})
   .def_static("identity",[](const int i0, const int i1, const int i2){return CtensorObj::identity(Gdims({i0,i1,i2}));})
 
-  .def_static("gaussian",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::gaussian))
-  .def_static("gaussian",[](const Gdims& dims, const int dev){return CtensorObj::gaussian(dims,-1,dev);},
+  .def_static("gaussian",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::gaussian))
+  .def_static("gaussian",[](const Gdims& dims, const int dev){return CtensorObj::gaussian(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("gaussian",[](const vector<int>& v, const int dev){return CtensorObj::gaussian(Gdims(v),-1,dev);},
+  .def_static("gaussian",[](const vector<int>& v, const int dev){return CtensorObj::gaussian(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("gaussian",[](const int i0){return CtensorObj::gaussian(Gdims({i0}));})
   .def_static("gaussian",[](const int i0, const int i1){return CtensorObj::gaussian(Gdims({i0,i1}));})
   .def_static("gaussian",[](const int i0, const int i1, const int i2){return CtensorObj::gaussian(Gdims({i0,i1,i2}));})
 
-  .def_static("randn",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::gaussian))
-  .def_static("randn",[](const Gdims& dims, const int dev){return CtensorObj::gaussian(dims,-1,dev);},
+  .def_static("randn",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::gaussian))
+  .def_static("randn",[](const Gdims& dims, const int dev){return CtensorObj::gaussian(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("randn",[](const vector<int>& v, const int dev){return CtensorObj::gaussian(Gdims(v),-1,dev);},
+  .def_static("randn",[](const vector<int>& v, const int dev){return CtensorObj::gaussian(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("randn",[](const int i0){return CtensorObj::gaussian(Gdims({i0}));})
   .def_static("randn",[](const int i0, const int i1){return CtensorObj::gaussian(Gdims({i0,i1}));})
   .def_static("randn",[](const int i0, const int i1, const int i2){return CtensorObj::gaussian(Gdims({i0,i1,i2}));})
 
-  .def_static("sequential",static_cast<CtensorObj (*)(const Gdims&,const int, const int)>(&CtensorObj::sequential))
-  .def_static("sequential",[](const Gdims& dims, const int dev){return CtensorObj::sequential(dims,-1,dev);},
+  .def_static("sequential",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::sequential))
+  .def_static("sequential",[](const Gdims& dims, const int dev){return CtensorObj::sequential(dims,dev);},
     py::arg("dims"),py::arg("device")=0)
-  .def_static("sequential",[](const vector<int>& v, const int dev){return CtensorObj::sequential(Gdims(v),-1,dev);},
+  .def_static("sequential",[](const vector<int>& v, const int dev){return CtensorObj::sequential(Gdims(v),dev);},
     py::arg("dims"),py::arg("device")=0)
   .def_static("sequential",[](const int i0){return CtensorObj::sequential(Gdims({i0}));})
   .def_static("sequential",[](const int i0, const int i1){return CtensorObj::sequential(Gdims({i0,i1}));})
@@ -159,8 +159,8 @@ pybind11::class_<CtensorObj>(m,"ctensor")
   .def("slice",&CtensorObj::slice)
   .def("chunk",&CtensorObj::chunk)
 
-  .def("reshape",&CtensorObj::reshape)
-  .def("reshape",[](CtensorObj& obj, const vector<int>& v){obj.reshape(Gindex(v));})
+//.def("reshape",&CtensorObj::reshape)
+//.def("reshape",[](CtensorObj& obj, const vector<int>& v){obj.reshape(Gindex(v));})
 
   .def("transp",&CtensorObj::transp)
   .def("conj",&CtensorObj::conj)

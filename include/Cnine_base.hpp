@@ -88,6 +88,7 @@ using namespace std;
 #define CNINE_CHECK_RANGE(expr)
 #define CNINE_CHECK_SIZE(expr)
 #define CNINE_DIMS_VALID(dims)
+#define CNINE_DIMS_SAME(x)
 #define CNINE_DIMS_EQ(a,b)
 #define CNINE_DIMS_EQ_TOTAL(a,b)
 #define CNINE_NDIMS_IS_2(a)

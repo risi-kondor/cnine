@@ -179,13 +179,13 @@ between two tensors and the squared Frobenius norm
 
 .. code-block:: python
 
-  >>> A=rtensor.randn(4,4)
+  >>> A=cnine.rtensor.randn(4,4)
   >>> print(A)
   [ -1.23974 -0.407472 1.61201 0.399771 ]
   [ 1.3828 0.0523187 -0.904146 1.87065 ]
   [ -1.66043 -0.688081 0.0757219 1.47339 ]
   [ 0.097221 -0.89237 -0.228782 1.16493 ]
-  >>> B=rtensor.ones([4,4])
+  >>> B=cnine.rtensor.ones([4,4])
   >>> cnine.inp(A,B)
   2.107801675796509
   >>> cnine.norm2(A)
@@ -212,7 +212,7 @@ The ``transp`` method returns the transpose of a matrix.
 
 .. code-block:: python
 
-  >>> A=rtensor.sequential(4,4)
+  >>> A=cnine.rtensor.sequential(4,4)
   >>> print(A.transp())
   [ 0 4 8 12 ]
   [ 1 5 9 13 ]

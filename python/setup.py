@@ -13,8 +13,8 @@ def main():
 
  compile_with_cuda=True
 
- copy_warnings=True
- torch_convert_warnings=True 
+ copy_warnings=False
+ torch_convert_warnings=False
 
 
  # ------------------------------------------------------------------------------------------------------------
@@ -37,6 +37,7 @@ def main():
      cwd+'/../objects/backendB',
      cwd+'/../objects/tensor_views',
      cwd+'/../objects/tensor_array',
+     cwd+'/../objects/tensor_array/cell_maps',
      cwd+'/../objects/tensor_array/cell_ops'
      ]
 
@@ -93,7 +94,7 @@ def main():
 
 
  if compile_with_cuda:
-     ext_modules=[CUDAExtension('cnine',
+     ext_modules=[CUDAExtension('cnine_base',
                                 ['bindings/cnine_py.cpp','../include/Cnine_base.cu'],
                                 include_dirs=_include_dirs,
                                 extra_compile_args = {
@@ -102,7 +103,7 @@ def main():
                                 depends=_depends,
                                 )] 
  else:
-     ext_modules=[CppExtension('cnine',
+     ext_modules=[CppExtension('cnine_base',
                                ['bindings/cnine_py.cpp'],
                                include_dirs=_include_dirs,
                                extra_compile_args = {

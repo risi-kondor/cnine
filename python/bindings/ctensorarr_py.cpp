@@ -9,7 +9,7 @@
 
 pybind11::class_<CtensorArray>(m,"ctensorArr")
 
-  .def(pybind11::init<const Gdims&>())
+//.def(pybind11::init<const Gdims&>())
   .def(pybind11::init<const Gdims&, const Gdims&, const fill_raw&>())
   .def(pybind11::init<const Gdims&, const Gdims&, const fill_zero&>())
   .def(pybind11::init<const Gdims&, const Gdims&, const fill_ones&>())
@@ -19,45 +19,37 @@ pybind11::class_<CtensorArray>(m,"ctensorArr")
 
   .def(pybind11::init<const int, const at::Tensor&>())
   .def("torch",&CtensorArray::torch)
-  .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&, const int)>(&CtensorArray::is_viewable))
+//.def_static("is_viewable",static_cast<bool(*)(const at::Tensor&, const int)>(&CtensorArray::is_viewable))
 
-  .def_static("raw",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&CtensorArray::raw))
+  .def_static("raw",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int)>(&CtensorArray::raw))
   .def_static("raw",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return CtensorArray::raw(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return CtensorArray::raw(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("raw",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return CtensorArray::raw(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return CtensorArray::raw(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("zero",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&CtensorArray::zero))
+  .def_static("zero",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int)>(&CtensorArray::zero))
   .def_static("zero",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return CtensorArray::zero(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return CtensorArray::zero(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("zero",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return CtensorArray::zero(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return CtensorArray::zero(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("ones",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&CtensorArray::ones))
+  .def_static("ones",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int)>(&CtensorArray::ones))
   .def_static("ones",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return CtensorArray::ones(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return CtensorArray::ones(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("ones",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return CtensorArray::ones(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return CtensorArray::ones(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-/*
-  .def_static("identity",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&CtensorArray::identity))
-  .def_static("identity",[](const Gdims& adims, const Gdims& dims, const int dev){
-  return CtensorArray::identity(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
-  .def_static("identity",[](const vector<int>& av, const vector<int>& v, const int dev){
-  return CtensorArray::identity(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
-*/
-
-  .def_static("sequential",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&CtensorArray::sequential))
+  .def_static("sequential",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int)>(&CtensorArray::sequential))
   .def_static("sequential",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return CtensorArray::sequential(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return CtensorArray::sequential(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("sequential",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return CtensorArray::sequential(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return CtensorArray::sequential(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("gaussian",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&CtensorArray::gaussian))
+  .def_static("gaussian",static_cast<CtensorArray (*)(const Gdims&, const Gdims&, const int)>(&CtensorArray::gaussian))
   .def_static("gaussian",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return CtensorArray::gaussian(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return CtensorArray::gaussian(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("gaussian",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return CtensorArray::gaussian(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return CtensorArray::gaussian(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
 //.def("get_k",&RtensorObj::get_k)
 //    .def("getk",&RtensorObj::get_k)
@@ -76,11 +68,11 @@ pybind11::class_<CtensorArray>(m,"ctensorArr")
   .def("get_cdims",&CtensorArray::get_cdims)
   .def("get_cdim",&CtensorArray::get_cdim)
 
-  .def("get_cell",&CtensorArray::get_cell)
+//.def("get_cell",&CtensorArray::get_cell)
   .def("get_cell",[](const CtensorArray& obj, const vector<int> v){return obj.get_cell(Gindex(v));})
-  .def("__call__",&CtensorArray::get_cell)
+//.def("__call__",&CtensorArray::get_cell)
   .def("__call__",[](const CtensorArray& obj, const vector<int> v){return obj.get_cell(Gindex(v));})
-  .def("__getitem__",&CtensorArray::get_cell)
+//.def("__getitem__",&CtensorArray::get_cell)
   .def("__getitem__",[](const CtensorArray& obj, const vector<int> v){return obj.get_cell(Gindex(v));})
 
   .def("__setitem__",[](CtensorArray& obj, const Gindex& ix, const CtensorObj& x){

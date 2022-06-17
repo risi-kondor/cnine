@@ -20,55 +20,47 @@ pybind11::class_<RtensorArray>(m,"rtensorArr")
   .def("torch",&RtensorArray::torch)
   .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&, const int)>(&RtensorArray::is_viewable))
 
-  .def_static("raw",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::raw))
+  .def_static("raw",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int)>(&RtensorArray::raw))
   .def_static("raw",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return RtensorArray::raw(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return RtensorArray::raw(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("raw",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return RtensorArray::raw(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return RtensorArray::raw(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("zero",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::zero))
+  .def_static("zero",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int)>(&RtensorArray::zero))
   .def_static("zero",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return RtensorArray::zero(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return RtensorArray::zero(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("zero",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return RtensorArray::zero(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return RtensorArray::zero(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("zeros",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::zero))
+  .def_static("zeros",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int)>(&RtensorArray::zero))
   .def_static("zeros",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return RtensorArray::zero(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return RtensorArray::zero(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("zeros",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return RtensorArray::zero(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return RtensorArray::zero(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("ones",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::ones))
+  .def_static("ones",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int)>(&RtensorArray::ones))
   .def_static("ones",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return RtensorArray::ones(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return RtensorArray::ones(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("ones",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return RtensorArray::ones(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return RtensorArray::ones(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-/*
-  .def_static("identity",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::identity))
-  .def_static("identity",[](const Gdims& adims, const Gdims& dims, const int dev){
-  return RtensorArray::identity(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
-  .def_static("identity",[](const vector<int>& av, const vector<int>& v, const int dev){
-  return RtensorArray::identity(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
-*/
-
-  .def_static("sequential",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::sequential))
+  .def_static("sequential",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int)>(&RtensorArray::sequential))
   .def_static("sequential",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return RtensorArray::sequential(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return RtensorArray::sequential(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("sequential",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return RtensorArray::sequential(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return RtensorArray::sequential(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("gaussian",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::gaussian))
+  .def_static("gaussian",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int)>(&RtensorArray::gaussian))
   .def_static("gaussian",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return RtensorArray::gaussian(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return RtensorArray::gaussian(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("gaussian",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return RtensorArray::gaussian(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return RtensorArray::gaussian(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
-  .def_static("randn",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::gaussian))
+  .def_static("randn",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int)>(&RtensorArray::gaussian))
   .def_static("randn",[](const Gdims& adims, const Gdims& dims, const int dev){
-      return RtensorArray::gaussian(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+      return RtensorArray::gaussian(dims,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("randn",[](const vector<int>& av, const vector<int>& v, const int dev){
-      return RtensorArray::gaussian(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+      return RtensorArray::gaussian(Gdims(av),Gdims(v),dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
 //.def("get_k",&RtensorObj::get_k)
 //    .def("getk",&RtensorObj::get_k)
