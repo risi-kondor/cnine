@@ -335,29 +335,29 @@ namespace cnine{
 
 
     CtensorB cell(const int i){
-      return CtensorB::view(get_cdims(),arr+i*get_cellstride(),dev);
+      return CtensorB::view_of_array(get_cdims(),arr+i*get_cellstride(),dev);
     }
 
     CtensorB cell(const int i) const{
-      return CtensorB::view(get_cdims(),arr+i*get_cellstride(),dev);
+      return CtensorB::view_of_array(get_cdims(),arr+i*get_cellstride(),dev);
     }
 
     CtensorB cell(const int i, const int j){
-      return CtensorB::view(get_cdims(),arr+i*strides[0]+j*strides[1],dev);
+      return CtensorB::view_of_array(get_cdims(),arr+i*strides[0]+j*strides[1],dev);
     }
 
     CtensorB cell(const int i, const int j) const{
-      return CtensorB::view(get_cdims(),arr+i*strides[0]+j*strides[1],dev);
+      return CtensorB::view_of_array(get_cdims(),arr+i*strides[0]+j*strides[1],dev);
     }
 
     CtensorB cell(const Gindex& aix){
       CNINE_CHECK_RANGE(aix.check_arange(get_adims()));
-      return CtensorB::view(get_cdims(),arr+aix(strides),dev);
+      return CtensorB::view_of_array(get_cdims(),arr+aix(strides),dev);
     }
 
     CtensorB cell(const Gindex& aix) const{
       CNINE_CHECK_RANGE(aix.check_arange(get_adims()));
-      return CtensorB::view(get_cdims(),arr+aix(strides),dev);
+      return CtensorB::view_of_array(get_cdims(),arr+aix(strides),dev);
     }
 
 
@@ -585,13 +585,13 @@ namespace cnine{
   public: // ---- Multiplication by scattered matrices --------------------------------------------------------
 
 
-    void scatter_add_times_c(const CtensorArrayA& x, const CtensorB& C){
+    void scatter_add_times_c(const CtensorArrayB& x, const CtensorB& C){
       //assert(adims==x.dims);
       //CtensorA_add_times_c_cop op;
       //scatter(op,x,C);
     }
 
-    void scatter_add_div_c(const CtensorArrayA& x, const CtensorB& C){
+    void scatter_add_div_c(const CtensorArrayB& x, const CtensorB& C){
       //assert(adims==x.dims);
       //CtensorA_add_div_c_cop op;
       //scatter(op,x,C);

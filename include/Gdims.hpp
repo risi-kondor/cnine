@@ -207,6 +207,11 @@ namespace cnine{
       return R;
     }
 
+    Gdims transp() const{
+      assert(size()==2);
+      return Gdims((*this)[1],(*this)[0]);
+    }
+
     Gdims transpose() const{
       assert(size()==2);
       return Gdims((*this)[1],(*this)[0]);

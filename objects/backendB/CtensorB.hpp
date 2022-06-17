@@ -138,7 +138,7 @@ namespace cnine{
 
     CtensorB(const Gdims& _dims, const fill_identity& dummy, const int _dev=0): 
       CtensorB(_dims,fill_zero()){
-      CNINE_DIMS_MATRIX(dims);
+      CNINE_NDIMS_IS_2((*this));
       assert(dims[0]==dims[1]);
       int s=strides[0]+strides[1];
       for(int i=0; i<dims[0]; i++)
@@ -200,7 +200,12 @@ namespace cnine{
     }
 
 
+    template<typename FILL>
     static CtensorB like(const CtensorB& x){
+      return CtensorB(x.dims,FILL(),x.dev);
+    }
+
+    static CtensorB raw_like(const CtensorB& x){
       return CtensorB(x.dims,fill_raw(),x.dev);
     }
 
@@ -208,25 +213,7 @@ namespace cnine{
       return CtensorB(x.dims,fill_zero(),x.dev);
     }
 
-    /*
-    static const CtensorB view(CtensorB& x){
-      CtensorB R=CtensorB::noalloc(x.dims,x.dev);
-      r.arr=x.arr;
-      r.arrg=x.arrg;
-      R.is_view=true;
-      return R;
-    }
-
-    static const CtensorB view_as_shape(CtensorB& x){
-      CtensorB R=CtensorB::noalloc(x.dims,x.dev);
-      r.arr=x.arr;
-      r.arrg=x.arrg;
-      R.is_view=true;
-      return R;
-    }
-    */
-
-    static CtensorB view(const Gdims& _dims, float* _arr, const int _dev=0){
+    static CtensorB view_of_array(const Gdims& _dims, float* _arr, const int _dev=0){
       CtensorB R=CtensorB::noalloc(_dims,_dev);
       if(_dev==0) R.arr=_arr;
       if(_dev==1) R.arrg=_arr;
@@ -234,7 +221,7 @@ namespace cnine{
       return R;
     }
 
-    static const CtensorB view(const Gdims& _dims, const float* _arr, const int _dev=0){
+    static const CtensorB view_of_array(const Gdims& _dims, const float* _arr, const int _dev=0){
       CtensorB R=CtensorB::noalloc(_dims,_dev);
       if(_dev==0) R.arr=const_cast<float*>(_arr);
       if(_dev==1) R.arrg=const_cast<float*>(_arr);
@@ -259,10 +246,8 @@ namespace cnine{
       }
       if(dev==1){
 	CNINE_REQUIRES_CUDA();
-	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
-	#endif 
       }
     }
         
@@ -274,10 +259,8 @@ namespace cnine{
       }
       if(dev==1){
 	CNINE_REQUIRES_CUDA();
-	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
-	#endif 
       }
     }
         
@@ -296,7 +279,6 @@ namespace cnine{
       }
       if(dev==1){
 	CNINE_REQUIRES_CUDA();
-	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	if(x.dev==0){
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice));
@@ -304,7 +286,6 @@ namespace cnine{
 	if(x.dev==1){
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	}
-	#endif 
       }
     }
 
@@ -321,7 +302,6 @@ namespace cnine{
       arr=x.arr; x.arr=nullptr; 
       arrg=x.arrg; x.arrg=nullptr;
       is_view=x.is_view;
-      //cout<<"move CtensorB "<<endl; 
     }
 
     CtensorB* clone() const{
@@ -330,44 +310,25 @@ namespace cnine{
 
     CtensorB& operator=(const CtensorB& x){
       CNINE_ASSIGN_WARNING();
-      dims=x.dims; strides=x.strides; 
+      if(this==&x) return *this;
+      if(!is_view && arr) {delete arr; arr=nullptr;}
+      if(!is_view && arrg) {CUDA_SAFE(cudaFree(arrg)); arrg=nullptr;}
+      dims=x.dims; 
+      strides=x.strides; 
       asize=x.asize; 
       memsize=x.memsize; 
       coffs=x.coffs;
       dev=x.dev;
 
-      /*
-      if(is_view){
-	if(dev==0){
-	  std::copy(x.arr,x.arr+memsize,arr);
-	}
-	if(dev==1){
-	  CNINE_REQUIRES_CUDA();
-	  #ifdef _WITH_CUDA
-	  CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
-	  #endif 
-	}
-	return *this;
-      }
-      */
-
-      if(!is_view){
-	if(arr){delete arr; arr=nullptr;}
-	#ifdef _WITH_CUDA
-	if(arrg){CUDA_SAFE(cudaFree(arrg)); arrg=nullptr;}
-	#endif
-      }
-
       if(dev==0){
 	arr=new float[memsize]; 
 	std::copy(x.arr,x.arr+memsize,arr);
       }
+
       if(dev==1){
 	CNINE_REQUIRES_CUDA();
-	#ifdef _WITH_CUDA
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
-	#endif 
       }
       
       is_view=false;
@@ -377,13 +338,15 @@ namespace cnine{
 
     CtensorB& operator=(CtensorB&& x){
       CNINE_MOVEASSIGN_WARNING();
-      dims=x.dims; strides=x.strides; 
+      if(this==&x) return *this;
+      if(!is_view && arr) {delete arr; arr=nullptr;}
+      if(!is_view && arrg) {CUDA_SAFE(cudaFree(arrg)); arrg=nullptr;}
+      dims=x.dims; 
+      strides=x.strides; 
       asize=x.asize; 
       memsize=x.memsize; 
       coffs=x.coffs; 
       dev=x.dev; 
-      if(!is_view && arr) {delete arr; arr=nullptr;}
-      if(!is_view && arrg) {CUDA_SAFE(cudaFree(arrg)); arrg=nullptr;}
       arr=x.arr; x.arr=nullptr; 
       arrg=x.arrg; x.arrg=nullptr; 
       is_view=x.is_view;
@@ -420,7 +383,10 @@ namespace cnine{
 
 
     CtensorB& move_to_device(const int _dev){
-
+      
+      if(dev==_dev) return *this;
+      if(is_view) throw std::runtime_error("Cnine error in "+string(__PRETTY_FUNCTION__)+": a tensor view cannot be moved to a different device.");
+      
       if(_dev==0){
 	if(dev==0) return *this;
  	delete[] arr;
@@ -490,6 +456,15 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
+    bool has_same_strides_as(const at::Tensor& T) const{
+      int k=strides.size();
+      if(T.dim()!=k+1) return false;
+      for(int i=0; i<k; i++)
+	if(T.stride(i)!=strides[i]) return false;
+      if(T.stride(k)!=2) return false;
+      return true;
+    }
+
     static bool is_regular(const at::Tensor& T){
       int k=T.dim();
       Gdims Tdims(k,fill_raw());
@@ -503,7 +478,7 @@ namespace cnine{
 	CoutLock lk;
 	cout<<"Warning: ATen tensor of dims "<<Tdims<<" has strides [ ";
 	for(int i=0; i<k; i++) cout<<T.stride(i)<<" ";
-	cout<<"] instead of "<<Tstrides<<endl;
+	cout<<"] instead of "<<Tstrides.str()<<endl;
 	return false; 
       }
       return true;
@@ -513,26 +488,23 @@ namespace cnine{
     CtensorB(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
       assert(typeid(T.type().scalarType())==typeid(float));
-
       T.contiguous();
+
       int k=T.dim()-1;
-      if(k<=0 || T.size(k)!=2) throw std::out_of_range("CtensorB: last dimension of tensor must be 2, corresponding to the real and imaginary parts.");
-      dims=Gdims(k,fill_raw());
-      for(int i=0; i<k ; i++){
+      if(k<=0 || T.size(k)!=2) 
+	throw std::out_of_range("CtensorB: last dimension of ATen tensor must be 2, corresponding to the real and imaginary parts.");
+      dims=Gdims::raw(k);
+      for(int i=0; i<k ; i++)
 	dims[i]=T.size(i);
-      }
       strides=Gstrides(dims,2);
       asize=strides[0]*dims[0]/2; 
       memsize=strides[0]*dims[0]; 
       coffs=1;
       dev=T.type().is_cuda();
 
-      bool reg=true;
-      for(int i=0; i<k; i++)
-	if(T.stride(i)!=strides[i]){reg=false; break;}
-      if(T.stride(k)!=2) reg=false;
-      if(!reg){
-	CNINE_CPUONLY();
+      if(!has_same_strides_as(T)){
+	if(dev!=0) 
+	  throw std::out_of_range("CtensorB: ATen tensor is irregular and is on the GPU."); 
 	auto src=T.data<float>();
 	arr=new float[memsize];
 	Gstrides sstrides(k+1,fill_raw());
@@ -545,7 +517,6 @@ namespace cnine{
 
       if(dev==0){
 	arr=new float[memsize];
-	//std::copy(T.data<complex<float> >(),T.data<complex<float> >()+asize,reinterpret_cast<complex<float>* >(arr));
 	std::copy(T.data<float>(),T.data<float>()+memsize,arr);
       }
 
@@ -553,7 +524,7 @@ namespace cnine{
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
-      //cout<<*this<<endl;
+
     }
 
     static CtensorB view(at::Tensor& T){
@@ -993,7 +964,7 @@ namespace cnine{
 
   public: // ---- Cells --------------------------------------------------------------------------------------
 
-
+    /*
     CtensorB view_of_cell(const Gindex& cix){
       assert(coffs==1);
       assert(cix.size()<dims.size());
@@ -1015,6 +986,7 @@ namespace cnine{
     CtensorB get_cell(const Gindex& cix) const{
       return CtensorB(view_of_cell(cix),nowarn_flag());
     }
+    */
 
 
   public: // ---- Chunks -------------------------------------------------------------------------------------
@@ -1259,7 +1231,7 @@ namespace cnine{
     }
 
 
-  public: // ---- Operations ---------------------------------------------------------------------------------
+  public: // ---- CtensorB valued operations -----------------------------------------------------------------
 
 
     CtensorB conj() const{
@@ -1270,13 +1242,31 @@ namespace cnine{
 	for(int i=0; i<asize; i++) R.arr[i*s+coffs]=arr[i*s+coffs];
 	return R;
       }
-      CtensorB R(dims,fill::zero,dev);
-      CNINE_UNIMPL();
-      return R;
+      if(dev==1){
+	CtensorB R(*this);
+	const float alpha=-1.0;
+	CUBLAS_SAFE(cublasSscal(cnine_cublas, asize, &alpha, R.arrg, 2));
+	return R;
+      }
+      return *this;
     }
 
     CtensorB transp() const{
-      CNINE_UNIMPL();
+      CNINE_NDIMS_IS_2((*this));
+      CtensorB R=CtensorB::raw(dims.transp(),dev);
+      if(dev==0){
+	for(int i=0; i<dims[0]; i++)
+	  for(int j=0; j<dims[1]; j++)
+	    R.set(j,i,(*this)(i,j));
+      }
+      if(dev==1){
+	CtensorB R=CtensorB::raw(dims,dev);
+	const complex<float> alpha = 1.0;
+	const complex<float> beta = 0.0;
+	CUBLAS_SAFE(cublasCgeam(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,J,I,
+	    &alpha,arrg,I,&beta,R.arrg,J,R.arrg,J));
+	return R;
+      }
       return *this;
     }
 
@@ -1532,6 +1522,7 @@ namespace cnine{
       return gtensor().str(indent);
     }
 
+    /*
     string str_as_array(const int k, const string indent="") const{
       ostringstream oss;
       assert(k<dims.size());
@@ -1542,6 +1533,7 @@ namespace cnine{
 	});
       return oss.str();
     }
+    */
 
     string repr() const{
       return "<cnine::CtensorB"+dims.str()+">";
