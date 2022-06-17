@@ -57,8 +57,8 @@ int main(int argc, char** argv){
   cout<<D<<endl;
   cout<<D.col_norms()<<endl; 
 
-  cout<<"  fn(C) = "<<endl<<C.apply([](const complex<float> x){return x*x+complex<float>(3.0);})<<endl; 
-  cout<<"  fn2(C) = "<<endl<<C.apply([](const int i, const int j, const complex<float> x){return x+complex<float>(i,j);})<<endl; 
+  //cout<<"  fn(C) = "<<endl<<C.apply([](const complex<float> x){return x*x+complex<float>(3.0);})<<endl; 
+  //cout<<"  fn2(C) = "<<endl<<C.apply([](const int i, const int j, const complex<float> x){return x+complex<float>(i,j);})<<endl; 
 
   cout<<ctensor(Gdims({5,5}),[](const int i, const int j){return complex<float>(i+j);})<<endl;
 

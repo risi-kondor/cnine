@@ -15,7 +15,7 @@
 
 namespace cnine{
 
-  class CellwiseBinaryCmap: public Direct_cmap{ //public BinaryDirectCmap{ public Cmap_base,
+  class CellwiseBinaryCmap: public Direct_cmap{
   public:
     
     int I;
@@ -26,15 +26,13 @@ namespace cnine{
 
     template<typename OP, typename ARR>
     CellwiseBinaryCmap(const OP& op, ARR& r, const ARR& x, const ARR& y, const int add_flag=0){
-      I=r.aasize;
-      assert(x.aasize==I);
-      assert(y.aasize==I);
+      I=r.get_aasize();
+      assert(x.get_aasize()==I);
+      assert(y.get_aasize()==I);
       if(r.dev==0){
 	for(int i=0; i<I; i++){
 	  decltype(x.get_cell(0)) t=r.cell(i);
 	  op.apply(t,x.cell(i),y.cell(i),add_flag);
-	  //if(add_flag==0) op.apply(t,x.cell(i),y.cell(i),0);
-	  //else op.apply(t,x.cell(i),y.cell(i),1);
 	}
       }
       if(r.dev==1){
@@ -62,25 +60,23 @@ namespace cnine{
 
   template<typename OP, typename ARR>
   ARR cellwise(const ARR& x, const ARR& y){
-    ARR r(x,x.adims,fill::raw);
+    ARR r=ARR::raw_like(x);
     CellwiseBinaryCmap(OP(),r,x,y);
     return r;
   }
 
   template<typename OP, typename ARR, typename ARG0>
   ARR cellwise(const ARR& x, const ARR& y, const ARG0& arg0){
-    ARR r(x,x.adims,fill::raw);
+    ARR r=ARR::raw_like(x);
     OP op(arg0);
-    //ARR r=op.init(x.cell(0),y.cell(0),x.get_adims(),fill::raw);
     CellwiseBinaryCmap(op,r,x,y);
     return r;
   }
 
   template<typename OP, typename ARR, typename ARG0, typename ARG1>
   ARR cellwise(const ARR& x, const ARR& y, const ARG0& arg0, const ARG1& arg1){
-    ARR r(x,x.adims,fill::raw);
+    ARR r=ARR::raw_like(x);
     OP op(arg0,arg1);
-    //ARR r=op.init(x.cell(0),y.cell(0),x.get_adims(),fill::raw);
     CellwiseBinaryCmap(op,r,x,y);
     return r;
   }

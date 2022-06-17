@@ -12,7 +12,7 @@
 
 #include "Cnine_base.hpp"
 #include "CtensorArrayA.hpp"
-#include "CtensorArrayB.hpp"
+#include "CtensorB_array.hpp"
 // #include "Dobject.hpp"
 #include "ExprTemplates.hpp"
 #include "CscalarObj.hpp"
@@ -78,20 +78,6 @@ namespace cnine{
       return CtensorArray(_adims,_dims,fill::gaussian,_dev.id());}
     
 
-  public: // ---- Lambda constructors ------------------------------------------------------------------------
-
-
-   CtensorArray(const Gdims& _adims, const Gdims& _cdims,
-     std::function<complex<float>(const Gindex& aix, const Gindex& ix)> fn, const int dev=0):
-     CNINE_CTENSORARRAY_IMPL(_adims,_cdims,fill::raw){
-     _adims.foreach_index([&](const Gindex& aix){
-	 _cdims.foreach_index([&](const Gindex& cix){
-	     set(aix,cix,fn(aix,cix));
-	   });
-       });
-   }
-
-
   public: // ---- Copying ------------------------------------------------------------------------------------
 
     
@@ -117,20 +103,20 @@ namespace cnine{
       return *this;
     }
     
-    //template<typename FILLTYPE>
-    //CnineObject* spawn(const FILLTYPE& fill) const{
-    //return new CtensorArray(get_adims(),get_cdims(),fill,dev);
-    //}
+    template<typename FILLTYPE>
+    CnineObject* spawn(const FILLTYPE& fill) const{
+      return new CtensorArray(adims,cdims,fill,dev);
+    }
 
-    //template<typename FILLTYPE>
-    //CnineObject* spawn(const  Gdims _adims,const FILLTYPE& fill) const{
-    //return new CtensorArray(_adims,get_cdims(),fill,dev);
-    //}
+    template<typename FILLTYPE>
+    CnineObject* spawn(const  Gdims _adims,const FILLTYPE& fill) const{
+      return new CtensorArray(_adims,cdims,fill,dev);
+    }
 
-    //template<typename FILLTYPE>
-    //CnineObject* spawn_cell(const FILLTYPE& fill) const{
-    //return new CtensorObj(get_cdims(),fill,dev);
-    //}
+    template<typename FILLTYPE>
+    CnineObject* spawn_cell(const FILLTYPE& fill) const{
+      return new CtensorObj(cdims,fill,dev);
+    }
 
 
     
@@ -232,27 +218,28 @@ namespace cnine{
 
 
     CtensorArray(const Gdims& _adims, const CtensorObj& x):
-      CtensorArray(_adims,x.dims,fill::raw,x.dev){
+      CtensorArray(_adims,x.dims,x.get_nbu(),fill::raw,x.dev){
+      //cout<<"a="<<asize<<endl;
       broadcast_copy(x);
     }
 
     CtensorArray widen(const int ix, const int n) const{
-      assert(ix<=get_adims().size());
-      CtensorArray R(get_adims().insert(ix,n),get_cdims(),fill::raw,dev);
+      assert(ix<=adims.size());
+      CtensorArray R(adims.insert(ix,n),cdims,nbu,fill::raw,dev);
       R.broadcast_copy(ix,*this);
       return R;
     }
 
     CtensorArray repeat(const int ix, const int n) const{
-      assert(ix<=get_adims().size());
-      CtensorArray R(get_adims().insert(ix,n),get_cdims(),fill::raw,dev);
+      assert(ix<=adims.size());
+      CtensorArray R(adims.insert(ix,n),cdims,nbu,fill::raw,dev);
       R.broadcast_copy(ix,*this);
       return R;
     }
 
     CtensorArray reduce(const int ix) const{
-      assert(ix<get_adims().size());
-      CtensorArray R(get_adims().remove(ix),get_cdims(),fill::zero,dev);
+      assert(ix<adims.size());
+      CtensorArray R(adims.remove(ix),cdims,nbu,fill::zero,dev);
       R.add_reduce(*this,ix);
       return R;
     }
@@ -352,11 +339,11 @@ namespace cnine{
 
     
     void broadcast_add_mprod(const CtensorObj& x, const CtensorArray& y){
-      //broadcast_add_Mprod_AA<0>(x,y);
+      broadcast_add_Mprod_AA<0>(x,y);
     }
 
     void broadcast_add_mprod(const CtensorArray& x, const CtensorObj& y){
-      //broadcast_add_Mprod_AA<0>(x,y);
+      broadcast_add_Mprod_AA<0>(x,y);
     }
 
 
@@ -473,15 +460,15 @@ namespace cnine{
     }
 
     //CtensorObj operator*(const CscalarObj& c) const{
-    //CtensorObj R(get_dims(),fill::zero);
+    //CtensorObj R(get_dims(),get_nbu(),fill::zero);
     //R.add(*this,c);
     //return R;
     //}
 
     CtensorArray operator*(const CtensorArray& y) const{
-      int I=get_cdims().combined(0,get_cdims().k()-1);
-      int J=y.get_cdims().combined(1,y.get_cdims().k());
-      CtensorArray R(get_adims(),cnine::dims(I,J),fill::zero,dev);
+      int I=cdims.combined(0,cdims.k()-1);
+      int J=y.cdims.combined(1,y.cdims.k());
+      CtensorArray R(adims,cnine::dims(I,J),nbu,fill::zero,dev);
       R.add_mprod(*this,y);
       return R;
     }
@@ -533,7 +520,7 @@ namespace cnine{
     }
 
     string repr() const{
-      return "<cnine::CtensorArray"+get_adims().str()+get_cdims().str()+">";
+      return "<cnine::CtensorArray"+adims.str()+cdims.str()+">";
     }
 
     friend ostream& operator<<(ostream& stream, const CtensorArray& x){
@@ -566,3 +553,23 @@ namespace cnine{
 
 #endif
 
+    /*
+    CtensorArray(const Gdims& _adims, const Gdims& _dims, const int _dev=0):
+      CNINE_CTENSORARRAY_IMPL(_adims,_dims,fill_raw(),_dev){}
+
+    CtensorArray(const Gdims& _adims, const Gdims& _dims, const int _nbu, const int _dev):
+      CNINE_CTENSORARRAY_IMPL(_adims,_dims,_nbu,_dev){}
+
+    template<typename FILLTYPE, typename = typename std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    CtensorArray(const Gdims& _adims, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
+      CNINE_CTENSORARRAY_IMPL(_adims,_dims,fill,_dev){}
+
+    template<typename FILLTYPE, typename = typename std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    CtensorArray(const Gdims& _adims, const Gdims& _dims, const int _nbu, const FILLTYPE& fill, const int _dev=0):
+      CNINE_CTENSORARRAY_IMPL(_adims,_dims,_nbu,fill,_dev){}
+    
+    CtensorArray(const Gdims& _adims, const Gdims& _dims, std::function<complex<float>(const int i, const int j)> fn):
+      CNINE_CTENSORARRAY_IMPL(_adims,_dims,fn){}
+    */
+
+    //public: // ---- Public Constructors ------------------------------------------------------------------------

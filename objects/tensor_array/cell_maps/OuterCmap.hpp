@@ -21,23 +21,18 @@ namespace cnine{
     int I,J;
     int n;
 
-    //__host__ __device__ OuterCmap(const OuterCmap& x): I(x.I), J(x.J), n(x.n){
-    //printf("copied\n");
-    //}
-
     template<typename OP, typename ARR>
     OuterCmap(const OP& op, ARR& r, const ARR& x, const ARR& y, const int add_flag=0){
-      I=x.aasize;
-      J=y.aasize;
-      n=y.aasize;
+      I=x.get_aasize();
+      J=y.get_aasize();
+      n=y.get_aasize();
+      assert(r.get_aasize()==I*J);
+
       if(r.dev==0){
-	assert(r.aasize==I*J);
        	for(int i=0; i<I; i++)
 	  for(int j=0; j<J; j++){
 	    decltype(x.get_cell(0)) t=r.cell(i*J+j);
 	    op.apply(t,x.cell(i),y.cell(j),add_flag);
-	    //if(add_flag==0) op.apply(t,x.cell(i),y.cell(j));
-	    //else op.add(t,x.cell(i),y.cell(j));
 	  }
       }
       if(r.dev==1){
@@ -67,7 +62,7 @@ namespace cnine{
 
   template<typename OP, typename ARR>
   ARR outer(const ARR& x, const ARR& y){
-    ARR r(x,dims(x.get_adim(0),y.get_adim(0)),fill::raw);
+    ARR r=ARR::raw_like(x,dims(x.get_adim(0),y.get_adim(0)));
     OuterCmap(OP(),r,x,y);
     return r;
   }

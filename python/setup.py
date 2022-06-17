@@ -33,6 +33,8 @@ def main():
      cwd+'/../include/cmaps',
      cwd+'/../objects/scalar',
      cwd+'/../objects/tensor',
+     cwd+'/../objects/backendA',
+     cwd+'/../objects/backendB',
      cwd+'/../objects/tensor_views',
      cwd+'/../objects/tensor_array',
      cwd+'/../objects/tensor_array/cell_ops'

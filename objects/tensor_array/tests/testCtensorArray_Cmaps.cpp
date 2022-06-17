@@ -26,10 +26,10 @@ int main(int argc, char** argv){
   cnine_session genet;
   cout<<endl;
 
-  ctensora A(dims(2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return aix(0);});
+  ctensora A(dims(2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return aix(0);});
   printl("A",A);
 
-  ctensora B(dims(2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(0));});
+  ctensora B(dims(2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(0));});
   printl("B",B);
 
   CtensorA_add_plus_cop add_plus;
@@ -45,8 +45,8 @@ int main(int argc, char** argv){
 
   cout<<"--------"<<endl;
 
-  ctensora C(dims(2,2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return aix(0);});
-  ctensora D(dims(2,2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(1));});
+  ctensora C(dims(2,2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return aix(0);});
+  ctensora D(dims(2,2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(1));});
   ctensor M(dims(2,2),[](const int i, const int j){return 3;});
   printl("C",C);
   printl("D",D);
@@ -56,16 +56,16 @@ int main(int argc, char** argv){
   CellwiseBiCmap(add_plus,Cwise,C,D);
   printl("Cwise",Cwise);
 
-  ctensora Bcast(dims(2,2),dims(2,2),fill::zero);
-  BroadcastLeftBiCmap(add_plus,Bcast,ctensora(M),C);
-  printl("Bcast",Bcast);
+  //ctensora Bcast(dims(2,2),dims(2,2),fill::zero);
+  // BroadcastLeftBiCmap(add_plus,Bcast,ctensora(M),C);
+  //printl("Bcast",Bcast);
 
   
   cout<<"--------"<<endl;
 
-  ctensora E(dims(5,5),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){
+  ctensora E(dims(5,5),dims(2,2),[](const Gindex& aix, const Gindex& cix){
       return complex<float>(aix(0),aix(1));});
-  ctensora F(dims(2,2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){
+  ctensora F(dims(2,2),dims(2,2),[](const Gindex& aix, const Gindex& cix){
       return 0; 
       //return complex<float>(aix(0),aix(1));
     });

@@ -24,11 +24,6 @@ namespace cnine{
 
     Gdims(){}
 
-    //Gdims(const vector<int>& x): vector<int>(x){}
-
-    Gdims(const int k, const fill_raw& dummy): 
-      vector<int>(k){}
-
     Gdims(const vector<int>& x){
       for(auto p:x) if(p>=0) push_back(p);
     }
@@ -37,29 +32,34 @@ namespace cnine{
       for(auto p:x) if(p>=0) push_back(p);
     }
 
-    Gdims(const int i0): vector<int>(1){
+    Gdims(const int i0): 
+      vector<int>(1){
       (*this)[0]=i0;
     }
 
-    Gdims(const int i0, const int i1): vector<int>(2){
+    Gdims(const int i0, const int i1): 
+      vector<int>(2){
       (*this)[0]=i0;
       (*this)[1]=i1;
     }
 
-    Gdims(const int i0, const int i1, const int i2): vector<int>(3){
+    Gdims(const int i0, const int i1, const int i2): 
+      vector<int>(3){
       (*this)[0]=i0;
       (*this)[1]=i1;
       (*this)[2]=i2;
     }
 
-    Gdims(const int i0, const int i1, const int i2, const int i3): vector<int>(4){
+    Gdims(const int i0, const int i1, const int i2, const int i3): 
+      vector<int>(4){
       (*this)[0]=i0;
       (*this)[1]=i1;
       (*this)[2]=i2;
       (*this)[3]=i3;
     }
 
-    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4): vector<int>(5){
+    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4): 
+      vector<int>(5){
       (*this)[0]=i0;
       (*this)[1]=i1;
       (*this)[2]=i2;
@@ -67,13 +67,32 @@ namespace cnine{
       (*this)[4]=i4;
     }
 
-    Gdims(const Gdims& d1, const Gdims& d2): vector<int>(d1.size()+d2.size()){
+    Gdims(const Gdims& d1, const Gdims& d2): 
+      vector<int>(d1.size()+d2.size()){
       for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
       for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
     }
 
 
-  public:
+    Gdims(const int k, const fill_raw& dummy): 
+      vector<int>(k){}
+
+    Gdims(const int k, const fill_zero& dummy): 
+      vector<int>(k,0){}
+
+
+  public: // ---- Named constructors -------------------------------------------------------------------------
+
+
+    static Gdims raw(const int k){
+      return Gdims(k,fill_raw());}
+
+    static Gdims zero(const int k){
+      return Gdims(k,fill_zero());}
+
+
+  public: // ---- Access -------------------------------------------------------------------------------------
+
 
     int k() const{
       return size();
@@ -91,17 +110,28 @@ namespace cnine{
       (*this)[i]=x;
     }
 
-    int asize() const{
-      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
-      return t;
-    }
-
     int first() const{
       return (*this)[0];
     }
 
     int last() const{
       return (*this)[size()-1];
+    }
+
+    int asize() const{
+      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
+      return t;
+    }
+
+    int total() const{
+      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
+      return t;
+    }
+
+    bool valid() const{
+      for(auto p:*this)
+	if(p<0) return false;
+      return true;
     }
 
     bool operator==(const Gdims& x) const{
@@ -113,6 +143,7 @@ namespace cnine{
 
 
   public:
+
 
     int combined(const int a, const int b) const{
       assert(a<=b);
@@ -168,7 +199,7 @@ namespace cnine{
       return R;
     }
 
-     Gdims prepend(const int i) const{
+    Gdims prepend(const int i) const{
       if(i<0) return *this;
       Gdims R;
       R.push_back(i);
@@ -261,9 +292,10 @@ namespace cnine{
     }
 
 
-  public:
+  public: // ---- Lambdas -----------------------------------------------------------------------------------
 
-    void foreach_index(const std::function<void(const vector<int>&)>& lambda){
+
+    void foreach_index(const std::function<void(const vector<int>&)>& lambda) const{
       int k=size();
       if(k==0) return;
       vector<int> strides(k);
@@ -334,6 +366,7 @@ namespace cnine{
 
 
   };
+
 
   inline Gdims dims(const int i0) {return Gdims(i0);}
   inline Gdims dims(const int i0, const int i1) {return Gdims(i0,i1);}

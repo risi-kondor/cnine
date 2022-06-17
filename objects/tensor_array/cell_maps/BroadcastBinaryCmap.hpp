@@ -14,25 +14,23 @@
 
 namespace cnine{
 
-  class BroadcastBinaryCmap: public Direct_cmap{ // public Cmap_base, 
+  class BroadcastBinaryCmap: public Direct_cmap{
   public:
 
     int I;
     
     template<typename OP, typename ARR>
     BroadcastBinaryCmap(const OP& op, ARR& r, const decltype(r.get_cell(0))& x, const ARR& y, const int add_flag=0){
-      I=r.aasize;
-      assert(y.aasize==I);
+      r.get_aasize();
+      assert(y.get_aasize()==I);
       if(r.dev==0){
-	for(int i=0; i<r.aasize; i++){
+	for(int i=0; i<I; i++){
 	  decltype(r.get_cell(0)) t=r.cell(i);
 	  op.apply(t,x,y.cell(i),add_flag);
-	  //if(add_flag==0) op.apply(t,x,y.cell(i));
-	  //else op.add(t,x,y.cell(i));
 	}
       }
       if(r.dev==1){
-	op.apply(*this,r,ARR(x),y,add_flag);
+	//op.apply(*this,r,ARR(x),y,add_flag);
       }
     }
 
@@ -56,14 +54,14 @@ namespace cnine{
 
   template<typename OP, typename OBJ, typename ARR>
   ARR broadcast(const OBJ& x, const ARR& y){
-    ARR r(x,y.adims,fill::raw);
+    ARR r=ARR::raw_like(x,y.get_adims());
     BroadcastBinaryCmap(OP(),r,x,y);
     return r;
   }
 
   template<typename OP, typename OBJ, typename ARR, typename ARG0>
   ARR broadcast(const OBJ& x, const ARR& y, const ARG0& arg0){
-    ARR r(x,y.adims,fill::raw);
+    ARR r=ARR::raw_like(x,y.get_adims());
     BroadcastBinaryCmap(OP(arg0),r,x,y);
     return r;
   }

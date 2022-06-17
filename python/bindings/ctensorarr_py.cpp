@@ -7,7 +7,7 @@
 //  with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-pybind11::class_<CtensorArray>(m,"ctensor_arr")
+pybind11::class_<CtensorArray>(m,"ctensorArr")
 
   .def(pybind11::init<const Gdims&>())
   .def(pybind11::init<const Gdims&, const Gdims&, const fill_raw&>())

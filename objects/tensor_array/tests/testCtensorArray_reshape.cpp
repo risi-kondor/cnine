@@ -32,10 +32,7 @@ int main(int argc, char** argv){
   ctensora A=ctensora::sequential(dims(2,2),dims(4,4));
   printl("A",A);
 
-  ctensora B=A.arrayshape(dims(4));
-  printl("B",B);
-
-  B.change_arrayshape(dims(2,2));
+  ctensora B=A.view_as_shape(dims(4));
   printl("B",B);
 
 }

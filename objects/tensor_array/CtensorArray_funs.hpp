@@ -30,7 +30,7 @@ namespace cnine{
   
   CtensorArray operator*(const CtensorArray& x, const Broadcast<CtensorObj>& _y){
     const CtensorObj& y=_y.obj;
-    CtensorArray R(x.adims,x.cdims.Mprod(y.dims),x.nbu,fill::zero,x.dev);
+    CtensorArray R(x.get_adims(),x.get_cdims().Mprod(y.dims),fill::zero,x.dev);
     R.broadcast_add_mprod(x,y);
     return R;
   }

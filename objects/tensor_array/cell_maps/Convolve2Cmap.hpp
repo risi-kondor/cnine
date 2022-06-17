@@ -23,9 +23,9 @@ namespace cnine{
 
     template<typename OP, typename ARR>
     Convolve2Cmap(const OP& op, ARR& r, const ARR& x, const ARR& y, const int add_flag=0){
-      assert(r.adims.size()==2);
-      assert(x.adims.size()==2);
-      assert(y.adims.size()==2);
+      assert(r.get_nadims()==2);
+      assert(x.get_nadims()==2);
+      assert(y.get_nadims()==2);
       
       I0=r.get_adim(0);
       I1=r.get_adim(1);
@@ -49,7 +49,7 @@ namespace cnine{
 	}
       }
       if(r.dev==1){
-	op.accumulate(*this,r,x,y);
+	//op.accumulate(*this,r,x,y);
       }
     }
 
@@ -89,7 +89,7 @@ namespace cnine{
   
   template<typename OP, typename ARR>
   ARR convolve2(const ARR& x, const ARR& y){
-    ARR r(x,dims(x.get_adim(0)-y.get_adim(0)+1,x.get_adim(1)-y.get_adim(1)+1),fill::zero);
+    ARR r=ARR::zeros_like(x,dims(x.get_adim(0)-y.get_adim(0)+1,x.get_adim(1)-y.get_adim(1)+1));
     Convolve2Cmap(OP(),r,x,y);
     return r;
   }

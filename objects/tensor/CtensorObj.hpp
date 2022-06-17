@@ -12,6 +12,7 @@
 
 #include "Cnine_base.hpp"
 #include "CtensorA.hpp"
+#include "CtensorB.hpp"
 //#include "Dobject.hpp"
 #include "ExprTemplates.hpp"
 #include "CscalarObj.hpp"
@@ -37,7 +38,7 @@ namespace cnine{
       CNINE_CTENSOR_IMPL(_dims,fill_raw(),_dev){}
 
     CtensorObj(const Gdims& _dims, const int _nbu, const int _dev):
-      CNINE_CTENSOR_IMPL(_dims,_nbu,_dev){}
+      CNINE_CTENSOR_IMPL(_dims,_dev){}
 
     template<typename FILLTYPE, typename = typename std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     CtensorObj(const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
@@ -45,57 +46,78 @@ namespace cnine{
 
     template<typename FILLTYPE, typename = typename std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     CtensorObj(const Gdims& _dims, const int _nbu, const FILLTYPE& fill, const int _dev=0):
-      CNINE_CTENSOR_IMPL(_dims,_nbu,fill,_dev){}
+      CNINE_CTENSOR_IMPL(_dims,fill,_dev){}
     
-    CtensorObj(const Gdims& _dims, std::function<complex<float>(const int i, const int j)> fn):
-      CNINE_CTENSOR_IMPL(_dims,fn){}
-
 
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static CtensorObj raw(const Gdims& _dims, const int nbd=-1, const int _dev=0){
-      return CtensorObj(_dims,nbd,fill::raw,_dev);}
-    static CtensorObj raw(const Gdims& _dims, const int nbd, const device& _dev){
-      return CtensorObj(_dims,nbd,fill::raw,_dev.id());}
+    //static CtensorObj raw(const Gdims& _dims, const int nbd=-1, const int _dev=0){
+    //return CtensorObj(_dims,nbd,fill::raw,_dev);}
+    //static CtensorObj raw(const Gdims& _dims, const int nbd, const device& _dev){
+    //return CtensorObj(_dims,nbd,fill::raw,_dev.id());}
+    static CtensorObj raw(const Gdims& _dims, const int _dev=0){
+      return CtensorObj(_dims,fill::raw,_dev);}
     static CtensorObj raw(const Gdims& _dims, const device& _dev){
-      return CtensorObj(_dims,-1,fill::raw,_dev.id());}
+      return CtensorObj(_dims,fill::raw,_dev.id());}
 
-    static CtensorObj zero(const Gdims& _dims, const int nbd=-1, const int _dev=0){
-      return CtensorObj(_dims,nbd,fill::zero,_dev);}
-    static CtensorObj zero(const Gdims& _dims, const int nbd, const device& _dev){
-      return CtensorObj(_dims,nbd,fill::zero,_dev.id());}
+    //static CtensorObj zero(const Gdims& _dims, const int nbd=-1, const int _dev=0){
+    //return CtensorObj(_dims,nbd,fill::zero,_dev);}
+    //static CtensorObj zero(const Gdims& _dims, const int nbd, const device& _dev){
+    //return CtensorObj(_dims,nbd,fill::zero,_dev.id());}
+    static CtensorObj zero(const Gdims& _dims, const int _dev=0){
+      return CtensorObj(_dims,fill::zero,_dev);}
     static CtensorObj zero(const Gdims& _dims, const device& _dev){
       return CtensorObj(_dims,-1,fill::zero,_dev.id());}
 
-    static CtensorObj ones(const Gdims& _dims, const int nbd=-1, const int _dev=0){
-      return CtensorObj(_dims,nbd,fill::ones,_dev);}
-    static CtensorObj ones(const Gdims& _dims, const int nbd, const device& _dev){
-      return CtensorObj(_dims,nbd,fill::ones,_dev.id());}
+    //static CtensorObj ones(const Gdims& _dims, const int nbd=-1, const int _dev=0){
+    //return CtensorObj(_dims,nbd,fill::ones,_dev);}
+    //static CtensorObj ones(const Gdims& _dims, const int nbd, const device& _dev){
+    //return CtensorObj(_dims,nbd,fill::ones,_dev.id());}
+    static CtensorObj ones(const Gdims& _dims, const int _dev=0){
+      return CtensorObj(_dims,fill::ones,_dev);}
     static CtensorObj ones(const Gdims& _dims, const device& _dev){
-      return CtensorObj(_dims,-1,fill::ones,_dev.id());}
+      return CtensorObj(_dims,fill::ones,_dev.id());}
 
-    static CtensorObj identity(const Gdims& _dims, const int nbd=-1, const int _dev=0){
-      return CtensorObj(_dims,nbd,fill::identity,_dev);}
-    static CtensorObj identity(const Gdims& _dims, const int nbd, const device& _dev){
-      return CtensorObj(_dims,nbd,fill::identity,_dev.id());}
+    //static CtensorObj identity(const Gdims& _dims, const int nbd=-1, const int _dev=0){
+    //return CtensorObj(_dims,nbd,fill::identity,_dev);}
+    //static CtensorObj identity(const Gdims& _dims, const int nbd, const device& _dev){
+    //return CtensorObj(_dims,nbd,fill::identity,_dev.id());}
+    static CtensorObj identity(const Gdims& _dims, const int _dev=0){
+      return CtensorObj(_dims,fill::identity,_dev);}
     static CtensorObj identity(const Gdims& _dims, const device& _dev){
-      return CtensorObj(_dims,-1,fill::identity,_dev.id());}
+      return CtensorObj(_dims,fill::identity,_dev.id());}
 
-    static CtensorObj sequential(const Gdims& _dims, const int nbd=-1, const int _dev=0){
-      return CtensorObj(_dims,nbd,fill::sequential,_dev);}
-    static CtensorObj sequential(const Gdims& _dims, const int nbd, const device& _dev){
-      return CtensorObj(_dims,nbd,fill::sequential,_dev.id());}
+    //static CtensorObj sequential(const Gdims& _dims, const int nbd=-1, const int _dev=0){
+    //return CtensorObj(_dims,nbd,fill::sequential,_dev);}
+    //static CtensorObj sequential(const Gdims& _dims, const int nbd, const device& _dev){
+    //return CtensorObj(_dims,nbd,fill::sequential,_dev.id());}
+    static CtensorObj sequential(const Gdims& _dims, const int _dev=0){
+      return CtensorObj(_dims,fill::sequential,_dev);}
     static CtensorObj sequential(const Gdims& _dims, const device& _dev){
-      return CtensorObj(_dims,-1,fill::sequential,_dev.id());}
+      return CtensorObj(_dims,fill::sequential,_dev.id());}
 
-    static CtensorObj gaussian(const Gdims& _dims, const int nbd=-1, const int _dev=0){
-      return CtensorObj(_dims,nbd,fill::gaussian,_dev);}
-    static CtensorObj gaussian(const Gdims& _dims, const int nbd, const device& _dev){
-      return CtensorObj(_dims,nbd,fill::gaussian,_dev.id());}
+    //static CtensorObj gaussian(const Gdims& _dims, const int nbd=-1, const int _dev=0){
+    //return CtensorObj(_dims,nbd,fill::gaussian,_dev);}
+    //static CtensorObj gaussian(const Gdims& _dims, const int nbd, const device& _dev){
+    //return CtensorObj(_dims,nbd,fill::gaussian,_dev.id());}
+    static CtensorObj gaussian(const Gdims& _dims, const int _dev=0){
+      return CtensorObj(_dims,fill::gaussian,_dev);}
     static CtensorObj gaussian(const Gdims& _dims, const device& _dev){
-      return CtensorObj(_dims,-1,fill::gaussian,_dev.id());}
+      return CtensorObj(_dims,fill::gaussian,_dev.id());}
+
     
+  public: // ---- Lambda constructors ------------------------------------------------------------------------
+
+
+    CtensorObj(const Gdims& _dims, std::function<complex<float>(const int i, const int j)> fn):
+      CNINE_CTENSOR_IMPL(_dims,fill_raw()){
+      assert(get_ndims()==2);
+      for(int i=0; i<get_dim(0); i++)
+	for(int j=0; i<get_dim(1); j++)
+	  set(i,j,fn(i,j));
+    }
+
 
   public: // ---- Copying ------------------------------------------------------------------------------------
 
@@ -116,7 +138,7 @@ namespace cnine{
       CNINE_CTENSOR_IMPL(x,_dev.id()){};
       
     CtensorObj(const CtensorObj& x, const fill_zero& dummy):
-      CtensorObj(x.dims,x.get_nbu(),x.dev){}
+      CtensorObj(x.dims,x.dev){}
       
     CtensorObj(CtensorObj&& x):
       CNINE_CTENSOR_IMPL(std::move(x)){};
@@ -131,19 +153,19 @@ namespace cnine{
       return *this;
     }
     
-    template<typename FILLTYPE>
-    CnineObject* spawn(const FILLTYPE& fill) const{
-      return new CtensorObj(dims,nbu,fill,dev);
-    }
+    //template<typename FILLTYPE>
+    //CnineObject* spawn(const FILLTYPE& fill) const{
+    //return new CtensorObj(dims,nbu,fill,dev);
+    //}
 
-    template<typename FILLTYPE>
-    CnineObject* spawn(const FILLTYPE& fill, const int _dev) const{
-      return new CtensorObj(dims,nbu,fill,_dev);
-    }
+    //template<typename FILLTYPE>
+    //CnineObject* spawn(const FILLTYPE& fill, const int _dev) const{
+    //return new CtensorObj(dims,nbu,fill,_dev);
+    //}
 
-    CnineObject* spawn_zero() const{
-      return new CtensorObj(dims,nbu,fill::zero,dev);
-    }
+    //CnineObject* spawn_zero() const{
+    //return new CtensorObj(dims,nbu,fill::zero,dev);
+    //}
 
 
     /*
@@ -210,11 +232,15 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
-    int get_nbu() const{ 
-      return nbu;
-    }
+    //int get_nbu() const{ 
+    //return nbu;
+    //}
 
     int get_k() const{ 
+      return dims.size();
+    }
+
+    int get_ndims() const{ 
       return dims.size();
     }
 
@@ -255,22 +281,22 @@ namespace cnine{
     }
 
     CtensorObj& set(const Gindex& ix, const CscalarObj& v){
-      CNINE_CTENSOR_IMPL::set(ix,v);
+      CNINE_CTENSOR_IMPL::set(ix,v.val);
       return *this;
     }
     
     CtensorObj& set(const int i0, const CscalarObj& v){
-      CNINE_CTENSOR_IMPL::set(i0,v);
+      CNINE_CTENSOR_IMPL::set(i0,v.val);
       return *this;
     }
     
     CtensorObj& set(const int i0, const int i1, const CscalarObj& v){
-      CNINE_CTENSOR_IMPL::set(i0,i1,v);
+      CNINE_CTENSOR_IMPL::set(i0,i1,v.val);
       return *this;
     }
     
     CtensorObj& set(const int i0, const int i1, const int i2, const CscalarObj& v){
-      CNINE_CTENSOR_IMPL::set(i0,i1,i2,v);
+      CNINE_CTENSOR_IMPL::set(i0,i1,i2,v.val);
       return *this;
     }
 
@@ -421,13 +447,14 @@ namespace cnine{
       return CtensorObj(CNINE_CTENSOR_IMPL::plus(x));
     }
 
-    CtensorObj apply(std::function<complex<float>(const complex<float>)> fn) const{
-      return CNINE_CTENSOR_IMPL(*this,fn);
-    }
+    //CtensorObj apply(std::function<complex<float>(const complex<float>)> fn) const{
+    //CtensorObj R(get_dims(),fill_raw());
+    //return R;
+    //}
 
-    CtensorObj apply(std::function<complex<float>(const int i, const int j, const complex<float>)> fn) const{
-      return CNINE_CTENSOR_IMPL(*this,fn);
-    }
+    //CtensorObj apply(std::function<complex<float>(const int i, const int j, const complex<float>)> fn) const{
+    //return CNINE_CTENSOR_IMPL(*this,fn);
+    //}
 
 
   public: // ---- Cumulative operations ----------------------------------------------------------------------
@@ -537,8 +564,8 @@ namespace cnine{
     //}
 
     void add_norm2_back(const CscalarObj& g, const CtensorObj& x){
-      add(x,g);
-      add_cconj(x,g);
+      //add(x,g.val);
+      //add_cconj(x,g.val);
     }
 
 
@@ -601,17 +628,19 @@ namespace cnine{
 
     CtensorObj col_norms() const{
       Gdims _dims=get_dims();
-      CtensorObj R(_dims.remove(_dims.size()-2),get_nbu(),fill::zero,dev);
-      R.add_col_norms(*this);
+      CtensorObj R(_dims.remove(_dims.size()-2),fill::zero,dev);
+      //R.add_col_norms(*this);
       return R;
     }
 
     CtensorObj divide_cols(const CtensorObj& N) const{
-      return CtensorObj(CNINE_CTENSOR_IMPL::divide_cols(N)); 
+      return *this; 
+      //return CtensorObj(CNINE_CTENSOR_IMPL::divide_cols(N)); 
     }
     
     CtensorObj normalize_cols() const{
-      return CtensorObj(CNINE_CTENSOR_IMPL::normalize_cols()); 
+      return *this;
+      //return CtensorObj(CNINE_CTENSOR_IMPL::normalize_cols()); 
     }
     
 

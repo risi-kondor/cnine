@@ -11,7 +11,8 @@
 #include "CtensorObj_funs.hpp"
 #include "CtensorArray_funs.hpp"
 
-#include "CtensorA_plus_cop.hpp"
+//#include "CtensorA_plus_cop.hpp"
+#include "CtensorB_plus_cop.hpp"
 
 #include "CellwiseBinaryCmap.hpp"
 #include "InnerCmap.hpp"
@@ -28,19 +29,19 @@ using namespace cnine;
 
 typedef CtensorObj Ctensor;
 
-typedef CtensorA_plus_cop Ctensor_plus;
+typedef CtensorB_plus_cop Ctensor_plus;
 
 
 int main(int argc, char** argv){
   cnine_session genet;
   cout<<endl;
 
-  CtensorArray A(dims(2,2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return aix(0);});
-  CtensorArray B(dims(2,2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(1));});
-  CtensorArray C(dims(2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return aix(0);});
-  CtensorArray D(dims(2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(0));});
-  CtensorArray E(dims(5,5),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return complex<float>(aix(0),aix(1));});
-  CtensorArray F(dims(2,2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return 0;});
+  CtensorArray A(dims(2,2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return aix(0);});
+  CtensorArray B(dims(2,2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(1));});
+  CtensorArray C(dims(2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return aix(0);});
+  CtensorArray D(dims(2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return complex<float>(0,aix(0));});
+  CtensorArray E(dims(5,5),dims(2,2),[](const Gindex& aix, const Gindex& cix){return complex<float>(aix(0),aix(1));});
+  CtensorArray F(dims(2,2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return 0;});
 
   Ctensor M(dims(2,2),[](const int i, const int j){return 3;});
 

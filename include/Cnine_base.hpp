@@ -36,6 +36,10 @@ using namespace std;
 
 #define CNINE_UNIMPL() printf("Cnine error: function \"%s\" not implemented.\n",__PRETTY_FUNCTION__);
 
+
+// ---- Copy, assign and convert warnings --------------------------------------------------------------------
+
+
 #ifdef CNINE_COPY_WARNINGS
 #define CNINE_COPY_WARNING() cout<<"\e[1mcnine:\e[0m "<<classname()<<" copied."<<endl;
 #else 
@@ -68,23 +72,49 @@ using namespace std;
 #define CNINE_CONVERT_TO_ATEN_WARNING()
 #endif 
 
+
+// ---- Range checking ---------------------------------------------------------------------------------------
+
+
 #ifdef CNINE_RANGE_CHECKING
 #define CNINE_CHECK_RANGE(expr) expr
+#define CNINE_CHECK_SIZE(expr) expr
+#define CNINE_DIMS_VALID(dims) if(!dims.valid()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": invalid dimensions"+dims.str()+".");
+#define CNINE_DIMS_SAME(x) if(x.dims!=dims) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+dims.str()+" and "+x.dims.str()+".");
+#define CNINE_DIMS_EQ(a,b) if(a!=b) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+a.str()+" and "+b.str()+".");
+#define CNINE_DIMS_EQ_TOTAL(a,b) if(a.total()!=b.total()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch between total size of "+a.str()+" and "+b.str()+".");
+#define CNINE_DIMS_MATRIX(a) if(a.size()!=2) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is not a matrix."); 
 #else
 #define CNINE_CHECK_RANGE(expr)
+#define CNINE_CHECK_SIZE(expr)
+#define CNINE_DIMS_VALID(dims)
+#define CNINE_DIMS_EQ(a,b)
+#define CNINE_DIMS_EQ_TOTAL(a,b)
+#define CNINE_DIMS_MATRIX(a)
 #endif
 
-#ifdef CNINE_SIZE_CHECKING
-#define CNINE_CHECK_SIZE(expr) expr
-#else
-#define CNINE_CHECK_SIZE(expr)
-#endif
+
+
+// ---- Device checking ---------------------------------------------------------------------------------------
+
 
 #ifdef CNINE_DEVICE_CHECKING
 #define CNINE_CHECK_DEV(expr) expr
+#define CNINE_DEVICE_VALID(dev) if(dev<0 || dev>1) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": device must be 0 or 1.");
+#define CNINE_DEVICE_SAME(x) if(x.dev!=dev) throw std::out_of_range("Cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
+#define CNINE_DEVICE_EQ(x,y) if(x.dev!=y.dev) throw std::out_of_range("Cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
 #else
 #define CNINE_CHECK_DEV(expr)
+#define CNINE_DEVICE_VALID(dev) 
+#define CNINE_DEVICE_SAME(x) 
+#define CNINE_DEVICE_EQ(x,y) 
 #endif
+
+#define CNINE_CHECK_DEV2(x,y) if(x.dev!=y.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
+#define CNINE_CHECK_DEV3(x,y,z) if(x.dev!=y.dev || x.dev!=z.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
+
+
+// ---- other -------------------------------------------------------------------------------------------------
 
 
 #define CNINE_NOCUDA_ERROR cout<<"Error: Cnine was compiled without GPU support."<<endl;
@@ -99,8 +129,6 @@ using namespace std;
 #define CNINE_CHECK_BATCH2(x,y) if(x.n0!=y.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 #define CNINE_CHECK_BATCH3(x,y,z) if(x.n0!=y.n0 || x.n0!=z.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 
-#define CNINE_CHECK_DEV2(x,y) if(x.dev!=y.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
-#define CNINE_CHECK_DEV3(x,y,z) if(x.dev!=y.dev || x.dev!=z.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
 
 
 
@@ -539,9 +567,9 @@ namespace cnine{
 #define CNINE_RSCALAR_IMPL RscalarA
 #define CNINE_CSCALAR_IMPL CscalarA
 #define CNINE_RTENSOR_IMPL RtensorA
-#define CNINE_CTENSOR_IMPL CtensorA
+#define CNINE_CTENSOR_IMPL CtensorB
 #define CNINE_RTENSORARRAY_IMPL RtensorArrayA
-#define CNINE_CTENSORARRAY_IMPL CtensorArrayA
+#define CNINE_CTENSORARRAY_IMPL CtensorArrayB
 #endif 
 
 

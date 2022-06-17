@@ -39,18 +39,18 @@ int main(int argc, char** argv){
   printl("C",C);
 
   
-  ctensora T1(T);
-  printl("T1",T1);
+  //ctensora T1(T);
+  //printl("T1",T1);
 
-  ctensora T2(dims(2,2),T);
-  printl("T2",T2);
+  //ctensora T2(dims(2,2),T);
+  //printl("T2",T2);
 
 
   ctensora L1(dims(2,2),dims(4,4),[](const Gindex& aix, const Gindex& ix){
       return complex<float>(aix(dims(2,2)),ix(dims(4,4)));});
   printl("L1",L1);
     
-  ctensora V1(B.adims,B.cdims,fill::view,B.arr,B.arrc);
-  printl("V1",V1);
+  //ctensora V1(B.adims,B.cdims,fill::view,B.arr,B.arrc);
+  //printl("V1",V1);
 
 }

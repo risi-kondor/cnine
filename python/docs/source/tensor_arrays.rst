@@ -4,11 +4,11 @@ Tensor arrays
 
 The basic device in `cnine` for parallelizing computations on the GPU are tensor arrays. 
 A tensor array is an array of tensors of the same size arranged in a contiguous data structure.  
-An ``rtensor_arr`` object is an array of real tensors, whereas an ``ctensor_arr`` object is 
+An ``rtensorArr`` object is an array of real tensors, whereas an ``ctensorArr`` object is 
 an array of complex tensors.  
 
-We describe the basic functionality of tensor arrays for the ``rtensor_arr`` class. 
-The API of ``ctensor_arr`` is analogous apart from the addition of some functions taking complex conjugates, 
+We describe the basic functionality of tensor arrays for the ``rtensorArr`` class. 
+The API of ``ctensorArr`` is analogous apart from the addition of some functions taking complex conjugates, 
 etc.. 
 
 
@@ -22,7 +22,7 @@ dimensional tensors filled with random numbers.
 
 .. code-block:: python
 
-  >>> A=rtensor_arr.gaussian([2,2],[4,4])
+  >>> A=rtensorArr.gaussian([2,2],[4,4])
   >>> print(A)
   Cell (0,0)
   [ -1.23974 -0.407472 1.61201 0.399771 ]
@@ -60,7 +60,7 @@ The array dimensions and cell dimensions of a tensor array are accessed as follo
 
 .. code-block:: python
 
-  >>> A=rtensor_arr.gaussian([2,2],[4,4])
+  >>> A=rtensorArr.gaussian([2,2],[4,4])
   >>> adims=A.get_adims()
   >>> print(adims)
   (2,2)
@@ -128,7 +128,7 @@ a ``torch.tensor`` with :math:`D+d` dimensions.
 
 .. code-block:: python
 
-  >>> A=rtensor_arr.sequential([2,2],[3,3])
+  >>> A=rtensorArr.sequential([2,2],[3,3])
   >>> print(A)
   Cell (0,0)
   [ 0 1 2 ]
@@ -169,7 +169,7 @@ a ``torch.tensor`` with :math:`D+d` dimensions.
             [30., 31., 32.],
             [33., 34., 35.]]]])
 
-Conversely, a ``torch.tensor`` can be converted into a ``rtensor_arr`` but we need to specify how many of its 
+Conversely, a ``torch.tensor`` can be converted into a ``rtensorArr`` but we need to specify how many of its 
 leading dimensions are to be interpreted as array dimensions. 
 
 .. code-block:: python
@@ -183,7 +183,7 @@ leading dimensions are to be interpreted as array dimensions.
           [[0.5466, 0.3649, 0.1898],
            [0.5851, 0.2558, 0.2237],
            [0.8992, 0.7448, 0.0836]]])
-  >>> B=rtensor_arr(1,A)
+  >>> B=rtensorArr(1,A)
   >>> print(B)
   Cell (0)
   [ 0.30044 0.414732 0.566644 ]
@@ -211,8 +211,8 @@ of the corresponding cells in ``A`` and ``B``.
 
 .. code-block:: python
 
-  >>> A=rtensor_arr.zero([2,2],[3,3])
-  >>> B=rtensor_arr.ones([2,2],[3,3])
+  >>> A=rtensorArr.zero([2,2],[3,3])
+  >>> B=rtensorArr.ones([2,2],[3,3])
   >>> C=A+B
   >>> print(C([0,1]))
   [ 1 1 1 ]
@@ -229,7 +229,7 @@ first broadcasting the tensor to an array of the same size and then applying the
 
 .. code-block:: python
 
- >>> A=rtensor_arr.zero([2,2],[3,3])
+ >>> A=rtensorArr.zero([2,2],[3,3])
  >>> B=rtensor.ones([3,3])
  >>> C=A+B
  >>> print(C)
@@ -267,7 +267,7 @@ On the GPU, both these operations are performed in `cnine` with fast, paralleliz
 
 .. code-block:: python
 
-  >>> A=rtensor_arr.gaussian([2,2],[4,4])
+  >>> A=rtensorArr.gaussian([2,2],[4,4])
   >>> B=A.reduce(1)
   >>> print(B)
   Cell (0)
@@ -336,7 +336,7 @@ Tensor arrays can moved back and forth between the host (CPU) and the GPU simila
 
 .. code-block:: python
 
-  >>> A=rtensor_arr.sequential([2,2],[4,4],device=1) # create a tensor array on the GPU
+  >>> A=rtensorArr.sequential([2,2],[4,4],device=1) # create a tensor array on the GPU
   >>> A.device() # print out where A is stored
   1
   >>> B=A.to(0) # Create a copy of A on the CPU
@@ -345,23 +345,20 @@ Tensor arrays can moved back and forth between the host (CPU) and the GPU simila
 
 
 
-======================
-Implementation details
-======================  
+..note::
+ The default C++ backend class for real tensors arrays is ``RtensorArrayA`` 
+ and for complex tensor arrays is ``CtensorArrayA``. 
+ ``RtensorArrayA`` stores an :math:`D_1\times \ldots \times D_K` array of  :math:`d_1\times\ldots\times d_k` 
+ dimensional tensors in a similar way that ``RtensorA`` would store a single  
+ :math:`D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k` dimensional tensor. 
+ An important caveat, however, is that 
+ the stride between consecutive cells is rounded up to the nearest multiple of 128 bytes. 
+ While this facilitates memory access, especially on the GPU, it makes it somewhat harder to 
+ convert a ``tensor_array`` object to a single tensor in e.g.. `PyTorch`. 
+ The ``CtensorArrayA`` class stores a complex tensor array in a single array, 
+ consisting of two real tensor arrays back to back. 
 
-The default C++ backend class for real tensors arrays is ``RtensorArrayA`` 
-and for complex tensor arrays is ``CtensorArrayA``. 
-``RtensorArrayA`` stores an :math:`D_1\times \ldots \times D_K` array of  :math:`d_1\times\ldots\times d_k` 
-dimensional tensors in a similar way that ``RtensorA`` would store a single  
-:math:`D_1\times \ldots \times D_K\times d_1\times\ldots\times d_k` dimensional tensor. 
-An important caveat, however, is that 
-the stride between consecutive cells is rounded up to the nearest multiple of 128 bytes. 
-While this facilitates memory access, especially on the GPU, it makes it somewhat harder to 
-convert a ``tensor_array`` object to a single tensor in e.g.. `PyTorch`. 
-The ``CtensorArrayA`` class stores a complex tensor array in a single array, 
-consisting of two real tensor arrays back to back. 
-
-A tensor array object's header, including information about tensor dimensions, strides, etc., is always resident on 
-the host. When a tensor array is moved to the GPU, only the array containing the actual tensor entries 
-is moved to the  GPU's global memory. 
+ A tensor array object's header, including information about tensor dimensions, strides, etc., is always resident on 
+ the host. When a tensor array is moved to the GPU, only the array containing the actual tensor entries 
+ is moved to the  GPU's global memory. 
 

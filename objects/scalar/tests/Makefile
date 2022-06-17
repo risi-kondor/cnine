@@ -3,12 +3,11 @@ include $(ROOTDIR)/common.txt
 
 INCLUDE= -I$(INCLUDEDIR) -I$(SCALARDIR) -I$(TENSORDIR) 
 
-TESTS= testRscalarObj testCscalarObj 
-
 DEPS=$(SCALARDIR)/*.hpp $(INCLUDEDIR)/*.hpp 
 
-EXECS= 
+TESTS=$(patsubst %.cpp,%,$(wildcard *.cpp))
 
+EXECS= 
 CUDA_OBJECTS=  
 CUDA_EXTERNS=
 
@@ -19,29 +18,12 @@ CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu
 endif 
 
 
-
-
-# -------------------------------------------------------------------------------------------------------------
-
-
-testRscalarObj: testRscalarObj.cpp  $(DEPS)
+$(TESTS): %: %.cpp
 ifdef WITH_CUDA
-	$(NVCC) $(NVCCFLAGS) -o testRscalarObj testRscalarObj.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+	$(NVCC) $(NVCCFLAGS) -o $@ $@.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else
-	$(CC) -o testRscalarObj testRscalarObj.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+	$(CC) -o $@ $@.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
 endif
-
-
-testCscalarObj: testCscalarObj.cpp  $(DEPS) 
-ifdef WITH_CUDA
-	$(NVCC) $(NVCCFLAGS) -o testCscalarObj testCscalarObj.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
-else
-	$(CC) -o testCscalarObj testCscalarObj.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
-endif
-
-
-
-# -------------------------------------------------------------------------------------------------------------
 
 
 objects: $(OBJECTS) $(CUDA_OBJECTS)

@@ -35,7 +35,7 @@ int main(int argc, char** argv){
   cnine_session genet;
   cout<<endl;
 
-  CtensorArray A(dims(2),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return aix(0);});
+  CtensorArray A(dims(2),dims(2,2),[](const Gindex& aix, const Gindex& cix){return aix(0);});
 
   //printl("cellwise",cellwise<Ctensor_copy>(A));
 

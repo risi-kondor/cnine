@@ -71,12 +71,13 @@ namespace cnine{
   Ctensor_Cscalar_prod_expr operator*(const CtensorObj& x, const CscalarObj& c){
     return Ctensor_Cscalar_prod_expr(c,x); 
   }
+  
 
   CtensorObj& operator+=(CtensorObj& R, const Ctensor_Cscalar_prod_expr& expr){
     R.add(expr.x,expr.c);
     return R;
   }
-
+  
 
   // ---- Matrix multiplication -----------------------------------------------------------------------------
 

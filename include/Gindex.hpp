@@ -22,8 +22,11 @@ namespace cnine{
 
     Gindex(){}
 
-    Gindex(const int k, const fill_zero& dummy): vector<int>(k){
-    }
+    Gindex(const int k, const fill_zero& dummy): 
+      vector<int>(k,0){}
+
+    Gindex(const int k, const fill_raw& dummy): 
+      vector<int>(k){}
 
     Gindex(const fill_zero& dummy){
     }
@@ -130,6 +133,13 @@ namespace cnine{
 	s*=dims[i];
       }
       return t;
+    }
+
+    Gindex cat(const Gindex& y) const{
+      Gindex R(size()+y.size(),fill_raw());
+      for(int i=0; i<size(); i++) R[i]=(*this)[i];
+      for(int i=0; i<y.size(); i++) R[size()+i]=y[i];
+      return R;
     }
 
 

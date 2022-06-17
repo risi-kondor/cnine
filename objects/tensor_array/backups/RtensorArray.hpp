@@ -43,38 +43,48 @@ namespace cnine{
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static RtensorArray zero(const Gdims& _adims, const Gdims& _dims, const int _dev=0){
-      return RtensorArray(_adims,_dims,fill::zero,_dev);}
+    static RtensorArray zero(const Gdims& _adims, const Gdims& _dims, const int nbd=-1, const int _dev=0){
+      return RtensorArray(_adims,_dims,nbd,fill::zero,_dev);}
+    static RtensorArray zero(const Gdims& _adims, const Gdims& _dims, const int nbd, const device& _dev){
+      return RtensorArray(_adims,_dims,nbd,fill::zero,_dev.id());}
     static RtensorArray zero(const Gdims& _adims, const Gdims& _dims, const device& _dev){
-      return RtensorArray(_adims,_dims,fill::zero,_dev.id());}
+      return RtensorArray(_adims,_dims,-1,fill::zero,_dev.id());}
 
-    static RtensorArray raw(const Gdims& _adims, const Gdims& _dims, const int _dev=0){
-      return RtensorArray(_adims,_dims,fill::raw,_dev);}
+    static RtensorArray raw(const Gdims& _adims, const Gdims& _dims, const int nbd=-1, const int _dev=0){
+      return RtensorArray(_adims,_dims,nbd,fill::raw,_dev);}
+    static RtensorArray raw(const Gdims& _adims, const Gdims& _dims, const int nbd, const device& _dev){
+      return RtensorArray(_adims,_dims,nbd,fill::raw,_dev.id());}
     static RtensorArray raw(const Gdims& _adims, const Gdims& _dims, const device& _dev){
-      return RtensorArray(_adims,_dims,fill::raw,_dev.id());}
+      return RtensorArray(_adims,_dims,-1,fill::raw,_dev.id());}
 
-    static RtensorArray ones(const Gdims& _adims, const Gdims& _dims, const int _dev=0){
-      return RtensorArray(_adims,_dims,fill::ones,_dev);}
+    static RtensorArray ones(const Gdims& _adims, const Gdims& _dims, const int nbd=-1, const int _dev=0){
+      return RtensorArray(_adims,_dims,nbd,fill::ones,_dev);}
+    static RtensorArray ones(const Gdims& _adims, const Gdims& _dims, const int nbd, const device& _dev){
+      return RtensorArray(_adims,_dims,nbd,fill::ones,_dev.id());}
     static RtensorArray ones(const Gdims& _adims, const Gdims& _dims, const device& _dev){
-      return RtensorArray(_adims,_dims,fill::ones,_dev.id());}
+      return RtensorArray(_adims,_dims,-1,fill::ones,_dev.id());}
 
-    //static RtensorArray identity(const Gdims& _adims, const Gdims& _dims=-1, const int _dev=0){
-    //return RtensorArray(_adims,_dims,RtensorA_setIdentity_cop(),_dev);}
-    //static RtensorArray identity(const Gdims& _adims, const Gdims& _dims, const device& _dev){
-    //return RtensorArray(_adims,_dims,RtensorA_setIdentity_cop(),_dev.id());}
+    //static RtensorArray identity(const Gdims& _adims, const Gdims& _dims, const int nbd=-1, const int _dev=0){
+    //return RtensorArray(_adims,_dims,nbd,RtensorA_setIdentity_cop(),_dev);}
+    //static RtensorArray identity(const Gdims& _adims, const Gdims& _dims, const int nbd, const device& _dev){
+    //return RtensorArray(_adims,_dims,nbd,RtensorA_setIdentity_cop(),_dev.id());}
     //static RtensorArray identity(const Gdims& _adims, const Gdims& _dims, const device& _dev){
     //return RtensorArray(_adims,_dims,-1,RtensorA_setIdentity_cop(),_dev.id());}
 
 
-    static RtensorArray sequential(const Gdims& _adims, const Gdims& _dims, const int _dev=0){
-      return RtensorArray(_adims,_dims,fill::sequential,_dev);}
+    static RtensorArray sequential(const Gdims& _adims, const Gdims& _dims, const int nbd=-1, const int _dev=0){
+      return RtensorArray(_adims,_dims,nbd,fill::sequential,_dev);}
+    static RtensorArray sequential(const Gdims& _adims, const Gdims& _dims, const int nbd, const device& _dev){
+      return RtensorArray(_adims,_dims,nbd,fill::sequential,_dev.id());}
     static RtensorArray sequential(const Gdims& _adims, const Gdims& _dims, const device& _dev){
-      return RtensorArray(_adims,_dims,fill::sequential,_dev.id());}
+      return RtensorArray(_adims,_dims,-1,fill::sequential,_dev.id());}
 
-    static RtensorArray gaussian(const Gdims& _adims, const Gdims& _dims, const int _dev=0){
-      return RtensorArray(_adims,_dims,fill::gaussian,_dev);}
+    static RtensorArray gaussian(const Gdims& _adims, const Gdims& _dims, const int nbd=-1, const int _dev=0){
+      return RtensorArray(_adims,_dims,nbd,fill::gaussian,_dev);}
+    static RtensorArray gaussian(const Gdims& _adims, const Gdims& _dims, const int nbd, const device& _dev){
+      return RtensorArray(_adims,_dims,nbd,fill::gaussian,_dev.id());}
     static RtensorArray gaussian(const Gdims& _adims, const Gdims& _dims, const device& _dev){
-      return RtensorArray(_adims,_dims,fill::gaussian,_dev.id());}
+      return RtensorArray(_adims,_dims,-1,fill::gaussian,_dev.id());}
     
 
   public: // ---- Copying ------------------------------------------------------------------------------------
@@ -144,6 +154,16 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
     /*
+    int get_nbu() const{ 
+      if(bundle){
+	assert(dims.size()>0); 
+	return dims[0];
+      }
+      return -1;
+    }
+    */
+
+    /*
     int get_k() const{ 
       return dims.size();
     }
@@ -194,28 +214,28 @@ namespace cnine{
 
 
     RtensorArray(const Gdims& _adims, const RtensorObj& x):
-      RtensorArray(_adims,x.dims,fill::raw,x.dev){
+      RtensorArray(_adims,x.dims,x.get_nbu(),fill::raw,x.dev){
       //cout<<"a="<<asize<<endl;
       broadcast_copy(x);
     }
 
     RtensorArray widen(const int ix, const int n) const{
       assert(ix<=adims.size());
-      RtensorArray R(adims.insert(ix,n),cdims,fill::raw,dev);
+      RtensorArray R(adims.insert(ix,n),cdims,nbu,fill::raw,dev);
       R.broadcast_copy(ix,*this);
       return R;
     }
 
     RtensorArray repeat(const int ix, const int n) const{
       assert(ix<=adims.size());
-      RtensorArray R(adims.insert(ix,n),cdims,fill::raw,dev);
+      RtensorArray R(adims.insert(ix,n),cdims,nbu,fill::raw,dev);
       R.broadcast_copy(ix,*this);
       return R;
     }
 
     RtensorArray reduce(const int ix) const{
       assert(ix<adims.size());
-      RtensorArray R(adims.remove(ix),cdims,fill::zero,dev);
+      RtensorArray R(adims.remove(ix),cdims,nbu,fill::zero,dev);
       R.add_reduce(*this,ix);
       return R;
     }
@@ -493,11 +513,11 @@ namespace cnine{
 
 
     string classname() const{
-      return "GEnet::RtensorArray";
+      return "GEnet::RtensorObj";
     }
 
     string describe() const{
-      return "RtensorArray"+dims.str();
+      return "Rtensor"+dims.str();
     } 
 
     string str(const string indent="") const{

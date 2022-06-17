@@ -23,9 +23,9 @@ with each other via the multiprocessors shared memory.
 
 The use of cell maps and cell operators from Python is limited by the fact that on the C++ 
 side they are implemented via templates. It is not feasible to compile all possible template 
-instantiations into the Python ``cnine`` module. Rather for for any new combination of cell operator/
-cell map, the Python binding code in ``cnine_py.cpp`` is expected to be updated manually and 
-the module has to be compiled anew. 
+instantiations into the Python ``cnine`` module. Rather, for any new combination of cell operator/
+cell map, the Python binding code in ``cnine_py.cpp`` has to be updated manually and 
+the module must be recompiled. 
 
 Here we demonstrate the cell map functionality via a single cell operator, ``RtensorA_add_plus_cop``.
 

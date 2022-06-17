@@ -6,7 +6,7 @@
 //  Public License v. 2.0. If a copy of the MPL was not distributed
 //  with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-pybind11::class_<RtensorArray>(m,"rtensor_arr")
+pybind11::class_<RtensorArray>(m,"rtensorArr")
 
   .def(pybind11::init<const Gdims&>())
   .def(pybind11::init<const Gdims&, const Gdims&, const fill_raw&>())
@@ -30,6 +30,12 @@ pybind11::class_<RtensorArray>(m,"rtensor_arr")
   .def_static("zero",[](const Gdims& adims, const Gdims& dims, const int dev){
       return RtensorArray::zero(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("zero",[](const vector<int>& av, const vector<int>& v, const int dev){
+      return RtensorArray::zero(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+
+  .def_static("zeros",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::zero))
+  .def_static("zeros",[](const Gdims& adims, const Gdims& dims, const int dev){
+      return RtensorArray::zero(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+  .def_static("zeros",[](const vector<int>& av, const vector<int>& v, const int dev){
       return RtensorArray::zero(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
   .def_static("ones",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::ones))
@@ -56,6 +62,12 @@ pybind11::class_<RtensorArray>(m,"rtensor_arr")
   .def_static("gaussian",[](const Gdims& adims, const Gdims& dims, const int dev){
       return RtensorArray::gaussian(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
   .def_static("gaussian",[](const vector<int>& av, const vector<int>& v, const int dev){
+      return RtensorArray::gaussian(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
+
+  .def_static("randn",static_cast<RtensorArray (*)(const Gdims&, const Gdims&, const int, const int)>(&RtensorArray::gaussian))
+  .def_static("randn",[](const Gdims& adims, const Gdims& dims, const int dev){
+      return RtensorArray::gaussian(dims,-1,dev);}, py::arg("adims"), py::arg("dims"), py::arg("device")=0)
+  .def_static("randn",[](const vector<int>& av, const vector<int>& v, const int dev){
       return RtensorArray::gaussian(Gdims(av),Gdims(v),-1,dev);},py::arg("adims"),py::arg("dims"),py::arg("device")=0)
 
 //.def("get_k",&RtensorObj::get_k)

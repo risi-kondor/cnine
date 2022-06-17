@@ -33,8 +33,8 @@ int main(int argc, char** argv){
   device dev=deviceid::GPU0;
   cout<<endl;
 
-  CtensorArray A(dims(4),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){return aix(0);});
-  CtensorArray B(dims(4),dims(2,2),-1,[](const Gindex& aix, const Gindex& cix){
+  CtensorArray A(dims(4),dims(2,2),[](const Gindex& aix, const Gindex& cix){return aix(0);});
+  CtensorArray B(dims(4),dims(2,2),[](const Gindex& aix, const Gindex& cix){
       return complex<float>(0,aix(0));});
   CtensorArray C(dims(4),dims(2,2),fill::zero);
 
@@ -44,8 +44,8 @@ int main(int argc, char** argv){
   mask.push(Gindex(1),Gindex(3),Gindex(3));
   cout<<mask.str()<<endl;
 
-  add_accumulate<CtensorA_plus>(mask,C,A,B);
-  print(C);
+  //add_accumulate<CtensorA_plus>(mask,C,A,B);
+  //print(C);
 
 #ifdef _WITH_CUDA 
 

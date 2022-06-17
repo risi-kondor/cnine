@@ -1,6 +1,6 @@
 #include "Cnine_base.cpp"
 #include "CnineSession.hpp"
-#include "CtensorB_array.hpp"
+#include "CtensorArrayB.hpp"
 #include "RtensorA.hpp"
 
 using namespace cnine;
@@ -14,7 +14,7 @@ int main(int argc, char** argv){
   Gdims adims({n});
   Gdims cdims({2,2});
 
-  CtensorB_array u=CtensorB_array::gaussian(adims,cdims);
+  CtensorArrayB u=CtensorArrayB::gaussian(adims,cdims);
   PRINTL(u);
 
   RtensorA M=RtensorA::zero({n,n});
