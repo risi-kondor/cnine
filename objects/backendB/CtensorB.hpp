@@ -375,6 +375,15 @@ namespace cnine{
     }
 
 
+    CtensorB* viewp(){
+      CtensorB* R=new CtensorB(dims,fill_noalloc(),dev);
+      R->arr=arr;
+      R->arrg=arrg;
+      R->is_view=true;
+      return R;
+    }
+
+
     CtensorB view_as_shape(const Gdims& _dims){
       CNINE_DIMS_EQ_TOTAL(dims,_dims);
       CtensorB R=CtensorB::noalloc(_dims,dev);
@@ -1013,6 +1022,34 @@ namespace cnine{
     }
 
 
+    void inc(const Gindex& ix, complex<float> x) const{
+      int t=ix(strides);  
+      arr[t]+=std::real(x);
+      arr[t+coffs]+=std::imag(x);
+    }
+
+    void inc(const int i0, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=1 || i0<0 || i0>=dims[0]) throw std::out_of_range("index "+Gindex(i0).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0];  
+      arr[t]+=std::real(x);
+      arr[t+coffs]+=std::imag(x);
+    }
+
+    void inc(const int i0, const int i1, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=2 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1]) throw std::out_of_range("index "+Gindex(i0,i1).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1];  
+      arr[t]+=std::real(x);
+      arr[t+coffs]+=std::imag(x);
+    }
+
+    void inc(const int i0, const int i1, const int i2, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
+      arr[t]+=std::real(x);
+      arr[t+coffs]+=std::imag(x);
+    }
+
+
   public: // ---- Cells --------------------------------------------------------------------------------------
 
     /*
@@ -1363,13 +1400,13 @@ namespace cnine{
   public: // ---- Scalar valued operations ------------------------------------------------------------------
 
     
-    float inp(const CtensorB& y) const{
+    complex<float> inp(const CtensorB& y) const{
       CNINE_DEVICE_SAME(y);
       CNINE_DIMS_EQ(dims,y.dims);
       CNINE_CPUONLY();
-      float t=0;
-      for(int i=0; i<memsize; i++){
-	t+=arr[i]*y.arr[i];
+      complex<float> t=0;
+      for(int i=0; i<asize; i++){
+	t+=complex<float>(arr[2*i],arr[2*i+1])*complex<float>(y.arr[2*i],y.arr[2*i+1]);
       }
       return t;
     }
@@ -1587,7 +1624,42 @@ public: // ---- Cumulative operations ------------------------------------------
 
     template<int selector> 
     void add_Mprod_AA(const CtensorB& x, const CtensorB& y, const int nx=1, const int ny=1){
-      CNINE_UNIMPL();
+      CNINE_DEVICE_SAME(x);
+      CNINE_DEVICE_SAME(y);
+      CNINE_NDIMS_IS_2((*this));
+      CNINE_NDIMS_IS_2(x);
+      CNINE_NDIMS_IS_2(y);
+
+      const int n0=dims[0];
+      const int n1=dims[1];
+      const int I=x.dims[1];
+      assert(x.dims[0]==n0);
+      assert(y.dims[1]==n1);
+      assert(y.dims[0]==I);
+
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    complex<float> t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,i)*y(i,b);
+	    inc(a,b,t);
+	  }
+      }
+
+      if(dev==1){
+	#ifdef _WITH_CUBLAS
+	cuComplex alpha;
+	alpha.x=1.0f;
+	alpha.y=0.0f;
+	#ifndef _OBJFILE
+	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,x.dims[1],&alpha,
+	    reinterpret_cast<cuComplex*>(y.arr),y.dims[1], 
+	    reinterpret_cast<cuComplex*>(x.arr),x.dims[1],&alpha,
+	    reinterpret_cast<cuComplex*>(arr),n1)); 
+	#endif
+	#endif
+      }
     }
 
     template<int selector> 
@@ -1663,3 +1735,5 @@ public: // ---- Cumulative operations ------------------------------------------
 
 
 #endif 
+    /*
+    */

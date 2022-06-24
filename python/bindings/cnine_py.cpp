@@ -20,6 +20,7 @@
 
 #include "CscalarObj.hpp"
 #include "CtensorObj.hpp"
+#include "CtensorPackObj.hpp"
 #include "CtensorArray.hpp"
 
 #include "CtensorB.hpp"
@@ -104,6 +105,8 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 
 #include "rtensor_py.cpp"
 #include "ctensor_py.cpp"
+
+#include "ctensorpack_py.cpp"
   
 #include "rtensorarr_py.cpp"
 #include "ctensorarr_py.cpp"

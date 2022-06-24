@@ -24,7 +24,7 @@
 namespace cnine{
 
 
-  class CtensorPackObj: public CtensorObj{
+  class CtensorPackObj{ //: public CtensorObj{
   public:
 
     typedef cnine::device device;
@@ -35,57 +35,34 @@ namespace cnine{
     typedef cnine::CscalarObj cscalar;
     typedef cnine::CtensorObj ctensor;
 
-    typedef CNINE_CTENSOR_IMPL ctensori;
-
-    /*
-    class offset: public std::vector<int>{
-    public:
-
-      offset(){}
-
-      offset(const GdimsPack& _dimsp): std::vector<int>(_dimsp.size()){
-	int t=0; 
-	for(int i=0; i<_dimsp.size(); i++){
-	  (*this)[i]=t; 
-	  t+=tau[i];
-	}
-      }
-
-    };
-    */
-
-
-    //using CtensorObj::CtensorObj; 
-
-    //using CtensorObj::dev; 
-
-    //SO3type tau; 
-    int nbu; 
-    int dev=0; // is this redundant? 
-    //GdimsPack dimsp;
-    vector<CtensorObj*> tensors;
-    //ctensori* vec=nullptr;
-    
     int fmt=0;
+    int dev=0; // is this redundant? 
+    vector<CtensorObj*> tensors;
+    bool is_view=false;
+
+    #ifdef WITH_FAKE_GRAD
+    CtensorPackObj* grad=nullptr;
+    #endif 
+
+    
 
     CtensorPackObj(){}
 
     ~CtensorPackObj(){
       for(auto p: tensors) delete p;  
-      //delete vec;
+      #ifdef WITH_FAKE_GRAD
+      if(!is_view) delete grad;
+      #endif 
     }
 
 
     // ---- Constructors --------------------------------------------------------------------------------------
 
 
-    //CtensorPackObj(const cnine::fill_noalloc& dummy, const SO3type& _tau, const int _nbu, const int _fmt, const int _dev):
-    //tau(_tau), nbu(_nbu), fmt(_fmt), dev(_dev){}
-
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const GdimsPack& _dims, const int _nbu, const FILLTYPE fill, const int _fmt, const int _dev): 
-      nbu(_nbu), dev(_dev), fmt(_fmt){ //, dimsp(_dims){
+    CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const int _fmt, const int _dev): 
+      dev(_dev), fmt(_fmt){
       const int n=_dims.size(); 
       if(fmt==0){
 	for(int i=0; i<n; i++)
@@ -99,12 +76,11 @@ namespace cnine{
 
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const int n, const Gdims& _dims, const int _nbu, const FILLTYPE fill, const int _fmt=0, const int _dev=0): 
-      nbu(_nbu), dev(_dev), fmt(_fmt){
+    CtensorPackObj(const int n, const Gdims& _dims, const FILLTYPE fill, const int _fmt=0, const int _dev=0): 
+      dev(_dev), fmt(_fmt){
       if(fmt==0){
 	for(int i=0; i<n; i++){
 	  tensors.push_back(new CtensorObj(_dims,fill,_dev));
-	  //dimsp.push_back(_dims);
 	}
       }
       if(fmt==1){
@@ -113,203 +89,195 @@ namespace cnine{
     }
     
 
-    // ---- without nbu
+    // ---- Constructors ------------------------------------------------------------------------------------
+
 
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill): 
-      CtensorPackObj(_dims,-1,fill,0,0){}
+      CtensorPackObj(_dims,fill,0,0){}
 
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const pack_format& _format): 
-      CtensorPackObj(_dims,-1,fill,toint(_format),0){}
+      CtensorPackObj(_dims,fill,toint(_format),0){}
 
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const device& _device): 
-      CtensorPackObj(_dims,-1,fill,0,_device.id()){}
+      CtensorPackObj(_dims,fill,0,_device.id()){}
 
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    template<typename FILLTYPE, typename = typename std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const pack_format& _format, const device& _device): 
-      CtensorPackObj(_dims,-1,fill,toint(_format),_device.id()){}
-
-
-    // ---- with nbu
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const GdimsPack& _dims, const int _nbu, const FILLTYPE fill): 
-      CtensorPackObj(_dims,_nbu,fill,0,0){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const GdimsPack& _dims, const int _nbu, const FILLTYPE fill, const pack_format& _format): 
-      CtensorPackObj(_dims,_nbu,fill,toint(_format),0){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const GdimsPack& _dims, const int _nbu, const FILLTYPE fill, const device& _device): 
-      CtensorPackObj(_dims,_nbu,fill,0,_device.id()){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const GdimsPack& _dims, const int _nbu, const FILLTYPE fill, const pack_format& _format, 
-      const device& _device): 
-      CtensorPackObj(_dims,_nbu,fill,toint(_format),_device.id()){}
+      CtensorPackObj(_dims,fill,toint(_format),_device.id()){}
+  
+  
+  public: // ---- Static constructors --------------------------------------------------------------------------
 
 
     static CtensorPackObj zero(const int _n, const Gdims& _dims){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::zero);}
-    static CtensorPackObj zero(const int _n, const Gdims& _dims, const pack_format& _format){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,toint(_format));}
-    static CtensorPackObj zero(const int _n, const Gdims& _dims, const device& _device){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,_device.id());}
-    static CtensorPackObj zero(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,toint(_format),_device.id());}
+      return CtensorPackObj(_n,_dims,cnine::fill::zero);}
+    //static CtensorPackObj zero(const int _n, const Gdims& _dims, const pack_format& _format){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,toint(_format));}
+    //static CtensorPackObj zero(const int _n, const Gdims& _dims, const device& _device){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,_device.id());}
+    //static CtensorPackObj zero(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,toint(_format),_device.id());}
     
     static CtensorPackObj zero(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,-1,cnine::fill::zero);}
-    static CtensorPackObj zero(const GdimsPack& _dims, const pack_format& _format){
-      return CtensorPackObj(_dims,-1,cnine::fill::zero,toint(_format));}
-    static CtensorPackObj zero(const GdimsPack& _dims, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::zero,_device.id());}
-    static CtensorPackObj zero(const GdimsPack& _dims, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::zero,toint(_format),_device.id());}
+      return CtensorPackObj(_dims,cnine::fill::zero);}
+    //static CtensorPackObj zero(const GdimsPack& _dims, const pack_format& _format){
+    //  return CtensorPackObj(_dims,-1,cnine::fill::zero,toint(_format));}
+    //static CtensorPackObj zero(const GdimsPack& _dims, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::zero,_device.id());}
+    //static CtensorPackObj zero(const GdimsPack& _dims, const pack_format& _format, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::zero,toint(_format),_device.id());}
     
     static CtensorPackObj ones(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,-1,cnine::fill::ones);}
-    static CtensorPackObj ones(const GdimsPack& _dims, const pack_format& _format){
-      return CtensorPackObj(_dims,-1,cnine::fill::ones,_format);}
-    static CtensorPackObj ones(const GdimsPack& _dims, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::ones,_device);}
-    static CtensorPackObj ones(const GdimsPack& _dims, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::ones,_format,_device);}
+      return CtensorPackObj(_dims,cnine::fill::ones);}
+    //static CtensorPackObj ones(const GdimsPack& _dims, const pack_format& _format){
+    //return CtensorPackObj(_dims,-1,cnine::fill::ones,_format);}
+    //static CtensorPackObj ones(const GdimsPack& _dims, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::ones,_device);}
+    //static CtensorPackObj ones(const GdimsPack& _dims, const pack_format& _format, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::ones,_format,_device);}
     
     static CtensorPackObj sequential(const int _n, const Gdims& _dims){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential);}
-    static CtensorPackObj sequential(const int _n, const Gdims& _dims, const pack_format& _format){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,toint(_format));}
-    static CtensorPackObj sequential(const int _n, const Gdims& _dims, const device& _device){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,0,_device.id());}
-    static CtensorPackObj sequential(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,toint(_format),_device.id());}
+      return CtensorPackObj(_n,_dims,cnine::fill::sequential);}
+    //static CtensorPackObj sequential(const int _n, const Gdims& _dims, const pack_format& _format){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,toint(_format));}
+    //static CtensorPackObj sequential(const int _n, const Gdims& _dims, const device& _device){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,0,_device.id());}
+    //static CtensorPackObj sequential(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,toint(_format),_device.id());}
     
     static CtensorPackObj sequential(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,-1,cnine::fill::sequential);}
-    static CtensorPackObj sequential(const GdimsPack& _dims, const pack_format& _format){
-      return CtensorPackObj(_dims,-1,cnine::fill::sequential,_format);}
-    static CtensorPackObj sequential(const GdimsPack& _dims, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::sequential,_device);}
-    static CtensorPackObj sequential(const GdimsPack& _dims, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::sequential,_format,_device);}
+      return CtensorPackObj(_dims,cnine::fill::sequential);}
+    //static CtensorPackObj sequential(const GdimsPack& _dims, const pack_format& _format){
+    //return CtensorPackObj(_dims,-1,cnine::fill::sequential,_format);}
+    //static CtensorPackObj sequential(const GdimsPack& _dims, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::sequential,_device);}
+    //static CtensorPackObj sequential(const GdimsPack& _dims, const pack_format& _format, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::sequential,_format,_device);}
     
     static CtensorPackObj gaussian(const int _n, const Gdims& _dims){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian);}
-    static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const pack_format& _format){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,toint(_format));}
-    static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const device& _device){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,_device.id());}
-    static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,toint(_format),_device.id());}
+      return CtensorPackObj(_n,_dims,cnine::fill::gaussian);}
+    //static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const pack_format& _format){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,toint(_format));}
+    //static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const device& _device){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,_device.id());}
+    //static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
+    //return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,toint(_format),_device.id());}
     
     static CtensorPackObj gaussian(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,-1,cnine::fill::gaussian);}
-    static CtensorPackObj gaussian(const GdimsPack& _dims, const pack_format& _format){
-      return CtensorPackObj(_dims,-1,cnine::fill::gaussian,toint(_format));}
-    static CtensorPackObj gaussian(const GdimsPack& _dims, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::gaussian,_device.id());}
-    static CtensorPackObj gaussian(const GdimsPack& _dims, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_dims,-1,cnine::fill::gaussian,toint(_format),_device.id());}
+      return CtensorPackObj(_dims,cnine::fill::gaussian);}
+    //static CtensorPackObj gaussian(const GdimsPack& _dims, const pack_format& _format){
+    //return CtensorPackObj(_dims,-1,cnine::fill::gaussian,toint(_format));}
+    //static CtensorPackObj gaussian(const GdimsPack& _dims, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::gaussian,_device.id());}
+    //static CtensorPackObj gaussian(const GdimsPack& _dims, const pack_format& _format, const device& _device){
+    //return CtensorPackObj(_dims,-1,cnine::fill::gaussian,toint(_format),_device.id());}
+
     
-  
-public: // ---- Copying ------------------------------------------------------------------------------------
+    static CtensorPackObj zeros_like(const CtensorPackObj& x){
+      CtensorPackObj R;
+      for(auto p: x.tensors)
+	if(p) R.tensors.push_back(new CtensorObj(*p,fill_zero()));
+	else R.tensors.push_back(nullptr);
+      return R;
+    }
 
 
-    //CtensorPackObj(const CNINE_CTENSOR_IMPL& x):
-    //CNINE_CTENSOR_IMPL(x){
-    //};
-  
+  public: // ---- Spawning -----------------------------------------------------------------------------------
+
+
+    static CtensorPackObj* new_zeros_like(const CtensorPackObj& x){
+      return new CtensorPackObj(x,fill_zero());
+    }
+
+      
+  public: // ---- Copying ------------------------------------------------------------------------------------
+
+
     CtensorPackObj(const CtensorPackObj& x):
-      CtensorObj(x), nbu(x.nbu), fmt(x.fmt), dev(x.dev){
+      fmt(x.fmt), dev(x.dev){
       for(auto p: x.tensors)
 	if(p) tensors.push_back(new CtensorObj(*p));
 	else tensors.push_back(nullptr);
     };
       
     CtensorPackObj(const CtensorPackObj& x, const int _dev):
-      CtensorObj(x,_dev), nbu(x.nbu), fmt(x.fmt), dev(x.dev){
+      fmt(x.fmt), dev(_dev){
       for(auto p: x.tensors)
 	if(p) tensors.push_back(new CtensorObj(*p,_dev));
 	else tensors.push_back(nullptr);
+      #ifdef WITH_FAKE_GRAD
+      if(x.grad) grad=new CtensorPackObj(x);
+      #endif
     };
       
-    CtensorPackObj(const CtensorPackObj& x, const device& _dev):
-      CtensorObj(x,_dev.id()), nbu(x.nbu), fmt(x.fmt), dev(x.dev){
-      for(auto p: x.tensors)
-	if(p) tensors.push_back(new CtensorObj(*p,_dev.id()));
-	else tensors.push_back(nullptr);
-    };
+    //CtensorPackObj(const CtensorPackObj& x, const device& _dev):
+    //CtensorObj(x,_dev.id()), nbu(x.nbu), fmt(x.fmt), dev(x.dev){
+    //for(auto p: x.tensors)
+    //if(p) tensors.push_back(new CtensorObj(*p,_dev.id()));
+    //else tensors.push_back(nullptr);
+    //};
       
     CtensorPackObj(const CtensorPackObj& x, const fill_zero& dummy):
-      CtensorObj(x,dummy), nbu(x.nbu), fmt(x.fmt), dev(x.dev){
+      fmt(x.fmt), dev(x.dev){
       for(auto p: x.tensors)
 	if(p) tensors.push_back(new CtensorObj(*p,dummy));
 	else tensors.push_back(nullptr);
     };
       
     CtensorPackObj(CtensorPackObj&& x):
-      CtensorObj(std::move(x)), nbu(x.nbu), fmt(x.fmt), dev(x.dev){
+      fmt(x.fmt), dev(x.dev){
       for(auto p: x.tensors)
 	if(p) tensors.push_back(new CtensorObj(std::move(*p)));
 	else tensors.push_back(nullptr);
+      #ifdef WITH_FAKE_GRAD
+      grad=x.grad;
+      x.grad=nullptr;
+      #endif
     };
 
     CtensorPackObj& operator=(const CtensorPackObj& x){
-      if(fmt==0) CtensorObj::operator=(x);
-      else{
-	for(auto p: tensors) delete p;
-	tensors.clear(); 
-	for(auto p: x.tensors)
-	  if(p) tensors.push_back(new CtensorObj(*p));
-	  else tensors.push_back(nullptr);
-      }
+      for(auto p: tensors) delete p;
+      tensors.clear(); 
+      for(auto p: x.tensors)
+	if(p) tensors.push_back(new CtensorObj(*p));
+	else tensors.push_back(nullptr);
+      #ifdef WITH_FAKE_GRAD
+      if(grad) delete grad;
+      if(x.grad) grad=new CtensorPackObj(x);
+      #endif
       return *this;
     }
 
     CtensorPackObj& operator=(CtensorPackObj&& x){
-      if(fmt==0) CtensorObj::operator=(std::move(x));
-      else{
-	for(auto p: tensors) delete p;
-	tensors.clear(); 
-	for(auto p: x.tensors)
-	  tensors.push_back(p);
-      }
+      for(auto p: tensors) delete p;
+      tensors.clear(); 
+      for(auto p: x.tensors)
+	tensors.push_back(p);
+      #ifdef WITH_FAKE_GRAD
+      if(grad) delete grad;
+      grad=x.grad;
+      x.grad=nullptr;
+      #endif
       return *this;
     }
+
     
-    /*
-    Dobject* clone() const{
-      return new CtensorPackObj(*this);
+  public: // ---- Views -------------------------------------------------------------------------------
+
+
+    CtensorPackObj view(){
+      CtensorPackObj R;
+      foreach_tensor([&](CtensorObj& x){R.tensors.push_back(new CtensorObj(x.view()));});
+      R.is_view=true;
+      return R;
     }
 
-    Dobject* spawn(const fill_zero& fill) const{
-      return new CtensorPackObj(CNINE_CTENSOR_IMPL::spawn(fill));
-    }
-
-    Dobject* spawn(const fill_zero& fill, const int _dev) const{
-      return new CtensorPackObj(CNINE_CTENSOR_IMPL::spawn(fill),_dev);
-    }
-
-    Dobject* spawn(const fill_gaussian& fill) const{
-      return new CtensorPackObj(CNINE_CTENSOR_IMPL::spawn(fill));
-    }
-    */
-
-    //CtensorPackObj(CtensorPackObj& x, const view_flag& flag):
-    //CtensorPackObj(CNINE_CTENSOR_IMPL(x,flag)){}
-      
 
   public: // ---- Conversions --------------------------------------------------------------------------------
 
@@ -334,30 +302,52 @@ public: // ---- Copying --------------------------------------------------------
       CNINE_CTENSOR_IMPL(x,_dev.id()){}
     */
 
+  public: // ---- ATen --------------------------------------------------------------------------------------
+
+
+#ifdef _WITH_ATEN
+
+    CtensorPackObj(vector<at::Tensor>& v){
+      for(auto& p: v)
+	tensors.push_back(new CtensorObj(p));
+    }
+
+    static CtensorPackObj view(vector<at::Tensor>& v){
+      CtensorPackObj R;
+      for(auto p:v)
+	R.tensors.push_back(CtensorObj::viewp(p));
+      return R;
+    }
+
+    vector<at::Tensor> torch(){
+      vector<at::Tensor> R;
+      for(auto p: tensors)
+	R.push_back(p->torch());
+      return R;
+    }
+
+#endif
+
+ 
+  public: // ---- Transport ----------------------------------------------------------------------------------
+
+
+    CtensorPackObj& move_to_device(const int _dev){
+      foreach_tensor([&](CtensorObj& x){x.move_to_device(_dev);});
+      dev=_dev;
+      return *this;
+    }
+    
+    CtensorPackObj to_device(const int _dev) const{
+      CtensorPackObj R;
+      foreach_tensor([&](const CtensorObj& x){
+	  R.tensors.push_back(new CtensorObj(x.to_device(_dev)));});
+      return R;
+    }
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
-    /*
-    int get_nbu() const{ 
-      if(bundle){
-	assert(dims.size()>0); 
-	return dims[0];
-      }
-      return -1;
-    }
-    */
-
-    /*
-    int get_k() const{ 
-      return dims.size();
-    }
-    */
-
-    /*
-    GdimsPack get_dims() const{ 
-      return dimsp;
-    }
-    */
 
     Gdims get_dims(const int i) const{
       assert(i<tensors.size());
@@ -365,8 +355,51 @@ public: // ---- Copying --------------------------------------------------------
     }
 
     int get_dev() const{
-      return dev;
+      if(tensors.size()==0) return 0;
+      return tensors[0]->get_dev();
     }
+
+
+  public: // ---- Lambdas ------------------------------------------------------------------------------------
+
+
+    void foreach_tensor(const std::function<void(CtensorObj& x)>& lambda){
+      for(int i=0; i<tensors.size(); i++)
+	lambda(*tensors[i]);
+    }
+
+    void foreach_tensor(const std::function<void(const CtensorObj& x)>& lambda) const{
+      for(int i=0; i<tensors.size(); i++)
+	lambda(*tensors[i]);
+    }
+
+    void foreach_tensor(const CtensorPackObj& ypack, 
+      const std::function<void(const CtensorObj& x, const CtensorObj& y)>& lambda) const{
+      CNINE_NTENS_SAME(ypack);
+      for(int i=0; i<tensors.size(); i++)
+	lambda(*tensors[i],*ypack.tensors[i]);
+    }
+
+
+  public: // ---- Experimental -------------------------------------------------------------------------------
+
+
+    #ifdef WITH_FAKE_GRAD
+    void add_to_grad(const CtensorPackObj& x){
+      if(grad) grad->add(x);
+      else grad=new CtensorPackObj(x);
+    }
+
+    CtensorPackObj& get_grad(){
+      if(!grad) grad=new_zeros_like(*this);
+      return *grad;
+    }
+
+    CtensorPackObj view_of_grad(){
+      if(!grad) grad=new_zeros_like(*this);
+      return grad->view();
+    }
+    #endif 
 
 
   public: // ---- Get/set elements ---------------------------------------------------------------------------
@@ -476,29 +509,6 @@ public: // ---- Copying --------------------------------------------------------
 
 
 
-  public: // -------------------------------------------------------------------------------------------------
-
-    /*
-    CtensorPackObj& add_to_element(const Gindex& ix, const CscalarObj& v){
-      replace(hdl,Cengine_engine->push<ctensor_add_to_element_op>(hdl,v.hdl,ix));
-      return *this;
-    }
-    
-    void add_element_into(CscalarObj& r, const Gindex& ix){
-      replace(r.hdl,Cengine_engine->push<ctensor_add_element_op>(r.hdl,hdl,ix));
-    }
-    */
-
-    /*
-    int combined(const int a, const int b) const{
-      return asCtensorB(hdl->node->obj).combined(a,b);
-    }
-    */
-
-    void flush() const{
-    }
-
-
   public: // ---- In-place operations ------------------------------------------------------------------------
 
 
@@ -540,48 +550,63 @@ public: // ---- Copying --------------------------------------------------------
 
 
     void add(const CtensorPackObj& x){
+      CNINE_NTENS_SAME(x);
       if(fmt==0){
 	for(int l=0; l<tensors.size(); l++)
 	  if(tensors[l]) tensors[l]->add(*x.tensors[l]);
       }
       if(fmt==1)
-	CtensorObj::add(x);
+	CNINE_UNIMPL();
+    }
+
+    void add(const CtensorPackObj& x, const complex<float> c){
+      CNINE_NTENS_SAME(x);
+      if(fmt==0){
+	for(int l=0; l<tensors.size(); l++)
+	  if(tensors[l]) tensors[l]->add(*x.tensors[l],c);
+      }
+      if(fmt==1)
+	CNINE_UNIMPL();
     }
 
     void add(const CtensorPackObj& x, const rscalar& c){
+      CNINE_NTENS_SAME(x);
       if(fmt==0){
 	for(int l=0; l<tensors.size(); l++)
 	  if(tensors[l]) tensors[l]->add(*x.tensors[l],c);
       }
       if(fmt==1)
-	CtensorObj::add(x,c);
+	CNINE_UNIMPL();
     }
 
     void add(const CtensorPackObj& x, const cscalar& c){
+      CNINE_NTENS_SAME(x);
       if(fmt==0){
 	for(int l=0; l<tensors.size(); l++)
 	  if(tensors[l]) tensors[l]->add(*x.tensors[l],c);
       }
       if(fmt==1)
-	CtensorObj::add(x,c);
+	CNINE_UNIMPL();
     }
 
     void subtract(const CtensorPackObj& x){
+      CNINE_NTENS_SAME(x);
       if(fmt==0){
 	for(int l=0; l<tensors.size(); l++)
 	  if(tensors[l]) tensors[l]->subtract(*x.tensors[l]);
       }
       if(fmt==1)
-	CtensorObj::subtract(x);
+	CNINE_UNIMPL();
     }
 
-
+    void add_mprod(const CtensorPackObj& x, const CtensorPackObj& y){
+      CNINE_NTENS_SAME(x);
+      CNINE_NTENS_SAME(y);
+      for(int i=0; i<tensors.size(); i++)
+	tensors[i]->add_mprod(*x.tensors[i],*y.tensors[i]);
+    }
 
     /*
-    void add_mprod(const CtensorPackObj& x, const CtensorPackObj& y){
-      add_Mprod_AA<0>(x,y);
-    }
-
     void add_mprod_AT(const CtensorPackObj& x, const CtensorPackObj& y){
       add_Mprod_AT<0>(x,y);
     }
@@ -691,7 +716,7 @@ public: // ---- Copying --------------------------------------------------------
     }
   */
 
-  // ---- In-place operators ---------------------------------------------------------------------------------
+public: // ---- In-place operators ---------------------------------------------------------------------------------
 
 
     CtensorPackObj& operator+=(const CtensorPackObj& y){
@@ -708,7 +733,7 @@ public: // ---- Copying --------------------------------------------------------
   // ---- Binary operators -----------------------------------------------------------------------------------
 
 
-    CtensorPackObj operator+(const CtensorPackObj& y) const{
+  CtensorPackObj operator+(const CtensorPackObj& y) const{
       CtensorPackObj R(*this);
       R.add(y);
       return R;
@@ -726,15 +751,18 @@ public: // ---- Copying --------------------------------------------------------
       return R;
     }
 
-    /*
+    
     CtensorPackObj operator*(const CtensorPackObj& y) const{
-      int I=dims.combined(0,dims.k()-1);
-      int J=y.dims.combined(1,y.dims.k());
-      CtensorPackObj R({I,J},fill::zero);
+      CNINE_NTENS_SAME(y);
+      CtensorPackObj R;
+      for(int i=0; i<tensors.size(); i++){
+	assert(tensors[i]->ndims()==2);
+	assert(y.tensors[i]->ndims()==2);
+	R.tensors.push_back(new CtensorObj(Gdims({tensors[i]->get_dim(0),y.tensors[i]->get_dim(1)}),fill_zero()));
+      }
       R.add_mprod(*this,y);
       return R;
     }
-    */
 
   /*
     CtensorPackObj operator*(const Transpose<CtensorPackObj>& y) const{
@@ -745,6 +773,24 @@ public: // ---- Copying --------------------------------------------------------
       return R;
     }
   */
+
+  public: // ---- Scalar-valued operations -------------------------------------------------------------------
+
+
+    complex<float> inp(const CtensorPackObj& y) const{
+      CNINE_DEVICE_SAME(y);
+      CNINE_NTENS_SAME(y);
+      complex<float> r=0;
+      foreach_tensor(y,[&](const CtensorObj& a, const CtensorObj& b){r+=a.inp(b);});
+      return r;
+    }
+
+    float norm2() const{
+      float r=0;
+      foreach_tensor([&](const CtensorObj& a){r+=a.norm2();});
+      return r;
+    }
+
 
   public: // ---- Normalization ------------------------------------------------------------------------------
 
@@ -800,284 +846,22 @@ public: // ---- Copying --------------------------------------------------------
 
   // ---- Post-class functions -------------------------------------------------------------------------------
 
-  /*
-  inline CtensorPackObj CtensorSeed::spawn(const fill_zero& fill){
-    //if(nch<0) return new SO3partB(l,n,fill::zero,dev);
-    return CtensorPackObj(dims,nbu,fill::zero,dev);
-  }
-  */
 
+  inline complex<float> inp(const CtensorPackObj& x, const CtensorPackObj& y){
+    return x.inp(y);
+  }
+
+  inline float norm2(const CtensorPackObj& x){
+    return x.norm2();
+  }
 
 
   // ---------------------------------------------------------------------------------------------------------
 
-  /*
-  inline CtensorPackObj& asCtensor(Dobject* x){
-    assert(x); 
-    if(!dynamic_cast<CtensorPackObj*>(x))
-      cerr<<"GEnet error: Dobject is of type "<<x->classname()<<" instead of CtensorPackObj."<<endl;
-    assert(dynamic_cast<CtensorPackObj*>(x));
-    return static_cast<CtensorPackObj&>(*x);
-  }
-
-  inline CtensorPackObj& asCtensor(Dobject& x){
-    if(!dynamic_cast<CtensorPackObj*>(&x))
-      cerr<<"GEnet error: Dobject is of type "<<x.classname()<<" instead of CtensorPackObj."<<endl;
-    assert(dynamic_cast<CtensorPackObj*>(&x));
-    return static_cast<CtensorPackObj&>(x);
-  }
-  */
-
-  /*
-  inline CtensorPackObj& asCtensor(Dnode* x){
-    assert(x->obj); 
-    if(!dynamic_cast<CtensorPackObj*>(x->obj))
-      cerr<<"GEnet error: Dobject is of type "<<x->obj->classname()<<" instead of CtensorPackObj."<<endl;
-    assert(dynamic_cast<CtensorPackObj*>(x->obj));
-    return static_cast<CtensorPackObj&>(*x->obj);
-  }
-
-  inline CtensorPackObj& asCtensor(Dnode& x){
-    if(!dynamic_cast<CtensorPackObj*>(x.obj))
-      cerr<<"GEnet error: Dobject is of type "<<x.obj->classname()<<" instead of CtensorPackObj."<<endl;
-    assert(dynamic_cast<CtensorPackObj*>(x.obj));
-    return static_cast<CtensorPackObj&>(*x.obj);
-  }
-  */
 
 }
 
 
 #endif
 
-
-      //return CscalarObj(Cengine_engine->direct<complex<float> >(hdl,[&i](Cobject& x){
-      //  return CTENSORB(&x).get(i);
-      //  }),dev);
-    /*
-    CtensorPackObj& set(const Gindex& ix, complex<float> v){
-      Cengine_engine->direct(hdl,[&ix,&v](Cobject& x){
-	  asCtensorB(&x,__PRETTY_FUNCTION__).set(ix,v);
-	});
-      return *this;
-    }
-    */
-    /*
-    complex<float> operator()(const int i) const{
-      return Cengine_engine->direct<complex<float> >(hdl,[&i](Cobject& x){
-	  return CTENSORB(&x).get(i);
-	});
-    }
-
-    complex<float> operator()(const int i0, const int i1) const{
-      return Cengine_engine->direct<complex<float> >(hdl,[&i0,&i1](Cobject& x){
-	  return CTENSORB(&x).get(i0,i1);
-	});
-    }
-
-    complex<float> operator()(const int i0, const int i1, const int i2) const{
-      return Cengine_engine->direct<complex<float> >(hdl,[&i0,&i1,&i2](Cobject& x){
-	  return CTENSORB(&x).get(i0,i1,i2);
-	});
-    }
-    */
-    //CtensorPackObj& set(const Gindex& ix, CscalarObj& v){
-    //replace(hdl,Cengine_engine->push<ctensor_set_element_op>(hdl,v.hdl,ix));
-    //return *this;
-    //}
-    
-  //inline CtensorPackObj_element::operator complex<float>() const{
-  //return obj.get_value(ix);
-  //}
-
-
-  /*
-  class CtensorPackObj;
-
-  class CtensorSeed{
-  public:
-    
-    Gdims dims;
-    int nbu=-1;
-    int dev; 
-
-    CtensorSeed(const Gdims& _dims, const int _nbu, const int _dev=0):
-      dims(_dims), nbu(_nbu), dev(_dev){}
-
-    CtensorPackObj spawn(const fill_zero& fill);
-
-  };
-
-
-  // ---------------------------------------------------------------------------------------------------------
-
-  */
-    /*
-    CtensorPackObj(const fill_stack& dummy, int ix, const vector<const CtensorPackObj*> v){
-      assert(v.size()>0);
-      const int N=v.size();
-      const Gdims& dims0=v[0]->dims;
-      assert(ix<=dims0.size());
-      for(int i=1; i<N; i++) assert(v[i]->dims==dims0);
-      for(int i=0; i<ix; i++) dims.push_back(dims0[i]);
-      dims.push_back(N);
-      for(int i=ix; i<dims0.size(); i++) dims.push_back(dims0[i]);
-      hdl=Cengine_engine->push<new_ctensor_zero_op>(dims,-1,0);
-      vector<const Chandle*> w(N);
-      for(int i=0; i<N; i++) w[i]=v[i]->hdl;
-      replace(hdl,Cengine_engine->push<ctensor_add_to_slices_op>(hdl,w,ix));
-    }
-
-    CtensorPackObj(const fill_cat& dummy, int ix, const vector<const CtensorPackObj*> v){
-      assert(v.size()>0);
-      const int N=v.size();
-      const Gdims& dims0=v[0]->dims;
-      assert(ix<dims0.size());
-      dims=dims0;
-      int t=0; 
-      for(int i=0; i<N; i++) t+=v[i]->dims[ix];
-      dims[ix]=t;
-      hdl=Cengine_engine->push<new_ctensor_zero_op>(dims,-1,0);
-      int offs=0;
-      for(int i=0; i<N; i++){
-	replace(hdl,Cengine_engine->push<ctensor_add_to_chunk_op>(hdl,v[i]->hdl,ix,offs));
-	offs+=v[i]->dims[ix];
-      }
-    }
-
-    template<typename... Args>
-    CtensorPackObj(const fill_stack& dummy, const int ix,  const CtensorPackObj& x, Args... args):
-      CtensorPackObj(fill::stack,ix,const_variadic_unroller(x,args...)){}
-
-    template<typename... Args>
-    CtensorPackObj(const int ix, const CtensorPackObj& x, Args... args):
-      CtensorPackObj(fill::stack,ix,const_variadic_unroller(x,args...)){}
-
-    template<typename... Args>
-    CtensorPackObj(const fill_cat& dummy, const int ix,  const CtensorPackObj& x, Args... args):
-      CtensorPackObj(dummy,ix,const_variadic_unroller(x,args...)){}
-    */
-
-    /*
-    CtensorPackObj(const Gdims& _dims, 
-      std::function<complex<float>(const int i, const int j)> fn, const int _dev=0): 
-      dims(_dims), nbu(-1), dev(_dev){
-      hdl=Cengine_engine->push<new_ctensor_fn2_op>(_dims,-1,fn,_dev);
-    }
-
-    CtensorPackObj(const Gdims& _dims, const int _nbu,  
-      std::function<complex<float>(const int i, const int j)> fn, const int _dev=0): 
-      dims(_dims), nbu(_nbu), dev(_dev){
-      hdl=Cengine_engine->push<new_ctensor_fn2_op>(_dims,nbu,fn,_dev);
-    }
-    */
-
-//public: // ---- Gtensor ------------------------------------------------------------------------------------
-
-    /*
-    Gtensor<complex<float> > gtensor() const{
-      if(dev==0) return ::Cengine::ctensor_get(hdl);
-      CtensorPackObj R(*this,device(0));
-      return ::Cengine::ctensor_get(R.hdl);
-    }
-    */
-
-
-/*
-    // ---- Constructors --------------------------------------------------------------------------------------
-
-
-    //CtensorPackObj(const cnine::fill_noalloc& dummy, const SO3type& _tau, const int _nbu, const int _fmt, const int _dev):
-    //tau(_tau), nbu(_nbu), fmt(_fmt), dev(_dev){}
-
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const int _nbu, const FILLTYPE fill, const int _fmt, const int _dev): 
-      nbu(_nbu), dev(_dev), fmt(_fmt){
-      const int n=std::min(tau1.size(),tau2.size()); 
-      if(fmt==0){
-	for(int i=0; i<n; i++)
-	  tensors.push_back(new tensori({tau2[i],tau1[i]},fill,_dev));
-      }
-      if(fmt==2){
-	GELIB_UNIMPL();
-      }
-    }
-
-
-    // ---- without nbu
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const FILLTYPE fill): 
-      CtensorPackObj(_tau1,_tau2,-1,fill,0,0){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const FILLTYPE fill, const pack_format& _format): 
-      CtensorPackObj(_tau1,_tau2,-1,fill,toint(_format),0){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const FILLTYPE fill, const device& _device): 
-      CtensorPackObj(_tau1,_tau2,-1,fill,0,_device.id()){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const FILLTYPE fill, const pack_format& _format, const device& _device): 
-      CtensorPackObj(_tau1,_tau2,-1,fill,toint(_format),_device.id()){}
-
-
-    // ---- with nbu
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const int _nbu, const FILLTYPE fill): 
-      CtensorPackObj(_tau1,_tau2,_nbu,fill,0,0){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const int _nbu, const FILLTYPE fill, const pack_format& _format): 
-      CtensorPackObj(_tau1,_tau2,_nbu,fill,toint(_format),0){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const int _nbu, const FILLTYPE fill, const device& _device): 
-      CtensorPackObj(_tau1,_tau2,_nbu,fill,0,_device.id()){}
-
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const SO3type& _tau1, const SO3type& _tau2, const int _nbu, const FILLTYPE fill, const pack_format& _format, 
-      const device& _device): 
-      CtensorPackObj(_tau1,_tau2,_nbu,fill,toint(_format),_device.id()){}
-
-
-    static CtensorPackObj zero(const SO3type& _tau1, const SO3type& _tau2){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::zero);}
-    static CtensorPackObj zero(const SO3type& _tau1, const SO3type& _tau2, const pack_format& _format){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::zero,_format);}
-    static CtensorPackObj zero(const SO3type& _tau1, const SO3type& _tau2, const device& _device){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::zero,_device);}
-    static CtensorPackObj zero(const SO3type& _tau1, const SO3type& _tau2, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::zero,_format,_device);}
-    
-    static CtensorPackObj ones(const SO3type& _tau1, const SO3type& _tau2){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::ones);}
-    static CtensorPackObj ones(const SO3type& _tau1, const SO3type& _tau2, const pack_format& _format){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::ones,_format);}
-    static CtensorPackObj ones(const SO3type& _tau1, const SO3type& _tau2, const device& _device){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::ones,_device);}
-    static CtensorPackObj ones(const SO3type& _tau1, const SO3type& _tau2, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::ones,_format,_device);}
-    
-    static CtensorPackObj gaussian(const SO3type& _tau1, const SO3type& _tau2){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::gaussian);}
-    static CtensorPackObj gaussian(const SO3type& _tau1, const SO3type& _tau2, const pack_format& _format){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::gaussian,_format);}
-    static CtensorPackObj gaussian(const SO3type& _tau1, const SO3type& _tau2, const device& _device){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::gaussian,_device);}
-    static CtensorPackObj gaussian(const SO3type& _tau1, const SO3type& _tau2, const pack_format& _format, const device& _device){
-      return CtensorPackObj(_tau1,_tau2,-1,cnine::fill::gaussian,_format,_device);}
-*/    
 

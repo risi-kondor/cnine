@@ -84,6 +84,7 @@ using namespace std;
 #define CNINE_DIMS_EQ(a,b) if(a!=b) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+a.str()+" and "+b.str()+".");
 #define CNINE_DIMS_EQ_TOTAL(a,b) if(a.total()!=b.total()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch between total size of "+a.str()+" and "+b.str()+".");
 #define CNINE_NDIMS_IS_2(a) if(a.dims.size()!=2) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is not a matrix."); 
+#define CNINE_NTENS_SAME(x) if(x.tensors.size()!=tensors.size()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch in number of tensors "+to_string(x.tensors.size())+" vs "+to_string(tensors.size())+".");
 #else
 #define CNINE_CHECK_RANGE(expr)
 #define CNINE_CHECK_SIZE(expr)
@@ -92,6 +93,7 @@ using namespace std;
 #define CNINE_DIMS_EQ(a,b)
 #define CNINE_DIMS_EQ_TOTAL(a,b)
 #define CNINE_NDIMS_IS_2(a)
+#define CNINE_NTENS_SAME(x)
 #endif
 
 

@@ -253,6 +253,11 @@ namespace cnine{
     }
 
 
+    CtensorObj* viewp(){
+      return new CtensorObj(CNINE_CTENSOR_IMPL::view());
+    }
+
+
   public: // ---- Conversions --------------------------------------------------------------------------------
 
     
@@ -296,12 +301,16 @@ namespace cnine{
       return CNINE_CTENSOR_IMPL::view(T);
     }
 
+    static CtensorObj* viewp(at::Tensor& T){
+      return new CtensorObj(CNINE_CTENSOR_IMPL::view(T));
+    }
+
 #endif
 
   public: // ---- Transport ----------------------------------------------------------------------------------
   
 
-    CtensorObj to_device(const int _dev){
+    CtensorObj to_device(const int _dev) const{
       return CtensorObj(CNINE_CTENSOR_IMPL::to_device(_dev));
     }
   

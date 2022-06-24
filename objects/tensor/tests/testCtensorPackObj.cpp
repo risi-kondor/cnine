@@ -36,15 +36,14 @@ int main(int argc, char** argv){
   cout<<"A+B="<<endl<<A+B<<endl<<endl;
   cout<<"A-B="<<endl<<A-B<<endl<<endl;
   cout<<"c*A="<<endl<<c*A<<endl<<endl;
-  //cout<<"A*B="<<endl<<A*B<<endl<<endl;
+  cout<<"A*B="<<endl<<A*B<<endl<<endl;
   cout<<endl; 
 
-  /*
   cout<<"norm2(A)="<<endl<<norm2(A)<<endl<<endl;
   cout<<"inp(A,B)="<<endl<<inp(A,B)<<endl<<endl;
-  cout<<"ReLU(A,0.1)="<<endl<<ReLU(A,0.1)<<endl<<endl;
+  //cout<<"ReLU(A,0.1)="<<endl<<ReLU(A,0.1)<<endl<<endl;
   cout<<endl; 
-  */
+  
 
   ctensorpack C=ctensorpack::zero(3,{4,4});
   C+=A;

@@ -117,12 +117,9 @@ namespace cnine{
     }
 
     void add_matmul_AA(const Ctensor2_view& x, const Ctensor2_view& y){
-      CNINE_CHECK_DEV3((*this),x,y);
-      assert(x.n0==n0);
-      assert(y.n1==n1);
-      assert(y.n0==x.n1);
+      CNINE_DEVICE_SAME(x);
+      CNINE_DEVICE_SAME(y);
       const int I=x.n1;
-
 
       if(dev==0){
 	for(int a=0; a<n0; a++)
