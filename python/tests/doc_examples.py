@@ -85,3 +85,107 @@ print(A.reshape([2,8]))
 
 print("A =")
 print(A)
+
+
+# --------------------------------------------------------
+
+print("\nComplex tensors:\n")
+
+A=cnine.ctensor.gaussian(4,4)
+print("A =")
+print(A)
+
+print("A(1,2) =",A(1,2))
+A[1,2]=3+4j
+print("A =")
+print(A)
+
+print("A.conj() =")
+print(A.conj())
+
+B=A.torch()
+print("B =")
+print(B)
+
+A=torch.rand([3,3,2])
+print("A =")
+print(A)
+
+B=cnine.ctensor(A)
+print("B =")
+print(B)
+
+
+# --------------------------------------------------------
+
+
+print("\nTensor arrays:\n")
+
+A=cnine.rtensorArr.gaussian([2,2],[4,4])
+print("A =")
+print(A)
+
+adims=A.get_adims()
+print("adims =",adims)
+cdims=A.get_cdims()
+print("cdims =",cdims)
+
+B=A([0,1])
+print("B =")
+print(B)
+
+
+A[[0,1]]=A([0,0])
+print("A =")
+print(A)
+
+
+print("\nConversions to/from PyTorch:\n")
+
+A=cnine.rtensorArr.sequential([2,2],[3,3])
+print("A =")
+print(A)
+
+B=A.torch()
+print("B =",B)
+print(B)
+
+
+A=torch.rand([2,3,3])
+print("A =")
+print(A)
+
+
+B=cnine.rtensorArr(1,A)
+print("B =",B)
+print(B)
+
+
+print("\nOperations:\n")
+
+A=cnine.rtensorArr.zero([2,2],[3,3])
+B=cnine.rtensorArr.ones([2,2],[3,3])
+C=A+B
+print("C([0,1] =")
+print(C([0,1]))
+
+A=cnine.rtensorArr.zero([2,2],[3,3])
+B=cnine.rtensor.ones([3,3])
+C=A+B
+print("C =")
+print(C)
+
+
+A=cnine.rtensorArr.gaussian([2,2],[4,4])
+B=A.reduce(1)
+print("B =")
+print(B)
+
+
+C=B.widen(1,3)
+print("C =")
+print(C)
+
+
+
+

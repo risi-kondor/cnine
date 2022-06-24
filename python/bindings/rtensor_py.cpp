@@ -18,10 +18,9 @@ pybind11::class_<RtensorObj>(m,"rtensor")
   .def(pybind11::init<const Gdims&, const fill_sequential&>())
 
   .def(pybind11::init<const at::Tensor&>())
-//.def_static("view",static_cast<RtensorA(*)(const at::Tensor&)>(&RtensorA_view))
+
   .def_static("view",static_cast<RtensorObj(*)(at::Tensor&)>(&RtensorObj::view))
   .def_static("is_viewable",static_cast<bool(*)(const at::Tensor&)>(&RtensorObj::is_viewable))
-//.def_static("const_view",static_cast<RtensorObj>(*)(const at::Tensor&)>(&RtensorObj::const_view))
   .def("torch",&RtensorObj::torch)
 
   .def_static("raw",static_cast<RtensorObj (*)(const Gdims&, const int, const int)>(&RtensorObj::raw))
@@ -98,6 +97,23 @@ pybind11::class_<RtensorObj>(m,"rtensor")
 
   .def("copy",[](const RtensorObj& obj){return obj;})
 
+
+// ---- Conversions, transport, etc. ------------------------------------------------------------------------
+
+
+  .def("add_to_grad",&RtensorObj::add_to_grad)
+  .def("get_grad",&RtensorObj::get_grad)
+  .def("view_of_grad",&RtensorObj::view_of_grad)
+
+  .def("device",&RtensorObj::get_device)
+  .def("to",&RtensorObj::to_device)
+  .def("to_device",&RtensorObj::to_device)
+  .def("move_to",[](RtensorObj& x, const int _dev){x.move_to_device(_dev);})
+
+
+// ---- Access ---------------------------------------------------------------------------------------------- 
+
+
   .def("get_k",&RtensorObj::get_k)
   .def("getk",&RtensorObj::get_k)
   .def("get_ndims",&RtensorObj::get_k)
@@ -140,6 +156,19 @@ pybind11::class_<RtensorObj>(m,"rtensor")
   .def("__setitem__",[](RtensorObj& obj, const Gindex& ix, const float x){obj.set_value(ix,x);})
   .def("__setitem__",[](RtensorObj& obj, const vector<int> v, const float x){obj.set_value(Gindex(v),x);})
 
+
+// ---- Cumulative operations --------------------------------------------------------------------------------
+
+
+  .def("add",[](RtensorObj& x, const RtensorObj& y, const float c){x.add(y,c);})
+
+
+// ---- Operations -------------------------------------------------------------------------------------------
+
+
+  .def("__iadd__",[](RtensorObj& x, const RtensorObj& y){x.add(y); return x;})
+  .def("__isub__",[](RtensorObj& x, const RtensorObj& y){x.subtract(y); return x;})
+
   .def("__add__",[](const RtensorObj& x, const RtensorObj& y){return x.plus(y);})
   .def("__sub__",[](const RtensorObj& x, const RtensorObj& y){return x-y;})
   .def("__mul__",[](const RtensorObj& x, const float c){
@@ -155,9 +184,6 @@ pybind11::class_<RtensorObj>(m,"rtensor")
       R.add_mprod(x,y);
       return R;})
 
-  .def("__iadd__",[](RtensorObj& x, const RtensorObj& y){x.add(y); return x;})
-  .def("__isub__",[](RtensorObj& x, const RtensorObj& y){x.subtract(y); return x;})
-
   .def("slice",&RtensorObj::slice)
   .def("chunk",&RtensorObj::chunk)
 
@@ -166,19 +192,23 @@ pybind11::class_<RtensorObj>(m,"rtensor")
 
   .def("transp",&RtensorObj::transp)
 
+//.def("norm2",static_cast<float(RtensorObj::*)() const>(&RtensorObj::norm2))
+//.def("inp",static_cast<float(RtensorObj::*)(const RtensorObj&) const>(&RtensorObj::inp))
+//.def("diff2",static_cast<float(RtensorObj::*)(const RtensorObj&) const>(&RtensorObj::diff2))
+
+  .def("norm2",&RtensorObj::norm2)
+  .def("inp",[](const RtensorObj& x, const RtensorObj& y){return x.inp(y);})
+  .def("diff2",[](const RtensorObj& x, const RtensorObj& y){return x.diff2(y);})
+
 //.def("__getitem__",static_cast<CscalarObj(RtensorObj::*)(const int, const int)const>(&RtensorObj::get))
 
-  .def("device",&RtensorObj::get_device)
-  .def("to",&RtensorObj::to_device)
-  .def("to_device",&RtensorObj::to_device)
-  .def("move_to",[](RtensorObj& x, const int _dev){x.move_to_device(_dev);})
+
+// ---- I/O --------------------------------------------------------------------------------------------------
+
 
   .def("str",[](const RtensorObj& x){return x.str();})
   .def("__str__",[](const RtensorObj& x){return x.str();})
   .def("__repr__",[](const RtensorObj& x){return x.str();})
-//.def("str",&RtensorObj::str,py::arg("indent")="")
-//.def("__str__",&RtensorObj::str,py::arg("indent")="")
-//.def("__repr__",&RtensorObj::str,py::arg("indent")="")
 ;
 
 

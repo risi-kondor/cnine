@@ -43,7 +43,8 @@ def main():
 
  _nvcc_compile_args=[
      '-D_WITH_CUDA',
-     '-D_WITH_CUBLAS'
+     '-D_WITH_CUBLAS',
+     '-DWITH_FAKE_GRAD'
      ]
 
  _cxx_compile_args=['-std=c++14',
@@ -56,7 +57,8 @@ def main():
                    '-D_WITH_ATEN',
                    '-DCNINE_RANGE_CHECKING',
                    '-DCNINE_SIZE_CHECKING',
-                   '-DCNINE_DEVICE_CHECKING'
+                   '-DCNINE_DEVICE_CHECKING',
+                    '-DWITH_FAKE_GRAD'
                    ]
 
  if copy_warnings:

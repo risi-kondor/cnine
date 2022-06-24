@@ -50,17 +50,25 @@ int main(int argc, char** argv){
   cout<<"A+A+A+A="<<endl<<C<<endl;
   cout<<endl; 
 
-  ctensor N=A.col_norms();
-  cout<<N<<endl; 
+  //ctensor N=A.col_norms();
+  //cout<<N<<endl; 
 
-  ctensor D=A.divide_cols(N);
-  cout<<D<<endl;
-  cout<<D.col_norms()<<endl; 
+  //ctensor D=A.divide_cols(N);
+  //cout<<D<<endl;
+  //cout<<D.col_norms()<<endl; 
 
   //cout<<"  fn(C) = "<<endl<<C.apply([](const complex<float> x){return x*x+complex<float>(3.0);})<<endl; 
   //cout<<"  fn2(C) = "<<endl<<C.apply([](const int i, const int j, const complex<float> x){return x+complex<float>(i,j);})<<endl; 
 
   cout<<ctensor(Gdims({5,5}),[](const int i, const int j){return complex<float>(i+j);})<<endl;
+
+  PRINTL(B);
+  auto Bre=B.real();
+  PRINTL(Bre);
+  auto Bim=B.imag();
+  PRINTL(Bim);
+  ctensor U(Bim,Bre);
+  PRINTL(U);
 
   cout<<endl;
 }

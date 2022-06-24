@@ -14,6 +14,7 @@
 #include "CnineObject.hpp"
 #include "RscalarA.hpp"
 #include "CscalarA.hpp"
+#include "RtensorA.hpp"
 #include "Gdims.hpp"
 #include "Gstrides.hpp"
 #include "Gtensor.hpp"
@@ -230,6 +231,14 @@ namespace cnine{
     }
 
 
+  public: // ---- Spawning -----------------------------------------------------------------------------------
+
+
+    static CtensorB* new_zeros_like(const CtensorB& x){
+      return new CtensorB(x.dims,fill_zero(),x.dev);
+    }
+
+
   public: // ---- Lambda constructors -------------------------------------------------------------------------
 
 
@@ -377,6 +386,48 @@ namespace cnine{
 
 
   public: // ---- Conversions -------------------------------------------------------------------------------
+
+
+    CtensorB(const RtensorA& re, const RtensorA& im):
+      CtensorB(re.dims,fill_raw(),re.dev){
+      CNINE_DIMS_SAME(im);
+      CNINE_DEVICE_SAME(im);
+      if(dev==0){
+	for(int i=0; i<asize; i++)
+	  arr[2*i]=re.arr[i];
+	for(int i=0; i<asize; i++)
+	  arr[2*i+1]=im.arr[i];
+      }
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+    }
+
+
+    RtensorA real() const{
+      RtensorA R=RtensorA::raw(dims,dev);
+      if(dev==0){
+	for(int i=0; i<asize; i++)
+	  R.arr[i]=arr[2*i];
+      }
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+      return R;
+    }
+
+
+    RtensorA imag() const{
+      RtensorA R=RtensorA::raw(dims,dev);
+      if(dev==0){
+	for(int i=0; i<asize; i++)
+	  R.arr[i]=arr[2*i+1];
+      }
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+      return R;
+    }
 
 
   public: // ---- Transport -----------------------------------------------------------------------------------
@@ -1239,7 +1290,7 @@ namespace cnine{
 	CtensorB R(dims,fill::raw,0);
 	int s=strides.back();
 	for(int i=0; i<asize; i++) R.arr[i*s]=arr[i*s];
-	for(int i=0; i<asize; i++) R.arr[i*s+coffs]=arr[i*s+coffs];
+	for(int i=0; i<asize; i++) R.arr[i*s+coffs]=-arr[i*s+coffs];
 	return R;
       }
       if(dev==1){
@@ -1280,7 +1331,7 @@ namespace cnine{
       R.add(y);
       return R;
     }
-
+  
     CtensorB operator+(const CtensorB& y) const{
       CtensorB R(*this);
       R.add(y);
@@ -1308,10 +1359,14 @@ namespace cnine{
       return R;
     }
 
+
+  public: // ---- Scalar valued operations ------------------------------------------------------------------
+
     
     float inp(const CtensorB& y) const{
-      CNINE_CPUONLY();
+      CNINE_DEVICE_SAME(y);
       CNINE_DIMS_EQ(dims,y.dims);
+      CNINE_CPUONLY();
       float t=0;
       for(int i=0; i<memsize; i++){
 	t+=arr[i]*y.arr[i];
@@ -1329,8 +1384,9 @@ namespace cnine{
     }
 
     float diff2(const CtensorB& y) const{
-      CNINE_CPUONLY();
+      CNINE_DEVICE_SAME(y);
       CNINE_DIMS_EQ(dims,y.dims);
+      CNINE_CPUONLY();
       float t=0;
       for(int i=0; i<memsize; i++){
 	float d=arr[i]-y.arr[i];
@@ -1338,15 +1394,15 @@ namespace cnine{
       }
       return t;
     }
-
-
-  public: // ---- Cumulative operations ----------------------------------------------------------------------
+  
+  
+public: // ---- Cumulative operations ----------------------------------------------------------------------
 
 
     void add(const CtensorB& x){
+      CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
-      assert(x.dev==dev);
       if(dev==0){
 	for(int i=0; i<memsize; i++) arr[i]+=x.arr[i];
 	return; 
@@ -1360,11 +1416,10 @@ namespace cnine{
     void operator+=(const CtensorB& x){
       add(x);
     }
-
+  
     void add(const CtensorB& x, const float c){
+      CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(asize==x.asize);
-      assert(x.dev==dev);
       if(dev==0){
 	for(int i=0; i<memsize; i++) arr[i]+=x.arr[i]*c;
 	return;
@@ -1373,9 +1428,10 @@ namespace cnine{
 	CUBLAS_SAFE(cublasSaxpy(cnine_cublas, memsize, &c, x.arrg, 1, arrg, 1));
       }
     }
-
-
+  
+  
     void add(const CtensorB& x, const complex<float> c){
+      CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
       assert(x.dev==dev);
@@ -1395,6 +1451,55 @@ namespace cnine{
       }
     }
 
+
+    void add_conj(const CtensorB& x){
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.dev==dev);
+      if(dev==0){
+	for(int i=0; i<asize; i++) 
+	  arr[i*2]+=x.arr[i*2];
+	for(int i=0; i<asize; i++) 
+	  arr[i*2+1]-=x.arr[i*2+1];
+	return; 
+      }
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+    }
+
+    void add_conj(const CtensorB& x, const float v){
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.dev==dev);
+      if(dev==0){
+	for(int i=0; i<asize; i++) 
+	  arr[i*2]+=v*x.arr[i*2];
+	for(int i=0; i<asize; i++) 
+	  arr[i*2+1]-=v*x.arr[i*2+1];
+	return; 
+      }
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+    }
+
+    void add_conj(const CtensorB& x, const complex<float> v){
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.dev==dev);
+      if(dev==0){
+	for(int i=0; i<asize; i++){
+	  complex<float> t=std::conj(complex<float>(x.arr[2*i],x.arr[2*i+1]))*v;
+	  arr[i*2]+=std::real(t);
+	  arr[i*2+1]+=std::imag(t);
+	}
+	return; 
+      }
+      if(dev==1){
+	CNINE_CPUONLY();
+      }
+    }
 
     void add(const CtensorB& x, const RscalarA& c){
       add(x,c.val);
@@ -1515,9 +1620,12 @@ namespace cnine{
     }
 
 
+  public: // ---- Experimental -------------------------------------------------------------------------------
+
+
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
-
+    
     string str(const string indent="") const{
       return gtensor().str(indent);
     }

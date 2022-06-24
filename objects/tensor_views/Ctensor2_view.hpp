@@ -17,6 +17,8 @@
 
 #include "Ctensor1_view.hpp"
 
+#include "Rtensor2_view.hpp"
+
 #ifdef _WITH_CUBLAS
 #include <cublas_v2.h>
 extern cublasHandle_t cnine_cublas;
@@ -140,7 +142,7 @@ namespace cnine{
 	alpha.y=0.0f;
 	#ifndef _OBJFILE
 	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,x.n1,&alpha,
-	    reinterpret_cast<cuComplex*>(y.arr),n1, 
+	    reinterpret_cast<cuComplex*>(y.arr),y.n1, 
 	    reinterpret_cast<cuComplex*>(x.arr),x.n1,&alpha,
 	    reinterpret_cast<cuComplex*>(arr),n1)); 
 	#endif
@@ -174,12 +176,85 @@ namespace cnine{
 	alpha.x=1.0f;
 	alpha.y=0.0f;
 	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_C,CUBLAS_OP_N,n1,n0,x.n1,&alpha,
-	    reinterpret_cast<cuComplex*>(y.arr),n1, 
+	    reinterpret_cast<cuComplex*>(y.arr),y.n1, 
 	    reinterpret_cast<cuComplex*>(x.arr),x.n1,&alpha,
 	    reinterpret_cast<cuComplex*>(arr),n1)); 
 	#endif
       }
     }
+
+
+
+    void add_matmul_HA(const Ctensor2_view& x, const Ctensor2_view& y){
+      CNINE_CHECK_DEV3((*this),x,y);
+      assert(x.n1==n0);
+      assert(y.n1==n1);
+      assert(y.n0==x.n0);
+      const int I=x.n0;
+
+
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    complex<float> t=0;
+	    for(int i=0; i<I; i++)
+	      t+=std::conj(x(i,a))*y(i,b);
+	    inc(a,b,t);
+	  }
+      }
+
+      if(dev==1){
+	assert(is_regular());
+	#ifdef _WITH_CUBLAS
+	cuComplex alpha;
+	alpha.x=1.0f;
+	alpha.y=0.0f;
+	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_C,n1,n0,x.n0,&alpha,
+	    reinterpret_cast<cuComplex*>(y.arr),y.n1, 
+	    reinterpret_cast<cuComplex*>(x.arr),x.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(arr),n1)); 
+	#endif
+      }
+    }
+
+
+
+    void add_matmul_NA(const Rtensor2_view& x, const Ctensor2_view& y){
+      CNINE_CHECK_DEV3((*this),x,y);
+      assert(x.n0==n0);
+      assert(y.n1==n1);
+      assert(y.n0==x.n1);
+      const int I=x.n1;
+
+
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    complex<float> t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,i)*y(i,b);
+	    inc(a,b,t);
+	  }
+      }
+
+      if(dev==1){
+	CNINE_UNIMPL();
+	assert(is_regular());
+	
+	#ifdef _WITH_CUBLAS
+	cuComplex alpha;
+	alpha.x=1.0f;
+	alpha.y=0.0f;
+	#ifndef _OBJFILE
+	CUBLAS_SAFE(cublasCgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,x.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(y.arr),y.n1, 
+	    reinterpret_cast<cuComplex*>(x.arr),x.n1,&alpha,
+	    reinterpret_cast<cuComplex*>(arr),n1)); 
+	#endif
+	#endif
+      }
+    }
+
 
 
 

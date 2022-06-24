@@ -29,6 +29,16 @@ namespace cnine{
 
     static float dummy_scalar() {return 0;}
 
+#ifdef WITH_FAKE_GRAD
+    RtensorObj* grad=nullptr;
+#endif 
+
+    ~RtensorObj(){
+#ifdef WITH_FAKE_GRAD
+      if(!is_view) delete grad;
+#endif 
+    }
+
 
   public: // ---- Public Constructors ------------------------------------------------------------------------
 
@@ -97,6 +107,14 @@ namespace cnine{
       return RtensorObj(_dims,-1,fill::gaussian,_dev.id());}
     
 
+  public: // ---- Spawning -----------------------------------------------------------------------------------
+
+
+    static RtensorObj* new_zeros_like(const RtensorObj& x){
+      return new RtensorObj(x.get_dims(),fill_zero(),x.get_dev());
+    }
+
+    
   public: // ---- Copying ------------------------------------------------------------------------------------
 
 
@@ -108,13 +126,25 @@ namespace cnine{
     //CNINE_RTENSOR_IMPL(x,"dummy"){cout<<"mv"<<endl;};
       
     RtensorObj(const RtensorObj& x):
-      CNINE_RTENSOR_IMPL(x){};
+      CNINE_RTENSOR_IMPL(x){
+      #ifdef WITH_FAKE_GRAD
+      if(x.grad) grad=new RtensorObj(x);
+      #endif
+    };
       
     RtensorObj(const RtensorObj& x, const int _dev):
-      CNINE_RTENSOR_IMPL(x,_dev){};
+      CNINE_RTENSOR_IMPL(x,_dev){
+      #ifdef WITH_FAKE_GRAD
+      if(x.grad) grad=new RtensorObj(x);
+      #endif
+    };
       
     RtensorObj(const RtensorObj& x, const device& _dev):
-      CNINE_RTENSOR_IMPL(x,_dev.id()){};
+      CNINE_RTENSOR_IMPL(x,_dev.id()){
+      #ifdef WITH_FAKE_GRAD
+      if(x.grad) grad=new RtensorObj(x);
+      #endif
+    };
       
     RtensorObj(const RtensorObj& x, const fill_zero& dummy):
       RtensorObj(x.dims,x.get_nbu(),x.dev){}
@@ -123,15 +153,29 @@ namespace cnine{
       CNINE_RTENSOR_IMPL(x,view_flag()){}
       
     RtensorObj(RtensorObj&& x):
-      CNINE_RTENSOR_IMPL(std::move(x)){};
+      CNINE_RTENSOR_IMPL(std::move(x)){
+      #ifdef WITH_FAKE_GRAD
+      grad=x.grad;
+      x.grad=nullptr;
+      #endif
+    };
 
     RtensorObj& operator=(const RtensorObj& x){
       CNINE_RTENSOR_IMPL::operator=(x);
+      #ifdef WITH_FAKE_GRAD
+      if(grad) delete grad;
+      if(x.grad) grad=new RtensorObj(x);
+      #endif
       return *this;
     }
 
     RtensorObj& operator=(RtensorObj&& x){
       CNINE_RTENSOR_IMPL::operator=(std::move(x));
+     #ifdef WITH_FAKE_GRAD
+      if(grad) delete grad;
+      grad=x.grad;
+      x.grad=nullptr;
+      #endif
       return *this;
     }
     
@@ -156,6 +200,14 @@ namespace cnine{
     //RtensorObj(RtensorObj& x, const view_flag& flag):
     //RtensorObj(CNINE_RTENSOR_IMPL(x,flag)){}
       
+
+  public: // ---- Views --------------------------------------------------------------------------------------
+
+
+    RtensorObj view(){
+      return CNINE_RTENSOR_IMPL::view();
+    }
+
 
   public: // ---- Conversions --------------------------------------------------------------------------------
 
@@ -182,6 +234,10 @@ namespace cnine{
       return as_shape_tmp<RtensorObj>(*this,dims);
     }
 
+
+  public: // ---- ATEN ---------------------------------------------------------------------------------------
+
+    
 #ifdef _WITH_ATEN
 
     static RtensorObj view(at::Tensor& T){
@@ -225,6 +281,27 @@ namespace cnine{
     int get_device() const{
       return dev;
     }
+
+
+  public: // ---- Experimental -------------------------------------------------------------------------------
+
+
+    #ifdef WITH_FAKE_GRAD
+    void add_to_grad(const RtensorObj& x){
+      if(grad) grad->add(x);
+      else grad=new RtensorObj(x);
+    }
+
+    RtensorObj& get_grad(){
+      if(!grad) grad=RtensorObj::new_zeros_like(*this);
+      return *grad;
+    }
+
+    RtensorObj view_of_grad(){
+      if(!grad) grad=new_zeros_like(*this);
+      return grad->view();
+    }
+    #endif 
 
 
   public: // ---- Get/set elements ---------------------------------------------------------------------------
@@ -622,8 +699,12 @@ namespace cnine{
       return "Ctensor"+dims.str();
     } 
 
-    string str(const string indent="", const float eps=0) const{
-      return CNINE_RTENSOR_IMPL::str(indent,eps);
+    string str(const string indent="") const{
+      return CNINE_RTENSOR_IMPL::str(indent);
+    }
+
+    string str(const string indent, const float eps=0) const{
+      return CNINE_RTENSOR_IMPL::str(indent);
     }
 
     string repr() const{

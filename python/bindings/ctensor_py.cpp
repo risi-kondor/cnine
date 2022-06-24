@@ -18,10 +18,8 @@ pybind11::class_<CtensorObj>(m,"ctensor")
   .def(pybind11::init<const Gdims&, const fill_sequential&>())
 
   .def(pybind11::init<const at::Tensor&>())
+
   .def_static("view",static_cast<CtensorObj(*)(at::Tensor&)>(&CtensorObj::view))
-//.def_static("is_viewable",static_cast<bool(*)(const at::Tensor&)>(&CtensorObj::is_viewable))
-//.def_static("view",static_cast<CtensorObj>(*)(const at::Tensor&)>(&CtensorObj::view))
-//.def_static("const_view",static_cast<CtensorObj>(*)(at::Tensor&)>(&CtensorObj::const_view))
   .def("torch",&CtensorObj::torch)
 
   .def_static("raw",static_cast<CtensorObj (*)(const Gdims&, const int)>(&CtensorObj::raw))
@@ -98,6 +96,22 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
   .def("copy",[](const RtensorObj& obj){return obj;})
 
+// ---- Conversions, transport, etc. ------------------------------------------------------------------------
+
+
+  .def("add_to_grad",&CtensorObj::add_to_grad)
+  .def("get_grad",&CtensorObj::get_grad)
+  .def("view_of_grad",&CtensorObj::view_of_grad)
+
+  .def("device",&CtensorObj::get_device)
+  .def("to",&CtensorObj::to_device)
+  .def("to_device",&CtensorObj::to_device)
+  .def("move_to",[](CtensorObj& x, const int _dev){x.move_to_device(_dev);})
+
+
+// ---- Access ---------------------------------------------------------------------------------------------- 
+
+
   .def("get_k",&CtensorObj::get_k)
   .def("getk",&CtensorObj::get_k)
   .def("get_ndims",&CtensorObj::get_dims)
@@ -141,6 +155,15 @@ pybind11::class_<CtensorObj>(m,"ctensor")
   .def("__setitem__",[](CtensorObj& obj, const Gindex& ix, const complex<float> x){obj.set_value(ix,x);})
   .def("__setitem__",[](CtensorObj& obj, const vector<int> v, const complex<float> x){obj.set_value(Gindex(v),x);})
 
+// ---- Cumulative operations --------------------------------------------------------------------------------
+
+
+  .def("add",[](CtensorObj& x, const CtensorObj& y, const float c){x.add(y,c);})
+  .def("add_conj",[](CtensorObj& x, const CtensorObj& y, const float c){x.add(y,c);})
+
+
+// ---- Operations -------------------------------------------------------------------------------------------
+
   .def("__add__",[](const CtensorObj& x, const CtensorObj& y){return x.plus(y);})
   .def("__subtract__",[](const CtensorObj& x, const CtensorObj& y){return x-y;})
   .def("__mul__",[](const CtensorObj& x, const complex<float> c){
@@ -168,10 +191,13 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
 //.def("__getitem__",static_cast<CscalarObj(CtensorObj::*)(const int, const int)const>(&CtensorObj::get))
 
-  .def("device",&CtensorObj::get_device)
-  .def("to",&CtensorObj::to_device)
-  .def("to_device",&CtensorObj::to_device)
-  .def("move_to",[](CtensorObj& x, const int _dev){x.move_to_device(_dev);})
+  .def("norm2",&CtensorObj::norm2)
+  .def("inp",[](const CtensorObj& x, const CtensorObj& y){return x.inp(y);})
+  .def("diff2",[](const CtensorObj& x, const CtensorObj& y){return x.diff2(y);})
+
+
+// ---- I/O --------------------------------------------------------------------------------------------------
+
 
   .def("str",&CtensorObj::str,py::arg("indent")="")
   .def("__str__",&CtensorObj::str,py::arg("indent")="")

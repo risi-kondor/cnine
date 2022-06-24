@@ -16,6 +16,7 @@
 //#include "Dobject.hpp"
 #include "ExprTemplates.hpp"
 #include "CscalarObj.hpp"
+#include "RtensorObj.hpp"
 #include "CtensorObj_helpers.hpp"
 //#include "GenericOperators.hpp"
 
@@ -29,6 +30,16 @@ namespace cnine{
     using CNINE_CTENSOR_IMPL::CNINE_CTENSOR_IMPL; 
 
     static complex<float> dummy_scalar() {return 0;}
+
+#ifdef WITH_FAKE_GRAD
+    CtensorObj* grad=nullptr;
+#endif 
+
+    ~CtensorObj(){
+#ifdef WITH_FAKE_GRAD
+      if(!is_view) delete grad;
+#endif 
+    }
 
 
   public: // ---- Public Constructors ------------------------------------------------------------------------
@@ -47,7 +58,7 @@ namespace cnine{
     template<typename FILLTYPE, typename = typename std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     CtensorObj(const Gdims& _dims, const int _nbu, const FILLTYPE& fill, const int _dev=0):
       CNINE_CTENSOR_IMPL(_dims,fill,_dev){}
-    
+
 
   public: // ---- Named constructors -------------------------------------------------------------------------
 
@@ -68,6 +79,11 @@ namespace cnine{
     static CtensorObj zero(const Gdims& _dims, const int _dev=0){
       return CtensorObj(_dims,fill::zero,_dev);}
     static CtensorObj zero(const Gdims& _dims, const device& _dev){
+      return CtensorObj(_dims,-1,fill::zero,_dev.id());}
+
+    static CtensorObj zeros(const Gdims& _dims, const int _dev=0){
+      return CtensorObj(_dims,fill::zero,_dev);}
+    static CtensorObj zeros(const Gdims& _dims, const device& _dev){
       return CtensorObj(_dims,-1,fill::zero,_dev.id());}
 
     //static CtensorObj ones(const Gdims& _dims, const int nbd=-1, const int _dev=0){
@@ -106,6 +122,19 @@ namespace cnine{
     static CtensorObj gaussian(const Gdims& _dims, const device& _dev){
       return CtensorObj(_dims,fill::gaussian,_dev.id());}
 
+
+    static CtensorObj zeros_like(const CtensorObj& x){
+      return CtensorObj::zeros(x.get_dims(),x.get_dev());
+    }
+
+
+  public: // ---- Spawning -----------------------------------------------------------------------------------
+
+
+    static CtensorObj* new_zeros_like(const CtensorObj& x){
+      return new CtensorObj(x.get_dims(),fill_zero(),x.get_dev());
+    }
+
     
   public: // ---- Lambda constructors ------------------------------------------------------------------------
 
@@ -114,7 +143,7 @@ namespace cnine{
       CNINE_CTENSOR_IMPL(_dims,fill_raw()){
       assert(get_ndims()==2);
       for(int i=0; i<get_dim(0); i++)
-	for(int j=0; i<get_dim(1); j++)
+	for(int j=0; j<get_dim(1); j++)
 	  set(i,j,fn(i,j));
     }
 
@@ -129,27 +158,53 @@ namespace cnine{
       CNINE_CTENSOR_IMPL(std::move(x)){};
       
     CtensorObj(const CtensorObj& x):
-      CNINE_CTENSOR_IMPL(x){};
+      CNINE_CTENSOR_IMPL(x){
+      #ifdef WITH_FAKE_GRAD
+      if(x.grad) grad=new CtensorObj(x);
+      #endif
+    };
       
     CtensorObj(const CtensorObj& x, const int _dev):
-      CNINE_CTENSOR_IMPL(x,_dev){};
+      CNINE_CTENSOR_IMPL(x,_dev){
+      #ifdef WITH_FAKE_GRAD
+      if(x.grad) grad=new CtensorObj(x);
+      #endif
+    };
       
     CtensorObj(const CtensorObj& x, const device& _dev):
-      CNINE_CTENSOR_IMPL(x,_dev.id()){};
+      CNINE_CTENSOR_IMPL(x,_dev.id()){
+      #ifdef WITH_FAKE_GRAD
+      if(x.grad) grad=new CtensorObj(x);
+      #endif
+    };
       
     CtensorObj(const CtensorObj& x, const fill_zero& dummy):
       CtensorObj(x.dims,x.dev){}
       
     CtensorObj(CtensorObj&& x):
-      CNINE_CTENSOR_IMPL(std::move(x)){};
+      CNINE_CTENSOR_IMPL(std::move(x)){
+      #ifdef WITH_FAKE_GRAD
+      grad=x.grad;
+      x.grad=nullptr;
+      #endif
+    };
 
     CtensorObj& operator=(const CtensorObj& x){
       CNINE_CTENSOR_IMPL::operator=(x);
+      #ifdef WITH_FAKE_GRAD
+      if(grad) delete grad;
+      if(x.grad) grad=new CtensorObj(x);
+      #endif
       return *this;
     }
 
     CtensorObj& operator=(CtensorObj&& x){
       CNINE_CTENSOR_IMPL::operator=(std::move(x));
+      #ifdef WITH_FAKE_GRAD
+      if(grad) delete grad;
+      grad=x.grad;
+      x.grad=nullptr;
+      #endif
       return *this;
     }
     
@@ -190,9 +245,29 @@ namespace cnine{
     //CtensorObj(CNINE_CTENSOR_IMPL(x,flag)){}
       
 
+  public: // ---- Views --------------------------------------------------------------------------------------
+
+
+    CtensorObj view(){
+      return CNINE_CTENSOR_IMPL::view();
+    }
+
+
   public: // ---- Conversions --------------------------------------------------------------------------------
 
     
+    CtensorObj(const RtensorObj& re, const RtensorObj& im):
+      CNINE_CTENSOR_IMPL(re,im){}
+
+    RtensorObj real() const{
+      return RtensorObj(CNINE_CTENSOR_IMPL::real());
+    }
+
+    RtensorObj imag() const{
+      return RtensorObj(CNINE_CTENSOR_IMPL::imag());
+    }
+
+
     CtensorObj(const Conjugate<CtensorObj>& x):
       CtensorObj(x.obj.conj()){}
 
@@ -210,6 +285,9 @@ namespace cnine{
 
     CtensorObj(const Gtensor<complex<float> >& x, const device& _dev=device(0)):
       CNINE_CTENSOR_IMPL(x,_dev.id()){}
+
+
+  public: // ---- ATEN ---------------------------------------------------------------------------------------
 
 
 #ifdef _WITH_ATEN
@@ -259,6 +337,27 @@ namespace cnine{
     int get_device() const{
       return dev;
     }
+
+
+  public: // ---- Experimental -------------------------------------------------------------------------------
+
+
+    #ifdef WITH_FAKE_GRAD
+    void add_to_grad(const CtensorObj& x){
+      if(grad) grad->add(x);
+      else grad=new CtensorObj(x);
+    }
+
+    CtensorObj& get_grad(){
+      if(!grad) grad=CtensorObj::new_zeros_like(*this);
+      return *grad;
+    }
+
+    CtensorObj view_of_grad(){
+      if(!grad) grad=new_zeros_like(*this);
+      return grad->view();
+    }
+    #endif 
 
 
   public: // ---- Get/set elements ---------------------------------------------------------------------------

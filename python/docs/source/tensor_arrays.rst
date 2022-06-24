@@ -22,7 +22,7 @@ dimensional tensors filled with random numbers.
 
 .. code-block:: python
 
-  >>> A=rtensorArr.gaussian([2,2],[4,4])
+  >>> A=cnine.rtensorArr.gaussian([2,2],[4,4])
   >>> print(A)
   Cell (0,0)
   [ -1.23974 -0.407472 1.61201 0.399771 ]
@@ -60,7 +60,7 @@ The array dimensions and cell dimensions of a tensor array are accessed as follo
 
 .. code-block:: python
 
-  >>> A=rtensorArr.gaussian([2,2],[4,4])
+  >>> A=cnine.rtensorArr.gaussian([2,2],[4,4])
   >>> adims=A.get_adims()
   >>> print(adims)
   (2,2)
@@ -128,7 +128,7 @@ a ``torch.tensor`` with :math:`D+d` dimensions.
 
 .. code-block:: python
 
-  >>> A=rtensorArr.sequential([2,2],[3,3])
+  >>> A=cnine.rtensorArr.sequential([2,2],[3,3])
   >>> print(A)
   Cell (0,0)
   [ 0 1 2 ]
@@ -183,7 +183,7 @@ leading dimensions are to be interpreted as array dimensions.
           [[0.5466, 0.3649, 0.1898],
            [0.5851, 0.2558, 0.2237],
            [0.8992, 0.7448, 0.0836]]])
-  >>> B=rtensorArr(1,A)
+  >>> B=cnine.rtensorArr(1,A)
   >>> print(B)
   Cell (0)
   [ 0.30044 0.414732 0.566644 ]
@@ -211,8 +211,8 @@ of the corresponding cells in ``A`` and ``B``.
 
 .. code-block:: python
 
-  >>> A=rtensorArr.zero([2,2],[3,3])
-  >>> B=rtensorArr.ones([2,2],[3,3])
+  >>> A=cnine.rtensorArr.zero([2,2],[3,3])
+  >>> B=cnine.rtensorArr.ones([2,2],[3,3])
   >>> C=A+B
   >>> print(C([0,1]))
   [ 1 1 1 ]
@@ -229,8 +229,8 @@ first broadcasting the tensor to an array of the same size and then applying the
 
 .. code-block:: python
 
- >>> A=rtensorArr.zero([2,2],[3,3])
- >>> B=rtensor.ones([3,3])
+ >>> A=cnine.rtensorArr.zero([2,2],[3,3])
+ >>> B=cnine.rtensor.ones([3,3])
  >>> C=A+B
  >>> print(C)
  Cell (0,0)
@@ -267,7 +267,7 @@ On the GPU, both these operations are performed in `cnine` with fast, paralleliz
 
 .. code-block:: python
 
-  >>> A=rtensorArr.gaussian([2,2],[4,4])
+  >>> A=cnine.rtensorArr.gaussian([2,2],[4,4])
   >>> B=A.reduce(1)
   >>> print(B)
   Cell (0)
@@ -336,7 +336,7 @@ Tensor arrays can moved back and forth between the host (CPU) and the GPU simila
 
 .. code-block:: python
 
-  >>> A=rtensorArr.sequential([2,2],[4,4],device=1) # create a tensor array on the GPU
+  >>> A=cnine.rtensorArr.sequential([2,2],[4,4],device=1) # create a tensor array on the GPU
   >>> A.device() # print out where A is stored
   1
   >>> B=A.to(0) # Create a copy of A on the CPU

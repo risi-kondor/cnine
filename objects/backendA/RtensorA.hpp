@@ -101,10 +101,23 @@ namespace cnine{
   // ---- Constructors -----------------------------------------------------------------------------
 
     
+    RtensorA(const Gdims& _dims, const fill_noalloc& dummy, const int _dev=0): 
+      dims(_dims), dev(_dev), strides(_dims.size()){
+      CNINE_DEVICE_VALID(dev);
+
+      k=dims.size();
+      strides[k-1]=1;
+      for(int i=k-2; i>=0; i--)
+	strides[i]=strides[i+1]*dims[i+1];
+      asize=strides[0]*dims[0];
+      cst=roundup(asize,32); 
+      memsize=cst; 
+    }
+
+
     RtensorA(const Gdims& _dims, const int _dev=0): 
       dims(_dims), dev(_dev), strides(_dims.size()){
-
-      CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("cnine error in RtensorA: device must be 0 or 1"));
+      CNINE_DEVICE_VALID(dev)
 
       k=dims.size();
       strides[k-1]=1;
@@ -191,7 +204,7 @@ namespace cnine{
       }
 
       if(dev==1){
-	      CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
       }
 
     }
@@ -292,6 +305,14 @@ namespace cnine{
 
   public: // ---- Named constructors --------------------------------------------------------------------------
 
+
+    static RtensorA noalloc(const Gdims& _dims, const int _dev=0){
+      return RtensorA(_dims,fill_noalloc(),_dev);
+    }
+
+    static RtensorA raw(const Gdims& _dims, const int _dev=0){
+      return RtensorA(_dims,fill_raw(),_dev);
+    }
 
     static RtensorA zero(const Gdims& _dims, const int _dev=0){
       return RtensorA(_dims,fill_zero(),_dev);
@@ -465,6 +486,26 @@ namespace cnine{
       arrg=x.arrg; x.arrg=nullptr; 
       is_view=x.is_view;
       return *this;
+    }
+
+
+  public: // ---- Views -------------------------------------------------------------------------------
+
+
+    RtensorA view(){
+      RtensorA R=RtensorA::noalloc(dims,dev);
+      R.arr=arr;
+      R.is_view=true;
+      return R;
+    }
+
+
+    RtensorA view_as_shape(const Gdims& _dims){
+      CNINE_DIMS_EQ_TOTAL(dims,_dims);
+      RtensorA R=RtensorA::noalloc(_dims,dev);
+      R.arr=arr;
+      R.is_view=true;
+      return R;
     }
 
 
@@ -1532,6 +1573,22 @@ namespace cnine{
     }
 
     
+    RtensorA tensor_product(const RtensorA& y){
+      RtensorA R(dims.cat(y.dims),fill_raw());
+      assert(dims.size()==2);
+      assert(y.dims.size()==2);
+      for(int a=0; a<dims(0); a++)
+	for(int b=0; b<dims(1); b++)
+	  for(int c=0; c<y.dims(0); c++)
+	    for(int d=0; d<y.dims(1); d++)
+	      R.set_value(a,b,c,d,(*this)(a,b)*y(c,d));
+      return R;
+    }
+
+
+  public: // ---- Scalar valued operations ------------------------------------------------------------------
+
+
     float norm2() const{
       if(dev==0){
       float t=0; 
@@ -1540,11 +1597,7 @@ namespace cnine{
       return t;
       }
       float t=0;
-#ifdef _WITH_CUBLAS
-      cublasSdot(cnine_cublas, asize, arrg, 1, arrg, 1, &t);
-#else
-      CNINE_NOCUDA_ERROR;
-#endif       
+      CUBLAS_SAFE(cublasSdot(cnine_cublas, asize, arrg, 1, arrg, 1, &t));
       return t;
     }
 
@@ -1558,30 +1611,30 @@ namespace cnine{
 	for(int i=0; i<asize; i++){
 	  tr+=arr[i]*x.arr[i];
 	}
-	//{CoutLock lk; cout<<*this<<endl<<endl; cout<<"  "<<asize<<" "<<tr<<":"<<ti<<endl;}
 	return tr;
       }
       float a=0;
-#ifdef _WITH_CUBLAS
-      cudaDeviceSynchronize();
-      cublasSdot(cnine_cublas, asize, arrg, 1, x.arrg, 1, &a);
-      cudaDeviceSynchronize();
-#else
-      CNINE_NOCUDA_ERROR;
-#endif       
+      CUBLAS_SAFE(cublasSdot(cnine_cublas, asize, arrg, 1, x.arrg, 1, &a));
       return a;
     }
 
-    RtensorA tensor_product(const RtensorA& y){
-      RtensorA R(dims.cat(y.dims),fill_raw());
-      assert(dims.size()==2);
-      assert(y.dims.size()==2);
-      for(int a=0; a<dims(0); a++)
-	for(int b=0; b<dims(1); b++)
-	  for(int c=0; c<y.dims(0); c++)
-	    for(int d=0; d<y.dims(1); d++)
-	      R.set_value(a,b,c,d,(*this)(a,b)*y(c,d));
-      return R;
+
+    float diff2(const RtensorA& x) const{
+      CNINE_DEVICE_SAME(x);
+      assert(asize==x.asize);
+      if(asize==0) return 0; 
+      if(dev==0){
+	float t=0; 
+	for(int i=0; i<asize; i++){
+	  float a=arr[i]-x.arr[i];
+	  t+=a*a;
+	}
+	return t;
+      }
+      float a=0;
+      CNINE_CPUONLY();
+      //CUBLAS_SAFE(cublasSdot(cnine_cublas, asize, arrg, 1, x.arrg, 1, &a));
+      return a;
     }
 
 
@@ -1603,9 +1656,9 @@ namespace cnine{
 
 
     void add(const RtensorA& x){
+      CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize==x.asize);
-      assert(x.dev==dev);
       if(dev==0){
         for(int i=0; i<asize; i++) arr[i]+=x.arr[i];
 	      return; 
