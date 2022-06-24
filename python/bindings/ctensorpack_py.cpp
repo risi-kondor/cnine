@@ -26,7 +26,7 @@ pybind11::class_<CtensorPackObj>(m,"ctensorpack")
 
   .def(pybind11::init<vector<at::Tensor>&>())
   .def_static("view",[](vector<at::Tensor>& v){return CtensorPackObj::view(v);})
-  .def("torch",&SO3vecB::torch)
+  .def("torch",&CtensorPackObj::torch)
 
   .def("add_to_grad",&CtensorPackObj::add_to_grad)
   .def("get_grad",&CtensorPackObj::get_grad)

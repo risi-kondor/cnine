@@ -115,8 +115,11 @@ namespace cnine{
   public: // ---- Static constructors --------------------------------------------------------------------------
 
 
-    static CtensorPackObj zero(const int _n, const Gdims& _dims){
-      return CtensorPackObj(_n,_dims,cnine::fill::zero);}
+    static CtensorPackObj raw(const int _n, const Gdims& _dims, const int _dev=0){
+      return CtensorPackObj(_n,_dims,fill_raw(),0,_dev);}
+
+    static CtensorPackObj zero(const int _n, const Gdims& _dims, const int _dev=0){
+      return CtensorPackObj(_n,_dims,cnine::fill::zero,0,_dev);}
     //static CtensorPackObj zero(const int _n, const Gdims& _dims, const pack_format& _format){
     //return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,toint(_format));}
     //static CtensorPackObj zero(const int _n, const Gdims& _dims, const device& _device){
@@ -124,8 +127,8 @@ namespace cnine{
     //static CtensorPackObj zero(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
     //return CtensorPackObj(_n,_dims,-1,cnine::fill::zero,toint(_format),_device.id());}
     
-    static CtensorPackObj zero(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,cnine::fill::zero);}
+    static CtensorPackObj zero(const GdimsPack& _dims, const int _dev=0){
+      return CtensorPackObj(_dims,cnine::fill::zero,0,_dev);}
     //static CtensorPackObj zero(const GdimsPack& _dims, const pack_format& _format){
     //  return CtensorPackObj(_dims,-1,cnine::fill::zero,toint(_format));}
     //static CtensorPackObj zero(const GdimsPack& _dims, const device& _device){
@@ -133,8 +136,11 @@ namespace cnine{
     //static CtensorPackObj zero(const GdimsPack& _dims, const pack_format& _format, const device& _device){
     //return CtensorPackObj(_dims,-1,cnine::fill::zero,toint(_format),_device.id());}
     
-    static CtensorPackObj ones(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,cnine::fill::ones);}
+    static CtensorPackObj ones(const int _n, const Gdims& _dims, const int _dev=0){
+      return CtensorPackObj(_n,_dims,fill_ones(),0,_dev);}
+
+    static CtensorPackObj ones(const GdimsPack& _dims, const int _dev=0){
+      return CtensorPackObj(_dims,cnine::fill::ones,0,_dev);}
     //static CtensorPackObj ones(const GdimsPack& _dims, const pack_format& _format){
     //return CtensorPackObj(_dims,-1,cnine::fill::ones,_format);}
     //static CtensorPackObj ones(const GdimsPack& _dims, const device& _device){
@@ -142,8 +148,8 @@ namespace cnine{
     //static CtensorPackObj ones(const GdimsPack& _dims, const pack_format& _format, const device& _device){
     //return CtensorPackObj(_dims,-1,cnine::fill::ones,_format,_device);}
     
-    static CtensorPackObj sequential(const int _n, const Gdims& _dims){
-      return CtensorPackObj(_n,_dims,cnine::fill::sequential);}
+    static CtensorPackObj sequential(const int _n, const Gdims& _dims, const int _dev=0){
+      return CtensorPackObj(_n,_dims,cnine::fill::sequential,0,_dev);}
     //static CtensorPackObj sequential(const int _n, const Gdims& _dims, const pack_format& _format){
     //return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,toint(_format));}
     //static CtensorPackObj sequential(const int _n, const Gdims& _dims, const device& _device){
@@ -151,8 +157,8 @@ namespace cnine{
     //static CtensorPackObj sequential(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
     //return CtensorPackObj(_n,_dims,-1,cnine::fill::sequential,toint(_format),_device.id());}
     
-    static CtensorPackObj sequential(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,cnine::fill::sequential);}
+    static CtensorPackObj sequential(const GdimsPack& _dims, const int _dev=0){
+      return CtensorPackObj(_dims,cnine::fill::sequential,0,_dev);}
     //static CtensorPackObj sequential(const GdimsPack& _dims, const pack_format& _format){
     //return CtensorPackObj(_dims,-1,cnine::fill::sequential,_format);}
     //static CtensorPackObj sequential(const GdimsPack& _dims, const device& _device){
@@ -160,8 +166,8 @@ namespace cnine{
     //static CtensorPackObj sequential(const GdimsPack& _dims, const pack_format& _format, const device& _device){
     //return CtensorPackObj(_dims,-1,cnine::fill::sequential,_format,_device);}
     
-    static CtensorPackObj gaussian(const int _n, const Gdims& _dims){
-      return CtensorPackObj(_n,_dims,cnine::fill::gaussian);}
+    static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const int _dev=0){
+      return CtensorPackObj(_n,_dims,cnine::fill::gaussian,0,_dev);}
     //static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const pack_format& _format){
     //return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,toint(_format));}
     //static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const device& _device){
@@ -169,8 +175,8 @@ namespace cnine{
     //static CtensorPackObj gaussian(const int _n, const Gdims& _dims, const pack_format& _format, const device& _device){
     //return CtensorPackObj(_n,_dims,-1,cnine::fill::gaussian,toint(_format),_device.id());}
     
-    static CtensorPackObj gaussian(const GdimsPack& _dims){
-      return CtensorPackObj(_dims,cnine::fill::gaussian);}
+    static CtensorPackObj gaussian(const GdimsPack& _dims, const int _dev=0){
+      return CtensorPackObj(_dims,cnine::fill::gaussian,0,_dev);}
     //static CtensorPackObj gaussian(const GdimsPack& _dims, const pack_format& _format){
     //return CtensorPackObj(_dims,-1,cnine::fill::gaussian,toint(_format));}
     //static CtensorPackObj gaussian(const GdimsPack& _dims, const device& _device){
