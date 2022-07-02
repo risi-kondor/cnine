@@ -30,13 +30,13 @@ namespace cnine{
     }
 
     OBJ& get_grad(){
-      if(!grad) grad=new OBJ(OBJ::zeros_like(*this));
+      if(!grad) grad=new OBJ(OBJ::zeros_like(static_cast<OBJ&>(*this)));
       return *grad;
     }
 
     OBJ view_of_grad(){
-      if(!grad) grad=new OBJ(OBJ::zeros_like(*this));
-      return grad->_view();
+      if(!grad) grad=new OBJ(OBJ::zeros_like(static_cast<OBJ&>(*this)));
+      return grad->view();
     }
 
   };

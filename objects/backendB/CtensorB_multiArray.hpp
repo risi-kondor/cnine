@@ -71,6 +71,22 @@ namespace cnine{
     }
 
 
+  public: // ---- Views -----------------------------------------------------------------------------------------
+
+
+    CtensorB_multiArray view(){
+      CtensorB_multiArray R;
+      for(auto p: parts){
+	R.parts.push_back(new ARRAY(p->ARRAY::view()));
+      }
+      // ifdef WITH_FAKE_GRAD
+      // if(grad) R.grad=new SO3vecB(grad->view());
+      // endif 
+      return R;
+      
+    }
+
+
   public: // ---- Transport -----------------------------------------------------------------------------------------
 
 
@@ -120,6 +136,17 @@ namespace cnine{
 
 
   public: // ---- Cumulative Operations -----------------------------------------------------------------------------
+
+
+    void operator+=(const CtensorB_multiArray& x){
+      add(x);
+    }
+    
+    void add(const CtensorB_multiArray& x){
+      assert(parts.size()==x.parts.size());
+      for(int l=0; l<parts.size(); l++)
+	parts[l]->add(*x.parts[l]);
+    }
 
 
     void add_gather(const CtensorB_multiArray& x, const cnine::Rmask1& mask){

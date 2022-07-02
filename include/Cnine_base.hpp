@@ -105,11 +105,13 @@ using namespace std;
 #define CNINE_CHECK_DEV(expr) expr
 #define CNINE_DEVICE_VALID(dev) if(dev<0 || dev>1) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": device must be 0 or 1.");
 #define CNINE_DEVICE_SAME(x) if(x.dev!=dev) throw std::out_of_range("Cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
+#define CNINE_DEVICE_SAMEB(x) if(x.get_dev()!=get_dev()) throw std::out_of_range("Cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
 #define CNINE_DEVICE_EQ(x,y) if(x.dev!=y.dev) throw std::out_of_range("Cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
 #else
 #define CNINE_CHECK_DEV(expr)
 #define CNINE_DEVICE_VALID(dev) 
 #define CNINE_DEVICE_SAME(x) 
+#define CNINE_DEVICE_SAMEB(x) 
 #define CNINE_DEVICE_EQ(x,y) 
 #endif
 
