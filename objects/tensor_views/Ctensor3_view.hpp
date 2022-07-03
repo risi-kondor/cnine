@@ -257,6 +257,7 @@ namespace cnine{
     
     Gtensor<complex<float> > gtensor() const{
       Gtensor<complex<float> > R({n0,n1,n2},fill::raw);
+      //cout<<"R"<<R.dims<<endl;
       for(int i0=0; i0<n0; i0++)
 	for(int i1=0; i1<n1; i1++)
 	  for(int i2=0; i2<n2; i2++){

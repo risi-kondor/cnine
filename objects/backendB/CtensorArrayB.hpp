@@ -154,6 +154,31 @@ namespace cnine{
       return R;
     }
 
+    CtensorView fuse_array_indices(){
+      int c=get_ncdims();
+      Gdims _dims(c+1,fill_raw());
+      int t=1;
+      for(int i=0; i<ak; i++) 
+	t*=dims[i];
+      _dims[0]=t;
+      for(int i=0; i<c; i++)
+	_dims[i+1]=dims[i+ak];
+      return CtensorView(arr,arr+coffs,_dims,strides.chunk(ak-1));
+    }
+
+    const CtensorView fuse_array_indices() const{
+      int c=get_ncdims();
+      Gdims _dims(c+1,fill_raw());
+      int t=1;
+      for(int i=0; i<ak; i++) 
+	t*=dims[i];
+      _dims[0]=t;
+      for(int i=0; i<c; i++)
+	_dims[i+1]=dims[i+ak];
+      return CtensorView(arr,arr+coffs,_dims,strides.chunk(ak-1));
+    }
+
+
 
   public: // ---- Conversions -------------------------------------------------------------------------------
 
@@ -168,6 +193,7 @@ namespace cnine{
       CtensorB(std::move(x)){
       if(_ak<0) ak=dims.size()+_ak;
       else ak=_ak;
+      is_view=x.is_view;
     }
 
 
@@ -214,7 +240,7 @@ namespace cnine{
       return dims.chunk(ak);
     }
 
-    Gdims get_ncdims(const int i) const{
+    int get_ncdims() const{
       return dims.size()-ak;
     }
 

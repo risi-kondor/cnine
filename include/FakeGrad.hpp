@@ -12,15 +12,16 @@
 
 namespace cnine{
 
-  template<typename OBJ> // deprecated 
+  template<typename OBJ> 
   class FakeGrad{
   public:
 
     OBJ* grad=nullptr;
 
     //~FakeGrad(){
-    // if(!is_view) delete grad;
+    //if(!is_view) delete grad;
     //}
+
 
   public:
 

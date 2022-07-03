@@ -30,9 +30,11 @@ namespace cnine{
   public:
 
     vector<ARRAY*> parts;
+    bool is_view=false;
 
     ~CtensorB_multiArray(){
-      for(auto p: parts) delete p;  
+      if(!is_view) 
+	for(auto p: parts) delete p;  
     }
 
 

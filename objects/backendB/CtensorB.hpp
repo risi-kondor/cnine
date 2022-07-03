@@ -82,7 +82,7 @@ namespace cnine{
 
   public: // ---- Constructors -----------------------------------------------------------------------------
 
-
+    
     CtensorB(const Gdims& _dims, const Gstrides& _strides, 
       const int _asize, const int _memsize, const int _coffs, const int _dev):
      dims(_dims), strides(_strides), asize(_asize), memsize(_memsize), coffs(_coffs), dev(_dev){}
@@ -392,6 +392,42 @@ namespace cnine{
       R.is_view=true;
       return R;
     }
+
+    CtensorB view_fusing_first(const int k){
+      assert(k<dims.size());
+      int c=dims.size()-k;
+      int t=1;
+      for(int i=0; i<k; i++)
+	t*=dims[i];
+      Gdims _dims(c+1,fill_raw());
+      _dims[0]=t;
+      for(int i=0; i<c; i++)
+	_dims[i+1]=dims[i+k];
+      CtensorB R=CtensorB::noalloc(_dims,dev);
+      R.arr=arr;
+      R.arrg=arrg;
+      R.is_view=true;
+      return R;      
+    }
+
+    /*
+    const CtensorB view_fusing_first(const int k) const{
+      assert(k<dims.size());
+      int c=dims.size()-k;
+      int t=1;
+      for(int i=0; i<k; i++)
+	t*=dims[i];
+      Gdims _dims(c+1,fill_raw());
+      _dims[0]=t;
+      for(int i=0; i<c; i++)
+	_dims[i+1]=dims[i+k];
+      CtensorB R=CtensorB::noalloc(_dims,dev);
+      R.arr=arr;
+      R.arrg=arrg;
+      R.is_view=true;
+      return R;      
+    }
+    */
 
 
   public: // ---- Conversions -------------------------------------------------------------------------------
@@ -788,8 +824,8 @@ namespace cnine{
 
 
     Ctensor3_view view3() const{
-     if(dev==0) return Ctensor3_view(arr,dims,strides,coffs,dev);
-     else return Ctensor3_view(arrg,dims,strides,coffs,dev);
+      if(dev==0) return Ctensor3_view(arr,dims,strides,coffs,dev);
+      else return Ctensor3_view(arrg,dims,strides,coffs,dev);
     }
 
     Ctensor3_view view3D() const{
