@@ -305,6 +305,9 @@ namespace cnine{
       return new CtensorObj(CNINE_CTENSOR_IMPL::view(T));
     }
 
+    CtensorObj(const int dummy, const at::Tensor& T): // deprecated
+      CNINE_CTENSOR_IMPL(dummy,T){}
+
 #endif
 
   public: // ---- Transport ----------------------------------------------------------------------------------

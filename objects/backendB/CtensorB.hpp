@@ -554,10 +554,10 @@ namespace cnine{
 
     bool has_same_strides_as(const at::Tensor& T) const{
       int k=strides.size();
-      if(T.dim()!=k+1) return false;
+      if(T.dim()!=k) return false;
       for(int i=0; i<k; i++)
-	if(T.stride(i)!=strides[i]) return false;
-      if(T.stride(k)!=2) return false;
+	if(T.stride(i)!=strides[i]/2) return false;
+      //if(T.stride(k)!=2) return false;
       return true;
     }
 
@@ -566,7 +566,7 @@ namespace cnine{
       Gdims Tdims(k,fill_raw());
       for(int i=0; i<k ; i++)
 	Tdims[i]=T.size(i);
-      Gstrides Tstrides(Tdims,1);
+      Gstrides Tstrides(Tdims,2);
       bool t=true;
       for(int i=0; i<k; i++)
 	if(Tstrides[i]!=T.stride(i)) {t=false; break;}
@@ -581,14 +581,15 @@ namespace cnine{
     }
 
 
-    CtensorB(const at::Tensor& T){
+    CtensorB(const int dummy, const at::Tensor& T){ // deprecated 
       CNINE_CONVERT_FROM_ATEN_WARNING();
-      assert(typeid(T.type().scalarType())==typeid(float));
+      //assert(T.dtype()==at::kFloat);
+      //assert(T.dtype()==at::kComplexFloat);
       T.contiguous();
 
-      int k=T.dim()-1;
-      if(k<=0 || T.size(k)!=2) 
-	throw std::out_of_range("CtensorB: last dimension of ATen tensor must be 2, corresponding to the real and imaginary parts.");
+      int k=T.dim();
+      //if(k<=0 || T.size(k)!=2) 
+      //throw std::out_of_range("CtensorB: last dimension of ATen tensor must be 2, corresponding to the real and imaginary parts.");
       dims=Gdims::raw(k);
       for(int i=0; i<k ; i++)
 	dims[i]=T.size(i);
@@ -598,7 +599,7 @@ namespace cnine{
       coffs=1;
       dev=T.type().is_cuda();
 
-      if(!has_same_strides_as(T)){
+      if(false && !has_same_strides_as(T)){
 	if(dev!=0) 
 	  throw std::out_of_range("CtensorB: ATen tensor is irregular and is on the GPU."); 
 	auto src=T.data<float>();
@@ -613,12 +614,57 @@ namespace cnine{
 
       if(dev==0){
 	arr=new float[memsize];
-	std::copy(T.data<float>(),T.data<float>()+memsize,arr);
+	std::copy(T.data<c10::complex<float> >(),T.data<c10::complex<float> >()+asize,reinterpret_cast<c10::complex<float>*>(arr));
       }
 
       if(dev==1){
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
-	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arrg,T.data<complex<float> >(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
+      }
+
+    }
+
+
+    CtensorB(const at::Tensor& T){
+      CNINE_CONVERT_FROM_ATEN_WARNING();
+      //assert(T.dtype()==at::kComplexFloat);
+      //assert(typeid(T.type().scalarType())==typeid(float));
+      T.contiguous();
+
+      int k=T.dim();
+      //if(k<=0 || T.size(k)!=2) 
+      //throw std::out_of_range("CtensorB: last dimension of ATen tensor must be 2, corresponding to the real and imaginary parts.");
+      dims=Gdims::raw(k);
+      for(int i=0; i<k ; i++)
+	dims[i]=T.size(i);
+      strides=Gstrides(dims,2);
+      asize=strides[0]*dims[0]/2; 
+      memsize=strides[0]*dims[0]; 
+      coffs=1;
+      dev=T.type().is_cuda();
+
+      if(!has_same_strides_as(T)){
+	cout<<"irregular strides"<<endl;
+	if(dev!=0) 
+	  throw std::out_of_range("CtensorB: ATen tensor is irregular and is on the GPU."); 
+	auto src=T.data<c10::complex<float> >();
+	arr=new float[memsize];
+	//Gstrides xstrides(strides); 
+	//xstrides.push_back(2);
+	Gstrides sstrides(k,fill_raw());
+	for(int i=0; i<k; i++) sstrides[i]=T.stride(i);
+	for(int i=0; i<memsize; i+=2)
+	  *reinterpret_cast<c10::complex<float>*>(arr+i*2)=src[sstrides.offs(i,strides)];
+      }
+
+      if(dev==0){
+	arr=new float[memsize];
+	std::copy(T.data<c10::complex<float> >(),T.data<c10::complex<float> >()+asize,reinterpret_cast<c10::complex<float>*>(arr));
+      }
+
+      if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMemcpy(arrg,T.data<c10::complex<float> >(),memsize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
 
     }
@@ -628,8 +674,8 @@ namespace cnine{
       if(!is_regular(T)){cout<<"irregular!"<<endl; return CtensorB(T);}
       
       CtensorB R;
-      int k=T.dim()-1;
-      if(k<=0 || T.size(k)!=2) throw std::out_of_range("CtensorB: last dimension of tensor must be 2, corresponding to the real and imaginary parts.");
+      int k=T.dim(); //-1;
+      //if(k<=0 || T.size(k)!=2) throw std::out_of_range("CtensorB: last dimension of tensor must be 2, corresponding to the real and imaginary parts.");
       R.dims.resize(k);
       for(int i=0; i<k ; i++)
 	R.dims[i]=T.size(i);
@@ -641,11 +687,11 @@ namespace cnine{
       R.is_view=true;
 
       if(R.dev==0){
-	R.arr=T.data<float>();
+	R.arr=reinterpret_cast<float*>(T.data<c10::complex<float> >());
       }
       
       if(R.dev==1){
-	R.arrg=T.data<float>();
+	R.arrg=reinterpret_cast<float*>(T.data<c10::complex<float> >());
       }
 
       return R;
@@ -656,8 +702,8 @@ namespace cnine{
       if(!is_regular(T)){cout<<"irregular!"<<endl; return new CtensorB(T);}
       
       CtensorB* R=new CtensorB();
-      int k=T.dim()-1;
-      if(k<=0 || T.size(k)!=2) throw std::out_of_range("CtensorB: last dimension of tensor must be 2, corresponding to the real and imaginary parts.");
+      int k=T.dim(); //-1;
+      //if(k<=0 || T.size(k)!=2) throw std::out_of_range("CtensorB: last dimension of tensor must be 2, corresponding to the real and imaginary parts.");
       R->dims.resize(k);
       for(int i=0; i<k ; i++)
 	R->dims[i]=T.size(i);
@@ -669,11 +715,13 @@ namespace cnine{
       R->is_view=true;
 
       if(R->dev==0){
-	R->arr=T.data<float>();
+	R->arr=reinterpret_cast<float*>(T.data<c10::complex<float> >());
+	//R->arr=T.data<float>();
       }
       
       if(R->dev==1){
-	R->arrg=T.data<float>();
+	R->arrg=reinterpret_cast<float*>(T.data<c10::complex<float> >());
+	//R->arrg=T.data<float>();
       }
 
       return R;
@@ -684,11 +732,11 @@ namespace cnine{
       assert(dev==0);
       assert(coffs==1);
       int k=getk();
-      vector<int64_t> v(k+1); 
+      vector<int64_t> v(k); 
       for(int i=0; i<k; i++) v[i]=dims[i];
-      v[k]=2;
-      at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
-      std::copy(arr,arr+memsize,R.data<float>());
+      //v[k]=2;
+      at::Tensor R(at::zeros(v,torch::CPU(at::kComplexFloat))); 
+      std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
       return R;
     }
 

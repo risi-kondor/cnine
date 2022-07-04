@@ -19,6 +19,8 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
   .def(pybind11::init<const at::Tensor&>())
 
+//.def(pybind11::init<const int, const at::Tensor&>())
+
   .def_static("view",static_cast<CtensorObj(*)(at::Tensor&)>(&CtensorObj::view))
   .def("torch",&CtensorObj::torch)
 
