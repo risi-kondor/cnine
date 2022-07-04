@@ -161,6 +161,10 @@ namespace cnine{
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
+    string classname() const{
+      return "cnine::CtensorB_multiArray<"+ARRAY().classname()+">";
+    }
+
     string str(const string indent="") const{
       ostringstream oss;
 	for(int l=0; l<parts.size(); l++){
