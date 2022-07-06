@@ -566,7 +566,7 @@ namespace cnine{
       Gdims Tdims(k,fill_raw());
       for(int i=0; i<k ; i++)
 	Tdims[i]=T.size(i);
-      Gstrides Tstrides(Tdims,2);
+      Gstrides Tstrides(Tdims);
       bool t=true;
       for(int i=0; i<k; i++)
 	if(Tstrides[i]!=T.stride(i)) {t=false; break;}
