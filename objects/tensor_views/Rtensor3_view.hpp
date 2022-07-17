@@ -16,6 +16,10 @@
 
 #include "Rtensor2_view.hpp"
 
+#ifdef _WITH_CUDA
+extern void batched_add_cu(float* rarr, const float* arr, const int b, const int sb, const int n, const int s, const cudaStream_t& stream){
+#endif 
+
 
 namespace cnine{
 
@@ -108,25 +112,67 @@ namespace cnine{
 	    inc(_b,a,b,t);
 	}
     }
+
+
+  public: // ---- Reductions --------------------------------------------------------------------------------
+
+
+    void reduce1_destructively_into(const Rtensor2_view& r) const{
+      assert(r.n0==n0);
+      assert(r.n1==n2);
+      reduce1_destructively();
+      r.add(slice1(0));
+    }
+
+
+    void reduce1_destructively() const{
+
+      if(dev==0){
+	for(int i0=0; i0<n0; i0++){
+	  for(int i2=0; i2<n2; i2++){
+	    float t=arr[s0*i0+s2*i2];
+	    for(int i1=1; i1<n1; i1++)
+	      t+=arr[s0*i0+s1*i1+s2*i2];
+	    arr[s0*i0+s2*i2]=t;
+	  }
+	}
+      }
+      
+      if(dev==1){
+	int a=1; while(a<n1) a*=2; a/=2;
+
+	#ifdef _WITH_CUDA
+	cudaStream_t stream;
+	CUDA_SAFE(cudaStreamCreate(&stream));
+	batched_add_cu(x.arr,x.arr+a*x.s1,x.n0,x.s0,(x.n1-a)*x.s1,x.s2,stream);
+	a/=2;
+	for(;a>0;a/=2)
+	  batched_add_cu(x.arr,x.arr+a*x.s1, x.n0,x.s0,a*x.s1,x.s2,stream);
+	CUDA_SAFE(cudaStreamDestroy(stream));
+	#endif 
+      }
+
+    }
+
     
 
 
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
-    Rtensor2_view slice0(const int i){
+    Rtensor2_view slice0(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor3_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
       return Rtensor2_view(arr+i*s0,n1,n2,s1,s2,dev);
     }
 
-    Rtensor2_view slice1(const int i){
+    Rtensor2_view slice1(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
 	  throw std::out_of_range("cnine::Rtensor3_view:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
       return Rtensor2_view(arr+i*s1,n0,n2,s0,s2,dev);
     }
 
-    Rtensor2_view slice2(const int i){
+    Rtensor2_view slice2(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor3_view:slice2(int): index "+to_string(i)+" out of range of [0,"+to_string(n2-1)+"]");)
       return Rtensor2_view(arr+i*s2,n0,n1,s0,s1,dev);

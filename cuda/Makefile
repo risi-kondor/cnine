@@ -23,6 +23,7 @@ CUDA_OBJECTS+=Flock.o CtensorA_add.o CtensorA_add_plus.o CtensorA_copy.o Ctensor
 CUDA_OBJECTS+=TensorView_accumulators.o  
 CUDA_OBJECTS+=BasicCtensorProducts.o  
 CUDA_OBJECTS+=RtensorEinsumProducts.o  
+CUDA_OBJECTS+=RtensorUtils.o  
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
 NVCCFLAGS+= -D_WITH_CUDA -D_WITH_CUBLAS
 endif 
@@ -58,6 +59,9 @@ BasicCtensorProducts.o: TensorView_accumulators.cu Makefile
 
 RtensorEinsumProducts.o: TensorView_accumulators.cu Makefile  
 	$(NVCC) $(NVCCFLAGS) -c RtensorEinsumProducts.cu $(CFLAGS) $(MACROS) $(INCLUDE) 
+
+RtensorUtils.o: TensorView_accumulators.cu Makefile  
+	$(NVCC) $(NVCCFLAGS) -c RtensorUtils.cu $(CFLAGS) $(MACROS) $(INCLUDE) 
 
 
 

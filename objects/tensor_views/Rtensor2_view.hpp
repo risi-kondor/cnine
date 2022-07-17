@@ -16,6 +16,13 @@
 
 #include "Rtensor1_view.hpp"
 
+#ifdef _WITH_CUDA
+extern float cnine::Rtensor_get_cu(const float* p);
+extern float cnine::Rtensor_set_cu(float* p, const float v);
+extern float cnine::Rtensor_inc_cu(float* p, const float v);
+extern void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view* x, const cudaStream_t& stream);
+extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view* x, const cudaStream_t& stream);
+#endif 
 
 namespace cnine{
 
@@ -62,25 +69,39 @@ namespace cnine{
     }
 
 
+  public: // ---- Copy --------------------------------------------------------------------------------------
+
+    
+
   public: // ---- Access ------------------------------------------------------------------------------------
 
+    
+    bool is_regular() const{
+      if(s1!=1) return false;
+      if(s0!=n1) return false;
+      return true;
+    }
 
     float operator()(const int i0, const int i1) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
 	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
-      return arr[s0*i0+s1*i1];
+      CPUCODE(return arr[s0*i0+s1*i1]);
+      GPUCODE(return Rtensor_get_cu(arr+s0*i0+s1*i1));
+      return 0;
     }
 
-    void set(const int i0, const int i1, float x){
+    void set(const int i0, const int i1, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
 	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
-      arr[s0*i0+s1*i1]=x;
+      CPUCODE(arr[s0*i0+s1*i1]=x);
+      GPUCODE(return Rtensor_set_cu(arr+s0*i0+s1*i1,x));
     }
 
-    void inc(const int i0, const int i1, float x){
+    void inc(const int i0, const int i1, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
 	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
-      arr[s0*i0+s1*i1]+=x;
+      CPUCODE(arr[s0*i0+s1*i1]+=x);
+      GPUCODE(return Rtensor_inc_cu(arr+s0*i0+s1*i1,x));
     }
 
     Rtensor2_view block(const int i0, const int i1, int m0=-1, int m1=-1) const{
@@ -93,30 +114,32 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
-    void set(const Rtensor2_view& y){
-      assert(y.n0==n0);
-      assert(y.n1==n1);
-      for(int i0=0; i0<n0; i0++)
-	for(int i1=0; i1<n1; i1++){
-	  //cout<<(*this)(i0,i1)<<endl;
-	  //cout<<y(i0,i1)<<endl;
-	  set(i0,i1,y(i0,i1));
-	}
+    void set(const Rtensor2_view& x) const{
+      CNINE_DEVICE_SAME(x);
+      if(x.n0==n0 && x.n1==n1 && is_regular() && x.is_regular()){
+	CPUCODE(std::copy(x.arr,x.arr+n0*n1,arr));
+	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*n1*sizeof(float),cudaMemcpyDeviceToDevice)));
+      }else{
+	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) {set(i0,i1,x(i0,i1));});
+	GPUCODE(CUDA_STREAM(Rtensor_copy_cu(*this,x)));
+      }
     }
 
 
-    void add(const Rtensor2_view& y){
-      assert(y.n0==n0);
-      assert(y.n1==n1);
-      for(int i0=0; i0<n0; i0++)
-	for(int i1=0; i1<n1; i1++){
-	  //cout<<(*this)(i0,i1)<<endl;
-	  //cout<<y(i0,i1)<<endl;
-	  inc(i0,i1,y(i0,i1));
-	}
+    void add(const Rtensor2_view& x) const{
+      CNINE_DEVICE_SAME(x);
+      if(x.n0==n0 && x.n1==n1 && is_regular() && x.is_regular()){
+	CPUCODE(stdadd<float>(x.arr,x.arr+n0*s0,arr));
+	GPUCODE();
+      }else{
+	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) {inc(i0,i1,x(i0,i1));});
+	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x)));
+      }
     }
+
 
     void add(const Rtensor2_view& y, const float c){
+      CNINE_DEVICE_SAME(y);
       assert(y.n0==n0);
       assert(y.n1==n1);
       for(int i0=0; i0<n0; i0++)
@@ -217,3 +240,34 @@ namespace cnine{
 
 
 #endif 
+      /*
+      if(dev==0){
+	for(int i0=0; i0<n0; i0++)
+	  for(int i1=0; i1<n1; i1++){
+	    //cout<<(*this)(i0,i1)<<endl;
+	    //cout<<y(i0,i1)<<endl;
+	    inc(i0,i1,x(i0,i1));
+	  }
+	return;
+      }
+
+      if(dev==1){
+	CUDA_STREAM(Rtensor_add_cu(*this,x));
+      }
+      */
+      /*
+      if(dev==0){
+	
+	for(int i0=0; i0<x.n0; i0++)
+	  for(int i1=0; i1<x.n1; i1++){
+	    set(i0,i1,x(i0,i1));
+	  }
+	return;
+      }
+
+      if(dev==1){
+	CUDA_STREAM(Rtensor_copy_cu(*this,x));
+	return;
+      }
+      */
+

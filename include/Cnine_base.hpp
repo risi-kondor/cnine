@@ -547,6 +547,14 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 #endif
 
 
+#define CPUCODE(cmd) if(dev==0){cmd;}
+
+#ifdef _WITH_CUDA
+#define GPUCODE(cmd) if(dev==1){cmd;}
+#else
+#define GPUCODE(cmd) 
+#endif
+
 // ---- Cengine stuff ----------------------------------------------------------------------------------------
 
 

@@ -1123,6 +1123,16 @@ namespace cnine{
       return Rtensor3_view(arr,dims,strides);
     }
 
+    Rtensor3_view view3_picking(const int j){
+      assert(j>0);
+      assert(j<dims.size());
+      int n0=1;
+      int n2=1;
+      for(int i=0; i<j; i++) n0*=dims[i];
+      for(int i=j+1; i<dims.size(); i++) n2*=dims[i];
+      return Rtensor3_view(arr,n0,dims[j],n2,strides[j-1],strides[j],strides.back(),dev);
+    }
+
     Rtensor3_view block3(const int i0, const int i1, const int i2, 
       int m0=-1, int m1=-1, int m2=-1){
       assert(dims.size()==3);
@@ -2138,6 +2148,20 @@ namespace cnine{
       }
       
     }
+
+
+  public: // ---- Reductions ---------------------------------------------------------------------------------
+
+
+    RtensorA reduce(const int j){
+      Gdims D=dims.remove(j);
+      RtensorA R=RtensorA::zero(D,dev);
+      int n0=1; for(int i=0; i<j; i++) n0*=R.dims[i];
+      int n1=1; for(int i=j; i<R.dims.size(); i++) n1*=R.dims[i];
+      view3_picking(j).reduce1_destructively_into(Rtensor2_view(R.arr,n0,n1,R.strides[j-1],R.strides.back(),dev));
+      return R;
+    }
+
 
   public: // ---- Special functions --------------------------------------------------------------------------
 
