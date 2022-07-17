@@ -72,7 +72,7 @@ namespace cnine{
     void foreach(const function<void(const Gindex&)>& fn) const{
       int as=asize();
       for(int i=0; i<as; i++)
-	fn(Gindex(i,*this));
+	fn(Gindex(i,static_cast<const Gdims&>(*this)));
     }
 
 

@@ -21,20 +21,19 @@
 #include "CUDAhelpers.hpp"
 
 
-// ---- Get/set ----------------------------------------------------------------------------------------------
+// ---- Rtensor Get/set ---------------------------------------------------------------------------------------
 
 
-__global__ float Rtensor_get_kernel(const float* arr){
-  return *arr;
-}
+//__global__ float Rtensor_get_kernel(const float* arr){
+//  return *arr;
+//}
 
 __global__ void Rtensor_set_kernel(float* arr, const float v){
-  return *arr=v;
+  *arr=v;
 }
 
-
 __global__ void Rtensor_inc_kernel(float* arr, const float v){
-  return *arr+=v;
+  *arr+=v;
 }
 
 
@@ -133,7 +132,10 @@ namespace cnine{
 
   
   float Rtensor_get_cu(const float* p){
-    return Rtensor_get_kernel<<<1,1>>>(p);
+    //return Rtensor_get_kernel<<<1,1>>>(p);
+    float r=0;
+    CUDA_SAFE(cudaMemcpy(&r,p,sizeof(float),cudaMemcpyDeviceToHost));
+    return r;
   }
 
   void Rtensor_set_cu(float* p, const float v){
@@ -145,53 +147,49 @@ namespace cnine{
   }
 
 
-  void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view* x, const cudaStream_t& stream){
+  void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream){
     dispatch(r,x,
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
-	Rtensor_copy_kernel_tt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,rs0,rs1);}
+	Rtensor_copy_kernel_tt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
-	Rtensor_copy_kernel_bt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,rs0,rs1);}
+	Rtensor_copy_kernel_bt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
-	Rtensor_copy_kernel_bb<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,rs0,rs1);}
-	     );
+	Rtensor_copy_kernel_bb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);});
   }
 
-  void Rtensor_copy_cu(const Rtensor3_view& r, const Rtensor3_view* x, const cudaStream_t& stream){
+  void Rtensor_copy_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream){
     dispatch(r,x,
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_copy_kernel_ttt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
+	Rtensor_copy_kernel_ttt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_copy_kernel_btt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
+	Rtensor_copy_kernel_btt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_copy_kernel_bbt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
+	Rtensor_copy_kernel_bbt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_copy_kernel_bbb<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
-	     );
+	Rtensor_copy_kernel_bbb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);});
   }
 
 
-  void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view* x, const cudaStream_t& stream){
+  void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream){
     dispatch(r,x,
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
-	Rtensor_add_kernel_tt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,rs0,rs1);}
+	Rtensor_add_kernel_tt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
-	Rtensor_add_kernel_bt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,rs0,rs1);}
+	Rtensor_add_kernel_bt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
-	Rtensor_add_kernel_bb<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,rs0,rs1);}
-	     );
+	Rtensor_add_kernel_bb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);});
   }
 
-  void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view* x, const cudaStream_t& stream){
+  void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream){
     dispatch(r,x,
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_add_kernel_ttt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
+	Rtensor_add_kernel_ttt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_add_kernel_btt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
+	Rtensor_add_kernel_btt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_add_kernel_bbt<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
+	Rtensor_add_kernel_bbt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
-	Rtensor_add_kernel_bbb<<<blocks,threads,0,stream>>>(r.arr,xarr,s0,s1,s2,rs0,rs1,rs2);}
-	     );
+	Rtensor_add_kernel_bbb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);});
   }
 
 }
@@ -216,19 +214,18 @@ namespace cnine{
 
     if(n<=1024){
       batched_add_kernel_0<<<b,n,0,stream>>>(rarr,arr,sb,s);
-      return;
+    }else{
+      dim3 blocks(b,n/1024);
+      batched_add_kernel_1<<<blocks,1024,0,stream>>>(rarr,arr,sb,s*1024,s);
+      if(n%1024>0) batched_add_kernel_0<<<b,n%1024,0,stream>>>(rarr+(n-n%1024)*s,arr+(n-n%1024)*s,sb,s);
     }
-
-    dim3 blocks(b,n/1024);
-    int offs=(n/1024)*1024;
-    batched_add_kernel_1<<<blocks,1024,0,stream>>>(rarr,arr,sb,s*1024,s);
-    if(n%1024>0) batched_add_kernel_0<<<b,n%1024,0,stream>>>(rarr+(n-n%1024)*s,arr+(n-n%1024)*s,sb,s);
-
+ 
   }
 
 
 }
 
+#endif 
 
   /*
   void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view* x, const cudaStream_t& stream){

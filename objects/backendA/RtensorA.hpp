@@ -370,11 +370,11 @@ namespace cnine{
       if(dev==0){
         std::copy(x.arr,x.arr+asize,arr);
       }
-#ifdef _WITH_CUDA
+      #ifdef _WITH_CUDA
       if(dev==1){
 	      CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
-#endif 
+      #endif 
     }
         
     RtensorA(const RtensorA& x, const nowarn_flag& dummy): 
@@ -382,11 +382,11 @@ namespace cnine{
       if(dev==0){
 	std::copy(x.arr,x.arr+asize,arr);
       }
-#ifdef _WITH_CUDA
+      #ifdef _WITH_CUDA
       if(dev==1){
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
-#endif 
+      #endif 
     }
         
     RtensorA(const RtensorA& x, const int _dev): 

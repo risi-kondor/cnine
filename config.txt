@@ -9,15 +9,15 @@ CENGINE_ROOT=$(ROOTDIR)/../cengine/v2
 
 # ---- EIGEN OPTIONS ------------------------------------
 
-EIGENDIR=/usr/local/include
+#EIGENDIR=/usr/local/include
 
 
 # ---- CUDA OPTIONS ------------------------------------
 
-#WITH_CUDA=t
-#CUDA_HOME=/usr/local/cuda
+WITH_CUDA=t
+CUDA_HOME=/usr/local/cuda
 
-#WITH_CUBLAS=t
+WITH_CUBLAS=t
 
 NVCC=nvcc #/usr/local/cuda/bin/nvcc #/Developer/NVIDIA/CUDA-9.1/bin/nvcc
 

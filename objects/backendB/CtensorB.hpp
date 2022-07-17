@@ -1432,11 +1432,21 @@ namespace cnine{
 	    R.set(j,i,(*this)(i,j));
       }
       if(dev==1){
+	#ifdef _WITH_CUDA
 	CtensorB R=CtensorB::raw(dims,dev);
-	const complex<float> alpha = 1.0;
-	const complex<float> beta = 0.0;
+	cuComplex alpha; 
+	alpha.x=1.0;
+	alpha.y=0.0;
+	cuComplex beta;
+	beta.x=0.0;
+	beta.y=0.0;
+	const int I=dims[0]; 
+	const int J=dims[1]; 
 	CUBLAS_SAFE(cublasCgeam(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,J,I,
-	    &alpha,arrg,I,&beta,R.arrg,J,R.arrg,J));
+	    &alpha,reinterpret_cast<cuComplex*>(arrg),I,&beta,
+	    reinterpret_cast<cuComplex*>(R.arrg),J,
+	    reinterpret_cast<cuComplex*>(R.arrg),J));
+	#endif 
 	return R;
       }
       return *this;

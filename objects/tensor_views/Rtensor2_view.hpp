@@ -16,17 +16,20 @@
 
 #include "Rtensor1_view.hpp"
 
-#ifdef _WITH_CUDA
-extern float cnine::Rtensor_get_cu(const float* p);
-extern float cnine::Rtensor_set_cu(float* p, const float v);
-extern float cnine::Rtensor_inc_cu(float* p, const float v);
-extern void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view* x, const cudaStream_t& stream);
-extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view* x, const cudaStream_t& stream);
-#endif 
 
 namespace cnine{
 
+  class Rtensor2_view;
 
+  #ifdef _WITH_CUDA
+  extern float Rtensor_get_cu(const float* p);
+  extern void Rtensor_set_cu(float* p, const float v);
+  extern void Rtensor_inc_cu(float* p, const float v);
+  extern void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
+  extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
+  #endif 
+
+  
   class Rtensor2_view{
   public:
 
@@ -94,14 +97,14 @@ namespace cnine{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
 	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
       CPUCODE(arr[s0*i0+s1*i1]=x);
-      GPUCODE(return Rtensor_set_cu(arr+s0*i0+s1*i1,x));
+      GPUCODE(Rtensor_set_cu(arr+s0*i0+s1*i1,x));
     }
 
     void inc(const int i0, const int i1, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
 	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
       CPUCODE(arr[s0*i0+s1*i1]+=x);
-      GPUCODE(return Rtensor_inc_cu(arr+s0*i0+s1*i1,x));
+      GPUCODE(Rtensor_inc_cu(arr+s0*i0+s1*i1,x));
     }
 
     Rtensor2_view block(const int i0, const int i1, int m0=-1, int m1=-1) const{
@@ -121,7 +124,7 @@ namespace cnine{
 	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*n1*sizeof(float),cudaMemcpyDeviceToDevice)));
       }else{
 	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) {set(i0,i1,x(i0,i1));});
-	GPUCODE(CUDA_STREAM(Rtensor_copy_cu(*this,x)));
+	GPUCODE(CUDA_STREAM(Rtensor_copy_cu(*this,x,stream)));
       }
     }
 
@@ -133,13 +136,14 @@ namespace cnine{
 	GPUCODE();
       }else{
 	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) {inc(i0,i1,x(i0,i1));});
-	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x)));
+	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x,stream)));
       }
     }
 
 
     void add(const Rtensor2_view& y, const float c){
       CNINE_DEVICE_SAME(y);
+      CNINE_CPUONLY();
       assert(y.n0==n0);
       assert(y.n1==n1);
       for(int i0=0; i0<n0; i0++)
@@ -152,6 +156,7 @@ namespace cnine{
 
 
     void add_matmul_AA(const Rtensor2_view& x, const Rtensor2_view& y){
+      CNINE_CPUONLY();
       const int I=x.n1;
       assert(x.n0==n0);
       assert(y.n1==n1);
@@ -240,34 +245,3 @@ namespace cnine{
 
 
 #endif 
-      /*
-      if(dev==0){
-	for(int i0=0; i0<n0; i0++)
-	  for(int i1=0; i1<n1; i1++){
-	    //cout<<(*this)(i0,i1)<<endl;
-	    //cout<<y(i0,i1)<<endl;
-	    inc(i0,i1,x(i0,i1));
-	  }
-	return;
-      }
-
-      if(dev==1){
-	CUDA_STREAM(Rtensor_add_cu(*this,x));
-      }
-      */
-      /*
-      if(dev==0){
-	
-	for(int i0=0; i0<x.n0; i0++)
-	  for(int i1=0; i1<x.n1; i1++){
-	    set(i0,i1,x(i0,i1));
-	  }
-	return;
-      }
-
-      if(dev==1){
-	CUDA_STREAM(Rtensor_copy_cu(*this,x));
-	return;
-      }
-      */
-

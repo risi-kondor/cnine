@@ -17,7 +17,7 @@
 #include "Rtensor2_view.hpp"
 
 #ifdef _WITH_CUDA
-extern void batched_add_cu(float* rarr, const float* arr, const int b, const int sb, const int n, const int s, const cudaStream_t& stream){
+extern void batched_add_cu(float* rarr, const float* arr, const int b, const int sb, const int n, const int s, const cudaStream_t& stream);
 #endif 
 
 
@@ -144,10 +144,10 @@ namespace cnine{
 	#ifdef _WITH_CUDA
 	cudaStream_t stream;
 	CUDA_SAFE(cudaStreamCreate(&stream));
-	batched_add_cu(x.arr,x.arr+a*x.s1,x.n0,x.s0,(x.n1-a)*x.s1,x.s2,stream);
+	batched_add_cu(arr,arr+a*s1,n0,s0,(n1-a)*s1,s2,stream);
 	a/=2;
 	for(;a>0;a/=2)
-	  batched_add_cu(x.arr,x.arr+a*x.s1, x.n0,x.s0,a*x.s1,x.s2,stream);
+	  batched_add_cu(arr,arr+a*s1,n0,s0,a*s1,s2,stream);
 	CUDA_SAFE(cudaStreamDestroy(stream));
 	#endif 
       }

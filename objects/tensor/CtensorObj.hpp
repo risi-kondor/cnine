@@ -27,7 +27,7 @@ namespace cnine{
   class CtensorObj: public CNINE_CTENSOR_IMPL{
   public:
 
-    using CNINE_CTENSOR_IMPL::CNINE_CTENSOR_IMPL; 
+    //using CNINE_CTENSOR_IMPL::CNINE_CTENSOR_IMPL; 
 
     static complex<float> dummy_scalar() {return 0;}
 
