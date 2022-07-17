@@ -17,6 +17,16 @@
 
 namespace cnine{
 
+  class Rtensor1_view;
+
+  #ifdef _WITH_CUDA
+  extern float Rtensor_get_cu(const float* p);
+  extern void Rtensor_set_cu(float* p, const float v);
+  extern void Rtensor_inc_cu(float* p, const float v);
+  extern void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
+  extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
+  #endif 
+
 
   class Rtensor1_view{
   public:
@@ -60,22 +70,31 @@ namespace cnine{
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
+    bool is_regular() const{
+      if(s0!=1) return false;
+      return true;
+    }
+
     float operator()(const int i0) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=n0) 
 	  throw std::out_of_range("cnine::Rtensor1_view: index "+Gindex({i0}).str()+" out of range of view size "+Gdims({n0}).str()));
-      return arr[s0*i0];
+      CPUCODE(return arr[s0*i0]);
+      GPUCODE(return Rtensor_get_cu(arr+s0*i0));
+      return 0;
     }
 
-    void set(const int i0, float x){
+    void set(const int i0, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=n0) 
 	  throw std::out_of_range("cnine::Rtensor1_view: index "+Gindex({i0}).str()+" out of range of view size "+Gdims({n0}).str()));
-      arr[s0*i0]=x;
+      CPUCODE(arr[s0*i0]=x);
+      GPUCODE(Rtensor_set_cu(arr+s0*i0,x));
     }
 
-    void inc(const int i0, float x){
+    void inc(const int i0, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=n0) 
 	  throw std::out_of_range("cnine::Rtensor1_view: index "+Gindex({i0}).str()+" out of range of view size "+Gdims({n0}).str()));
       arr[s0*i0]+=x;
+      GPUCODE(Rtensor_inc_cu(arr+s0*i0,x));
     }
 
     Rtensor1_view block(const int i0, const int m0) const{
@@ -86,17 +105,29 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
-    void set(const Rtensor1_view& y){
-      assert(y.n0==n0);
-      for(int i0=0; i0<n0; i0++)
-	set(i0,y(i0));
+    void set(const Rtensor1_view& x) const{
+      CNINE_DEVICE_SAME(x);
+      assert(x.n0==n0);
+      if(is_regular() && x.is_regular()){
+	CPUCODE(std::copy(x.arr,x.arr+n0,arr));
+	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*sizeof(float),cudaMemcpyDeviceToDevice)));
+      }else{
+	CPUCODE(for(int i0=0; i0<n0; i0++) set(i0,x(i0)));
+	GPUCODE(CUDA_STREAM(Rtensor_copy_cu(*this,x,stream)));
+      }
     }
 
 
-    void add(const Rtensor1_view& y){
-      assert(y.n0==n0);
-      for(int i0=0; i0<n0; i0++)
-	inc(i0,y(i0));
+    void add(const Rtensor1_view& x) const{
+      CNINE_DEVICE_SAME(x);
+      assert(x.n0==n0);
+      if(is_regular() && x.is_regular()){
+	CPUCODE(stdadd<float>(x.arr,x.arr+n0,arr));
+	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,1,arr,1)));
+      }else{
+	CPUCODE(for(int i0=0; i0<n0; i0++) set(i0,x(i0)));
+	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,x.s0,arr,s0)));
+      }
     }
 
 

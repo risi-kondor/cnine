@@ -744,6 +744,15 @@ namespace cnine{
       return 1; 
     }
 
+    bool is_regular() const{
+      int t=1;
+      for(int j=strides.size()-1; j>=0; j--){
+	if(strides[j]!=t) return false;
+	t*=dims[j];
+      }
+      return true;
+    }
+
 
   public: // ---- Gindex case ---------
 
@@ -1015,37 +1024,44 @@ namespace cnine{
     }
 
 
-  public: // ---- Access views --------------------------------------------------------------------------------
+  public: // ---- 1D views -----------------------------------------------------------------------------------
 
 
     RtensorA(const Rtensor1_view& x):
       RtensorA({x.n0},fill_zero(),x.dev){
-      view1D().add(x);
+      view1().add(x);
     }
-      //for(int i=0; i<x.n0; i++)
-      //set(i,x(i));
-      
-    Rtensor1_view view1(){
-      return Rtensor1_view(arr,dims,strides);
-    }
+
+    //Rtensor1_view view1(){
+    //return Rtensor1_view(arr,dims,strides);
+    //}
 
     const Rtensor1_view view1() const{
       return Rtensor1_view(arr,dims,strides);
     }
 
-    Rtensor1_view view1D(){
+    const Rtensor1_view flattened_view() const{
+      assert(is_regular());
+      return Rtensor1_view(arr,asize,1,dev);
+    }
+    
+    [[deprecated]]
+    Rtensor1_view view1D(){ // deprecated 
       return Rtensor1_view(arr,dims,strides);
     }
 
-    const Rtensor1_view view1D() const{
+    [[deprecated]]
+    const Rtensor1_view view1D() const{ // deprecated
       return Rtensor1_view(arr,dims,strides);
     }
 
+
+  public: // ---- 2D views -----------------------------------------------------------------------------------
 
 
     RtensorA(const Rtensor2_view& x):
       RtensorA({x.n0,x.n1},fill_zero(),x.dev){
-      view2D().add(x);
+      view2().add(x);
     }
 
     Rtensor2_view view2(){
@@ -1056,10 +1072,12 @@ namespace cnine{
       return Rtensor2_view(arr,dims,strides);
     }
 
+    [[deprecated]]
     Rtensor2_view view2D(){
       return Rtensor2_view(arr,dims,strides);
     }
 
+    [[deprecated]]
     const Rtensor2_view view2D() const{
       return Rtensor2_view(arr,dims,strides);
     }
@@ -1072,6 +1090,7 @@ namespace cnine{
       return Rtensor2_view(arr,dims,strides,a,b);
     }
 
+    [[deprecated]]
     Rtensor2_view view2D(const GindexSet& a, const GindexSet& b){
       return Rtensor2_view(arr,dims,strides,a,b);
     }
@@ -1109,10 +1128,12 @@ namespace cnine{
     }
 
 
+  public: // ---- 3D views -----------------------------------------------------------------------------------
+
 
     RtensorA(const Rtensor3_view& x):
       RtensorA({x.n0,x.n1,x.n2},fill_zero(),x.dev){
-      view3D().add(x);
+      view3().add(x);
     }
 
     Rtensor3_view view3(){
@@ -1159,14 +1180,18 @@ namespace cnine{
       return Rtensor3_view(arr+i0*strides[0]+i1*strides[1]+i2*strides[2],m0,m1,m2,strides[0],strides[1],strides[2],dev);
     }
 
+    [[deprecated]]
     Rtensor3_view view3D(){
       return Rtensor3_view(arr,dims,strides);
     }
 
+    [[deprecated]]
     const Rtensor3_view view3D() const{
       return Rtensor3_view(arr,dims,strides);
     }
 
+
+  public: // ---- 4D views -----------------------------------------------------------------------------------
 
 
     RtensorA(const Rtensor4_view& x):
@@ -1199,9 +1224,6 @@ namespace cnine{
       return RtensorView(arr,dims,strides);
     }
 
-
-
-    
 
   public: // ---- Chunks -------------------------------------------------------------------------------------
 
@@ -2153,9 +2175,14 @@ namespace cnine{
   public: // ---- Reductions ---------------------------------------------------------------------------------
 
 
-    RtensorA reduce(const int j){
+    RtensorA reduce_destructively(const int j){
+      assert(is_regular());
       Gdims D=dims.remove(j);
       RtensorA R=RtensorA::zero(D,dev);
+      if(j==0){
+	Rtensor2_view x(arr,dims[0],asize/dims[0],strides[0],strides.back(),dev);
+	x.reduce0_destructively_into(Rtensor1_view(R.arr,R.asize,R.strides.back(),dev));
+      }
       int n0=1; for(int i=0; i<j; i++) n0*=R.dims[i];
       int n1=1; for(int i=j; i<R.dims.size(); i++) n1*=R.dims[i];
       view3_picking(j).reduce1_destructively_into(Rtensor2_view(R.arr,n0,n1,R.strides[j-1],R.strides.back(),dev));

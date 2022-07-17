@@ -108,6 +108,7 @@ namespace cnine{
     }
 
     Rtensor2_view block(const int i0, const int i1, int m0=-1, int m1=-1) const{
+      CNINE_CPUONLY();
       if(m0<0) m0=n0-i0;
       if(m1<0) m1=n1-i1;
       return Rtensor2_view(arr+i0*s0+i1*s1,m0,m1,s0,s1,dev);
@@ -119,7 +120,9 @@ namespace cnine{
 
     void set(const Rtensor2_view& x) const{
       CNINE_DEVICE_SAME(x);
-      if(x.n0==n0 && x.n1==n1 && is_regular() && x.is_regular()){
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      if(is_regular() && x.is_regular()){
 	CPUCODE(std::copy(x.arr,x.arr+n0*n1,arr));
 	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*n1*sizeof(float),cudaMemcpyDeviceToDevice)));
       }else{
@@ -131,9 +134,11 @@ namespace cnine{
 
     void add(const Rtensor2_view& x) const{
       CNINE_DEVICE_SAME(x);
-      if(x.n0==n0 && x.n1==n1 && is_regular() && x.is_regular()){
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      if(is_regular() && x.is_regular()){
 	CPUCODE(stdadd<float>(x.arr,x.arr+n0*s0,arr));
-	GPUCODE();
+	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0*n1,&alpha,x.arr,1,arr,1)));
       }else{
 	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) {inc(i0,i1,x(i0,i1));});
 	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x,stream)));
@@ -172,19 +177,66 @@ namespace cnine{
     }
     
 
+  public: // ---- Reductions --------------------------------------------------------------------------------
+
+
+    void reduce0_destructively_into(const Rtensor1_view& r){
+      assert(r.n0==n1);
+      reduce0_destructively();
+      r.add(slice0(0));
+    }
+
+    void reduce1_destructively_into(const Rtensor1_view& r){
+      assert(r.n0==n0);
+      reduce0_destructively();
+      r.add(slice1(0));
+    }
+
+    void reduce0_destructively() const{
+      if(dev==0){
+	if(is_regular()){
+	  int a=1; while(a<n0) a*=2; a/=2;
+	  stdadd<float>(arr+a*s0,arr+n0*s0,arr); a/=2;
+	  for(;a>0;a/=2)
+	    stdadd<float>(arr+a*s0,arr+2*a*s0,arr);
+	}else{
+	  for(int i1=0; i1<n1; i1++){
+	    float t=0;
+	    for(int i0=0; i0<n0; i0++) 
+	      t+=(*this)(i0,i1);
+	    set(0,i1,t);
+	  }
+	}
+      }
+      if(dev==1){
+	if(is_regular()){
+	  const float alpha=1; 
+	  int a=1; while(a<n0) a*=2; a/=2;
+	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas,(n0-a)*s0,&alpha,arr+a*s0,1,arr,1)); a/=2;
+	  for(;a>0;a/=2)
+	    CUBLAS_SAFE(cublasSaxpy(cnine_cublas,a*s0,&alpha,arr+a*s0,1,arr,1));
+	}else{
+	  CUDA_STREAM(Rtensor2_reduce0(*this,stream));
+	}
+      }
+    }
+
+    void reduce1_destructively() const{
+      transp().reduce0_destructively();
+    }
+
+
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
     Rtensor1_view slice0(const int i){
-      CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
-	  throw std::out_of_range("cnine::Rtensor2_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
-	return Rtensor1_view(arr+i*s0,n1,s1,dev);
+      CNINE_CHECK_RANGE(if(i<0 || i>=n0) throw std::out_of_range("cnine::Rtensor2_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]"););
+      return Rtensor1_view(arr+i*s0,n1,s1,dev);
     }
 
     Rtensor1_view slice1(const int i){
-      CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
-	  throw std::out_of_range("cnine::Rtensor2_view:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
-	return Rtensor1_view(arr+i*s1,n0,s0,dev);
+      CNINE_CHECK_RANGE(if(i<0 || i>=n1) throw std::out_of_range("cnine::Rtensor2_view:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]"););
+      return Rtensor1_view(arr+i*s1,n0,s0,dev);
     }
 
     Rtensor1_view fuse01() const{
@@ -197,14 +249,8 @@ namespace cnine{
     }
 
 
-    Rtensor2_view transp(){
-      Rtensor2_view R(arr);
-      R.n0=n1;
-      R.n1=n0;
-      R.s0=s1;
-      R.s1=s0;
-      R.dev=dev;
-      return R;
+    Rtensor2_view transp() const{
+      return Rtensor2_view(arr,n1,n0,s1,s0,dev);
     }
 
  

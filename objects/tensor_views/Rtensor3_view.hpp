@@ -23,6 +23,15 @@ extern void batched_add_cu(float* rarr, const float* arr, const int b, const int
 
 namespace cnine{
 
+  class Rtensor3_view;
+
+  #ifdef _WITH_CUDA
+  extern float Rtensor_get_cu(const float* p);
+  extern void Rtensor_set_cu(float* p, const float v);
+  extern void Rtensor_inc_cu(float* p, const float v);
+  extern void Rtensor_copy_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
+  extern void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
+  #endif 
 
   class Rtensor3_view{
   public:
@@ -58,22 +67,33 @@ namespace cnine{
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
+    bool is_regular() const{
+      if(s2!=1) return false;
+      if(s1!=n2) return false;
+      if(s0!=n1*s1) return false;
+      return true;
+    }
+
     float operator()(const int i0, const int i1, const int i2) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i0>=n0 || i1>=n1 || i2>=n2) 
 	  throw std::out_of_range("cnine::Rtensor3_view: index "+Gindex({i0,i1,i2}).str()+" out of range of view size "+Gdims({n0,n1,n2}).str()));
-      return arr[s0*i0+s1*i1+s2*i2];
+      CPUCODE(return arr[s0*i0+s1*i1+s2*i2]);
+      GPUCODE(return Rtensor_get_cu(arr+s0*i0+s1*i1+s2*i2));
+      return 0;
     }
 
     void set(const int i0, const int i1, const int i2, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i0>=n0 || i1>=n1 || i2>=n2) 
 	  throw std::out_of_range("cnine::Rtensor3_view: index "+Gindex({i0,i1,i2}).str()+" out of range of view size "+Gdims({n0,n1,n2}).str()));
-      arr[s0*i0+s1*i1+s2*i2]=x;
+      CPUCODE(arr[s0*i0+s1*i1+s2*i2]=x);
+      GPUCODE(Rtensor_set_cu(arr+s0*i0+s1*i1+s2*i2,x));
     }
 
     void inc(const int i0, const int i1, const int i2, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i0>=n0 || i1>=n1 || i2>=n2) 
 	  throw std::out_of_range("cnine::Rtensor3_view: index "+Gindex({i0,i1,i2}).str()+" out of range of view size "+Gdims({n0,n1,n2}).str()));
-      arr[s0*i0+s1*i1+s2*i2]+=x;
+      CPUCODE(arr[s0*i0+s1*i1+s2*i2]+=x);
+      GPUCODE(Rtensor_inc_cu(arr+s0*i0+s1*i1+s2*i2,x));
     }
 
     Rtensor3_view block(const int i0, const int i1, const int i2, const int m0, const int m1, const int m2) const{
@@ -84,18 +104,30 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
-    void add(const Rtensor3_view& y){
-      assert(y.n0==n0);
-      assert(y.n1==n1);
-      assert(y.n2==n2);
-      for(int i0=0; i0<n0; i0++)
-	for(int i1=0; i1<n1; i1++)
-	  for(int i2=0; i2<n2; i2++){
-	    inc(i0,i1,i2,y(i0,i1,i2));
-	  }
+    void set(const Rtensor3_view& x) const{
+      CNINE_DEVICE_SAME(x);
+      if(x.n0==n0 && x.n1==n1 && x.n2==n2 && is_regular() && x.is_regular()){
+	CPUCODE(std::copy(x.arr,x.arr+n0*n1*n2,arr));
+	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*n1*sizeof(float),cudaMemcpyDeviceToDevice)));
+      }else{
+	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) for(int i2=0; i2<x.n2; i2++) {set(i0,i1,i2,x(i0,i1,i2));});
+	GPUCODE(CUDA_STREAM(Rtensor_copy_cu(*this,x,stream)));
+      }
+    }
+
+    void add(const Rtensor3_view& x) const{
+      CNINE_DEVICE_SAME(x);
+      if(x.n0==n0 && x.n1==n1 && x.n2==n2 && is_regular() && x.is_regular()){
+	CPUCODE(stdadd<float>(x.arr,x.arr+n0*n1*n2,arr));
+	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0*n1*n2,&alpha,x.arr,1,arr,1)));
+      }else{
+	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) for(int i2=0; i2<x.n2; i2++) {inc(i0,i1,i2,x(i0,i1,i2));});
+	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x,stream)));
+      }
     }
 
     void add_matmul_AA(const Rtensor3_view& x, const Rtensor2_view& y){
+      CNINE_CPUONLY();
       const int I=x.n2;
       const int nb=x.n0;
       assert(n0==nb);
@@ -117,44 +149,65 @@ namespace cnine{
   public: // ---- Reductions --------------------------------------------------------------------------------
 
 
+    void reduce0_destructively_into(const Rtensor2_view& r) const{
+      reduce0_destructively();
+      r.add(slice0(0));
+    }
+
     void reduce1_destructively_into(const Rtensor2_view& r) const{
-      assert(r.n0==n0);
-      assert(r.n1==n2);
       reduce1_destructively();
       r.add(slice1(0));
     }
 
+    void reduce2_destructively_into(const Rtensor2_view& r) const{
+      reduce2_destructively();
+      r.add(slice2(0));
+    }
+
+
+    void reduce0_destructively() const{
+      fuse12().reduce0_destructively();
+    }
 
     void reduce1_destructively() const{
 
       if(dev==0){
-	for(int i0=0; i0<n0; i0++){
-	  for(int i2=0; i2<n2; i2++){
-	    float t=arr[s0*i0+s2*i2];
-	    for(int i1=1; i1<n1; i1++)
-	      t+=arr[s0*i0+s1*i1+s2*i2];
-	    arr[s0*i0+s2*i2]=t;
-	  }
+	if(is_regular()){
+	  for(int i0=0; i0<n0; i0++)
+	    slice0(i0).reduce0_destructively();
+	}else{
+	  for(int i0=0; i0<n0; i0++)
+	    for(int i2=0; i2<n2; i2++){
+	      float t=0;
+	      for(int i1=0; i1<n1; i1++)
+		t+=arr[s0*i0+s1*i1+s2*i2];
+	      arr[s0*i0+s2*i2]=t;
+	    }
 	}
       }
       
       if(dev==1){
-	int a=1; while(a<n1) a*=2; a/=2;
-
-	#ifdef _WITH_CUDA
-	cudaStream_t stream;
-	CUDA_SAFE(cudaStreamCreate(&stream));
-	batched_add_cu(arr,arr+a*s1,n0,s0,(n1-a)*s1,s2,stream);
-	a/=2;
-	for(;a>0;a/=2)
-	  batched_add_cu(arr,arr+a*s1,n0,s0,a*s1,s2,stream);
-	CUDA_SAFE(cudaStreamDestroy(stream));
-	#endif 
+	if(is_regular()){
+	  int a=1; while(a<n1) a*=2; a/=2;
+	  #ifdef _WITH_CUDA
+	  cudaStream_t stream;
+	  CUDA_SAFE(cudaStreamCreate(&stream));
+	  batched_add_cu(arr,arr+a*s1,n0,s0,(n1-a)*s1,s2,stream); a/=2;
+	  for(;a>0;a/=2)
+	    batched_add_cu(arr,arr+a*s1,n0,s0,a*s1,s2,stream);
+	  CUDA_SAFE(cudaStreamDestroy(stream));
+	  #endif 
+	}else{
+	  for(int i0=0; i0<n0; i0++)
+	    slice0(i0).reduce0_destructively();
+	}
       }
 
     }
 
-    
+    void reduce2_destructively() const{
+      fuse01().reduce1_destructively();
+    }
 
 
   public: // ---- Other views -------------------------------------------------------------------------------
@@ -178,11 +231,13 @@ namespace cnine{
       return Rtensor2_view(arr+i*s2,n0,n1,s0,s1,dev);
     }
 
-    Rtensor2_view fuse01(){
+    Rtensor2_view fuse01() const{
+      assert(is_regular());
       return Rtensor2_view(arr,n0*n1,n2,s1,s2,dev);
     }    
 
-    Rtensor2_view fuse12(){
+    Rtensor2_view fuse12() const{
+      assert(is_regular());
       return Rtensor2_view(arr,n0,n1*n2,s0,s2,dev);
     }    
 

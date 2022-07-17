@@ -28,7 +28,7 @@ int main(int argc, char** argv){
   rtensor B=rtensor::gaussian({4,4});
   cout<<"B="<<endl<<B<<endl<<endl;
 
-  auto Av=A.view2D();
+  auto Av=A.view2();
   cout<<Av(2,3)<<endl;
 
 }
