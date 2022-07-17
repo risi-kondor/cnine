@@ -210,6 +210,28 @@ namespace cnine{
     }
 
 
+  public: // ---- Broadcasting ------------------------------------------------------------------------------
+
+
+    void broadcast0(const Rtensor2_view& x){
+      assert(x.n0==n1);
+      assert(x.n1==n2);
+      CNINE_UNIMPL();
+    }
+
+    void broadcast1(const Rtensor2_view& x){
+      assert(x.n0==n0);
+      assert(x.n1==n2);
+      CNINE_UNIMPL();
+    }
+
+    void broadcast2(const Rtensor2_view& x){
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      CNINE_UNIMPL();
+    }
+
+
   public: // ---- Other views -------------------------------------------------------------------------------
 
 

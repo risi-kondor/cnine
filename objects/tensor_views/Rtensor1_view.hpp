@@ -131,6 +131,27 @@ namespace cnine{
     }
 
 
+  public: // ---- Reductions --------------------------------------------------------------------------------
+
+
+    float reduce() const{
+      float t=0;
+      CPUCODE(for(int i=0; i<n0; i++) t+=arr[i*s0]);
+      GPUCODE(CUBLAS_SAFE(cublasSasum(cnine_cublas,n0,arr,s0,&t)));
+      return t;
+    }
+
+
+  public: // ---- Broadcasting ------------------------------------------------------------------------------
+
+
+    void broadcast(const float v){
+      assert(is_regular());
+      CNINE_CPUONLY();
+      CPUCODE(std::fill_n(arr,n0,v));
+    }
+
+
   public: // ---- Conversions -------------------------------------------------------------------------------
 
     

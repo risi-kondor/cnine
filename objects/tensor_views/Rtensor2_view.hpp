@@ -180,13 +180,13 @@ namespace cnine{
   public: // ---- Reductions --------------------------------------------------------------------------------
 
 
-    void reduce0_destructively_into(const Rtensor1_view& r){
+    void reduce0_destructively_into(const Rtensor1_view& r) const{
       assert(r.n0==n1);
       reduce0_destructively();
       r.add(slice0(0));
     }
 
-    void reduce1_destructively_into(const Rtensor1_view& r){
+    void reduce1_destructively_into(const Rtensor1_view& r) const{
       assert(r.n0==n0);
       reduce0_destructively();
       r.add(slice1(0));
@@ -226,15 +226,29 @@ namespace cnine{
     }
 
 
+  public: // ---- Broadcasting ------------------------------------------------------------------------------
+
+
+    void broadcast0(const Rtensor1_view& x){
+      assert(x.n0==n1);
+      CNINE_UNIMPL();
+    }
+
+    void broadcast1(const Rtensor1_view& x){
+      assert(x.n0==n0);
+      CNINE_UNIMPL();
+    }
+
+
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
-    Rtensor1_view slice0(const int i){
+    Rtensor1_view slice0(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) throw std::out_of_range("cnine::Rtensor2_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]"););
       return Rtensor1_view(arr+i*s0,n1,s1,dev);
     }
 
-    Rtensor1_view slice1(const int i){
+    Rtensor1_view slice1(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) throw std::out_of_range("cnine::Rtensor2_view:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]"););
       return Rtensor1_view(arr+i*s1,n0,s0,dev);
     }
