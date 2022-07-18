@@ -96,47 +96,120 @@ namespace cnine{
     }
 
 
+  public: // ---- Reductions --------------------------------------------------------------------------------
+
+
+    void reduce0_destructively_into(const Rtensor3_view& r) const{
+      reduce0_destructively();
+      r.add(slice0(0));
+    }
+
+    void reduce1_destructively_into(const Rtensor3_view& r) const{
+      reduce1_destructively();
+      r.add(slice1(0));
+    }
+
+    void reduce2_destructively_into(const Rtensor3_view& r) const{
+      reduce2_destructively();
+      r.add(slice2(0));
+    }
+
+    void reduce3_destructively_into(const Rtensor3_view& r) const{
+      reduce3_destructively();
+      r.add(slice3(0));
+    }
+
+
+    void reduce0_destructively() const{
+      fuse12().reduce0_destructively();
+    }
+
+    void reduce1_destructively() const{
+      fuse23().reduce1_destructively();
+    }
+
+    void reduce2_destructively() const{
+      fuse01().reduce1_destructively();
+    }
+
+    void reduce3_destructively() const{
+      fuse01().reduce2_destructively();
+    }
+
+
+  public: // ---- Broadcasting ------------------------------------------------------------------------------
+
+
+    void broadcast0(const Rtensor3_view& x){
+      assert(x.n0==n1);
+      assert(x.n1==n2);
+      assert(x.n2==n3);
+      fuse23().broadcast0(x.fuse12());
+    }
+
+    void broadcast1(const Rtensor3_view& x){
+      assert(x.n0==n0);
+      assert(x.n1==n2);
+      assert(x.n2==n3);
+      fuse23().broadcast1(x.fuse12());
+    }
+
+    void broadcast2(const Rtensor3_view& x){
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      assert(x.n2==n3);
+      fuse01().broadcast1(x.fuse01());
+    }
+
+    void broadcast3(const Rtensor3_view& x){
+      assert(x.n0==n0);
+      assert(x.n1==n1);
+      assert(x.n2==n3);
+      fuse01().broadcast2(x.fuse01());
+    }
+
+
   public: // ---- Other views -------------------------------------------------------------------------------
 
 
-    Rtensor3_view slice0(const int i){
+    Rtensor3_view slice0(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
 	return Rtensor3_view(arr+i*s0,n1,n2,n3,s1,s2,s3,dev);
     }
 
-    Rtensor3_view slice1(const int i){
+    Rtensor3_view slice1(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
 	return Rtensor3_view(arr+i*s1,n0,n2,n3,s0,s2,s3,dev);
     }
 
-    Rtensor3_view slice2(const int i){
+    Rtensor3_view slice2(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice2(int): index "+to_string(i)+" out of range of [0,"+to_string(n2-1)+"]");)
 	return Rtensor3_view(arr+i*s2,n0,n1,n3,s0,s1,s3,dev);
     }
 
-    Rtensor3_view slice3(const int i){
+    Rtensor3_view slice3(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n3) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice3(int): index "+to_string(i)+" out of range of [0,"+to_string(n3-1)+"]");)
 	return Rtensor3_view(arr+i*s3,n0,n1,n2,s0,s1,s2,dev);
     }
 
-    Rtensor3_view fuse01(){
+    Rtensor3_view fuse01() const{
       return Rtensor3_view(arr,n0*n1,n2,n3,s1,s2,s3,dev);
     }    
 
-    Rtensor3_view fuse12(){
+    Rtensor3_view fuse12() const{
       return Rtensor3_view(arr,n0,n1*n2,n3,s0,s2,s3,dev);
     }    
 
-    Rtensor3_view fuse23(){
+    Rtensor3_view fuse23() const{
       return Rtensor3_view(arr,n0,n1,n2*n3,s0,s1,s3,dev);
     }    
 
 
-    Rtensor2_view slice01(const int i, const int j){
+    Rtensor2_view slice01(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice01(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
@@ -144,7 +217,7 @@ namespace cnine{
 	return Rtensor2_view(arr+i*s0+j*s1,n2,n3,s2,s3,dev);
     }
 
-    Rtensor2_view slice02(const int i, const int j){
+    Rtensor2_view slice02(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice02(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
       CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
@@ -152,7 +225,7 @@ namespace cnine{
 	return Rtensor2_view(arr+i*s0+j*s2,n1,n3,s1,s3,dev);
     }
 
-    Rtensor2_view slice03(const int i, const int j){
+    Rtensor2_view slice03(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice03(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
       CNINE_CHECK_RANGE(if(i<0 || i>=n3) 
@@ -160,7 +233,7 @@ namespace cnine{
 	return Rtensor2_view(arr+i*s0+j*s3,n1,n2,s1,s2,dev);
     }
 
-    Rtensor2_view slice12(const int i, const int j){
+    Rtensor2_view slice12(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice12(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
 	CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
@@ -168,7 +241,7 @@ namespace cnine{
 	return Rtensor2_view(arr+i*s1+j*s2,n0,n3,s0,s3,dev);
     }
 
-    Rtensor2_view slice13(const int i, const int j){
+    Rtensor2_view slice13(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice13(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
       CNINE_CHECK_RANGE(if(i<0 || i>=n3) 
@@ -176,7 +249,7 @@ namespace cnine{
 	return Rtensor2_view(arr+i*s1+j*s3,n0,n2,s0,s2,dev);
     }
 
-    Rtensor2_view slice23(const int i, const int j){
+    Rtensor2_view slice23(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice23(int): index "+to_string(i)+" out of range of [0,"+to_string(n2-1)+"]");)
       CNINE_CHECK_RANGE(if(i<0 || i>=n3) 

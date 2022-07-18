@@ -364,6 +364,13 @@ namespace cnine{
   }
 
   template<typename TYPE>
+  void stdadd(const TYPE* beg, const TYPE* end, TYPE* dest, TYPE c){
+    const int n=end-beg; 
+    for(int i=0; i<n; i++)
+      dest[i]+=c*beg[i];
+  }
+
+  template<typename TYPE>
   void stdsub(const TYPE* beg, const TYPE* end, TYPE* dest){
     const int n=end-beg; 
     for(int i=0; i<n; i++)

@@ -96,9 +96,9 @@ namespace cnine{
       GPUCODE(Rtensor_inc_cu(arr+s0*i0+s1*i1+s2*i2,x));
     }
 
-    Rtensor3_view block(const int i0, const int i1, const int i2, const int m0, const int m1, const int m2) const{
-      return Rtensor3_view(arr+i0*s0+i1*s1+i2*s2,m0,m1,m2,s0,s1,s2,dev);
-    }
+    //Rtensor3_view block(const int i0, const int i1, const int i2, const int m0, const int m1, const int m2) const{
+    //return Rtensor3_view(arr+i0*s0+i1*s1+i2*s2,m0,m1,m2,s0,s1,s2,dev);
+    //}
 
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
@@ -216,19 +216,20 @@ namespace cnine{
     void broadcast0(const Rtensor2_view& x){
       assert(x.n0==n1);
       assert(x.n1==n2);
-      CNINE_UNIMPL();
+      fuse12().broadcast0(x.fuse01());
     }
 
     void broadcast1(const Rtensor2_view& x){
       assert(x.n0==n0);
       assert(x.n1==n2);
-      CNINE_UNIMPL();
+      for(int i0=0; i0<n0; i0++)
+	slice0(i0).broadcast0(x.slice0(i0));
     }
 
     void broadcast2(const Rtensor2_view& x){
       assert(x.n0==n0);
       assert(x.n1==n1);
-      CNINE_UNIMPL();
+      fuse01().broadcast1(x.fuse01());
     }
 
 
@@ -262,6 +263,17 @@ namespace cnine{
       assert(is_regular());
       return Rtensor2_view(arr,n0,n1*n2,s0,s2,dev);
     }    
+
+    Rtensor3_view block(const int i0, const int i1, const int i2, int m0=-1, int m1=-1, int m2=-1) const{
+      if(m0==-1) m0=n0-i0;
+      if(m1==-1) m1=n1-i1;
+      if(m2==-1) m2=n2-i2;
+      CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i0>=n0 || i1>=n1 || i2>=n2) 
+	  throw std::out_of_range("cnine::Rtensor3_view::block: index "+Gindex({i0,i1,i2}).str()+" out of range of size "+Gindex({n0,n1,n2}).str()));
+      CNINE_CHECK_RANGE(if(i0+m0<0 || i1+m1<0 || i2+m2<0 || i0+m0>n0 || i1+m1>n1|| i2+m2>n2) 
+	  throw std::out_of_range("cnine::Rtensor3_view::block: end index "+Gindex({i0+m0,i1+m1,i2+m2}).str()+" out of range of size "+Gindex({n0,n1,n2}).str()));
+      return Rtensor3_view(arr+i0*s0+i1*s1+i2*s2,m0,m1,m2,s0,s1,s2,dev);
+    }
 
 
   public: // ---- Conversions -------------------------------------------------------------------------------

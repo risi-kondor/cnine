@@ -82,7 +82,7 @@ __global__ void Rtensor_add_kernel_tt(float* rarr, const float* arr,
   rarr[threadIdx.x*rs0+threadIdx.y*rs1]+=arr[threadIdx.x*s0+threadIdx.y*s1];
 }
 
-__global__ void Rtensor_add_kernel_bt(float* rarr, const float* arr, 
+k__global__ void Rtensor_add_kernel_bt(float* rarr, const float* arr, 
   const int s0, const int s1, const int rs0, const int rs1){
   rarr[blockIdx.x*rs0+threadIdx.x*rs1]+=arr[blockIdx.x*s0+threadIdx.x*s1];
 }
@@ -90,6 +90,22 @@ __global__ void Rtensor_add_kernel_bt(float* rarr, const float* arr,
 __global__ void Rtensor_add_kernel_bb(float* rarr, const float* arr, 
   const int s0, const int s1, const int rs0, const int rs1){
   rarr[blockIdx.x*rs0+blockIdx.y*rs1]+=arr[blockIdx.x*s0+blockIdx.y*s1];
+}
+
+
+__global__ void Rtensor_add_kernel_tt(float* rarr, const float* arr, 
+  const int s0, const int s1, const int rs0, const int rs1, const float c){
+  rarr[threadIdx.x*rs0+threadIdx.y*rs1]+=c*arr[threadIdx.x*s0+threadIdx.y*s1];
+}
+
+k__global__ void Rtensor_add_kernel_bt(float* rarr, const float* arr, 
+  const int s0, const int s1, const int rs0, const int rs1, const float c){
+  rarr[blockIdx.x*rs0+threadIdx.x*rs1]+=c*arr[blockIdx.x*s0+threadIdx.x*s1];
+}
+
+__global__ void Rtensor_add_kernel_bb(float* rarr, const float* arr, 
+  const int s0, const int s1, const int rs0, const int rs1, const float c){
+  rarr[blockIdx.x*rs0+blockIdx.y*rs1]+=c*arr[blockIdx.x*s0+blockIdx.y*s1];
 }
 
 
@@ -214,6 +230,16 @@ namespace cnine{
 	Rtensor_add_kernel_bt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
 	Rtensor_add_kernel_bb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1);});
+  }
+
+void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const float c, const cudaStream_t& stream){
+    dispatch(r,x,
+      [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
+	Rtensor_add_kernel_tt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1,c);},
+      [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
+	Rtensor_add_kernel_bt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1,c);},
+      [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int rs0, const int rs1){      
+	Rtensor_add_kernel_bb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,rs0,rs1,c);});
   }
 
   void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream){
