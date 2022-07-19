@@ -851,6 +851,13 @@ namespace cnine{
       return RscalarA(arr[i0]);
     }
 
+    void set(const int i0, const float x){
+      CNINE_ASSERT(dev==0,"RtensorA::set not implemented for GPU.\n");
+      assert(k==1);
+      int t=i0*strides[0];
+      arr[t]=x;
+    }
+
     void set(const int i0, const RscalarA& x){
       CNINE_ASSERT(dev==0,"RtensorA::set not implemented for GPU.\n");
       assert(k==1);
