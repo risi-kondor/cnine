@@ -1387,8 +1387,8 @@ namespace cnine{
 	CtensorB R=CtensorB::raw(dims,dev);
 	const complex<float> alpha = 1.0;
 	const complex<float> beta = 0.0;
-	CUBLAS_SAFE(cublasCgeam(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,J,I,
-	    &alpha,arrg,I,&beta,R.arrg,J,R.arrg,J));
+	//CUBLAS_SAFE(cublasCgeam(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,J,I,
+	//    &alpha,arrg,I,&beta,R.arrg,J,R.arrg,J));
 	return R;
       }
       return *this;
