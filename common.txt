@@ -1,0 +1,44 @@
+include $(ROOTDIR)/config.txt
+
+INCLUDEDIR=$(ROOTDIR)/include
+COMBIDIR=$(ROOTDIR)/combinatorial
+CUDADIR=$(ROOTDIR)/cuda
+SCALARDIR=$(ROOTDIR)/objects/scalar
+TENSORDIR=$(ROOTDIR)/objects/tensor
+TENSORVIEWDIR=$(ROOTDIR)/objects/tensor_views
+TENSORARRAYDIR=$(ROOTDIR)/objects/tensor_array
+BACKENDADIR=$(ROOTDIR)/objects/backendA
+BACKENDBDIR=$(ROOTDIR)/objects/backendB
+
+MANAGEDDIR=$(ROOTDIR)/managed
+MSCALARDIR=$(ROOTDIR)/managed/scalar
+MTENSORDIR=$(ROOTDIR)/managed/tensor
+MTENSORARRAYDIR=$(ROOTDIR)/objects/managed/tensor_array
+
+CNINE_CUDADIR=$(ROOTDIR)/cuda
+
+CENGINE_INCLUDES=-I$(CENGINE_ROOT)/include -I$(CENGINE_ROOT)/engine 
+
+
+CFLAGS= -std=c++17 -O3  # -ferror-limit=1 
+INCLUDE= -I $(ROOTDIR)/include 
+LIBS= -lstdc++ -lm -lpthread 
+
+CFLAGS+=-DCNINE_RANGE_CHECKING
+CFLAGS+=-DCNINE_DEVICE_CHECKING
+CFLAGS+=-DWITH_FAKE_GRAD
+
+MACROS=
+
+ifdef EIGENDIR
+MACROS+=-D_WITH_EIGEN
+endif 
+
+ifdef WITH_CUDA
+MACROS+=-D_WITH_CUDA
+endif 
+
+ifdef WITH_CUBLAS
+MACROS+=-D_WITH_CUBLAS
+endif 
+

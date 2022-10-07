@@ -1,0 +1,38 @@
+#CC=clang 
+
+
+# ---- CENGINE OPTIONS ----------------------------------
+
+
+CENGINE_ROOT=$(ROOTDIR)/../cengine/v2
+
+
+# ---- EIGEN OPTIONS ------------------------------------
+
+#EIGENDIR=/usr/local/include
+
+
+# ---- CUDA OPTIONS ------------------------------------
+
+#WITH_CUDA=t
+#CUDA_HOME=/usr/local/cuda
+
+#WITH_CUBLAS=t
+
+NVCC=nvcc #/usr/local/cuda/bin/nvcc #/Developer/NVIDIA/CUDA-9.1/bin/nvcc
+
+NVCCFLAGS= -lcublas
+
+#NVCCFLAGS= -rdc=true -ccbin clang++ -m64  -Xcompiler -arch -Xcompiler x86_64  \
+#-gencode arch=compute_61,code=sm_61 -lcublas 
+
+
+# ----- QT OPTIONS -----------------------------------
+
+## Path to Qt installation
+#QTDIR= /usr/local/Qt5.5.1/5.5/clang_64
+QTDIR=/opt/local/libexec/qt5/
+#QTDIR=/usr/local/miniconda3/pkgs/qt-5.9.6-h45cd832_2/include/qt
+
+SYSLIBROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk
+
