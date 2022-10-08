@@ -344,8 +344,8 @@ namespace cnine{
     }
 
     void resize0(const int n){
-      PTENS_ASSRT(!is_view);
-      PTENS_ASSRT(n>=dims[0]);
+      CNINE_ASSRT(!is_view);
+      CNINE_ASSRT(n>=dims[0]);
       if(n<=capacity0())
 	reserve0(n);
       dims[0]=n;
@@ -546,8 +546,8 @@ namespace cnine{
     }
 
     void push_back(const vector<int>& x){
-      PTENS_ASSRT(dims.size()==2);
-      PTENS_ASSRT(dims[1]==x.size());
+      CNINE_ASSRT(dims.size()==2);
+      CNINE_ASSRT(dims[1]==x.size());
       int row=dims[0];
       //if(capacity0()==0) reserve(1);
       if(capacity0()<=row+1) reserve0(2*(row+1));
@@ -557,8 +557,8 @@ namespace cnine{
     }
 
     void push_back(const int c, const vector<int>& x){
-      PTENS_ASSRT(dims.size()==2);
-      PTENS_ASSRT(dims[1]==x.size()+1);
+      CNINE_ASSRT(dims.size()==2);
+      CNINE_ASSRT(dims[1]==x.size()+1);
       int row=dims[0];
       if(capacity0()<=row+1) reserve0(2*(row+1));
       dims[0]++;
@@ -568,8 +568,8 @@ namespace cnine{
     }
 
     void push_back(const int c0, const int c1){
-      PTENS_ASSRT(dims.size()==2);
-      PTENS_ASSRT(dims[1]==2);
+      CNINE_ASSRT(dims.size()==2);
+      CNINE_ASSRT(dims[1]==2);
       int row=dims[0];
       if(capacity0()<=row+1) reserve0(2*(row+1));
       dims[0]++;
