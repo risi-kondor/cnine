@@ -39,6 +39,7 @@
 #ifdef _WITH_CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include "cuComplex.h"
 #endif 
 
 #ifdef _WITH_CUBLAS

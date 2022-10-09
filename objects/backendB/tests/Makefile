@@ -16,6 +16,8 @@ ifdef WITH_CUDA
 INCLUDE+=-I$(CUDA_HOME)/include
 #CUDA_OBJECTS+=$(CETENSORDIR)/CtensorBpack.o 
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
+CUDA_OBJECTS+=$(CUDADIR)/RtensorUtils.o  
+CUDA_OBJECTS+=$(CUDADIR)/TensorView_accumulators.o  
 endif 
 
 

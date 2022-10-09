@@ -246,7 +246,7 @@ namespace cnine{
     return r;
   }
 
-  void Rtensor_set_cu(float* p, const float& v){
+  void Rtensor_set_cu(float* p, const float v){
     //Rtensor_set_kernel<<<1,1>>>(p,v);
     CUDA_SAFE(cudaMemcpy(p,&v,sizeof(float),cudaMemcpyHostToDevice));
   }
