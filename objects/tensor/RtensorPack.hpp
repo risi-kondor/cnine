@@ -126,7 +126,7 @@ namespace cnine{
       RtensorPack R(x.dir,x.dev);
       R.reserve(x.tail);
       if(x.dev==0) std::fill(R.arr,R.arr+x.tail,0);
-      if(x.dev==1) CUDA_SAFE(cudaMemset(arrg,0,tail*sizeof(float)));
+      if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,tail*sizeof(float)));
       R.tail=x.tail;
       return R;
     }
@@ -135,7 +135,7 @@ namespace cnine{
       RtensorPack*  R=new RtensorPack(x.dir,x.dev);
       R->reserve(x.tail);
       if(x.dev==0) std::fill(R->arr,R->arr+x.tail,0);
-      if(x.dev==1) CUDA_SAFE(cudaMemset(arrg,0,tail*sizeof(float)));
+      if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,tail*sizeof(float)));
       R->tail=x.tail;
       return R;
     }
