@@ -2188,7 +2188,6 @@ namespace cnine{
 	for(int i=0; i<I; i++)
 	  for(int j=0; j<J; j++){
 	    float tr=0; 
-	    float ti=0;
 	    for(int p=0; p<K; p++){
 	      int qx=i*istridex+p;
 	      int qy=p*pstridey+j;

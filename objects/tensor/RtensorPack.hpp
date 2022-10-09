@@ -126,7 +126,7 @@ namespace cnine{
       RtensorPack R(x.dir,x.dev);
       R.reserve(x.tail);
       if(x.dev==0) std::fill(R.arr,R.arr+x.tail,0);
-      if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,tail*sizeof(float)));
+      if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,R.tail*sizeof(float)));
       R.tail=x.tail;
       return R;
     }
@@ -135,7 +135,7 @@ namespace cnine{
       RtensorPack*  R=new RtensorPack(x.dir,x.dev);
       R->reserve(x.tail);
       if(x.dev==0) std::fill(R->arr,R->arr+x.tail,0);
-      if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,tail*sizeof(float)));
+      if(x.dev==1) CUDA_SAFE(cudaMemset(R->arrg,0,R->tail*sizeof(float)));
       R->tail=x.tail;
       return R;
     }
@@ -454,7 +454,7 @@ namespace cnine{
       assert(x.dev==dev);
       assert(x.tail==tail);
       CPUCODE(cnine::stdadd(x.arr,x.arr+tail,arr));
-      GPUCODE(const float alpha = 1.0; CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1)));
+      GPUCODE(const float alpha = 1.0; CUBLAS_SAFE(cublasSaxpy(cnine_cublas, tail, &alpha, x.arrg, 1, arrg, 1)));
     }
 
 
@@ -462,7 +462,7 @@ namespace cnine{
       assert(x.dev==dev);
       assert(x.tail==tail);
       CPUCODE(cnine::stdadd(x.arr,x.arr+tail,arr,c));
-      GPUCODE(const float alpha = c; CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1)));
+      GPUCODE(const float alpha = c; CUBLAS_SAFE(cublasSaxpy(cnine_cublas, tail, &alpha, x.arrg, 1, arrg, 1)));
     }
 
 
