@@ -490,6 +490,8 @@ namespace cnine{
 
 
   inline void add_matmul_Ax_to(const Rtensor1_view& r, const Rtensor2_view& A, const Rtensor1_view& x){
+    int dev=r.dev;
+    PTENS_CPUONLY();
     assert(A.n0==r.n0);
     assert(A.n1==x.n0);
     for(int i0=0; i0<r.n0; i0++){

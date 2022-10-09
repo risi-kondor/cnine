@@ -40,6 +40,7 @@ namespace cnine{
     int memsize=0;
     int tail=0;
     IntTensor dir;
+    mutable IntTensor* dirg=nullptr;
     //bool is_view=false;
 
 
@@ -47,6 +48,7 @@ namespace cnine{
       //if(is_view) return;
       if(arr) delete[] arr;
       if(arrg) {CUDA_SAFE(cudaFree(arrg));}
+      if(dirg) delete dirg;
     }
 
 
@@ -116,21 +118,6 @@ namespace cnine{
       }
     }
 
-    RtensorPack(const rtensor& x){
-      CNINE_ASSRT(x.ndims()==2);
-      int m=x.dim(1);
-      CNINE_CPUONLY();
-      dev=x.dev;
-      memsize=x.memsize;
-      tail=memsize;
-      if(x.dev==0){
-	arr=new float[memsize];
-	std::copy(x.arr,x.arr+memsize,arr);
-      }
-      for(int i=0; i<x.dim(0); i++)
-	dir.push_back({i*m,m});
-    }
-
 
   public: // ---- Named constructors -------------------------------------------------------------------------
 
@@ -139,7 +126,7 @@ namespace cnine{
       RtensorPack R(x.dir,x.dev);
       R.reserve(x.tail);
       if(x.dev==0) std::fill(R.arr,R.arr+x.tail,0);
-      if(x.dev==1){}
+      if(x.dev==1) CUDA_SAFE(cudaMemset(arrg,0,tail*sizeof(float)));
       R.tail=x.tail;
       return R;
     }
@@ -148,7 +135,7 @@ namespace cnine{
       RtensorPack*  R=new RtensorPack(x.dir,x.dev);
       R->reserve(x.tail);
       if(x.dev==0) std::fill(R->arr,R->arr+x.tail,0);
-      if(x.dev==1){}
+      if(x.dev==1) CUDA_SAFE(cudaMemset(arrg,0,tail*sizeof(float)));
       R->tail=x.tail;
       return R;
     }
@@ -179,6 +166,7 @@ namespace cnine{
 	arrg=newarrg;
 	memsize=newsize;
       }
+      dirg_refresh();
     }
 
 
@@ -206,6 +194,14 @@ namespace cnine{
 	CUDA_SAFE(cudaMemset(arrg+memsize,0,(n-memsize)*sizeof(float)));
 	memsize=n;
       }
+      dirg_refresh();
+    }
+
+
+    void dirg_refresh() const{
+      if(!dirg) return; 
+      delete dirg;
+      get_dirg_ptr();
     }
 
 
@@ -236,9 +232,85 @@ namespace cnine{
       memsize=x.memsize; x.memsize=0; 
       arr=x.arr; x.arr=nullptr;
       arrg=x.arrg; x.arrg=nullptr;
+      dirg=x.dirg; 
     }
 
     RtensorPack& operator=(const RtensorPack& x)=delete;
+
+
+  public: // ---- Conversions ---------------------------------------------------------------------------------
+
+
+    RtensorPack(const rtensor& x){
+      CNINE_ASSRT(x.ndims()==2);
+      int m=x.dim(1);
+      CNINE_CPUONLY();
+      dev=x.dev;
+      memsize=x.memsize;
+      tail=memsize;
+      if(x.dev==0){
+	arr=new float[memsize];
+	std::copy(x.arr,x.arr+memsize,arr);
+      }
+      if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
+      }
+      for(int i=0; i<x.dim(0); i++)
+	dir.push_back({i*m,m});
+    }
+
+
+  public: // ---- Transport ----------------------------------------------------------------------------------
+
+
+    RtensorPack(const RtensorPack& x, const int _dev){
+      dev=_dev;
+      tail=x.tail;
+      memsize=x.memsize;
+      if(x.dirg) dirg=new IntTensor(*x.dirg);
+      if(dev==0){
+	arr=new float[memsize];
+	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
+	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
+      }
+      if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice)); 
+	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice)); 
+      }
+    }
+
+
+    RtensorPack& to_device(const int _dev){
+      if(dev==_dev) return *this;
+
+      if(_dev==0){
+	if(dev==1){
+	  memsize=tail;
+	  delete[] arr;
+	  arr=new float[memsize];
+	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
+	  CUDA_SAFE(cudaFree(arrg));
+	  arrg=nullptr;
+	  dev=0;
+	}
+      }
+
+      if(_dev>0){
+	if(dev==0){
+	  memsize=tail;
+	  if(arrg) CUDA_SAFE(cudaFree(arrg));
+	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(float),cudaMemcpyHostToDevice));  
+	  delete[] arr;
+	  arr=nullptr;
+	  dev=_dev;
+	}
+      }
+      
+      return *this;
+    }
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
@@ -329,6 +401,15 @@ namespace cnine{
     }
 
 
+    IntTensor* get_dirg_ptr(const int _dev=1) const{
+      if(!dirg) dirg=new IntTensor(dir,_dev);
+      return dirg;
+    }
+
+
+  public: // ---- Push back ----------------------------------------------------------------------------------
+
+
     void push_back(const rtensor& x){
       assert(x.dev==dev);
       if(tail+x.asize>memsize)
@@ -364,6 +445,7 @@ namespace cnine{
       dir.push_back(tail,_dims);
       tail+=asize;
     }
+
 
   public: // ---- Cumulative operations ----------------------------------------------------------------------
 
@@ -434,6 +516,7 @@ namespace cnine{
       stream<<v.str(); return stream;}
 
   };
+
 
 }
 
