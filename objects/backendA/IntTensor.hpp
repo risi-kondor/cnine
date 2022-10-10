@@ -49,8 +49,8 @@ namespace cnine{
 
     ~IntTensor(){
       if(is_view) return;
-      if(dev==0 && arr) {delete[] arr;}
-      if(dev==1 && arrg) {CUDA_SAFE(cudaFree(arrg));}
+      if(arr) {delete[] arr;}
+      if(arrg) {CUDA_SAFE(cudaFree(arrg));}
     }
 
     string classname() const{
@@ -288,22 +288,21 @@ namespace cnine{
 
       if(_dev==0){
 	if(dev==0) return *this;
-	int* old_arr=arr;
- 	delete[] arr;
+	assert(arrg);
+ 	if(arr) delete[] arr;
 	arr=new int[memsize];
-	CUDA_SAFE(cudaMemcpy(arr,old_arr,memsize*sizeof(int),cudaMemcpyDeviceToHost));  
-	CUDA_SAFE(cudaFree(old_arr));
+	CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(int),cudaMemcpyDeviceToHost));  
+	CUDA_SAFE(cudaFree(arrg));
 	dev=0;
 	return *this;
       }
 
       if(_dev>0){
 	if(dev==_dev) return *this;
-	int* old_arr=arr;
-	if(arr) CUDA_SAFE(cudaFree(arr));
-	CUDA_SAFE(cudaMalloc((void **)&arr, memsize*sizeof(int)));
-	CUDA_SAFE(cudaMemcpy(arr,old_arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
-	delete[] old_arr;
+	assert(arr);
+	if(arrg) CUDA_SAFE(cudaFree(arrg));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
 	dev=_dev;
 	return *this;
       }
@@ -313,6 +312,14 @@ namespace cnine{
     
     IntTensor to_device(const int _dev) const{
       return IntTensor(*this,_dev);
+    }
+
+    void make_garr(const int _dev=1){
+      if(arrg) return;
+      assert(arr);
+      assert(!is_view);
+      CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+      CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
     }
 
 
@@ -402,6 +409,11 @@ namespace cnine{
 
     int get_dev() const{
       return dev;
+    }
+
+    int* garr(const int _dev=1) const{
+      if(!arrg) const_cast<IntTensor&>(*this).make_garr(_dev);
+      return arrg;
     }
 
 
@@ -543,6 +555,13 @@ namespace cnine{
       for(int j=0; j<dims[1]-beg; j++)
 	R[j]=(*this)(i,j+beg);
       return R;
+    }
+
+    void set_row(const int i, const initializer_list<int>& list){
+      CNINE_ASSRT(dims.size()==2);
+      int j=0;
+      for(auto p:list)
+	set(i,j++,p);
     }
 
     void push_back(const vector<int>& x){
