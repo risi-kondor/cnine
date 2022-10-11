@@ -474,17 +474,18 @@ namespace cnine{
 
     void add_ReLU(const RtensorPack& x, const float alpha=0.1){
       CNINE_CPUONLY();
-      assert(x.dev==dev);
-      assert(x.tail==tail);
+      CNINE_DEVICE_SAME(x);
+      CNINE_ASSRT(x.tail==tail);
       CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]+=x.arr[i]; else arr[i]+=alpha*x.arr[i]);
       GPUCODE();
     }
 
-    void add_ReLU_back(const RtensorPack& x, const float alpha=0.1){
+    void add_ReLU_back(const RtensorPack& g, const RtensorPack& x, const float alpha=0.1){
       CNINE_CPUONLY();
-      assert(x.dev==dev);
-      assert(x.tail==tail);
-      CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]=x.arr[i]; else arr[i]=x.arr[i]*alpha);
+      CNINE_DEVICE_SAME(g);
+      CNINE_DEVICE_SAME(x);
+      CNINE_ASSRT(x.tail==tail);
+      CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]=g.arr[i]; else arr[i]=g.arr[i]*alpha);
       GPUCODE();
     }
 
@@ -493,10 +494,18 @@ namespace cnine{
 
     
     float inp(const RtensorPack& y){
+      CNINE_CPUONLY();
       CNINE_ASSRT(tail==y.tail);
       float t=0;
-      CNINE_CPUONLY();
       CPUCODE(for(int i=0; i<tail; i++) t+=arr[i]*y.arr[i];)
+      return t;
+    }
+
+    float diff2(const RtensorPack& y){
+      CNINE_CPUONLY();
+      CNINE_ASSRT(tail==y.tail);
+      float t=0;
+      CPUCODE(for(int i=0; i<tail; i++) t+=(arr[i]-y.arr[i])*(arr[i]-y.arr[i]);)
       return t;
     }
 

@@ -227,10 +227,29 @@ namespace cnine{
 	lambda((*this)(i));
     }
 
+    void for_each(const std::function<void(const vector<TYPE>&)>& lambda) const{
+      int n=size();
+      for(int i=0; i<n; i++)
+	lambda((*this)(i));
+    }
+
     vector<vector<TYPE> > as_vecs() const{
       vector<vector<TYPE> > R;
       forall([&](const vector<TYPE>& x){R.push_back(x);});
       return R;
+    }
+
+    bool operator==(const array_pool<TYPE>& y) const{
+      if(size()!=y.size()) return false;
+      for(int i=0; i<size(); i++){
+	int n=dir(i,1);
+	int offs=dir(i,0);
+	int offsy=y.dir(i,0);
+	if(n!=y.dir(i,1)) return false;
+	for(int j=0; j<n; j++)
+	  if(arr[offs+j]!=y.arr[offsy+j]) return false;
+      }
+      return true;
     }
 
 
