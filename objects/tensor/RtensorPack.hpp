@@ -232,7 +232,24 @@ namespace cnine{
       arrg=x.arrg; x.arrg=nullptr;
     }
 
-    RtensorPack& operator=(const RtensorPack& x)=delete;
+    RtensorPack& operator=(const RtensorPack& x){
+      CNINE_ASSIGN_WARNING();
+      dev=x.dev;
+      dir=x.dir;
+      tail=x.tail;
+      memsize=tail;
+      if(arr) delete[] arr;
+      if(arrg) {CUDA_SAFE(cudaFree(arrg));}
+      if(dev==0){
+	arr=new float[memsize];
+	std::copy(x.arr,x.arr+memsize,arr);
+      }
+      if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
+      }
+      return *this;
+    }
 
 
   public: // ---- Conversions ---------------------------------------------------------------------------------
@@ -242,7 +259,6 @@ namespace cnine{
       dir({0,2},fill_noalloc()){
       CNINE_ASSRT(x.ndims()==2);
       int m=x.dim(1);
-      CNINE_CPUONLY();
       dev=x.dev;
       memsize=x.memsize;
       tail=memsize;
@@ -254,6 +270,20 @@ namespace cnine{
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
       }
+      for(int i=0; i<x.dim(0); i++)
+	dir.push_back({i*m,m});
+    }
+
+    RtensorPack(rtensor&& x):
+      dir({0,2},fill_noalloc()){
+      if(x.is_view) {*this=RtensorPack(x);return;}
+      CNINE_ASSRT(x.ndims()==2);
+      dev=x.dev;
+      memsize=x.memsize;
+      tail=memsize;
+      arr=x.arr; x.arr=nullptr;
+      arrg=x.arrg; x.arrg=nullptr;
+      int m=x.dim(1);
       for(int i=0; i<x.dim(0); i++)
 	dir.push_back({i*m,m});
     }
