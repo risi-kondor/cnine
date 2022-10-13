@@ -24,15 +24,15 @@
 
 namespace cnine{
 
+  #ifdef _WITH_CUDA
+  extern void RtensorPack_add_ReLU_cu(*this,x,alpha);
+  extern void RtensorPack_add_ReLU_back_cu(*this,g,x,alpha);
+  #endif 
+
   class RtensorPack{
   public:
 
-    //typedef cnine::Gdims Gdims;
     typedef RtensorA rtensor;
-    //typedef cnine::IntTensor IntTensor;
-    //typedef cnine::Rtensor1_view Rtensor1_view;
-    //typedef cnine::Rtensor2_view Rtensor2_view;
-    //typedef cnine::Rtensor3_view Rtensor3_view;
 
     float* arr=nullptr;
     float* arrg=nullptr;
@@ -40,7 +40,6 @@ namespace cnine{
     int memsize=0;
     int tail=0;
     IntTensor dir;
-    //mutable IntTensor* dirg=nullptr;
     //bool is_view=false;
 
 
@@ -172,7 +171,6 @@ namespace cnine{
 
     void reserve_zero(const int n){
       if(n<=memsize) return;
-      //int newsize=n;
       if(dev==0){
 	float* newarr=new float[n];
 	if(arr){
@@ -232,7 +230,6 @@ namespace cnine{
       memsize=x.memsize; x.memsize=0; 
       arr=x.arr; x.arr=nullptr;
       arrg=x.arrg; x.arrg=nullptr;
-      //dirg=x.dirg; 
     }
 
     RtensorPack& operator=(const RtensorPack& x)=delete;
@@ -241,7 +238,8 @@ namespace cnine{
   public: // ---- Conversions ---------------------------------------------------------------------------------
 
 
-    RtensorPack(const rtensor& x){
+    RtensorPack(const rtensor& x):
+      dir({0,2},fill_noalloc()){
       CNINE_ASSRT(x.ndims()==2);
       int m=x.dim(1);
       CNINE_CPUONLY();
@@ -269,7 +267,6 @@ namespace cnine{
       dev=_dev;
       tail=x.tail;
       memsize=x.tail;
-      //if(x.dirg) dirg=new IntTensor(*x.dirg);
       if(dev==0){
 	cout<<"Copying RtensorPack to host"<<endl;
 	arr=new float[memsize];
@@ -421,7 +418,7 @@ namespace cnine{
 
 
     void push_back(const rtensor& x){
-      assert(x.dev==dev);
+      CNINE_DEVICE_SAME(x);
       if(tail+x.asize>memsize)
 	reserve(std::max(2*memsize,tail+x.asize));
       if(dev==0){
@@ -477,20 +474,18 @@ namespace cnine{
 
 
     void add_ReLU(const RtensorPack& x, const float alpha=0.1){
-      CNINE_CPUONLY();
       CNINE_DEVICE_SAME(x);
       CNINE_ASSRT(x.tail==tail);
       CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]+=x.arr[i]; else arr[i]+=alpha*x.arr[i]);
-      GPUCODE();
+      GPUCODE(RtensorPack_add_ReLU_cu(*this,x,alpha));
     }
 
     void add_ReLU_back(const RtensorPack& g, const RtensorPack& x, const float alpha=0.1){
-      CNINE_CPUONLY();
       CNINE_DEVICE_SAME(g);
       CNINE_DEVICE_SAME(x);
       CNINE_ASSRT(x.tail==tail);
       CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]=g.arr[i]; else arr[i]=g.arr[i]*alpha);
-      GPUCODE();
+      GPUCODE(RtensorPack_add_ReLU_back_cu(*this,g,x,alpha));
     }
 
 

@@ -136,6 +136,7 @@ using namespace std;
 
 #define CNINE_NOCUDA_ERROR cout<<"Error: Cnine was compiled without GPU support."<<endl;
 #define CNINE_CPUONLY() if(dev!=0) {printf("Cnine error: CUDA code for \"%s\" not implemented.\n",__PRETTY_FUNCTION__); exit(-1);}
+#define CNINE_CPUONLY1(x) if(x.dev!=0) {printf("Cnine error: CUDA code for \"%s\" not implemented.\n",__PRETTY_FUNCTION__); exit(-1);}
 
 #define COUT(cmd) {cnine::CoutLock lk; cout<<cmd<<endl;}
 #define CNINE_COUT(cmd) {CoutLock lk; cout<<cmd<<endl;}
