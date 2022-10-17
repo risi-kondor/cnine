@@ -192,21 +192,31 @@ namespace cnine{
     }
 
     void add_matmul_AA(const Rtensor2_view& x, const Rtensor2_view& y){
-      CNINE_CPUONLY();
       const int I=x.n1;
       CNINE_ASSRT(x.n0==n0);
       CNINE_ASSRT(y.n1==n1);
       CNINE_ASSRT(y.n0==I);
 
-      for(int a=0; a<n0; a++)
-	for(int b=0; b<n1; b++){
-	  float t=0;
-	  for(int i=0; i<I; i++)
-	    t+=x(a,i)*y(i,b);
-	  inc(a,b,t);
-	}
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    float t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,i)*y(i,b);
+	    inc(a,b,t);
+	  }
+      }
+      if(dev==1){
+	const float alpha=1.0;
+	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
+	    y.arr,y.s0,x.arr,x.s0,alpha,arr,s0));
+      }
     }
     
+    void add_mprod(const Rtensor2_view& x, const Rtensor2_view& y){
+      return add_matmul_AA(x,y);
+    }
+
     void add_matmul_AT(const Rtensor2_view& x, const Rtensor2_view& y){
       CNINE_CPUONLY();
       const int I=x.n1;
@@ -290,13 +300,21 @@ namespace cnine{
 
 
     void sum0_into(const Rtensor1_view& r) const{
-      CNINE_CPUONLY();
       assert(r.n0==n1);
-      for(int j=0; j<n1; j++){
-	float t=0; 
-	for(int i=0; i<n0; i++)
-	  t+=arr[i*s0+j*s1];
-	r.inc(j,t);
+      if(dev==0){
+	for(int j=0; j<n1; j++){
+	  float t=0; 
+	  for(int i=0; i<n0; i++)
+	    t+=arr[i*s0+j*s1];
+	  r.inc(j,t);
+	}
+      }
+      if(dev==1){
+	const float alpha=1.0;
+	CUBLAS_SAFE(cublasSgemv(cnine_cublas,CUBLAS_OP_N,n1,n0,
+	    &alpha,arr,s1,
+	    cuda_oneS,0,
+	    &alpha,r.arr,1));
       }
     }
 
@@ -406,6 +424,28 @@ namespace cnine{
 	  CUBLAS_SAFE(cublasScopy(cnine_cublas,n0*(n1-a),arr,s0,arr+a*s1,s0));
 	}else{
 	}
+      }
+    }
+
+
+    void add_broadcast0(const Rtensor1_view& x, const float alpha=1.0){
+      CNINE_DEVICE_SAME(x);
+      assert(x.n0==n1);
+      if(is_regular() && x.is_regular()){
+	if(dev==0){
+	  for(int i=0; i<=n0; i++)
+	    stdadd(x.arr,x.arr+n1,arr+i*n1);
+	}
+	if(dev==1){
+	  float beta=1.0;
+	  CUBLAS_SAFE(sublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,1,1,
+	      &alpha,x.arr,x.n0,0,
+	      cuda_oneS,0,0,
+	      &beta,arr,x.n0,s0,n0));
+	}
+      }else{
+	CPUCODE(for(int i1=0; i1<n1; i1++){float t=x(i1); for(int i0=0; i0<n0; i0++) inc(i0,i1,t);});
+	GPUCODE(CNINE_UNIMPL());
       }
     }
 

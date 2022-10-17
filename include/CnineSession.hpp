@@ -31,7 +31,7 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
   extern thread_local int nthreads;
-
+  extern float* cuda_oneS;
 
   class cnine_session{
   public:
@@ -48,6 +48,12 @@ namespace cnine{
       #ifdef _WITH_CENGINE
       cengine_session=new Cengine::CengineSession();
       #endif
+
+      #ifdef _WITH_CUDA
+      float a=1.0;
+      CUDA_SAFE(cudaMalloc((void **)&cuda_oneS, sizeof(float)));
+      CUDA_SAFE(cudaMemcpy(cuda_oneS,&a,sizeof(float),cudaMemcpyHostToDevice)); 
+      #endif 
 
       #ifdef _WITH_CUBLAS
       cublasCreate(&cnine_cublas);

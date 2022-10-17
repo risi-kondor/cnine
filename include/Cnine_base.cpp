@@ -20,6 +20,7 @@
 
 namespace cnine{
   thread_local int nthreads=1;
+  float* cuda_oneS=nullptr;
 }
 
 std::default_random_engine rndGen;
