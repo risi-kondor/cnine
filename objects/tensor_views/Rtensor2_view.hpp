@@ -173,7 +173,7 @@ namespace cnine{
       }
     }
 
-    void add(const Rtensor2_view& x, const float c){
+    void add(const Rtensor2_view& x, const float c) const{
       CNINE_DEVICE_SAME(x);
       CNINE_CPUONLY();
       CNINE_ASSRT(x.n0==n0);

@@ -338,14 +338,14 @@ namespace cnine{
       if(dev==0){
 	int* newarr=new int[memsize];
 	std::copy(arr,arr+asize,newarr);
-	delete[] arr;
+	if(arr) delete[] arr;
 	arr=newarr;
       }
       if(dev==1){
 	int* newarrg=nullptr;
 	CUDA_SAFE(cudaMalloc((void **)&newarrg, memsize*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(newarrg,arrg,asize*sizeof(int),cudaMemcpyDeviceToDevice));  
-	CUDA_SAFE(cudaFree(arrg));
+	if(arrg) CUDA_SAFE(cudaFree(arrg));
 	arrg=newarrg;
       }
     }

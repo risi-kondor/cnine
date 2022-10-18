@@ -82,7 +82,7 @@ namespace cnine{
 
 
     ~SparseRmatrix(){
-      for(auto p:lists) delete p.second;
+      //for(auto p:lists) delete p.second;
       if(arrg) CUDA_SAFE(cudaFree(arrg));
     }
 

@@ -111,7 +111,7 @@ namespace cnine{
 	arr=nullptr;
 	arrg=nullptr;
       }else{
-	delete arr; 
+	if(arr) delete arr; 
 	arr=nullptr;
 	if(arrg){CUDA_SAFE(cudaFree(arrg));}
 	arrg=nullptr;
@@ -292,9 +292,11 @@ namespace cnine{
       ostringstream oss;
       for(int i=0; i<size(); i++){
 	auto v=(*this)(i);
+	int k=v.size(); // why is this needed?
 	oss<<"(";
-	for(int j=0; j<v.size()-1; j++)
+	for(int j=0; j<k-1; j++){
 	  oss<<v[j]<<",";
+	}
 	if(v.size()>0) oss<<v.back();
 	oss<<")"<<endl;
       }

@@ -87,7 +87,7 @@ namespace cnine{
       int asize=_dims.asize();
       reserve(_N*asize);
       normal_distribution<double> distr;
-      for(int i=0; i<_N*asize; i++) arr[i]=distr(rndGen);
+      for(int i=0; i<_N*asize; i++) arr[i]=distr(rndGen)*dummy.c;
       for(int i=0; i<_N; i++){
 	dir.push_back(i*asize,_dims);
       }

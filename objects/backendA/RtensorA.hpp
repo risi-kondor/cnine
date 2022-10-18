@@ -303,7 +303,7 @@ namespace cnine{
     RtensorA(const Gdims& _dims, const fill_gaussian& dummy, const int _dev):
       RtensorA(_dims,fill::raw,0){
       normal_distribution<double> distr;
-      for(int i=0; i<asize; i++) arr[i]=distr(rndGen);
+      for(int i=0; i<asize; i++) arr[i]=distr(rndGen)*dummy.c;
       move_to_device(_dev);
     }
 
