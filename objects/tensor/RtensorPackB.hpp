@@ -148,18 +148,51 @@ namespace cnine{
   public: // ---- Conversions ---------------------------------------------------------------------------------
 
 
-    RtensorPackB(const rtensor& x):
-      RtensorPack(x){
-      nc=x.get_dim(1);
+    RtensorPackB(const rtensor& x){
+      CNINE_ASSRT(x.ndims()==2);
+      nc=x.dim(1);
+      dev=x.dev;
+      memsize=x.asize;
+      tail=memsize;
+      if(x.dev==0){
+	arr=new float[memsize];
+	std::copy(x.arr,x.arr+memsize,arr);
+      }
+      if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
+      }
+      dir=IntTensor({0,2},fill_noalloc());
+      for(int i=0; i<x.dim(0); i++)
+	dir.push_back({i*nc,nc});
     }
 
-    RtensorPackB(rtensor&& x):
-      RtensorPack(x){
-      nc=x.get_dim(1);
+    RtensorPackB(rtensor&& x){
+      if(x.is_view) {*this=RtensorPackB(x);return;}
+      CNINE_ASSRT(x.ndims()==2);
+      nc=x.dim(1);
+      dev=x.dev;
+      memsize=x.asize;
+      tail=memsize;
+      arr=x.arr; x.arr=nullptr;
+      arrg=x.arrg; x.arrg=nullptr;
+      dir=IntTensor({0,2},fill_noalloc());
+      for(int i=0; i<x.dim(0); i++)
+	dir.push_back({i*nc,nc});
+    }
+
+    RtensorPackB(const rtensor& x, const array_pool<int>& dims):
+      RtensorPack(x,dims){
+      nc=x.dim(1);
+    }
+
+    RtensorPackB(rtensor&& x, const array_pool<int>& dims):
+      RtensorPack(std::move(x),dims){
+      nc=x.dim(1);
     }
 
     rtensor tensor() const{
-      return rtensor({size(),nc},get_arr(),dev);
+      return rtensor({tail/nc,nc},get_arr(),dev);
     }
 
     rtensor view_as_matrix() const{
@@ -263,3 +296,14 @@ namespace cnine{
 
 
 #endif 
+    /*
+    RtensorPackB(const rtensor& x):
+      RtensorPack(x){
+      nc=x.get_dim(1);
+    }
+
+    RtensorPackB(rtensor&& x):
+      RtensorPack(x){
+      nc=x.get_dim(1);
+    }
+    */
