@@ -24,9 +24,11 @@
 
 namespace cnine{
 
+  class RtensorPack;
+
   #ifdef _WITH_CUDA
-  extern void RtensorPack_add_ReLU_cu(*this,x,alpha);
-  extern void RtensorPack_add_ReLU_back_cu(*this,g,x,alpha);
+  extern void RtensorPack_add_ReLU_cu(RtensorPack& r, const RtensorPack& x, const float alpha);
+  extern void RtensorPack_add_ReLU_back_cu(RtensorPack& r, const RtensorPack& g, const RtensorPack& x, const float alpha);
   #endif 
 
   class RtensorPack{

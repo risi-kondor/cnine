@@ -245,7 +245,7 @@ namespace cnine{
     }
 
 
-    CSRmatrix<float> CSRmatrix() const{
+    CSRmatrix<float> csrmatrix() const{
       cnine::CSRmatrix<float> R;
       R.dir.resize0(n);
       //cout<<R.dir<<endl;

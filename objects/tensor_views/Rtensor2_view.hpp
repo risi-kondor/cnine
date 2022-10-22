@@ -209,7 +209,7 @@ namespace cnine{
       if(dev==1){
 	const float alpha=1.0;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
-	    y.arr,y.s0,x.arr,x.s0,alpha,arr,s0));
+	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
       }
     }
     
@@ -438,7 +438,7 @@ namespace cnine{
 	}
 	if(dev==1){
 	  float beta=1.0;
-	  CUBLAS_SAFE(sublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,1,1,
+	  CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,1,1,
 	      &alpha,x.arr,x.n0,0,
 	      cuda_oneS,0,0,
 	      &beta,arr,x.n0,s0,n0));
