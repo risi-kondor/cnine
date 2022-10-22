@@ -411,7 +411,7 @@ namespace cnine{
       }
       #ifdef _WITH_CUDA
       if(dev==1){
-	      CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
       #endif 
     }

@@ -21,6 +21,7 @@
 #include "Gdims.hpp"
 #include "IntTensor.hpp"
 #include "RtensorA.hpp"
+#include "CSRmatrix.hpp"
 
 
 namespace cnine{
@@ -77,13 +78,14 @@ namespace cnine{
     map<int,SparseVec*> lists;
 
     //mutable int n=0;
-    mutable int* arrg=nullptr;
-    mutable bool current=false;
+    //mutable int* arrg=nullptr;
+    //mutable array_pool<float> pack;
+    //mutable bool pack_current=false;
 
 
     ~SparseRmatrix(){
       //for(auto p:lists) delete p.second;
-      if(arrg) CUDA_SAFE(cudaFree(arrg));
+      //if(arrg) CUDA_SAFE(cudaFree(arrg));
     }
 
 
@@ -170,6 +172,13 @@ namespace cnine{
 	  if(x(i,j)!=0) set(i,j,x(i,j));
     }
 
+    rtensor dense() const{
+      auto R=rtensor::zero({n,m});
+      forall_nonzero([&](const int i, const int j, const float v){
+	  R.set(i,j,v);});
+      return R;
+    }
+
 
   public: // ---- Access -----------------------------------------------------------------------------------
 
@@ -183,7 +192,7 @@ namespace cnine{
     }
  
     void set(const int i, const int j, const float v){
-      current=false;
+      //pack_current=false;
       CNINE_ASSRT(i<n);
       CNINE_ASSRT(j<m);
       auto it=lists.find(i);
@@ -210,13 +219,21 @@ namespace cnine{
       }
     }
 
-    rtensor dense() const{
-      auto R=rtensor::zero({n,m});
-      forall_nonzero([&](const int i, const int j, const float v){
-	  R.set(i,j,v);});
-      return R;
+
+  public: // ---- Pack -------------------------------------------------------------------------------------
+
+    /*
+    array_pool<float>& get_pack() const{
+      if(!pack_current) refresh_pack();
     }
 
+    void refresh_pack() const{
+      int t=0; 
+      for(auto p:lists) t+=p.second->size();
+      pack.reserve(2*t);
+      pack.dir.resize
+    }
+    */
 
   public: // ---- Operations -------------------------------------------------------------------------------
 
@@ -224,6 +241,35 @@ namespace cnine{
     SparseRmatrix transp() const{
       SparseRmatrix R(m,n);
       forall_nonzero([&](const int i, const int j, const float v){R.set(j,i,v);});
+      return R;
+    }
+
+
+    CSRmatrix<float> CSRmatrix() const{
+      cnine::CSRmatrix<float> R;
+      R.dir.resize0(n);
+      //cout<<R.dir<<endl;
+      int t=0;
+      for(auto q:lists) t+=2*(q.second->size());
+      R.reserve(t);
+      
+      t=0;
+      for(int i=0; i<n; i++){
+	R.dir.set(i,0,t);
+	auto it=lists.find(i);
+	if(it==lists.end()){
+	  R.dir.set(i,1,0);
+	  continue;
+	}
+	const SparseVec& v=*it->second;
+	R.dir.set(i,1,2*v.size());
+	for(auto p:v){
+	  *reinterpret_cast<int*>(R.arr+t)=p.first;
+	  R.arr[t+1]=p.second;
+	  t+=2;
+	}
+      }
+      R.tail=t;
       return R;
     }
 

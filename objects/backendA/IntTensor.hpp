@@ -353,7 +353,7 @@ namespace cnine{
     void resize0(const int n){
       CNINE_ASSRT(!is_view);
       CNINE_ASSRT(n>=dims[0]);
-      if(n<=capacity0())
+      if(n>capacity0())
 	reserve0(n);
       dims[0]=n;
     }
