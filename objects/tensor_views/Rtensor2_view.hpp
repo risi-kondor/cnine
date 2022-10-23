@@ -24,6 +24,7 @@
 #ifdef _WITH_CUBLAS
 #include <cublas_v2.h>
 extern cublasHandle_t cnine_cublas;
+extern float* cuda_oneS;
 #endif 
 
 

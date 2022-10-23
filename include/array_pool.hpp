@@ -172,6 +172,62 @@ namespace cnine{
     }
 
 
+  public: // ---- Transport ----------------------------------------------------------------------------------
+
+
+    array_pool(const array_pool<TYPE>& x, const int _dev): 
+      dir(x.dir){
+      dev=_dev;
+      tail=x.tail;
+      memsize=x.tail;
+      if(dev==0){
+	cout<<"Copying RtensorPack to host"<<endl;
+	arr=new float[memsize];
+	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
+	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
+      }
+      if(dev==1){
+	cout<<"Copying RtensorPack to device"<<endl;
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice)); 
+	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice)); 
+      }
+    }
+
+
+    array_pool<TYPE>& to_device(const int _dev){
+      if(dev==_dev) return *this;
+
+      if(_dev==0){
+	if(dev==1){
+	  //cout<<"Moving array_pool to host "<<tail<<endl;
+	  memsize=tail;
+	  delete[] arr;
+	  arr=new float[memsize];
+	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
+	  CUDA_SAFE(cudaFree(arrg));
+	  arrg=nullptr;
+	  dev=0;
+	}
+      }
+
+      if(_dev>0){
+	if(dev==0){
+	  //cout<<"Moving array_pool to device "<<tail<<endl;
+	  memsize=tail;
+	  if(arrg) CUDA_SAFE(cudaFree(arrg));
+	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(float),cudaMemcpyHostToDevice));  
+	  delete[] arr;
+	  arr=nullptr;
+	  dev=_dev;
+	}
+      }
+      
+      return *this;
+    }
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
