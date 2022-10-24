@@ -203,8 +203,8 @@ namespace cnine{
 	  //cout<<"Moving array_pool to host "<<tail<<endl;
 	  memsize=tail;
 	  delete[] arr;
-	  arr=new float[memsize];
-	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
+	  arr=new TYPE[memsize];
+	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
 	  CUDA_SAFE(cudaFree(arrg));
 	  arrg=nullptr;
 	  dev=0;
@@ -216,8 +216,8 @@ namespace cnine{
 	  //cout<<"Moving array_pool to device "<<tail<<endl;
 	  memsize=tail;
 	  if(arrg) CUDA_SAFE(cudaFree(arrg));
-	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
-	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(float),cudaMemcpyHostToDevice));  
+	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE)));
+	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice));  
 	  delete[] arr;
 	  arr=nullptr;
 	  dev=_dev;
