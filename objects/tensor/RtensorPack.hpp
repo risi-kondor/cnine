@@ -126,19 +126,28 @@ namespace cnine{
     static RtensorPack zeros_like(const RtensorPack& x){
       RtensorPack R(x.dir,x.dev);
       R.reserve(x.tail);
+      R.tail=x.tail;
       if(x.dev==0) std::fill(R.arr,R.arr+x.tail,0);
       if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,R.tail*sizeof(float)));
-      R.tail=x.tail;
       return R;
     }
 
-    static RtensorPack* new_zeros_like(const RtensorPack& x){
+   static RtensorPack* new_zeros_like(const RtensorPack& x){
       RtensorPack*  R=new RtensorPack(x.dir,x.dev);
       R->reserve(x.tail);
+      R->tail=x.tail;
       if(x.dev==0) std::fill(R->arr,R->arr+x.tail,0);
       if(x.dev==1) CUDA_SAFE(cudaMemset(R->arrg,0,R->tail*sizeof(float)));
-      R->tail=x.tail;
       return R;
+    }
+
+     static RtensorPack gaussian_like(const RtensorPack& x){
+      RtensorPack R(x.dir,0);
+      R.reserve(x.tail);
+      R.tail=x.tail;
+      normal_distribution<double> distr;
+      for(int i=0; i<x.tail; i++) R.arr[i]=distr(rndGen);
+      return R.to_device(x.dev);
     }
 
 
@@ -312,13 +321,13 @@ namespace cnine{
       tail=x.tail;
       memsize=x.tail;
       if(dev==0){
-	cout<<"Copying RtensorPack to host"<<endl;
+	//cout<<"Copying RtensorPack to host"<<endl;
 	arr=new float[memsize];
 	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
       }
       if(dev==1){
-	cout<<"Copying RtensorPack to device"<<endl;
+	//cout<<"Copying RtensorPack to device"<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice)); 
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice)); 
@@ -331,7 +340,7 @@ namespace cnine{
 
       if(_dev==0){
 	if(dev==1){
-	  cout<<"Moving RtensorPack to host "<<tail<<endl;
+	  //cout<<"Moving RtensorPack to host "<<tail<<endl;
 	  memsize=tail;
 	  delete[] arr;
 	  arr=new float[memsize];
@@ -344,7 +353,7 @@ namespace cnine{
 
       if(_dev>0){
 	if(dev==0){
-	  cout<<"Moving RtensorPack to device "<<tail<<endl;
+	  //cout<<"Moving RtensorPack to device "<<tail<<endl;
 	  memsize=tail;
 	  if(arrg) CUDA_SAFE(cudaFree(arrg));
 	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
@@ -538,6 +547,7 @@ namespace cnine{
     
     float inp(const RtensorPack& y){
       CNINE_CPUONLY();
+      if(y.dev>0) return inp(RtensorPack(y,0));
       CNINE_ASSRT(tail==y.tail);
       float t=0;
       CPUCODE(for(int i=0; i<tail; i++) t+=arr[i]*y.arr[i];)
@@ -546,6 +556,7 @@ namespace cnine{
 
     float diff2(const RtensorPack& y){
       CNINE_CPUONLY();
+      if(y.dev>0) return diff2(RtensorPack(y,0));
       CNINE_ASSRT(tail==y.tail);
       float t=0;
       CPUCODE(for(int i=0; i<tail; i++) t+=(arr[i]-y.arr[i])*(arr[i]-y.arr[i]);)

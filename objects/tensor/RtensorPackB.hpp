@@ -113,19 +113,37 @@ namespace cnine{
     static RtensorPackB zeros_like(const RtensorPackB& x){
       RtensorPackB R(x.dir,x.nc,x.dev);
       R.reserve(x.tail);
+      R.tail=x.tail;
       if(x.dev==0) std::fill(R.arr,R.arr+x.tail,0);
       if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,R.tail*sizeof(float)));
-      R.tail=x.tail;
       return R;
     }
 
     static RtensorPackB* new_zeros_like(const RtensorPackB& x){
       RtensorPackB*  R=new RtensorPackB(x.dir,x.nc,x.dev);
       R->reserve(x.tail);
+      R->tail=x.tail;
       if(x.dev==0) std::fill(R->arr,R->arr+x.tail,0);
       if(x.dev==1) CUDA_SAFE(cudaMemset(R->arrg,0,R->tail*sizeof(float)));
-      R->tail=x.tail;
       return R;
+    }
+
+    static RtensorPackB gaussian_like(const RtensorPackB& x){
+      RtensorPackB R(x.dir,x.nc,0);
+      R.reserve(x.tail);
+      R.tail=x.tail;
+      normal_distribution<double> distr;
+      for(int i=0; i<x.tail; i++) R.arr[i]=distr(rndGen);
+      return R.to_device(x.dev);
+    }
+
+    static RtensorPackB sequential_like(const RtensorPackB& x){
+      RtensorPackB R(x.dir,x.nc,0);
+      R.reserve(x.tail);
+      R.tail=x.tail;
+      normal_distribution<double> distr;
+      for(int i=0; i<x.tail; i++) R.arr[i]=i;
+      return R.to_device(x.dev);
     }
 
 
