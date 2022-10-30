@@ -27,13 +27,13 @@
 // ---- ReLU ------------------------------------------------------------------------------------------------
 
 
-__global__ RtensorPack_add_ReLU_kernel(float* rarr, float* xarr, float alpha){
+__global__ void RtensorPack_add_ReLU_kernel(float* rarr, const float* xarr, const float alpha){
   float v=xarr[blockIdx.x*32+threadIdx.x];
   if(v>0) rarr[blockIdx.x*32+threadIdx.x]=v;
   else rarr[blockIdx.x*32+threadIdx.x]=alpha*v;
 }
 
-__global__ RtensorPack_add_ReLU_back_kernel(float* rarr, float* xarr, float alpha){
+__global__ void RtensorPack_add_ReLU_back_kernel(float* rarr, const float* garr, const float* xarr, const float alpha){
   float v=garr[blockIdx.x*32+threadIdx.x];
   if(xarr[blockIdx.x*32+threadIdx.x]>0) 
     rarr[blockIdx.x*32+threadIdx.x]=v;
@@ -49,20 +49,20 @@ __global__ RtensorPack_add_ReLU_back_kernel(float* rarr, float* xarr, float alph
 
 namespace cnine{
 
-  RtensorPack_add_ReLU_cu(RtensorPack& r, const RtensorPack& x, const float alpha){
-    PTENS_ASSRT(r.dev==1);
-    PTENS_ASSRT(x.dev==1);
-    PTENS_ASSRT(r.tail==x.tail);
+  void RtensorPack_add_ReLU_cu(RtensorPack& r, const RtensorPack& x, const float alpha){
+    CNINE_ASSRT(r.dev==1);
+    CNINE_ASSRT(x.dev==1);
+    CNINE_ASSRT(r.tail==x.tail);
     RtensorPack_add_ReLU_kernel<<<r.tail/32,32,0,stream>>>(r.arrg,x.arrg,alpha);
     RtensorPack_add_ReLU_kernel<<<1,r.tail%32,0,stream>>>(r.arrg+(r.tail/32)*32,x.arrg+(r.arrg/32)*32,alpha);
   }
 
-  RtensorPack_add_ReLU_back_cu(RtensorPack& r, const RtensorPack& g, const RtensorPack& x, const float alpha){
-    PTENS_ASSRT(r.dev==1);
-    PTENS_ASSRT(x.dev==1);
-    PTENS_ASSRT(g.dev==1);
-    PTENS_ASSRT(r.tail==x.tail);
-    PTENS_ASSRT(r.tail==g.tail);
+  void RtensorPack_add_ReLU_back_cu(RtensorPack& r, const RtensorPack& g, const RtensorPack& x, const float alpha){
+    CNINE_ASSRT(r.dev==1);
+    CNINE_ASSRT(x.dev==1);
+    CNINE_ASSRT(g.dev==1);
+    CNINE_ASSRT(r.tail==x.tail);
+    CNINE_ASSRT(r.tail==g.tail);
     RtensorPack_add_ReLU_back_kernel<<<r.tail/32,32,0,stream>>>(r.arrg,g.arrg,x.arrg,alpha);
     RtensorPack_add_ReLU_back_kernel<<<1,r.tail%32,0,stream>>>(r.arrg+(r.tail/32)*32,g.arrg+(r.arrg/32)*32,x.arrg+(r.arrg/32)*32,alpha);
   }
