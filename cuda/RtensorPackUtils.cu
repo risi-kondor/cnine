@@ -49,22 +49,22 @@ __global__ void RtensorPack_add_ReLU_back_kernel(float* rarr, const float* garr,
 
 namespace cnine{
 
-  void RtensorPack_add_ReLU_cu(RtensorPack& r, const RtensorPack& x, const float alpha){
+  void RtensorPack_add_ReLU_cu(RtensorPack& r, const RtensorPack& x, const float alpha, const cudaStream_t& stream){
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
     CNINE_ASSRT(r.tail==x.tail);
     RtensorPack_add_ReLU_kernel<<<r.tail/32,32,0,stream>>>(r.arrg,x.arrg,alpha);
-    RtensorPack_add_ReLU_kernel<<<1,r.tail%32,0,stream>>>(r.arrg+(r.tail/32)*32,x.arrg+(r.arrg/32)*32,alpha);
+    RtensorPack_add_ReLU_kernel<<<1,r.tail%32,0,stream>>>(r.arrg+(r.tail/32)*32,x.arrg+(r.tail/32)*32,alpha);
   }
 
-  void RtensorPack_add_ReLU_back_cu(RtensorPack& r, const RtensorPack& g, const RtensorPack& x, const float alpha){
+  void RtensorPack_add_ReLU_back_cu(RtensorPack& r, const RtensorPack& g, const RtensorPack& x, const float alpha, const cudaStream_t& stream){
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
     CNINE_ASSRT(g.dev==1);
     CNINE_ASSRT(r.tail==x.tail);
     CNINE_ASSRT(r.tail==g.tail);
     RtensorPack_add_ReLU_back_kernel<<<r.tail/32,32,0,stream>>>(r.arrg,g.arrg,x.arrg,alpha);
-    RtensorPack_add_ReLU_back_kernel<<<1,r.tail%32,0,stream>>>(r.arrg+(r.tail/32)*32,g.arrg+(r.arrg/32)*32,x.arrg+(r.arrg/32)*32,alpha);
+    RtensorPack_add_ReLU_back_kernel<<<1,r.tail%32,0,stream>>>(r.arrg+(r.tail/32)*32,g.arrg+(r.tail/32)*32,x.arrg+(r.tail/32)*32,alpha);
   }
 
 

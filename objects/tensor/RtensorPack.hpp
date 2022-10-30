@@ -27,8 +27,8 @@ namespace cnine{
   class RtensorPack;
 
   #ifdef _WITH_CUDA
-  extern void RtensorPack_add_ReLU_cu(RtensorPack& r, const RtensorPack& x, const float alpha);
-  extern void RtensorPack_add_ReLU_back_cu(RtensorPack& r, const RtensorPack& g, const RtensorPack& x, const float alpha);
+  extern void RtensorPack_add_ReLU_cu(RtensorPack& r, const RtensorPack& x, const float alpha, const cudaStream_t& stream);
+  extern void RtensorPack_add_ReLU_back_cu(RtensorPack& r, const RtensorPack& g, const RtensorPack& x, const float alpha, const cudaStream_t& stream);
   #endif 
 
   class RtensorPack{
@@ -530,7 +530,7 @@ namespace cnine{
       CNINE_DEVICE_SAME(x);
       CNINE_ASSRT(x.tail==tail);
       CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]+=x.arr[i]; else arr[i]+=alpha*x.arr[i]);
-      GPUCODE(RtensorPack_add_ReLU_cu(*this,x,alpha));
+      GPUCODE(CUDA_STREAM(RtensorPack_add_ReLU_cu(*this,x,alpha,stream)));
     }
 
     void add_ReLU_back(const RtensorPack& g, const RtensorPack& x, const float alpha=0.1){
@@ -538,7 +538,7 @@ namespace cnine{
       CNINE_DEVICE_SAME(x);
       CNINE_ASSRT(x.tail==tail);
       CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]=g.arr[i]; else arr[i]=g.arr[i]*alpha);
-      GPUCODE(RtensorPack_add_ReLU_back_cu(*this,g,x,alpha));
+      GPUCODE(CUDA_STREAM(RtensorPack_add_ReLU_back_cu(*this,g,x,alpha,stream)));
     }
 
 
