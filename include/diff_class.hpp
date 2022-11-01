@@ -48,6 +48,11 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    void set_grad(OBJ* x){
+      if(grad) delete grad;
+      grad=x;
+    }
+
     void add_to_grad(const OBJ& x){
       if(grad) grad->add(x);
       else grad=new OBJ(x);
