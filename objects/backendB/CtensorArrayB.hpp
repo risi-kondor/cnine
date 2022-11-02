@@ -35,6 +35,7 @@ namespace cnine{
   public:
 
     int ak;
+    bool batched=false;
 
     CtensorArrayB(){}
 
@@ -122,23 +123,25 @@ namespace cnine{
 
 
     CtensorArrayB(const CtensorArrayB& x):
-      CtensorB(x), ak(x.ak){}
+      CtensorB(x), ak(x.ak), batched(x.batched){}
 
     CtensorArrayB(const CtensorArrayB& x, const view_flag& dummy):
-      CtensorB(x,dummy), ak(x.ak){}
+      CtensorB(x,dummy), ak(x.ak), batched(x.batched){}
 
     CtensorArrayB(CtensorArrayB&& x):
-      CtensorB(std::move(x)), ak(x.ak){}
+      CtensorB(std::move(x)), ak(x.ak), batched(x.batched){}
 
     CtensorArrayB& operator=(const CtensorArrayB& x){
       CtensorB::operator=(x);
       ak=x.ak;
+      batched=x.batched;
       return *this;
     }
 
     CtensorArrayB& operator=(CtensorArrayB&& x){
       CtensorB::operator=(std::move(x));
       ak=x.ak;
+      batched=x.batched;
       return *this;
     }
 
@@ -188,14 +191,14 @@ namespace cnine{
   public: // ---- Conversions -------------------------------------------------------------------------------
 
 
-    CtensorArrayB(const CtensorB& x, const int _ak):
-      CtensorB(x){
+    CtensorArrayB(const CtensorB& x, const int _ak, const bool _batched=false):
+      CtensorB(x), batched(_batched){
       if(_ak<0) ak=dims.size()+_ak;
       else ak=_ak;
     }
 
-    CtensorArrayB(CtensorB&& x, const int _ak):
-      CtensorB(std::move(x)){
+    CtensorArrayB(CtensorB&& x, const int _ak, const bool _batched=false):
+      CtensorB(std::move(x)), batched(_batched){
       if(_ak<0) ak=dims.size()+_ak;
       else ak=_ak;
       is_view=x.is_view;
@@ -207,18 +210,19 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
-    CtensorArrayB(const int _ak, const at::Tensor& T):
-      CtensorArrayB(CtensorB(T),_ak){}
+    CtensorArrayB(const int _ak, const at::Tensor& T, const bool _batched=false):
+      CtensorArrayB(CtensorB(T),_ak,_batched){}
 
-    CtensorArrayB(const at::Tensor& T, const int _ak):
-      CtensorArrayB(CtensorB(T),_ak){}
+    CtensorArrayB(const at::Tensor& T, const int _ak, const bool _batched=false):
+      CtensorArrayB(CtensorB(T),_ak,_batched){}
 
-    static CtensorArrayB view(at::Tensor& T, const int _ak){
-      return CtensorArrayB(CtensorB::view(T),_ak);
+    static CtensorArrayB view(at::Tensor& T, const int _ak, const bool _batched=false){
+      //cout<<"Batched="<<_batched<<endl;
+      return CtensorArrayB(CtensorB::view(T),_ak,_batched);
     }
 
-    static CtensorArrayB* viewp(at::Tensor& T, const int _ak){
-      return new CtensorArrayB(CtensorB::view(T),_ak);
+    static CtensorArrayB* viewp(at::Tensor& T, const int _ak, const bool _batched=false){
+      return new CtensorArrayB(CtensorB::view(T),_ak,_batched);
     }
 
 #endif 
@@ -487,6 +491,7 @@ namespace cnine{
 
 
     void add_gather(const CtensorB& x, const Rmask1& mask){
+      cout<<"XXXXXX"<<endl;
       if(ak!=1) throw std::invalid_argument("CtensorArrayB::add_gather(const CtensorB&, const Rmask1&): number of array arguments must be 1.");
       assert(x.dims.size()==dims.size());
       Aggregator(viewx(),x.viewx(),mask);

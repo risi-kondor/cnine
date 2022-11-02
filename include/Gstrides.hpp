@@ -127,7 +127,7 @@ namespace cnine{
 
     Gstrides chunk(const int beg, int n=-1) const{
       if(n==-1) n=size()-beg;
-      Gstrides R(n);
+      Gstrides R(n,fill_raw());
       for(int i=0; i<n; i++)
 	R[i]=(*this)[beg+i];
       return R;

@@ -43,8 +43,10 @@ public:
       for(auto it: mask.lists){
 	auto t=r.slice0(it.first);
 	auto& lst=it.second;
-	for(int i=0; i<lst.size(); i++)
+	for(int i=0; i<lst.size(); i++){
 	  t.add(x.slice0(lst[i].first),lst[i].second);
+	  //cout<<lst[i].first<<":"<<x.slice0(lst[i].first)<<endl;
+	}
       }
     }
     if(r.dev==1){

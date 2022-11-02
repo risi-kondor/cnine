@@ -193,13 +193,12 @@ namespace cnine{
     }    
 
 
-    /*
-    Ctensor3_view slice0(const int i){
-      CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
-	  throw std::out_of_range("cnine::CtensorD_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
-	return Ctensor3_view(arr+i*s0,n1,n2,n3,s1,s2,s3,dev);
+    CtensorD_view slice0(const int i) const{
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[0]) throw std::out_of_range("cnine::CtensorD_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[0]-1)+"]"));
+      return CtensorD_view(arr+i*strides[0],arrc+i*strides[0],dims.chunk(1),strides.chunk(1),dev);
     }
 
+    /*
     Ctensor3_view slice1(const int i){
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
 	  throw std::out_of_range("cnine::CtensorD_view:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
@@ -288,7 +287,7 @@ namespace cnine{
       assert(dev==0);
       Gtensor<complex<float> > R(dims,fill::raw);
       for(int i=0; i<R.asize; i++)
-	R.arr[i]=(*this)(Gindex(i,strides));
+	R.arr[i]=(*this)(Gindex(2*i,strides));
       return R;
     }
    

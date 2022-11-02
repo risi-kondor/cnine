@@ -53,16 +53,19 @@ namespace cnine{
 
 
     CtensorB_multiArray(const CtensorB_multiArray& x){
+      CNINE_COPY_WARNING();
       for(auto& p:x.parts)
 	parts.push_back(new ARRAY(*p));
     }
 
     CtensorB_multiArray(CtensorB_multiArray&& x){
+      CNINE_MOVE_WARNING();
       parts=x.parts;
       x.parts.clear();
     }
 
     CtensorB_multiArray& operator=(const CtensorB_multiArray& x){
+      CNINE_ASSIGN_WARNING();
       for(auto p: parts) delete p;  
       parts.clear();
       for(auto& p:x.parts)
@@ -71,6 +74,7 @@ namespace cnine{
     }
 
     CtensorB_multiArray& operator=(CtensorB_multiArray&& x){
+      CNINE_MOVEASSIGN_WARNING();
       for(auto p: parts) delete p;  
       parts=x.parts;
       x.parts.clear();
@@ -158,8 +162,9 @@ namespace cnine{
 
     void add_gather(const CtensorB_multiArray& x, const cnine::Rmask1& mask){
       assert(parts.size()==x.parts.size());
-      for(int l=0; l<parts.size(); l++)
+      for(int l=0; l<parts.size(); l++){
 	parts[l]->add_gather(*x.parts[l],mask);
+      }
     }
     
     

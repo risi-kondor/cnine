@@ -901,12 +901,20 @@ namespace cnine{
     }
 
 
-    CtensorView viewx(){
+    CtensorView viewx(){ // deprecated
       return CtensorView(arr,arr+coffs,dims,strides);
     }
 
-    const CtensorView viewx() const{
+    const CtensorView viewx() const{ // deprecated
       return CtensorView(arr,arr+coffs,dims,strides);
+    }
+
+    CtensorD_view viewd(){
+      return CtensorD_view(true_arr(),true_arr()+coffs,dims,strides,dev);
+    }
+
+    const CtensorD_view viewd() const{
+      return CtensorD_view(true_arr(),true_arr()+coffs,dims,strides,dev);
     }
 
 
