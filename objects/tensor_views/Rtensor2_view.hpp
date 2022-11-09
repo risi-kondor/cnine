@@ -434,7 +434,7 @@ namespace cnine{
       assert(x.n0==n1);
       if(is_regular() && x.is_regular()){
 	if(dev==0){
-	  for(int i=0; i<=n0; i++)
+	  for(int i=0; i<n0; i++)
 	    stdadd(x.arr,x.arr+n1,arr+i*n1);
 	}
 	if(dev==1){
