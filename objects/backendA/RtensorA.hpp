@@ -534,6 +534,7 @@ namespace cnine{
     RtensorA view(){
       RtensorA R=RtensorA::noalloc(dims,dev);
       R.arr=arr;
+      R.arrg=arrg;
       R.is_view=true;
       return R;
     }
@@ -1154,7 +1155,7 @@ namespace cnine{
     //}
 
     const Rtensor1_view view1() const{
-      return Rtensor1_view(arr,dims,strides);
+      return Rtensor1_view(get_arr(),dims,strides,dev);
     }
 
     const Rtensor1_view flattened_view() const{
@@ -1182,11 +1183,11 @@ namespace cnine{
     }
 
     Rtensor2_view view2(){
-      return Rtensor2_view(arr,dims,strides);
+      return Rtensor2_view(get_arr(),dims,strides,dev);
     }
 
     const Rtensor2_view view2() const{
-      return Rtensor2_view(arr,dims,strides);
+      return Rtensor2_view(get_arr(),dims,strides,dev);
     }
 
     [[deprecated]]
@@ -1254,11 +1255,11 @@ namespace cnine{
     }
 
     Rtensor3_view view3(){
-      return Rtensor3_view(arr,dims,strides);
+      return Rtensor3_view(get_arr(),dims,strides,dev);
     }
 
     const Rtensor3_view view3() const{
-      return Rtensor3_view(arr,dims,strides);
+      return Rtensor3_view(get_arr(),dims,strides,dev);
     }
 
     Rtensor3_view view3_picking(const int j){
@@ -1317,17 +1318,19 @@ namespace cnine{
     }
 
     Rtensor4_view view4(){
-      return Rtensor4_view(arr,dims,strides);
+      return Rtensor4_view(get_arr(),dims,strides,dev);
     }
 
     const Rtensor4_view view4() const{
-      return Rtensor4_view(arr,dims,strides);
+      return Rtensor4_view(get_arr(),dims,strides,dev);
     }
 
+    [[deprecated]]
     Rtensor4_view view4D(){
       return Rtensor4_view(arr,dims,strides);
     }
 
+    [[deprecated]]
     const Rtensor4_view view4D() const{
       return Rtensor4_view(arr,dims,strides);
     }

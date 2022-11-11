@@ -60,8 +60,8 @@ namespace cnine{
     Rtensor1_view(float* _arr, const int _n0, const int _s0, const int _dev=0): 
       arr(_arr), n0(_n0), s0(_s0), dev(_dev){}
 
-    Rtensor1_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides):
-      arr(_arr){
+    Rtensor1_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
+      arr(_arr), dev(_dev){
       assert(_dims.size()==1);
       n0=_dims[0];
       s0=_strides[0];
