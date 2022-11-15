@@ -341,6 +341,32 @@ namespace cnine{
       }
     }
 
+    /*
+    RtensorA(const initializer_list<initializer_list<int> >& M, const int _dev=0):
+      RtensorA(Gdims(M.size(),M.begin()->size())){
+      int i=0; 
+      for(auto& p:M){
+	int j=0; 
+	for(auto q:p)
+	  set(i,j++,(float)q);
+	i++;
+      }
+      to_device(_dev);
+    }
+    */
+
+    RtensorA(const initializer_list<initializer_list<float> >& M, const int _dev=0):
+      RtensorA(Gdims(M.size(),M.begin()->size())){
+      int i=0; 
+      for(auto& p:M){
+	int j=0; 
+	for(auto q:p)
+	  set(i,j++,q);
+	i++;
+      }
+      to_device(_dev);
+    }
+
 
   public: // ---- Named constructors --------------------------------------------------------------------------
 
@@ -1314,7 +1340,7 @@ namespace cnine{
 
     RtensorA(const Rtensor4_view& x):
       RtensorA({x.n0,x.n1,x.n2,x.n3},fill_zero(),x.dev){
-      view4D().add(x);
+      view4().add(x);
     }
 
     Rtensor4_view view4(){
@@ -1759,6 +1785,7 @@ namespace cnine{
     }
 
 
+
   public: // ---- Scalar valued operations ------------------------------------------------------------------
 
 
@@ -1809,6 +1836,27 @@ namespace cnine{
       //CUBLAS_SAFE(cublasSdot(cnine_cublas, asize, arrg, 1, x.arrg, 1, &a));
       return a;
     }
+
+
+  public: // ---- Vecttor valued operations ------------------------------------------------------------------
+
+
+    RtensorA operator*(const RtensorA& x){
+      assert(dims.size()==2);
+      assert(x.dims.size()==1);
+      CNINE_CPUONLY();
+      RtensorA y=RtensorA::zero({dims[0]},dev);
+      const int n0=dims[0];
+      const int n1=dims[1];
+      for(int i=0; i<n0; i++){
+	float t=0;
+	for(int j=0; j<n1; j++)
+	  t+=(*this)(i,j)*x(j);
+	y.set(i,t);
+      }
+      return y;
+    }
+
 
 
   public: // ---- Cumulative Operations ----------------------------------------------------------------------

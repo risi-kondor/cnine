@@ -441,7 +441,7 @@ namespace cnine{
 	  float beta=1.0;
 	  CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,1,1,
 	      &alpha,x.arr,x.n0,0,
-	      cuda_oneS,0,0,
+	      cuda_oneS,1,0,
 	      &beta,arr,x.n0,s0,n0));
 	}
       }else{
