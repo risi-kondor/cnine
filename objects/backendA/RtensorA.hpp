@@ -337,9 +337,7 @@ namespace cnine{
 	std::copy(_arr,_arr+asize,arr);
       }
       if(dev==1){
-	cout<<"a"<<endl;
 	CUDA_SAFE(cudaMemcpy(arrg,_arr,asize*sizeof(float),cudaMemcpyDeviceToDevice));
-	cout<<"b"<<endl;
       }
     }
 
@@ -769,11 +767,10 @@ namespace cnine{
       if(dev==0){
 	at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
 	std::copy(arr,arr+asize,R.data<float>());
+	return R;
       }
-      if(dev==1){
-	at::Tensor R(at::zeros(v,torch::CUDA(at::kFloat))); 
-	CUDA_SAFE(cudaMemcpy(R.data<float>(),arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
-      }
+      at::Tensor R(at::zeros(v,torch::CUDA(at::kFloat))); 
+      CUDA_SAFE(cudaMemcpy(R.data<float>(),arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
       return R;
     }
 
@@ -785,11 +782,10 @@ namespace cnine{
       if(dev==0){
 	at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
 	std::copy(arr,arr+asize,R.data<float>());
+	return R;
       }
-      if(dev==1){
-	at::Tensor R(at::zeros(v,torch::CUDA(at::kFloat))); 
-	CUDA_SAFE(cudaMemcpy(R.data<float>(),arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
-      }
+      at::Tensor R(at::zeros(v,torch::CUDA(at::kFloat))); 
+      CUDA_SAFE(cudaMemcpy(R.data<float>(),arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
       return R;
     }
 
@@ -1390,8 +1386,8 @@ namespace cnine{
 
     RtensorView window2_view(const int i0, const int i1, const int n0, const int n1){
       CNINE_ASSRT(ndims()>=2);
-      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window2: i0 out of range"));
-      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window2: i1 out of range"));
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::out_of_range("Cnine error in RtensorA::window2: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::out_of_range("Cnine error in RtensorA::window2: i1 out of range"));
       Gdims d(dims);
       d[0]=n0;
       d[1]=n1;
@@ -1400,8 +1396,8 @@ namespace cnine{
 
     const RtensorView window2_view(const int i0, const int i1, const int n0, const int n1) const{
       CNINE_ASSRT(ndims()>=2);
-      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window2: i0 out of range"));
-      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window2: i1 out of range"));
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::out_of_range("Cnine error in RtensorA::window2: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::out_of_range("Cnine error in RtensorA::window2: i1 out of range"));
       Gdims d(dims);
       d[0]=n0;
       d[1]=n1;
@@ -1411,9 +1407,9 @@ namespace cnine{
 
     RtensorView window3_view(const int i0, const int i1, const int i2, const int n0, const int n1, const int n2){
       CNINE_ASSRT(ndims()>=3);
-      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window3: i0 out of range"));
-      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window3: i1 out of range"));
-      CNINE_CHECK_RANGE(if(i2+n2>dims[2]) throw std::error("Cnine error in RtensorA::window3: i2 out of range"));
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::out_of_range("Cnine error in RtensorA::window3: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::out_of_range("Cnine error in RtensorA::window3: i1 out of range"));
+      CNINE_CHECK_RANGE(if(i2+n2>dims[2]) throw std::out_of_range("Cnine error in RtensorA::window3: i2 out of range"));
       Gdims d(dims);
       d[0]=n0;
       d[1]=n1;
@@ -1423,9 +1419,9 @@ namespace cnine{
 
     const RtensorView window3_view(const int i0, const int i1, const int i2, const int n0, const int n1, const int n2) const{
       CNINE_ASSRT(ndims()>=3);
-      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window3: i0 out of range"));
-      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window3: i1 out of range"));
-      CNINE_CHECK_RANGE(if(i2+n2>dims[2]) throw std::error("Cnine error in RtensorA::window3: i2 out of range"));
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::out_of_range("Cnine error in RtensorA::window3: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::out_of_range("Cnine error in RtensorA::window3: i1 out of range"));
+      CNINE_CHECK_RANGE(if(i2+n2>dims[2]) throw std::out_of_range("Cnine error in RtensorA::window3: i2 out of range"));
       Gdims d(dims);
       d[0]=n0;
       d[1]=n1;

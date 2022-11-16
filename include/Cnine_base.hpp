@@ -96,8 +96,8 @@ using namespace std;
 #define CNINE_DIMS_EQ_TOTAL(a,b) if(a.total()!=b.total()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch between total size of "+a.str()+" and "+b.str()+".");
 #define CNINE_NDIMS_IS_2(a) if(a.dims.size()!=2) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is not a matrix."); 
 #define CNINE_NDIMS_IS(n) if(dims.size()!=n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is of order "+to_string(dims.size())+"."); 
-#define CNINE_NDIMS_LEAST(n) if(dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(dims.size())"."); 
-#define CNINE_NDIMS_LEASTX(x,n) if(x.dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(x.dims.size())"."); 
+#define CNINE_NDIMS_LEAST(n) if(dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(dims.size())+"."); 
+#define CNINE_NDIMS_LEASTX(x,n) if(x.dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(x.dims.size())+"."); 
 #define CNINE_NTENS_SAME(x) if(x.tensors.size()!=tensors.size()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch in number of tensors "+to_string(x.tensors.size())+" vs "+to_string(tensors.size())+".");
 #else
 #define CNINE_CHECK_RANGE(expr)
