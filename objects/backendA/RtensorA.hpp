@@ -337,7 +337,9 @@ namespace cnine{
 	std::copy(_arr,_arr+asize,arr);
       }
       if(dev==1){
+	cout<<"a"<<endl;
 	CUDA_SAFE(cudaMemcpy(arrg,_arr,asize*sizeof(float),cudaMemcpyDeviceToDevice));
+	cout<<"b"<<endl;
       }
     }
 
@@ -764,8 +766,14 @@ namespace cnine{
       CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
       vector<int64_t> v(k); for(int i=0; i<k; i++) v[i]=dims[i];
-      at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
-      std::copy(arr,arr+asize,R.data<float>());
+      if(dev==0){
+	at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+	std::copy(arr,arr+asize,R.data<float>());
+      }
+      if(dev==1){
+	at::Tensor R(at::zeros(v,torch::CUDA(at::kFloat))); 
+	CUDA_SAFE(cudaMemcpy(R.data<float>(),arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
+      }
       return R;
     }
 
@@ -774,8 +782,14 @@ namespace cnine{
       CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
       vector<int64_t> v(k); for(int i=0; i<k; i++) v[i]=dims[i];
-      at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
-      std::copy(arr,arr+asize,R.data<float>());
+      if(dev==0){
+	at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+	std::copy(arr,arr+asize,R.data<float>());
+      }
+      if(dev==1){
+	at::Tensor R(at::zeros(v,torch::CUDA(at::kFloat))); 
+	CUDA_SAFE(cudaMemcpy(R.data<float>(),arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
+      }
       return R;
     }
 
@@ -1368,6 +1382,55 @@ namespace cnine{
 
     const RtensorView viewx() const{
       return RtensorView(arr,dims,strides);
+    }
+
+
+  public: // ---- Windows ---------------------------------------------------------------------------------
+
+
+    RtensorView window2_view(const int i0, const int i1, const int n0, const int n1){
+      CNINE_ASSRT(ndims()>=2);
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window2: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window2: i1 out of range"));
+      Gdims d(dims);
+      d[0]=n0;
+      d[1]=n1;
+      return RtensorView(get_arr()+i0*strides[0]+i1*strides[1],d,dev);
+    }
+
+    const RtensorView window2_view(const int i0, const int i1, const int n0, const int n1) const{
+      CNINE_ASSRT(ndims()>=2);
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window2: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window2: i1 out of range"));
+      Gdims d(dims);
+      d[0]=n0;
+      d[1]=n1;
+      return RtensorView(get_arr()+i0*strides[0]+i1*strides[1],d,dev);
+    }
+
+
+    RtensorView window3_view(const int i0, const int i1, const int i2, const int n0, const int n1, const int n2){
+      CNINE_ASSRT(ndims()>=3);
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window3: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window3: i1 out of range"));
+      CNINE_CHECK_RANGE(if(i2+n2>dims[2]) throw std::error("Cnine error in RtensorA::window3: i2 out of range"));
+      Gdims d(dims);
+      d[0]=n0;
+      d[1]=n1;
+      d[2]=n2;
+      return RtensorView(get_arr()+i0*strides[0]+i1*strides[1],d,dev);
+    }
+
+    const RtensorView window3_view(const int i0, const int i1, const int i2, const int n0, const int n1, const int n2) const{
+      CNINE_ASSRT(ndims()>=3);
+      CNINE_CHECK_RANGE(if(i0+n0>dims[0]) throw std::error("Cnine error in RtensorA::window3: i0 out of range"));
+      CNINE_CHECK_RANGE(if(i1+n1>dims[1]) throw std::error("Cnine error in RtensorA::window3: i1 out of range"));
+      CNINE_CHECK_RANGE(if(i2+n2>dims[2]) throw std::error("Cnine error in RtensorA::window3: i2 out of range"));
+      Gdims d(dims);
+      d[0]=n0;
+      d[1]=n1;
+      d[2]=n2;
+      return RtensorView(get_arr()+i0*strides[0]+i1*strides[1],d,dev);
     }
 
 
@@ -2382,6 +2445,112 @@ namespace cnine{
       return R;
     }
 
+
+  public: // ---- Interpolate --------------------------------------------------------------------------------
+
+
+    RtensorA convolve2_prod(const RtensorA& M){
+      CNINE_ASSRT(dims.size()>=2);
+      CNINE_ASSRT(M.dims.size()==3);
+      CNINE_ASSRT(dims[0]>=M.dims[1]);
+      CNINE_ASSRT(dims[1]>=M.dims[2]);
+      RtensorA R=RtensorA::zero({dims[0]-M.dims[1]+1,dims[1]-M.dims[2]+1,M.dims[0]},dev);
+      R.add_convolve2_mprod(*this,M);
+      return R;
+    }
+
+    void add_convolve2_mprod(const RtensorA& x, const RtensorA& M){
+      CNINE_DEVICE_SAME(x);
+      CNINE_DEVICE_SAME(M);
+      CNINE_ASSRT(x.dims.size()==3);
+      CNINE_ASSRT(dims.size()==4);
+      CNINE_ASSRT(dims.size()==x.dims.size());
+      CNINE_ASSRT(x.dims[0]==dims[0]+M.dims[1]-1);
+      CNINE_ASSRT(x.dims[1]==dims[1]+M.dims[2]-1);
+
+      CNINE_ASSRT(dims[0]==x.dims[0]-M.dims[1]+1);
+      CNINE_ASSRT(dims[1]==x.dims[1]-M.dims[2]+1);
+      CNINE_ASSRT(dims[2]==M.dims[0]);
+      CNINE_ASSRT(dims[3]==x.dims[2]);
+
+      int n0=M.dims[1];
+      int n1=M.dims[2];
+      cout<<M.viewx().fuse12().matricize(1).get_dims()<<endl;
+      cout<<viewx().slice01(0,0).flatten().get_dims()<<endl;
+      cout<<x.window2_view(0,0,n0,n1).flatten().get_dims()<<endl;
+      if(dev==0){
+	for(int i0=0; i0<dims[0]; i0++)
+	  for(int i1=0; i1<dims[1]; i1++)
+	      M.viewx().fuse12().matricize(1).
+	      add_mprod_to(viewx().slice01(i0,i1).flatten(),x.window2_view(i0,i1,n0,n1).flatten());
+      }
+      if(dev==1){
+	float alpha=1.0;
+	float beta=1.0;
+	for(int i0=0; i0<dims[0]; i0++)
+	  for(int j0=0; j0<n0; j0++){
+	    CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,dims[3],dims[2],n1,
+		&alpha,x.arr+(i0+j0)*x.strides[0],x.strides[1],x.strides[1],
+		M.arr+j0*M.strides[0],M.strides[1],0,
+		&beta,arr+i0*strides[0],dims[3],strides[1],dims[1]));
+	  }
+      }
+    }
+
+
+    RtensorA convolve3_prod(const RtensorA& M){
+      CNINE_ASSRT(dims.size()>=3);
+      CNINE_ASSRT(M.dims.size()==4);
+      CNINE_ASSRT(dims[0]>=M.dims[1]);
+      CNINE_ASSRT(dims[1]>=M.dims[2]);
+      CNINE_ASSRT(dims[2]>=M.dims[3]);
+      RtensorA R=RtensorA::zero({dims[0]-M.dims[1]+1,dims[1]-M.dims[2]+1,dims[2]-M.dims[3]+1,M.dims[0]},dev);
+      R.add_convolve3_mprod(*this,M);
+      return R;
+    }
+
+    void add_convolve3_mprod(const RtensorA& x, const RtensorA& M){
+      CNINE_DEVICE_SAME(x);
+      CNINE_DEVICE_SAME(M);
+      CNINE_ASSRT(dims.size()==x.dims.size());
+      CNINE_ASSRT(x.dims[0]==dims[0]+M.dims[1]-1);
+      CNINE_ASSRT(x.dims[1]==dims[1]+M.dims[2]-1);
+      CNINE_ASSRT(x.dims[2]==dims[2]+M.dims[3]-1);
+
+      CNINE_ASSRT(dims[0]==x.dims[0]-M.dims[1]+1);
+      CNINE_ASSRT(dims[1]==x.dims[1]-M.dims[2]+1);
+      CNINE_ASSRT(dims[2]==x.dims[2]-M.dims[3]+1);
+      CNINE_ASSRT(dims[3]==M.dims[0]);
+      CNINE_ASSRT(dims[4]==x.dims[3]);
+
+      int n0=M.dims[1];
+      int n1=M.dims[2];
+      int n2=M.dims[3];
+      //cout<<M.viewx().fuse12().matricize(1).get_dims()<<endl;
+      //cout<<viewx().slice01(0,0).flatten().get_dims()<<endl;
+      //cout<<x.window2_view(0,0,n0,n1).flatten().get_dims()<<endl;
+      if(dev==0){
+	for(int i0=0; i0<dims[0]; i0++)
+	  for(int i1=0; i1<dims[1]; i1++)
+	    for(int i2=0; i2<dims[2]; i2++)
+	      M.viewx().matricize(1).
+		add_mprod_to(viewx().slice012(i0,i1,i2).flatten(),x.window3_view(i0,i1,i2,n0,n1,n2).flatten());
+      }
+      if(dev==1){
+	float alpha=1.0;
+	float beta=1.0;
+	for(int i0=0; i0<dims[0]; i0++)
+	  for(int i1=0; i1<dims[1]; i1++)
+	    for(int j0=0; j0<n0; j0++)
+	      for(int j1=0; j1<n1; j1++){
+		CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,dims[4],dims[3],n2,
+		    &alpha,x.arr+(i0+j0)*x.strides[0]+(i1+j1)*x.strides[1],x.strides[2],x.strides[2],
+		    M.arr+j0*M.strides[0]+j1*M.strides[1],M.strides[2],0,
+		    &beta,arr+i0*strides[0]+i1*strides[1],dims[4],strides[2],dims[2]));
+	      }
+      }
+    }
+      
 
   public: // ---- Special functions --------------------------------------------------------------------------
 

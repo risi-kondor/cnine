@@ -19,7 +19,10 @@
 #include "Gstrides.hpp"
 #include "Gtensor.hpp"
 
+#include "Rtensor1_view.hpp"
+#include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
+#include "Rtensor4_view.hpp"
 
 
 namespace cnine{
@@ -167,39 +170,121 @@ namespace cnine{
     }
     */
 
+  public: // ---- Other views ---------------------------------------------------------------------------------
 
-  public: // ---- Other views -------------------------------------------------------------------------------
 
-
-    /*
-    Rtensor3_view slice0(const int i){
-      CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
-	  throw std::out_of_range("cnine::RtensorView:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
-	return Rtensor3_view(arr+i*s0,n1,n2,n3,s1,s2,s3,dev);
+    Rtensor1_view view1() const{
+      CNINE_NDIMS_IS(1);
+      return Rtensor1_view(arr,dims[0],strides[0],dev);
     }
 
-    Rtensor3_view slice1(const int i){
-      CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
-	  throw std::out_of_range("cnine::RtensorView:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
-	return Rtensor3_view(arr+i*s1,n0,n2,n3,s0,s2,s3,dev);
+    Rtensor2_view view2() const{
+      CNINE_NDIMS_IS(2);
+      return Rtensor2_view(arr,dims[0],dims[1],strides[0],strides[1],dev);
     }
 
-    Rtensor3_view slice2(const int i){
-      CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
-	  throw std::out_of_range("cnine::RtensorView:slice2(int): index "+to_string(i)+" out of range of [0,"+to_string(n2-1)+"]");)
-	return Rtensor3_view(arr+i*s2,n0,n1,n3,s0,s1,s3,dev);
+    Rtensor3_view view3() const{
+      CNINE_NDIMS_IS(3);
+      return Rtensor3_view(arr,dims[0],dims[1],dims[2],strides[0],strides[1],strides[2],dev);
     }
 
-    Rtensor3_view slice3(const int i){
-      CNINE_CHECK_RANGE(if(i<0 || i>=n3) 
-	  throw std::out_of_range("cnine::RtensorView:slice3(int): index "+to_string(i)+" out of range of [0,"+to_string(n3-1)+"]");)
-	return Rtensor3_view(arr+i*s3,n0,n1,n2,s0,s1,s2,dev);
+    Rtensor4_view view4() const{
+      CNINE_NDIMS_IS(4);
+      return Rtensor4_view(arr,dims[0],dims[1],dims[2],dims[3],strides[0],strides[1],strides[2],strides[3],dev);
     }
 
-    Rtensor3_view fuse01(){
-      return Rtensor3_view(arr,n0*n1,n2,n3,s1,s2,s3,dev);
+    Rtensor1_view flatten() const{
+      CNINE_NDIMS_IS(1);
+      return Rtensor1_view(arr,dims.asize(),strides.back(),dev);
+    }
+
+    Rtensor2_view matricize(const int n=1) const{
+      CNINE_NDIMS_LEAST(n+1);
+      Gdims d({1,1});
+      for(int i=0; i<n; i++) d[0]*=dims[i];
+      for(int i=n; i<dims.size(); i++) d[1]*=dims[i];
+      Gstrides s({strides[n-1],1});
+      return Rtensor2_view(arr,d,s,dev);
+    }
+
+
+  public: // ---- Slices --------------------------------------------------------------------------------------
+
+
+    RtensorView slice0(const int i){
+      CNINE_NDIMS_LEAST(1);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[0]) 
+	  throw std::out_of_range("cnine::RtensorView:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[0]-1)+"]");)
+	return RtensorView(arr+i*dims[0],dims.remove(0),strides.remove(0),dev);
+    }
+
+    RtensorView slice1(const int i){
+      CNINE_NDIMS_LEAST(2);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[1]) 
+	  throw std::out_of_range("cnine::RtensorView:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[1]-1)+"]");)
+	return RtensorView(arr+i*dims[1],dims.remove(1),strides.remove(1),dev);
+    }
+
+    RtensorView slice2(const int i){
+      CNINE_NDIMS_LEAST(3);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[2]) 
+	  throw std::out_of_range("cnine::RtensorView:slice2(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[2]-1)+"]");)
+	return RtensorView(arr+i*dims[2],dims.remove(2),strides.remove(2),dev);
+    }
+
+    RtensorView slice3(const int i){
+      CNINE_NDIMS_LEAST(4);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[3]) 
+	  throw std::out_of_range("cnine::RtensorView:slice3(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[3]-1)+"]");)
+	return RtensorView(arr+i*dims[3],dims.remove(3),strides.remove(3),dev);
+    }
+
+    RtensorView slice01(const int i0, const int i1){
+      CNINE_NDIMS_LEAST(2);
+      CNINE_CHECK_RANGE(if(i0<0 || i0>=dims[0]) 
+	  throw std::out_of_range("cnine::RtensorView:slice01(int,int): index "+to_string(i0)+" out of range of [0,"+to_string(dims[0]-1)+"]");)
+      CNINE_CHECK_RANGE(if(i1<0 || i1>=dims[1]) 
+	  throw std::out_of_range("cnine::RtensorView:slice01(int,int): index "+to_string(i1)+" out of range of [0,"+to_string(dims[1]-1)+"]");)
+	return RtensorView(arr+i0*dims[0]+i1*dims[1],dims.chunk(2),strides.chunk(2),dev);
+    }
+
+    RtensorView slice012(const int i0, const int i1, const int i2){
+      CNINE_NDIMS_LEAST(3);
+      CNINE_CHECK_RANGE(if(i0<0 || i0>=dims[0]) 
+	  throw std::out_of_range("cnine::RtensorView:slice012(int,int,int): index "+to_string(i0)+" out of range of [0,"+to_string(dims[0]-1)+"]");)
+      CNINE_CHECK_RANGE(if(i1<0 || i1>=dims[1]) 
+	  throw std::out_of_range("cnine::RtensorView:slice012(int,int,int): index "+to_string(i1)+" out of range of [0,"+to_string(dims[1]-1)+"]");)
+      CNINE_CHECK_RANGE(if(i2<0 || i2>=dims[2]) 
+	  throw std::out_of_range("cnine::RtensorView:slice012(int,int,int): index "+to_string(i2)+" out of range of [0,"+to_string(dims[2]-1)+"]");)
+	return RtensorView(arr+i0*dims[0]+i1*dims[1]+i2*dims[2],dims.chunk(3),strides.chunk(3),dev);
+    }
+
+
+  public: // ---- Fusing -------------------------------------------------------------------------------------
+
+
+    RtensorView fuse01() const{
+      CNINE_NDIMS_LEAST(2);
+      Gdims d=dims.remove(1); d[0]*=dims[1];
+      Gstrides s=strides.remove(0);
+      return RtensorView(arr,d,s,dev);
     }    
 
+    RtensorView fuse12() const{
+      CNINE_NDIMS_LEAST(3);
+      Gdims d=dims.remove(2); d[1]*=dims[2];
+      Gstrides s=strides.remove(1);
+      return RtensorView(arr,d,s,dev);
+    }    
+
+    RtensorView fuse23() const{
+      CNINE_NDIMS_LEAST(4);
+      Gdims d=dims.remove(3); d[2]*=dims[1];
+      Gstrides s=strides.remove(2);
+      return RtensorView(arr,d,s,dev);
+    }    
+
+    /*
     Rtensor3_view fuse12(){
       return Rtensor3_view(arr,n0,n1*n2,n3,s0,s2,s3,dev);
     }    
@@ -207,7 +292,8 @@ namespace cnine{
     Rtensor3_view fuse23(){
       return Rtensor3_view(arr,n0,n1,n2*n3,s0,s1,s3,dev);
     }    
-
+    */
+    /*
 
     Rtensor2_view slice01(const int i, const int j){
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 

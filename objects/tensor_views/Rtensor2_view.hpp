@@ -97,6 +97,10 @@ namespace cnine{
       return true;
     }
 
+    Gdims get_dims(){
+      return Gdims({n0,n1});
+    }
+
     virtual float operator()(const int i0, const int i1) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i0>=n0 || i1>=n1) 
 	  throw std::out_of_range("cnine::Rtensor2_view: index "+Gindex({i0,i1}).str()+" out of range of view size "+Gdims({n0,n1}).str()));
@@ -249,6 +253,20 @@ namespace cnine{
 	  inc(a,b,t);
 	}
     }
+
+
+    void add_mprod_to(const Rtensor1_view& y, const Rtensor1_view& x) const{
+      CNINE_CPUONLY();
+      CNINE_ASSRT(x.n0==n1);
+      CNINE_ASSRT(y.n0==n0);
+      for(int a=0; a<n0; a++){
+	float t=0;
+	for(int b=0; b<n1; b++)
+	  t+=(*this)(a,b)*x(b);
+	y.set(a,t);
+      }
+    }
+
 
     void add_outer(const Rtensor1_view& x, const Rtensor1_view& y) const{
       CNINE_CPUONLY();

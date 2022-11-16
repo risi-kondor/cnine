@@ -110,9 +110,6 @@ namespace cnine{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];
     }
 
-
-  public:
-
     int combine(const vector<int>& v) const{
       int t=0;
       for(auto p:v){
@@ -123,7 +120,26 @@ namespace cnine{
     }
 
 
-  public:
+  public: // ---- Operations ---------------------------------------------------------------------------------
+
+
+    Gstrides remove(const int j) const{
+      Gstrides R;
+      assert(j<size());
+      if(size()==1){
+	R.push_back(1);
+	return R;
+      }
+      if(j<0){
+	for(int i=0; i<size(); i++)
+	  if(i!=size()+j) R.push_back((*this)[i]);
+      }else{
+	for(int i=0; i<size(); i++)
+	  if(i!=j) R.push_back((*this)[i]);
+      }
+      return R;
+    }
+    
 
     Gstrides chunk(const int beg, int n=-1) const{
       if(n==-1) n=size()-beg;
@@ -144,7 +160,9 @@ namespace cnine{
       return t;
     }
 
-  public:
+
+  public: // ---- I/O ----------------------------------------------------------------------------------------
+
 
     string str(const string indent="") const{
       ostringstream oss;

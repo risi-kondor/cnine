@@ -100,6 +100,10 @@ namespace cnine{
       return true;
     }
 
+    Gdims get_dims(){
+      return Gdims({n0});
+    }
+
     virtual float operator()(const int i0) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=n0) 
 	  throw std::out_of_range("cnine::Rtensor1_view: index "+Gindex({i0}).str()+" out of range of view size "+Gdims({n0}).str()));
