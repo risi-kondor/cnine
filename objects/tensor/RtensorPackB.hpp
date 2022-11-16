@@ -262,12 +262,10 @@ namespace cnine{
     }
 
     void add_mprod_back0(const RtensorPackB& g, const rtensor& y){
-      PTENS_CPUONLY();
       view_as_matrix().add_Mprod_AT(g.view_as_matrix(),y);
     }
 
     void add_mprod_back1_to(rtensor& r, const RtensorPackB& x) const{
-      PTENS_CPUONLY();
       r.add_Mprod_TA(x.view_as_matrix(),view_as_matrix());
     }
 
