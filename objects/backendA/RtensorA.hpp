@@ -706,13 +706,16 @@ namespace cnine{
       for(int i=0; i<k; i++)
 	if(T.stride(i)!=strides[i]){reg=false; break;}
       if(!reg){
-	CNINE_CPUONLY();
 	auto src=T.data<float>();
+	int _dev=dev;
+	dev=0;
 	arr=new float[memsize];
 	Gstrides sstrides(k,fill_raw());
 	for(int i=0; i<k; i++) sstrides[i]=T.stride(i);
 	for(int i=0; i<asize; i++)
 	  arr[i]=src[sstrides.offs(i,strides)];
+	to_device(_dev);
+	return;
       }
 
       if(dev==0){

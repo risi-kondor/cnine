@@ -23,6 +23,7 @@
 
 #ifdef _WITH_CUBLAS
 #include <cublas_v2.h>
+//#include <thrust/device_vector.h>
 extern cublasHandle_t cnine_cublas;
 extern float* cuda_oneS;
 #endif 
@@ -39,6 +40,7 @@ namespace cnine{
   extern void Rtensor_copy_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
   extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
   extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const float c, const cudaStream_t& stream);
+  extern void Rtensor_sum0_into_cu(const Rtensor1_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
   #endif 
 
   
@@ -296,6 +298,7 @@ namespace cnine{
       return t;
     }
     
+    /*
     void sum0_into(const Rtensor1_view& r){
       CNINE_CPUONLY();
       assert(r.n0==n1);
@@ -304,6 +307,7 @@ namespace cnine{
 	r.inc(i,t);
       }
     }
+    */
 
     void sum1_into(const Rtensor1_view& r){
       CNINE_CPUONLY();
@@ -329,11 +333,14 @@ namespace cnine{
 	}
       }
       if(dev==1){
-	const float alpha=1.0;
-	CUBLAS_SAFE(cublasSgemv(cnine_cublas,CUBLAS_OP_N,n1,n0,
-	    &alpha,arr,s1,
-	    cuda_oneS,0,
-	    &alpha,r.arr,1));
+	
+	//thrust::device_vector<float> ones(n0,1.f);
+	//const float alpha=1.0;
+	//CUBLAS_SAFE(cublasSgemv(cnine_cublas,CUBLAS_OP_N,n1,n0,
+	//&alpha,arr,s1,
+	//cuda_oneS,0,
+	//&alpha,r.arr,1));
+	CUDA_STREAM(Rtensor_sum0_into_cu(r,*this,stream));
       }
     }
 
