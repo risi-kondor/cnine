@@ -68,13 +68,13 @@ namespace cnine{
       return arr[s0*i0+s1*i1+s2*i2+s3*i3];
     }
 
-    void set(const int i0, const int i1, const int i2, const int i3, float x){
+    void set(const int i0, const int i1, const int i2, const int i3, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3) 
 	  throw std::out_of_range("cnine::Rtensor4_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
       arr[s0*i0+s1*i1+s2*i2+s3*i3]=x;
     }
 
-    void inc(const int i0, const int i1, const int i2, const int i3, float x){
+    void inc(const int i0, const int i1, const int i2, const int i3, float x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3) 
 	  throw std::out_of_range("cnine::Rtensor4_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
       arr[s0*i0+s1*i1+s2*i2+s3*i3]+=x;
@@ -88,7 +88,7 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
     
-    void add(const Rtensor4_view& y){
+    void add(const Rtensor4_view& y) const{
       assert(y.n0==n0);
       assert(y.n1==n1);
       assert(y.n2==n2);
@@ -169,7 +169,7 @@ namespace cnine{
     void broadcast3(const Rtensor3_view& x){
       assert(x.n0==n0);
       assert(x.n1==n1);
-      assert(x.n2==n3);
+      assert(x.n2==n2);
       fuse01().broadcast2(x.fuse01());
     }
 
@@ -217,7 +217,7 @@ namespace cnine{
     Rtensor2_view slice01(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice01(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
-      CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
+      CNINE_CHECK_RANGE(if(j<0 || j>=n1) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice01(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
 	return Rtensor2_view(arr+i*s0+j*s1,n2,n3,s2,s3,dev);
     }
@@ -225,7 +225,7 @@ namespace cnine{
     Rtensor2_view slice02(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice02(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
-      CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
+      CNINE_CHECK_RANGE(if(j<0 || j>=n2) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice02(int): index "+to_string(i)+" out of range of [0,"+to_string(n2-1)+"]");)
 	return Rtensor2_view(arr+i*s0+j*s2,n1,n3,s1,s3,dev);
     }
@@ -233,7 +233,7 @@ namespace cnine{
     Rtensor2_view slice03(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice03(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]");)
-      CNINE_CHECK_RANGE(if(i<0 || i>=n3) 
+      CNINE_CHECK_RANGE(if(j<0 || j>=n3) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice03(int): index "+to_string(i)+" out of range of [0,"+to_string(n3-1)+"]");)
 	return Rtensor2_view(arr+i*s0+j*s3,n1,n2,s1,s2,dev);
     }
@@ -241,7 +241,7 @@ namespace cnine{
     Rtensor2_view slice12(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice12(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
-	CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
+	CNINE_CHECK_RANGE(if(j<0 || j>=n2) 
 	    throw std::out_of_range("cnine::Rtensor4_view:slice12(int): index "+to_string(i)+" out of range of [0,"+to_string(n2-1)+"]");)
 	return Rtensor2_view(arr+i*s1+j*s2,n0,n3,s0,s3,dev);
     }
@@ -249,7 +249,7 @@ namespace cnine{
     Rtensor2_view slice13(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n1) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice13(int): index "+to_string(i)+" out of range of [0,"+to_string(n1-1)+"]");)
-      CNINE_CHECK_RANGE(if(i<0 || i>=n3) 
+      CNINE_CHECK_RANGE(if(j<0 || j>=n3) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice13(int): index "+to_string(i)+" out of range of [0,"+to_string(n3-1)+"]");)
 	return Rtensor2_view(arr+i*s1+j*s3,n0,n2,s0,s2,dev);
     }
@@ -257,7 +257,7 @@ namespace cnine{
     Rtensor2_view slice23(const int i, const int j) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n2) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice23(int): index "+to_string(i)+" out of range of [0,"+to_string(n2-1)+"]");)
-      CNINE_CHECK_RANGE(if(i<0 || i>=n3) 
+      CNINE_CHECK_RANGE(if(j<0 || j>=n3) 
 	  throw std::out_of_range("cnine::Rtensor4_view:slice23(int): index "+to_string(i)+" out of range of [0,"+to_string(n3-1)+"]");)
 	return Rtensor2_view(arr+i*s2+j*s3,n0,n1,s0,s1,dev);
     }

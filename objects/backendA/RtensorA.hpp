@@ -26,6 +26,8 @@
 #include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
 #include "Rtensor4_view.hpp"
+#include "Rtensor5_view.hpp"
+#include "Rtensor6_view.hpp"
 #include "RtensorView.hpp"
 
 #ifdef _WITH_CUDA
@@ -1370,6 +1372,43 @@ namespace cnine{
     const Rtensor4_view view4D() const{
       return Rtensor4_view(arr,dims,strides);
     }
+
+
+  public: // ---- 5D views -----------------------------------------------------------------------------------
+
+
+    RtensorA(const Rtensor5_view& x):
+      RtensorA({x.n0,x.n1,x.n2,x.n3,x.n4},fill_zero(),x.dev){
+      view5().add(x);
+    }
+
+    Rtensor5_view view5(){
+      return Rtensor5_view(get_arr(),dims,strides,dev);
+    }
+
+    const Rtensor5_view view5() const{
+      return Rtensor5_view(get_arr(),dims,strides,dev);
+    }
+
+
+  public: // ---- 6D views -----------------------------------------------------------------------------------
+
+
+    RtensorA(const Rtensor6_view& x):
+      RtensorA({x.n0,x.n1,x.n2,x.n3,x.n4,x.n5},fill_zero(),x.dev){
+      view6().add(x);
+    }
+
+    Rtensor6_view view6(){
+      return Rtensor6_view(get_arr(),dims,strides,dev);
+    }
+
+    const Rtensor6_view view6() const{
+      return Rtensor6_view(get_arr(),dims,strides,dev);
+    }
+
+
+  public: // ---- Xd views -----------------------------------------------------------------------------------
 
 
     RtensorView viewx(){

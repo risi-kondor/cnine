@@ -32,6 +32,7 @@ def main():
      cwd+'/../include',
      cwd+'/../include/cmaps',
      cwd+'/../objects/scalar',
+     cwd+'/../objects/matrix',
      cwd+'/../objects/tensor',
      cwd+'/../objects/backendA',
      cwd+'/../objects/backendB',

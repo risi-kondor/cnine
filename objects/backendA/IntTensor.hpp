@@ -411,6 +411,11 @@ namespace cnine{
       return dev;
     }
 
+    int* get_arrg(const int _dev=1) const{
+      if(!arrg) const_cast<IntTensor&>(*this).make_garr(_dev);
+      return arrg;
+    }
+
     int* garr(const int _dev=1) const{
       if(!arrg) const_cast<IntTensor&>(*this).make_garr(_dev);
       return arrg;

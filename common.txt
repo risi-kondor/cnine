@@ -4,6 +4,7 @@ INCLUDEDIR=$(ROOTDIR)/include
 COMBIDIR=$(ROOTDIR)/combinatorial
 CUDADIR=$(ROOTDIR)/cuda
 SCALARDIR=$(ROOTDIR)/objects/scalar
+MATRIXDIR=$(ROOTDIR)/objects/matrix
 TENSORDIR=$(ROOTDIR)/objects/tensor
 TENSORVIEWDIR=$(ROOTDIR)/objects/tensor_views
 TENSORARRAYDIR=$(ROOTDIR)/objects/tensor_array
