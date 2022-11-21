@@ -46,6 +46,18 @@ namespace cnine{
     array_pool(): 
       dir(Gdims(0,2),cnine::fill_noalloc()){}
 
+    array_pool(const int n): 
+      dir(Gdims(n,2)){}
+
+    array_pool(const int n, const int m, const int _dev=0): 
+      memsize(n*m),
+      tail(n*m),
+      dev(_dev),
+      dir(Gdims(n,2)){
+      CPUCODE(arr=new TYPE[n*m]);
+      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&newarrg, newsize*sizeof(TYPE))));
+    }
+
 
   public: // ---- Memory management --------------------------------------------------------------------------
 
@@ -233,6 +245,11 @@ namespace cnine{
 
     int size() const{
       return dir.dim(0);
+    }
+
+    int offset(const int i) const{
+      CNINE_ASSRT(i<size());
+      return dir(i,0);
     }
 
     int size_of(const int i) const{

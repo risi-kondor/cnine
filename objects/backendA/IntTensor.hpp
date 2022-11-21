@@ -61,11 +61,11 @@ namespace cnine{
       return "IntTensor"+dims.str();
     }
 
+
+  public: // ---- Constructors ------------------------------------------------------------------------------
+
+
     IntTensor(){}
-
-
-  private: // ---- Private constructors ----------------------------------------------------------------------
-
 
     IntTensor(const Gdims& _dims, const Gstrides& _strides, const int _dev=0): 
       dims(_dims), strides(_strides), dev(_dev){}
