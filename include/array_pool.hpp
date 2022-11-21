@@ -55,7 +55,7 @@ namespace cnine{
       dev(_dev),
       dir(Gdims(n,2)){
       CPUCODE(arr=new TYPE[n*m]);
-      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&newarrg, newsize*sizeof(TYPE))));
+      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE))));
     }
 
 
