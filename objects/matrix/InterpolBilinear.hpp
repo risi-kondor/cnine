@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef _InterpolationMatrix2d
-#define _InterpolationMatrix2d
+#ifndef _InterpolBilinear
+#define _InterpolBilinear
 
 #include "Cnine_base.hpp"
 #include "RtensorA.hpp"
@@ -23,7 +23,7 @@
 namespace cnine{
 
   template<typename TYPE>
-  class InterpolationMatrix2d: public CSRmatrix<TYPE>{
+  class InterpolBilinear: public CSRmatrix<TYPE>{
   public:
 
     using CSRmatrix<TYPE>::arr;
@@ -42,7 +42,7 @@ namespace cnine{
     using CSRmatrix<TYPE>::set_at;
 
 
-    InterpolationMatrix2d(const RtensorA& M, const int n0, const int n1):
+    InterpolBilinear(const RtensorA& M, const int n0, const int n1):
       CSRmatrix<TYPE>(M.get_dim(0),n0*n1){
       
       CNINE_ASSRT(M.get_dim(1)==2);
@@ -85,10 +85,10 @@ namespace cnine{
 	CNINE_ASSRT(x0>=0 && x0<=n0-1);
 	CNINE_ASSRT(x1>=0 && x1<=n1-1);
 
-	int x0b=std::floor(x0);
-	int x1b=std::floor(x1);
-	float d0=x0-x0b;
-	float d1=x1-x1b;
+	int xb0=std::floor(x0);
+	int xb1=std::floor(x1);
+	float d0=x0-xb0;
+	float d1=x1-xb1;
 
 	float w00=(1.0-d0)*(1.0-d1);
 	float w01=(1.0-d0)*(d1);

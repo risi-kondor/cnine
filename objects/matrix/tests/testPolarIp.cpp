@@ -1,7 +1,7 @@
 #include "Cnine_base.cpp"
 #include "RtensorA.hpp"
 #include "CnineSession.hpp"
-#include "InterpolationMatrix2d.hpp"
+#include "PolarIpMatrix.hpp"
 
 using namespace cnine;
 
@@ -15,8 +15,7 @@ int main(int argc, char** argv){
 
   int n=5;
 
-  RtensorA X=RtensorA::zero({5,2});
-  InterpolationMatrix2d<float> M(X,6,6);
-
+  PolarIpMatrix<float> M(5,10,10);
   cout<<M<<endl;
+
 }

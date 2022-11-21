@@ -146,6 +146,14 @@ namespace cnine{
       CNINE_ASSERT(false,"element("+to_string(i)+","+to_string(j)+") not found");
     }
 
+    void set_at(const int i, const int k, const int j, const TYPE v){
+      CNINE_CHECK_RANGE(if(i>=n) throw std::out_of_range("In CSRmatrix::set_at(...): index "+to_string(i)+" out of range (0,"+to_string(n-1)+")."));
+      CNINE_CHECK_RANGE(if(k>=size_of(i)) throw std::out_of_range("In CSRmatrix::set_at(...): index "+to_string(k)+" out of range (0,"+to_string(size_of(i)-1)+")."));
+      int offs=offset(i);
+      *reinterpret_cast<int*>(arr+offs+2*k)=j;
+      arr[offs+2*k+1]=v;
+    }
+
     const CSRvector<TYPE> operator()(const int i) const{
       CNINE_CPUONLY();
       CNINE_CHECK_RANGE(if(i>=size()) throw std::out_of_range("In CSRmatrix::operator(): index "+to_string(i)+" out of range (0,"+to_string(size()-1)+")."));
