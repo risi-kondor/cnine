@@ -11,20 +11,20 @@
  *
  */
 
-#ifndef _PolarIpMatrix
-#define _PolarIpMatrix
+#ifndef _SphericalIpMatrix
+#define _SphericalIpMatrix
 
 #include "Cnine_base.hpp"
 #include "RtensorA.hpp"
 #include "array_pool.hpp"
 #include "CSRmatrix.hpp"
-#include "InterpolBilinear.hpp"
+#include "InterpolTrilinear.hpp"
 
 
 namespace cnine{
 
   template<typename TYPE>
-  class PolarIpMatrix: public CSRmatrix<TYPE>{
+  class SphericalIpMatrix: public CSRmatrix<TYPE>{
   public:
 
     using CSRmatrix<TYPE>::arr;
@@ -44,19 +44,23 @@ namespace cnine{
 
 
 
-    PolarIpMatrix(const int Nr, const int Nphi, const int N){
+    SphericalIpMatrix(const int Nr, const int Ntheta, const int Nphi, const int N){
 
-      RtensorA X(Gdims(Nr*Nphi,2));
+      RtensorA X(Gdims(Nr*Ntheta*Nphi,3));
       float x0=((float)(N-1.0))/2;
       for(int i=0; i<Nr; i++){
 	float r=x0/Nr*((float)i+0.5);
 	for(int j=0; j<Nphi; j++){
 	  float phi=M_2_PI*((float)j)/((float)(Nphi));
-	  X.set(i*Nphi+j,0,x0+r*cos(phi));
-	  X.set(i*Nphi+j,1,x0+r*sin(phi));
+	  for(int k=0; k<Ntheta; k++){
+	    float theta=M_PI*(((float)(k)+0.5)/Ntheta);
+	    X.set((i*Ntheta+k)*Nphi+j,0,x0+r*cos(phi)*sin(theta));
+	    X.set((i*Ntheta+k)*Nphi+j,1,x0+r*sin(phi)*sin(theta));
+	    X.set((i*Ntheta+k)*Nphi+j,2,x0+r*cos(theta));
+	  }
 	}
       }
-      *this=InterpolBilinear<TYPE>(X,N,N);
+      *this=InterpolTrilinear<TYPE>(X,N,N,N);
     }
 
 
@@ -66,7 +70,7 @@ namespace cnine{
   public: // ---- Converions -------------------------------------------------------------------------------------
 
 
-    PolarIpMatrix(const CSRmatrix<TYPE>& x):
+    SphericalIpMatrix(const CSRmatrix<TYPE>& x):
       CSRmatrix<TYPE>(x){}
 
 
