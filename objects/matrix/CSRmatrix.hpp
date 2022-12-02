@@ -40,6 +40,8 @@ namespace cnine{
     using array_pool<TYPE>::offset;
     using array_pool<TYPE>::size_of;
 
+    using array_pool<TYPE>::get_device;
+
     int n=0;
     int m=0;
 
@@ -84,6 +86,19 @@ namespace cnine{
     }
 
   
+  public: // ---- Transport ----------------------------------------------------------------------------------
+
+
+    CSRmatrix(const CSRmatrix& x, const int _dev):
+      array_pool<float>(x), n(x.n), m(x.m){
+    }
+
+    CSRmatrix& to_device(const int _dev){
+      array_pool<float>::to_device(_dev);
+      return *this;
+    }
+
+
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
@@ -96,7 +111,7 @@ namespace cnine{
 
       int t=0;
       for(int i=0; i<n; i++)
-	for(int j=0; j<n; j++)
+	for(int j=0; j<m; j++)
 	  if(x(i,j)!=0) t++;
       array_pool<TYPE>::reserve(2*t);
 
@@ -104,7 +119,7 @@ namespace cnine{
       for(int i=0; i<n; i++){
 	dir.set(i,0,tail);
 	int m=0;
-	for(int j=0; j<n; j++)
+	for(int j=0; j<x.n1; j++)
 	  if(x(i,j)!=0){
 	    *reinterpret_cast<int*>(arr+tail+2*m)=j;
 	    arr[tail+2*m+1]=x(i,j);
@@ -114,6 +129,34 @@ namespace cnine{
 	tail+=2*m;
       }
     }
+
+    operator RtensorA() const{
+      RtensorA R=RtensorA::zero({n,m});
+      for_each([&](const int i, const int j, const float v){
+	  R.set(i,j,v);
+	});
+      return R;
+    }
+
+
+  public: // ---- ATEN ---------------------------------------------------------------------------------------
+
+
+#ifdef _WITH_ATEN
+
+    CSRmatrix(const at::Tensor& T){
+      CNINE_CONVERT_FROM_ATEN_WARNING();
+      CNINE_ASSERT(T.dim()==2,"Number of dimensions of tensor to be converted to CSRmatrix must be 2");
+      (*this)=CSRmatrix(RtensorA::view(const_cast<at::Tensor&>(T)).view2());
+    }
+    
+    at::Tensor torch() const{
+      CNINE_CONVERT_TO_ATEN_WARNING();
+      RtensorA x(*this);
+      return x.torch();
+    }
+
+#endif 
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
@@ -161,6 +204,11 @@ namespace cnine{
     }
 
     void for_each(std::function<void(const int, const int, const TYPE)> lambda) const{
+      if(dev>0){
+	CSRmatrix t(*this,0);
+	t.for_each(lambda);
+	return;
+      }
       for(int i=0; i<size(); i++){
 	int len=size_of(i);
 	int offs=offset(i);
@@ -233,6 +281,14 @@ namespace cnine{
 
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
+
+    string classname() const{
+      return "CSRmatrix";
+    }
+
+    string describe() const{
+      return "CSRmarix("+to_string(n)+","+to_string(m)+")";
+    }
 
     string str(const string indent="") const{
       ostringstream oss;

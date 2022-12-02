@@ -265,7 +265,7 @@ namespace cnine{
 	float t=0;
 	for(int b=0; b<n1; b++)
 	  t+=(*this)(a,b)*x(b);
-	y.set(a,t);
+	y.inc(a,t);
       }
     }
 

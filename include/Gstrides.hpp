@@ -83,6 +83,7 @@ namespace cnine{
   public:
 
     int operator()(const int i) const{
+      if(i<0) return (*this)[size()-i];
       return (*this)[i];
     }
 
@@ -140,6 +141,11 @@ namespace cnine{
       return R;
     }
     
+    Gstrides append(const int s) const{
+      Gstrides R(*this);
+      R.push_back(s);
+      return R;
+    }
 
     Gstrides chunk(const int beg, int n=-1) const{
       if(n==-1) n=size()-beg;

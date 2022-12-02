@@ -18,6 +18,7 @@
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
 #include "Gtensor.hpp"
+#include "RtensorView.hpp"
 
 #include "Ctensor2_view.hpp"
 
@@ -60,9 +61,21 @@ namespace cnine{
     }
 
 
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+
+    RtensorView as_real() const{
+      CNINE_ASSRT(arrc==arr+1);
+      return RtensorView(arr,dims.append(2),strides.append(1),dev);
+    }
+
 
   public: // ---- Getters ------------------------------------------------------------------------------------
 
+
+    int ndims() const{
+      return dims.size();
+    }
 
     complex<float> operator()(const int i0) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=dims[0]) 

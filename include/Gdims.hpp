@@ -104,6 +104,7 @@ namespace cnine{
     }
 
     int operator()(const int i) const{
+      if(i<0) return (*this)(size()-i);
       return (*this)[i];
     }
 

@@ -808,6 +808,40 @@ namespace cnine{
     }
 
 
+  public: // k=7 special cases
+
+
+    TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6) const{
+      CNINE_ASSERT(dev==0, "Gtensor::operator() not implemented for GPU.\n");
+      CNINE_ASSRT(k==7);
+      return arr[i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4]+i5*strides[5]+i6*strides[6]];
+    }
+
+    TYPE& operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6){
+      CNINE_ASSERT(dev==0,"Gtensor::operator() not implemented for GPU.\n");
+      CNINE_ASSRT(k==7);
+      return arr[i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4]+i5*strides[5]+i6*strides[6]];
+    }
+
+    TYPE get(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6) const{
+      CNINE_ASSERT(dev==0, "Gtensor::operator() not implemented for GPU.\n");
+      CNINE_ASSRT(k==7);
+      return arr[i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4]+i5*strides[5]+i6*strides[6]];
+    }
+
+    void set(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6, const TYPE x){
+      CNINE_ASSERT(dev==0, "Gtensor::operator() not implemented for GPU.\n");
+      CNINE_ASSRT(k==7);
+      arr[i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4]+i5*strides[5]+i6*strides[6]]=x;
+    }
+
+    void inc(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6, const TYPE x){
+      CNINE_CPUONLY(); 
+      CNINE_ASSRT(k==7);
+      arr[i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4]+i5*strides[5]+i6*strides[6]]+=x;
+    }
+
+
   public: // ---- Slices ------------------------------------------------------------------------------------
 
 

@@ -20,6 +20,7 @@
 
 #include "Ctensor2_view.hpp"
 #include "BasicCtensorProducts.hpp"
+#include "Rtensor4_view.hpp"
 
 
 namespace cnine{
@@ -78,6 +79,14 @@ namespace cnine{
       s0=_strides[a.back()];
       s1=_strides[b.back()];
       s2=_strides[c.back()];
+    }
+
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+
+    Rtensor4_view as_real() const{
+      CNINE_ASSRT(arrc==arr+1);
+      return Rtensor4_view(arr,n0,n1,n2,2,s0,s1,s2,1,dev);
     }
 
 

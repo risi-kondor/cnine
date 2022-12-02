@@ -18,6 +18,7 @@
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
 #include "Ctensor3_view.hpp"
+#include "Rtensor5_view.hpp"
 
 namespace cnine{
 
@@ -58,6 +59,15 @@ namespace cnine{
       s1=_strides[1];
       s2=_strides[2];
       s3=_strides[3];
+    }
+
+
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+
+    Rtensor5_view as_real() const{
+      CNINE_ASSRT(arrc==arr+1);
+      return Rtensor5_view(arr,n0,n1,n2,n3,2,s0,s1,s2,s3,1,dev);
     }
 
 

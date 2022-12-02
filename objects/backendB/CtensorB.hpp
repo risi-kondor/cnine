@@ -29,6 +29,9 @@
 #include "Ctensor2_view.hpp"
 #include "Ctensor3_view.hpp"
 #include "Ctensor4_view.hpp"
+#include "Ctensor5_view.hpp"
+#include "Ctensor6_view.hpp"
+#include "CtensorView.hpp"
 #include "CtensorD_view.hpp"
 
 #include "CtensorView.hpp"
@@ -901,12 +904,30 @@ namespace cnine{
     }
 
 
-    CtensorView viewx(){ // deprecated
-      return CtensorView(arr,arr+coffs,dims,strides);
+    const Ctensor5_view view5() const{
+      return Ctensor5_view(true_arr(),dims,strides,coffs,dev);
     }
 
-    const CtensorView viewx() const{ // deprecated
-      return CtensorView(arr,arr+coffs,dims,strides);
+    Ctensor5_view view5(){
+      return Ctensor5_view(true_arr(),dims,strides,coffs,dev);
+    }
+
+
+    const Ctensor6_view view6() const{
+      return Ctensor6_view(true_arr(),dims,strides,coffs,dev);
+    }
+
+    Ctensor6_view view6(){
+      return Ctensor6_view(true_arr(),dims,strides,coffs,dev);
+    }
+
+
+    CtensorView viewx(){
+      return CtensorView(true_arr(),true_arr()+coffs,dims,strides,dev);
+    }
+
+    const CtensorView viewx() const{
+      return CtensorView(true_arr(),true_arr()+coffs,dims,strides,dev);
     }
 
     CtensorD_view viewd(){
@@ -1092,6 +1113,20 @@ namespace cnine{
       arr[t+coffs]=std::imag(x);
     }
 
+    void set(const int i0, const int i1, const int i2, const int i3, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=4 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>dims[3]) throw std::out_of_range("index "+Gindex(i0,i1,i2,i3).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      arr[t]=std::real(x);
+      arr[t+coffs]=std::imag(x);
+    }
+
+    void set(const int i0, const int i1, const int i2, const int i3, const int i4, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=5 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>dims[3] || i4<0 || i4>dims[4]) throw std::out_of_range("index "+Gindex(i0,i1,i2,i3,i4).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
+      arr[t]=std::real(x);
+      arr[t+coffs]=std::imag(x);
+    }
+
 
     void set_value(const Gindex& ix, complex<float> x) const{
       int t=ix(strides);  
@@ -1116,6 +1151,20 @@ namespace cnine{
     void set_value(const int i0, const int i1, const int i2, complex<float> x) const{
       CNINE_CHECK_RANGE(if(dims.size()!=3 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2]) throw std::out_of_range("index "+Gindex(i0,i1,i2).str()+" out of range of dimensions "+dims.str()));
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2];  
+      arr[t]=std::real(x);
+      arr[t+coffs]=std::imag(x);
+    }
+
+    void set_value(const int i0, const int i1, const int i2, const int i3, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=4 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>dims[3]) throw std::out_of_range("index "+Gindex(i0,i1,i2,i3).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
+      arr[t]=std::real(x);
+      arr[t+coffs]=std::imag(x);
+    }
+
+    void set_value(const int i0, const int i1, const int i2, const int i3, const int i4, complex<float> x) const{
+      CNINE_CHECK_RANGE(if(dims.size()!=5 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>dims[3] || i4<0 || i4>dims[4]) throw std::out_of_range("index "+Gindex(i0,i1,i2,i3,i4).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
       arr[t]=std::real(x);
       arr[t+coffs]=std::imag(x);
     }

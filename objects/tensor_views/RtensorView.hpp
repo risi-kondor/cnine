@@ -23,6 +23,8 @@
 #include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
 #include "Rtensor4_view.hpp"
+#include "Rtensor5_view.hpp"
+#include "Rtensor6_view.hpp"
 
 
 namespace cnine{
@@ -65,6 +67,10 @@ namespace cnine{
 
   public: // ---- Getters ------------------------------------------------------------------------------------
 
+    
+    int ndims() const{
+      return dims.size();
+    }
 
     float operator()(const int i0) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=dims[0]) 
@@ -193,6 +199,17 @@ namespace cnine{
       return Rtensor4_view(arr,dims[0],dims[1],dims[2],dims[3],strides[0],strides[1],strides[2],strides[3],dev);
     }
 
+    Rtensor5_view view5() const{
+      CNINE_NDIMS_IS(5);
+      return Rtensor5_view(arr,dims[0],dims[1],dims[2],dims[3],dims[4],strides[0],strides[1],strides[2],strides[3],strides[4],dev);
+    }
+
+    Rtensor6_view view6() const{
+      CNINE_NDIMS_IS(6);
+      return Rtensor6_view(arr,dims[0],dims[1],dims[2],dims[3],dims[4],dims[5],strides[0],strides[1],strides[2],strides[3],strides[4],strides[5],dev);
+    }
+
+
     Rtensor1_view flatten() const{
       CNINE_NDIMS_IS(1);
       return Rtensor1_view(arr,dims.asize(),strides.back(),dev);
@@ -263,6 +280,16 @@ namespace cnine{
   public: // ---- Fusing -------------------------------------------------------------------------------------
 
 
+    //fuse i with i+1
+    RtensorView fuse(int i) const{
+      if(i<0) i=dims.size()-(-i);
+      CNINE_NDIMS_LEAST(i+2);
+      Gdims _dims=dims.remove(i);
+      _dims[i]=dims[i]*dims[i+1];
+      Gstrides _strides=strides.remove(i);
+      return RtensorView(arr,_dims,_strides,dev);
+    }
+
     RtensorView fuse01() const{
       CNINE_NDIMS_LEAST(2);
       Gdims d=dims.remove(1); d[0]*=dims[1];
@@ -283,6 +310,8 @@ namespace cnine{
       Gstrides s=strides.remove(2);
       return RtensorView(arr,d,s,dev);
     }    
+
+
 
     /*
     Rtensor3_view fuse12(){

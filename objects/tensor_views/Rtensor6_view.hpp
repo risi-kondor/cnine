@@ -46,7 +46,7 @@ namespace cnine{
 
     Rtensor6_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
       arr(_arr), dev(_dev){
-      CNINE_ASSRT(_dims.size()==5);
+      CNINE_ASSRT(_dims.size()==6);
       n0=_dims[0];
       n1=_dims[1];
       n2=_dims[2];
@@ -86,7 +86,7 @@ namespace cnine{
 
     Rtensor6_view block(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, 
       const int m0, const int m1, const int m2, const int m3, const int m4, const int m5) const{
-      return Rtensor6_view(arr+i0*s0+i1*s1+i2*s2+i3*s3+i4*s4+i5*s5,m0,m1,m2,m3,m4,s0,s1,s2,s3,s4,s5,dev);
+      return Rtensor6_view(arr+i0*s0+i1*s1+i2*s2+i3*s3+i4*s4+i5*s5,m0,m1,m2,m3,m4,m5,s0,s1,s2,s3,s4,s5,dev);
     }
 
 
@@ -243,9 +243,9 @@ namespace cnine{
     }
 
     Rtensor5_view slice5(const int i) const{
-      CNINE_CHECK_RANGE(if(i<0 || i>=n4) 
+      CNINE_CHECK_RANGE(if(i<0 || i>=n5) 
 	  throw std::out_of_range("cnine::Rtensor6_view:slice5(int): index "+to_string(i)+" out of range of [0,"+to_string(n5-1)+"]");)
-	return Rtensor5_view(arr+i*s4,n0,n1,n2,n3,n4,s0,s1,s2,s3,s4,dev);
+	return Rtensor5_view(arr+i*s5,n0,n1,n2,n3,n4,s0,s1,s2,s3,s4,dev);
     }
 
     Rtensor5_view fuse01() const{

@@ -30,6 +30,8 @@
 #include "CtensorB.hpp"
 #include "Aggregator.hpp"
 
+#include "CSRmatrix.hpp"
+
 //std::default_random_engine rndGen;
 #include "Cnine_base.cpp"
 
@@ -116,6 +118,8 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 #include "ctensorarr_py.cpp"
 
 #include "ctensorb_py.cpp"
+
+#include "CSRmatrix_py.cpp"
 
 #include "Rmask1_py.cpp"
 

@@ -243,6 +243,10 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    int get_device() const{
+      return dev;
+    }
+
     int size() const{
       return dir.dim(0);
     }

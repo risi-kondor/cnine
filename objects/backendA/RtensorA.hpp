@@ -28,6 +28,7 @@
 #include "Rtensor4_view.hpp"
 #include "Rtensor5_view.hpp"
 #include "Rtensor6_view.hpp"
+#include "Rtensor7_view.hpp"
 #include "RtensorView.hpp"
 
 #ifdef _WITH_CUDA
@@ -66,7 +67,8 @@ namespace cnine{
 
     //protected:
 
-    vector<int> strides;
+    //vector<int> strides;
+    Gstrides strides; // changed!!!
     int asize=0;
     int memsize=0;
     int cst=0; 
@@ -1160,6 +1162,54 @@ namespace cnine{
       assert(k==4);
       int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3];  
       arr[t]=std::real(x.val);
+    }
+
+
+  public: // ---- k=5 special cases ----
+
+
+    float operator()(const int i0, const int i1, const int i2, const int i3, const int i4) const{
+      CNINE_ASSERT(dev==0, "RtensorA::operator() not implemented for GPU.\n");
+      assert(k==5);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
+      return arr[t];
+    }
+
+    float get_value(const int i0, const int i1, const int i2, const int i3, const int i4) const{
+      CNINE_ASSERT(dev==0, "RtensorA::get not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=4 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>=dims[3] || i4<0 || i4>=dims[4]) 
+	  throw std::out_of_range("index "+Gindex(i0,i1,i2,i3,i4).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
+      return arr[t];
+    }
+
+    void set_value(const int i0, const int i1, const int i2, const int i3, const int i4, const float x){
+      CNINE_ASSERT(dev==0, "RtensorA::set not implemented for GPU.\n");
+      CNINE_CHECK_RANGE(if(k!=4 || i0<0 || i0>=dims[0] || i1<0 || i1>=dims[1] || i2<0 || i2>=dims[2] || i3<0 || i3>=dims[3]|| i4<0 || i4>=dims[4]) 
+	  throw std::out_of_range("index "+Gindex(i0,i1,i2,i3,i4).str()+" out of range of dimensions "+dims.str()));
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
+      arr[t]=x;
+    }
+
+    void inc(const int i0, const int i1, const int i2, const int i3, const int i4, const float x){
+      CNINE_ASSERT(dev==0, "RtensorA::inc not implemented for GPU.\n");
+      assert(k==5);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
+      arr[t]+=x;
+    }
+
+    RscalarA get(const int i0, const int i1, const int i2, const int i3, const int i4) const{
+      CNINE_ASSERT(dev==0, "RtensorA::get not implemented for GPU.\n");
+      assert(k==5);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
+      return RscalarA(arr[t]);
+    }
+
+    void set(const int i0, const int i1, const int i2, const int i3, const int i4, const RscalarA& x){
+      CNINE_ASSERT(dev==0, "RtensorA::set not implemented for GPU.\n");
+      assert(k==5);
+      int t=i0*strides[0]+i1*strides[1]+i2*strides[2]+i3*strides[3]+i4*strides[4];  
+      arr[t]=x.val;
     }
 
 
@@ -2484,9 +2534,85 @@ namespace cnine{
     }
 
 
-  public: // ---- Interpolate --------------------------------------------------------------------------------
+  public: // ---- Convolutions -------------------------------------------------------------------------------
+
+    /*
+    RtensorA convolve2D(const RtensorA& W, const int padding0=0, const int padding1=0){
+      CNINE_ASSRT(w.ndims()==4);
+
+      if(ndims()==3){
+	RtensorA R=RtensorA::zero({dims[0]+2*padding0-W.dims[1]+1,dims[1]+2*padding1-W.dims[2]+1,W.dims[0]});
+	RtensorConvolve2d()(R,X,W);
+	return R;
+      }
+    }
+    */
 
 
+  public: // ---- Special functions --------------------------------------------------------------------------
+
+
+    void add_ReLU(const RtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.asize==asize);
+      assert(x.dev==dev);
+      for(int i=0; i<asize; i++) arr[i]+=(x.arr[i]>0)*x.arr[i];
+    }
+
+    void add_ReLU(const RtensorA& x, const float alpha){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.asize==asize);
+      assert(x.dev==dev);
+      for(int i=0; i<asize; i++) arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
+    }
+
+    void add_ReLU_back(const RtensorA& g, const RtensorA& x){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.asize==asize);
+      assert(g.asize==asize);
+      assert(x.dev==dev);
+      assert(g.dev==dev);
+      for(int i=0; i<asize; i++) arr[i]+=(x.arr[i]>0)*g.arr[i];
+    }
+
+    void add_ReLU_back(const RtensorA& g, const RtensorA& x, const float alpha){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.asize==asize);
+      assert(g.asize==asize);
+      assert(x.dev==dev);
+      assert(g.dev==dev);
+      for(int i=0; i<asize; i++) arr[i]+=((x.arr[i]>0)+(x.arr[i]<=0)*alpha)*g.arr[i];
+    }
+
+    
+
+  public: // ---- I/O ----------------------------------------------------------------------------------------
+
+
+    string str(const string indent="") const{
+      return gtensor().str(indent);
+    }
+
+    string str(const string indent, const float eps) const{
+      return gtensor().str(indent,eps);
+    }
+
+    friend ostream& operator<<(ostream& stream, const RtensorA& x){
+      stream<<x.str(); return stream;}
+   
+  };
+
+
+  // ---- Post-class inline functions ------------------------------------------------------------------------
+
+
+
+
+}
+
+#endif
+
+    /*
     RtensorA convolve2_prod(const RtensorA& M){
       CNINE_ASSRT(dims.size()>=2);
       CNINE_ASSRT(M.dims.size()==3);
@@ -2588,68 +2714,4 @@ namespace cnine{
 	      }
       }
     }
-      
-
-  public: // ---- Special functions --------------------------------------------------------------------------
-
-
-    void add_ReLU(const RtensorA& x){
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(x.asize==asize);
-      assert(x.dev==dev);
-      for(int i=0; i<asize; i++) arr[i]+=(x.arr[i]>0)*x.arr[i];
-    }
-
-    void add_ReLU(const RtensorA& x, const float alpha){
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(x.asize==asize);
-      assert(x.dev==dev);
-      for(int i=0; i<asize; i++) arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
-    }
-
-    void add_ReLU_back(const RtensorA& g, const RtensorA& x){
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(x.asize==asize);
-      assert(g.asize==asize);
-      assert(x.dev==dev);
-      assert(g.dev==dev);
-      for(int i=0; i<asize; i++) arr[i]+=(x.arr[i]>0)*g.arr[i];
-    }
-
-    void add_ReLU_back(const RtensorA& g, const RtensorA& x, const float alpha){
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(x.asize==asize);
-      assert(g.asize==asize);
-      assert(x.dev==dev);
-      assert(g.dev==dev);
-      for(int i=0; i<asize; i++) arr[i]+=((x.arr[i]>0)+(x.arr[i]<=0)*alpha)*g.arr[i];
-    }
-
-    
-
-  public: // ---- I/O ----------------------------------------------------------------------------------------
-
-
-    string str(const string indent="") const{
-      return gtensor().str(indent);
-    }
-
-    string str(const string indent, const float eps) const{
-      return gtensor().str(indent,eps);
-    }
-
-    friend ostream& operator<<(ostream& stream, const RtensorA& x){
-      stream<<x.str(); return stream;}
-   
-  };
-
-
-  // ---- Post-class inline functions ------------------------------------------------------------------------
-
-
-
-
-}
-
-#endif
-
+    */
