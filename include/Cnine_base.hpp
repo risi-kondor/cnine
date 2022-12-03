@@ -27,6 +27,7 @@
 #include <array>
 #include <set>
 #include <list>
+#include <memory>
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
