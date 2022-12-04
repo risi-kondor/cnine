@@ -110,8 +110,9 @@ namespace cnine{
       int padding1=(r.n2-x.n2+w.n2-1)/2;
 
       if(r.dev==0){
-	for(int b=0; b<x.n0; b++)
+	for(int b=0; b<x.n0; b++){
 	  (*this)(r.slice0(b),x.slice0(b),w);
+	}
       }
       if(r.dev==1){
 	CUDA_STREAM(RtensorConvolve2d_cu(r,x,w,padding0,padding1,stream));

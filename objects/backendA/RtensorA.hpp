@@ -840,7 +840,6 @@ namespace cnine{
     }
 
     RtensorA to_device(const int _dev) const{
-      cout<<"to("<<_dev<<")"<<endl;
       return RtensorA(*this,_dev);
     }
 
@@ -1847,7 +1846,6 @@ namespace cnine{
 
     RtensorA plus(const RtensorA& x) const{
       RtensorA R(*this);
-      cout<<"plus"<<endl;
       R.add(x);
       return R;
     }
