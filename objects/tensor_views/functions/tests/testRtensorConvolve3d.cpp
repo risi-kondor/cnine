@@ -74,7 +74,7 @@ int main(int argc, char** argv){
     RtensorA xg(x,1);
     RtensorA wg(w,1);
     auto rg=convolve3D(xg,wg,padding,padding,padding);
-    cout<<rg.to_device(0).view4().slice3(0).slice2(0)<<endl;
+    cout<<rg.to_device(0).view5().slice4(0).slice3(0).slice2(0)<<endl;
     #endif 
     cout<<endl;
 

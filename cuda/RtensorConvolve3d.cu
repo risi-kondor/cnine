@@ -22,7 +22,7 @@
 #include "Cnine_base.hpp"
 #include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
-#include "Rtensor5_view.hpp"
+#include "Rtensor6_view.hpp"
 #include "Itensor1_view.hpp"
 #include "Itensor2_view.hpp"
 #include "CUDAhelpers.hpp"
@@ -44,7 +44,7 @@ __global__ void RtensorConvolve3d_kernel
   float t=0;
   for(int j0=0; j0<nj0; j0++)
     for(int j1=0; j1<nj1; j1++)
-      for(int j2=0; j1<nj2; j2++)
+      for(int j2=0; j2<nj2; j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
@@ -66,7 +66,7 @@ __global__ void RtensorConvolve3d_kernel
   float t=0;
   for(int j0=max(0,padding0-i0); j0<min(nj0,xn0-i0+padding0); j0++)
     for(int j1=max(0,padding1-i1); j1<min(nj1,xn1-i1+padding1); j1++)
-      for(int j2=max(0,padding2-i2); j1<min(nj2,xn2-i2+padding2); j2++)
+      for(int j2=max(0,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
@@ -91,7 +91,7 @@ __global__ void RtensorConvolve3d_kernel
   float t=0;
   for(int j0=0; j0<nj0; j0++)
     for(int j1=0; j1<nj1; j1++)
-      for(int j2=0; j1<nj2; j2++)
+      for(int j2=0; j2<nj2; j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3+threadIdx.y*xs4]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
@@ -114,7 +114,7 @@ __global__ void RtensorConvolve3d_kernel
   float t=0;
   for(int j0=max(0,padding0-i0); j0<min(nj0,xn0-i0+padding0); j0++)
     for(int j1=max(1,padding1-i1); j1<min(nj1,xn1-i1+padding1); j1++)
-      for(int j2=max(2,padding2-i2); j1<min(nj2,xn2-i2+padding2); j2++)
+      for(int j2=max(2,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3+threadIdx.y*xs4]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
@@ -139,7 +139,7 @@ __global__ void RtensorConvolve3d_kernel
   float t=0;
   for(int j0=0; j0<nj0; j0++)
     for(int j1=0; j1<nj1; j1++)
-      for(int j2=0; j1<nj2; j2++)
+      for(int j2=0; j2<nj2; j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3+threadIdx.y*xs4]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
@@ -162,7 +162,7 @@ __global__ void RtensorConvolve3d_kernel
   float t=0;
   for(int j0=max(0,padding0-i0); j0<min(nj0,xn0-i0+padding0); j0++)
     for(int j1=max(1,padding1-i1); j1<min(nj1,xn1-i1+padding1); j1++)
-      for(int j2=max(2,padding2-i2); j1<min(nj2,xn2-i2+padding2); j2++)
+      for(int j2=max(2,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3+threadIdx.y*xs4]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
