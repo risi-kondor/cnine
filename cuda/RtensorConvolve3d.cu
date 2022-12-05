@@ -146,6 +146,7 @@ __global__ void RtensorConvolve3d_kernel
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
 
   rarr[b*rs0+i0*rs1+i1*rs2+i2*rs3+threadIdx.x*rs4+threadIdx.y*rs5]+=t;
+  printf("(%d %d %d %d %d %d %d)",b,i0,i1,i2,threadIdx.x,threadIdx.y);
 }
 
 
