@@ -261,7 +261,7 @@ namespace cnine{
 	  x.arr,x.s0,x.s1,x.s2,x.s3,
 	  w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
 	  w.n1,w.n2,w.n3,w.n4,
-	  x.n1,x.n2,x.n3,padding0,padding1,padding2); 
+	  x.n0,x.n1,x.n2,padding0,padding1,padding2); 
     }
   }
   
@@ -291,7 +291,7 @@ namespace cnine{
 	    x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
 	    w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
 	    w.n1,w.n2,w.n3,w.n4,
-	    x.n1,x.n2,x.n3,padding0,padding1,padding2); 
+	    x.n0,x.n1,x.n2,padding0,padding1,padding2); 
       }
 
     }else{
@@ -310,7 +310,7 @@ namespace cnine{
     CNINE_ASSRT(x.dev==1);
     CNINE_ASSRT(w.dev==1);
 
-    if(r.n3*r.n4<=1024){
+    if(r.n4*r.n5<=1024){
       dim3 blocks(r.n0*r.n1,r.n2,r.n3);
       dim3 threads(r.n4,r.n5);
 
