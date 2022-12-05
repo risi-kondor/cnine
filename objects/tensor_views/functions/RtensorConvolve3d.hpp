@@ -21,8 +21,9 @@
 namespace cnine{
 
   #ifdef _WITH_CUDA
+  extern void RtensorConvolve3d_cu(const Rtensor4_view& r, const Rtensor4_view& x, const Rtensor5_view& w, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
   extern void RtensorConvolve3d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const Rtensor5_view& w, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
-  //extern void RtensorConvolve3d_cu(const Rtensor6_view& r, const Rtensor6_view& x, const Rtensor5_view& w, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
+  extern void RtensorConvolve3d_cu(const Rtensor6_view& r, const Rtensor6_view& x, const Rtensor5_view& w, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
   #endif
 
 
@@ -64,8 +65,8 @@ namespace cnine{
 	}
       }
       if(r.dev==1){
-	int dev=r.dev; CNINE_CPUONLY();
-	//CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,stream));
+	//int dev=r.dev; CNINE_CPUONLY();
+	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,padding2,stream));
       }
     }
 
@@ -122,7 +123,7 @@ namespace cnine{
 	}
       }
       if(r.dev==1){
-	//CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,padding2,stream));
+	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,padding2,stream));
       }
     }
 

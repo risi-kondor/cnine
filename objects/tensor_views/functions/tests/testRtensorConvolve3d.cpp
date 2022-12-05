@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   int nc=1;
   int nd=1;
   int nout=1;
-  int padding=1;
+  int padding=0;
 
   bool sparse=false;
 
@@ -28,7 +28,7 @@ int main(int argc, char** argv){
 
     RtensorA x=RtensorA::zero({nx,nx,nx,1});
     x.set(1,2,2,0,1.0);
-    cout<<x.view4().slice3(0).slice2(0)<<endl;
+    cout<<x.view4().slice3(0).slice2(2)<<endl;
 
     RtensorA w=RtensorA::sequential({nout,nw,nw,nw,1});
     cout<<w.view5().slice0(0).slice3(0).slice2(0)<<endl;
@@ -37,19 +37,19 @@ int main(int argc, char** argv){
     cout<<r.view4().slice3(0).slice2(0)<<endl;
 
     #ifdef _WITH_CUDA
-    //cout<<"GPU"<<endl;
-    //RtensorA xg(x,1);
-    //RtensorA wg(w,1);
-    //auto rg=convolve3D(xg,wg,padding,padding);
-    //cout<<rg.to_device(0).view3().slice2(0)<<endl;
+    cout<<"GPU"<<endl;
+    RtensorA xg(x,1);
+    RtensorA wg(w,1);
+    auto rg=convolve3D(xg,wg,padding,padding);
+    cout<<rg.to_device(0).view4().slice3(0).slice2(0)<<endl;
     #endif 
     cout<<endl;
 
     if(sparse){
-      //CSRmatrix<float> ws(w.view5().fuse34().fuse12());
-      //cout<<ws<<endl;
+      CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
+      cout<<ws<<endl;
       //auto rs=convolve2D(x,ws,nw,nw);
-      //cout<<rs.view3().slice2(0)<<endl;
+      //cout<<rs.view4().slice3(0).slice2(0)<<endl;
     }
 
 
@@ -61,7 +61,7 @@ int main(int argc, char** argv){
 
     RtensorA x=RtensorA::zero({nx,nx,nx,1,nc});
     x.set(1,2,2,0,0,1.0);
-    cout<<x.view5().slice4(0).slice3(0).slice2(0)<<endl;
+    cout<<x.view5().slice4(0).slice3(0).slice2(2)<<endl;
     
     RtensorA w=RtensorA::sequential({nout,nw,nw,nw,1});
     cout<<w.view5().slice0(0).slice3(0).slice2(0)<<endl;
@@ -79,8 +79,8 @@ int main(int argc, char** argv){
     cout<<endl;
 
     if(sparse){
-      //CSRmatrix<float> ws(w.view4().fuse23().fuse12());
-      //cout<<ws<<endl;
+      CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
+      cout<<ws<<endl;
       //auto rs=convolve3D(x,ws,nw,nw);
       //cout<<rs.view4().slice3(0).slice2(0)<<endl;
      }
@@ -94,7 +94,7 @@ int main(int argc, char** argv){
 
     RtensorA x=RtensorA::zero({nb,nx,nx,nx,1,nc});
     x.set({0,1,2,2,0,0},1.0);
-    cout<<x.view6().slice0(0).slice4(0).slice3(0).slice2(0)<<endl;
+    cout<<x.view6().slice0(0).slice4(0).slice3(0).slice2(2)<<endl;
     
     RtensorA w=RtensorA::sequential({nout,nw,nw,nw,1});
     cout<<w.view5().slice0(0).slice3(0).slice2(0)<<endl;
@@ -111,10 +111,10 @@ int main(int argc, char** argv){
     #endif 
 
     if(sparse){
-      //CSRmatrix<float> ws(w.view4().fuse23().fuse12());
-      //cout<<ws<<endl;
+      CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
+      cout<<ws<<endl;
       //auto rs=convolve2D(x,ws,nw,nw);
-      //cout<<rs.view5().slice0(0).slice3(0).slice2(0)<<endl;
+      //cout<<rs.view4().slice3(0).slice2(0)<<endl;
     }
 
     cout<<endl;
