@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   int nc=1;
   int nd=1;
   int nout=1;
-  int padding=0;
+  int padding=1;
 
   bool sparse=false;
 
@@ -29,18 +29,19 @@ int main(int argc, char** argv){
     RtensorA x=RtensorA::zero({nx,nx,1});
     x.set(1,2,0,1.0);
     cout<<x.view3().slice2(0)<<endl;
-    
+
     RtensorA w=RtensorA::sequential({nout,nw,nw,1});
     cout<<w.view4().slice0(0).slice2(0)<<endl;
     
-    auto r=convolve2D(x,w);
+    auto r=convolve2D(x,w,padding,padding);
     cout<<r.view3().slice2(0)<<endl;
 
     #ifdef _WITH_CUDA
-    RtensorA xg(x,1);
-    RtensorA wg(w,1);
-    auto rg=convolve2D(xg,wg);
-    cout<<rg.to_device(0).view3().slice2(0)<<endl;
+    //cout<<"GPU"<<endl;
+    //RtensorA xg(x,1);
+    //RtensorA wg(w,1);
+    //auto rg=convolve2D(xg,wg,padding,padding);
+    //cout<<rg.to_device(0).view3().slice2(0)<<endl;
     #endif 
     cout<<endl;
 
@@ -65,9 +66,17 @@ int main(int argc, char** argv){
     RtensorA w=RtensorA::sequential({nout,nw,nw,1});
     cout<<w.view4().slice0(0).slice2(0)<<endl;
     
-    auto r=convolve2D(x,w);
+    auto r=convolve2D(x,w,padding,padding);
     cout<<r.view4().slice3(0).slice2(0)<<endl;
 
+    #ifdef _WITH_CUDA
+    cout<<"GPU"<<endl;
+    RtensorA xg(x,1);
+    RtensorA wg(w,1);
+    auto rg=convolve2D(xg,wg,padding,padding);
+    cout<<rg.to_device(0).view4().slice3(0).slice2(0)<<endl;
+    #endif 
+    cout<<endl;
 
     if(sparse){
       CSRmatrix<float> ws(w.view4().fuse23().fuse12());
@@ -90,9 +99,16 @@ int main(int argc, char** argv){
     RtensorA w=RtensorA::sequential({nout,nw,nw,1});
     cout<<w.view4().slice0(0).slice2(0)<<endl;
     
-    auto r=convolve2D(x,w);
+    auto r=convolve2D(x,w,padding,padding);
     cout<<r.view5().slice0(0).slice3(0).slice2(0)<<endl;
 
+    #ifdef _WITH_CUDA
+    cout<<"GPU"<<endl;
+    RtensorA xg(x,1);
+    RtensorA wg(w,1);
+    auto rg=convolve2D(xg,wg,padding,padding);
+    cout<<rg.to_device(0).view5().slice0(0).slice3(0).slice2(0)<<endl;
+    #endif 
 
     if(sparse){
       CSRmatrix<float> ws(w.view4().fuse23().fuse12());

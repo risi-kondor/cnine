@@ -521,8 +521,9 @@ namespace cnine{
     Gtensor<float> gtensor() const{
       Gtensor<float> R({n0,n1},fill::raw);
       for(int i0=0; i0<n0; i0++)
-	for(int i1=0; i1<n1; i1++)
+	for(int i1=0; i1<n1; i1++){
 	  R(i0,i1)=(*this)(i0,i1);
+	}
       return R;
     }
     

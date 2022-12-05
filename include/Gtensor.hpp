@@ -1608,7 +1608,7 @@ namespace cnine{
 	return oss.str();  
       }
 
-      if(k==6){
+      if(k==7){
 	for(int i0=0; i0<dims[0]; i0++){
 	  for(int i1=0; i1<dims[1]; i1++){
 	    for(int i2=0; i2<dims[2]; i2++){

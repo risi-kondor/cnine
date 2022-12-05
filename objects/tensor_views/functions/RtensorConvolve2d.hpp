@@ -21,6 +21,7 @@
 namespace cnine{
 
   #ifdef _WITH_CUDA
+  extern void RtensorConvolve2d_cu(const Rtensor4_view& r, const Rtensor4_view& x, const Rtensor4_view& w, const int padding0, const int padding1, const cudaStream_t& stream);
   extern void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const Rtensor4_view& w, const int padding0, const int padding1, const cudaStream_t& stream);
   #endif
 
@@ -95,8 +96,8 @@ namespace cnine{
 	}
       }
       if(r.dev==1){
-	int dev=r.dev; CNINE_CPUONLY();
-	//CUDA_STREAM(RtensorConvolve2d_cu(r,x,w,padding0,padding1,stream));
+	//int dev=r.dev; CNINE_CPUONLY();
+	CUDA_STREAM(RtensorConvolve2d_cu(r,x,w,padding0,padding1,stream));
       }
     }
 
@@ -156,28 +157,28 @@ namespace cnine{
 
       if(x.ndims()==3){
 	CNINE_ASSRT(w.dims[3]==x.dims[2]);
-	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,w.dims[0]});
+	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,w.dims[0]},x.dev);
 	RtensorConvolve2d()(r.view3(),x.view3(),w.view4());
 	return r;
       }
 
       if(x.ndims()==4){ // add channels
 	CNINE_ASSRT(w.dims[3]==x.dims[2]);
-	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,w.dims[0],x.dims[3]});
+	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,w.dims[0],x.dims[3]},x.dev);
 	RtensorConvolve2d()(r.view4(),x.view4(),w.view4());
 	return r;
       }
 
       if(x.ndims()==5){ // add batches
 	CNINE_ASSRT(w.dims[3]==x.dims[3]);
-	RtensorA r=RtensorA::zero({x.dims[0],x.dims[1]+2*padding0-w.dims[1]+1,x.dims[2]+2*padding1-w.dims[2]+1,w.dims[0],x.dims[4]});
+	RtensorA r=RtensorA::zero({x.dims[0],x.dims[1]+2*padding0-w.dims[1]+1,x.dims[2]+2*padding1-w.dims[2]+1,w.dims[0],x.dims[4]},x.dev);
 	RtensorConvolve2d()(r.view5(),x.view5(),w.view4());
 	return r;
       }
 
       if(x.ndims()==6){ // add blocks
 	CNINE_ASSRT(w.dims[3]==x.dims[4]);
-	RtensorA r=RtensorA::zero({x.dims[0],x.dims[1]+2*padding0-w.dims[1]+1,x.dims[2]+2*padding1-w.dims[2]+1,x.dims[3],w.dims[0],x.dims[5]});
+	RtensorA r=RtensorA::zero({x.dims[0],x.dims[1]+2*padding0-w.dims[1]+1,x.dims[2]+2*padding1-w.dims[2]+1,x.dims[3],w.dims[0],x.dims[5]},x.dev);
 	RtensorConvolve2d()(r.view6(),x.view6(),w.view4());
 	return r;
       }

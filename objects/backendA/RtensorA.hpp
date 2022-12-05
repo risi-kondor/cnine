@@ -111,10 +111,11 @@ namespace cnine{
 
     
     RtensorA(const Gdims& _dims, const fill_noalloc& dummy, const int _dev=0): 
-      dims(_dims), dev(_dev), strides(_dims.size()){
+      dims(_dims), dev(_dev){ //, strides(_dims.size()){
       CNINE_DEVICE_VALID(dev);
 
       k=dims.size();
+      strides.resize(k);
       strides[k-1]=1;
       for(int i=k-2; i>=0; i--)
 	strides[i]=strides[i+1]*dims[i+1];
@@ -125,10 +126,11 @@ namespace cnine{
 
 
     RtensorA(const Gdims& _dims, const int _dev=0): 
-      dims(_dims), dev(_dev), strides(_dims.size()){
+      dims(_dims), dev(_dev){ //, strides(_dims.size()){
       CNINE_DEVICE_VALID(dev)
 
       k=dims.size();
+      strides.resize(k);
       strides[k-1]=1;
       for(int i=k-2; i>=0; i--)
 	strides[i]=strides[i+1]*dims[i+1];
@@ -148,10 +150,11 @@ namespace cnine{
 
 
     RtensorA(const int d0_reserve_size, const Gdims& _dims, const int _dev=0): 
-      dims(_dims), dev(_dev), strides(_dims.size()){
+      dims(_dims), dev(_dev){ //, strides(_dims.size()){
       CNINE_DEVICE_VALID(dev)
 
       k=dims.size();
+      strides.resize(k);
       strides[k-1]=1;
       for(int i=k-2; i>=0; i--)
 	strides[i]=strides[i+1]*dims[i+1];
@@ -172,11 +175,12 @@ namespace cnine{
 
 
     RtensorA(const Gdims& _adims, const Gdims& _dims, const int _dev=0): // for RtensorArray
-      dims(_adims,_dims), dev(_dev), strides(_adims.size()+_dims.size()){
+      dims(_adims,_dims), dev(_dev){ //, strides(_adims.size()+_dims.size()){
 
       CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("cnine error in RtensorA: device must be 0 or 1"));
 
       k=dims.size();
+      strides.resize(k);
       const int ak=_adims.size();
       const int dk=_dims.size();
 
@@ -205,11 +209,12 @@ namespace cnine{
 
 
     RtensorA(const Gdims& _adims, const Gdims& _dims, const fill_noalloc& dummy, const int _dev=0): // for RtensorArray
-      dims(_adims,_dims), dev(_dev), strides(_adims.size()+_dims.size()){
+      dims(_adims,_dims), dev(_dev){ //, strides(_adims.size()+_dims.size()){
 
       CNINE_CHECK_DEV(if(dev<0||dev>1) throw std::invalid_argument("cnine error in RtensorA: device must be 0 or 1"));
 
       k=dims.size();
+      strides.resize(k);
       const int ak=_adims.size();
       const int dk=_dims.size();
 
@@ -1345,10 +1350,12 @@ namespace cnine{
     }
 
     Rtensor3_view view3(){
+      CNINE_ASSRT(dims.size()==3);
       return Rtensor3_view(get_arr(),dims,strides,dev);
     }
 
     const Rtensor3_view view3() const{
+      CNINE_ASSRT(dims.size()==3);
       return Rtensor3_view(get_arr(),dims,strides,dev);
     }
 
