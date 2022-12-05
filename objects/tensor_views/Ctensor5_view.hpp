@@ -42,7 +42,8 @@ namespace cnine{
     Ctensor5_view(float* _arr, float* _arrc, 
       const int _n0, const int _n1, const int _n2, const int _n3, const int _n4,  
       const int _s0, const int _s1, const int _s2, const int _s3, const int _s4, const int _dev=0): 
-      arr(_arr), arrc(_arrc), n0(_n0), n1(_n1), n2(_n2), n3(_n3), n4(_n4), s0(_s0), s1(_s1), s2(_s2), s3(_s3), s4(_s4), dev(_dev){}
+      arr(_arr), arrc(_arrc), n0(_n0), n1(_n1), n2(_n2), n3(_n3), n4(_n4), 
+      s0(_s0), s1(_s1), s2(_s2), s3(_s3), s4(_s4), dev(_dev){}
 
     Ctensor5_view(float* _arr, const int _n0, const int _n1, const int _n2, const int _n3, const int _n4, 
       const int _s0, const int _s1, const int _s2, const int _s3, const int _s4, const int _coffs=1): 
@@ -75,6 +76,10 @@ namespace cnine{
 
   public: // ---- Access ------------------------------------------------------------------------------------
 
+
+    Gdims get_dims() const{
+      return Gdims(n0,n1,n2,n3,n4);
+    }
 
     complex<float> operator()(const int i0, const int i1, const int i2, const int i3, const int i4) const{
       int t=s0*i0+s1*i1+s2*i2+s3*i3+s4*i4;

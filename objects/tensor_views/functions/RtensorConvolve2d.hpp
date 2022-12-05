@@ -137,6 +137,7 @@ namespace cnine{
 	    (*this)(r.slice0(b).slice2(d),x.slice0(b).slice2(d),w);
       }
       if(r.dev==1){
+	CNINE_CPUONLY();
 	//CUDA_STREAM(RtensorConvolve2d_cu(r,x,w,padding0,padding1,stream));
       }
     }

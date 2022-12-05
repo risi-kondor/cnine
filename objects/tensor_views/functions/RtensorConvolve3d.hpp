@@ -63,6 +63,7 @@ namespace cnine{
 	}
       }
       if(r.dev==1){
+	CNINE_CPUONLY();
 	//CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,stream));
       }
     }
@@ -82,32 +83,23 @@ namespace cnine{
 	for(int i0=0; i0<r.n0; i0++){
 	  for(int i1=0; i1<r.n1; i1++){
 	    for(int i2=0; i2<r.n2; i2++){
-	      //cout<<i0<<i1<<i2<<endl;
 	      Rtensor2_view R(r.arr+i0*r.s0+i1*r.s1+i2*r.s2,r.n3,r.n4,r.s3,r.s4,r.dev);
 	      for(int j0=std::max(0,padding0-i0); j0<std::min(w.n1,x.n0-i0+padding0); j0++){
-		  for(int j1=std::max(0,padding1-i1); j1<std::min(w.n2,x.n1-i1+padding1); j1++){
-		    //if(padding1==0){
-		    //Rtensor2_view W(w.arr+j0*w.s1, w.n0, w.n2*w.n3, w.s0, w.s3, w.dev);
-		    //Rtensor2_view X(x.arr+(i0+j0-padding0)*x.s0+i1*x.s1, w.n2*x.n2, x.n3, x.s2, x.s3, x.dev);
-		    //R.add_mprod(W,X);
-		    //}else{
-		    for(int j2=std::max(0,padding2-i2); j2<std::min(w.n3,x.n2-i2+padding2); j2++){
-		      Rtensor2_view W(w.arr+j0*w.s1+j1*w.s2+j2*w.s3, w.n0, w.n4, w.s0, w.s4, w.dev);
-		      Rtensor2_view X(x.arr+(i0+j0-padding0)*x.s0+(i1+j1-padding1)*x.s1+(i2+j2-padding2)*x.s2, 
-			x.n3, x.n4, x.s3, x.s4, x.dev);
-		      cout<<W<<endl;
-		      cout<<X<<endl;
-		      R.add_mprod(W,X);
-		    }
-		    //}
+		for(int j1=std::max(0,padding1-i1); j1<std::min(w.n2,x.n1-i1+padding1); j1++){
+		  for(int j2=std::max(0,padding2-i2); j2<std::min(w.n3,x.n2-i2+padding2); j2++){
+		    Rtensor2_view W(w.arr+j0*w.s1+j1*w.s2+j2*w.s3, w.n0, w.n4, w.s0, w.s4, w.dev);
+		    Rtensor2_view X(x.arr+(i0+j0-padding0)*x.s0+(i1+j1-padding1)*x.s1+(i2+j2-padding2)*x.s2, 
+		      x.n3, x.n4, x.s3, x.s4, x.dev);
+		    R.add_mprod(W,X);
 		  }
+		}
 	      }
 	    }
 	  }
 	}
       }
       if(r.dev==1){
-	//CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,stream));
+	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,padding2,stream));
       }
     }
 
@@ -125,7 +117,6 @@ namespace cnine{
 
       if(r.dev==0){
 	for(int b=0; b<x.n0; b++){
-	  cout<<b<<endl;
 	  (*this)(r.slice0(b),x.slice0(b),w);
 	}
       }

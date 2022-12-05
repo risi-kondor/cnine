@@ -28,6 +28,8 @@ CUDA_OBJECTS+=BasicCtensorProducts.o
 CUDA_OBJECTS+=RtensorEinsumProducts.o  
 CUDA_OBJECTS+=RtensorUtils.o  
 CUDA_OBJECTS+=RtensorPackUtils.o  
+CUDA_OBJECTS+=RtensorConvolve2d.o  
+CUDA_OBJECTS+=RtensorConvolve3d.o  
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
 NVCCFLAGS+= -D_WITH_CUDA -D_WITH_CUBLAS
 endif 

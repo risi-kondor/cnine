@@ -80,6 +80,10 @@ namespace cnine{
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
+    Gdims get_dims() const{
+      return Gdims(n0,n1,n2,n3,n4,n5);
+    }
+
     complex<float> operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5) const{
       int t=s0*i0+s1*i1+s2*i2+s3*i3+s4*i4+s5*i5;
       return complex<float>(arr[t],arrc[t]);
@@ -207,6 +211,35 @@ namespace cnine{
     Ctensor5_view fuse45() const{
       return Ctensor5_view(arr,arrc,n0,n1,n2,n3,n4*n5,s0,s1,s2,s3,s5,dev);
     }    
+
+
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+    
+    Gtensor<complex<float> > gtensor() const{
+      Gtensor<complex<float> > R({n0,n1,n2,n3,n4,n5},fill::raw);
+      for(int i0=0; i0<n0; i0++)
+	for(int i1=0; i1<n1; i1++)
+	  for(int i2=0; i2<n2; i2++)
+	    for(int i3=0; i3<n3; i3++)
+	      for(int i4=0; i4<n4; i4++)
+		for(int i5=0; i5<n5; i5++)
+		  R(i0,i1,i2,i3,i4,i5)=(*this)(i0,i1,i2,i3,i4,i5);
+      return R;
+    }
+    
+    
+  public: // ---- I/O ----------------------------------------------------------------------------------------
+
+  
+    string str(const string indent="") const{
+      return gtensor().str(indent);
+    }
+
+    friend ostream& operator<<(ostream& stream, const Ctensor6_view& x){
+      stream<<x.str(); return stream;
+    }
+
 
   };
 

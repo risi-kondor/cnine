@@ -1565,6 +1565,75 @@ namespace cnine{
 	return oss.str();  
       }
 
+      if(k==5){
+	for(int i0=0; i0<dims[0]; i0++){
+	  for(int i1=0; i1<dims[1]; i1++){
+	    for(int i2=0; i2<dims[2]; i2++){
+	      for(int i3=0; i3<dims[3]; i3++){
+	      oss<<indent<<"[ ";
+	      for(int j=0; j<dims[4]; j++)
+		oss<<(*this)({i0,i1,i2,i3,j})<<" ";
+	      oss<<"]";
+	      oss<<"\n";
+	      }
+	      oss<<"\n";
+	    }
+	    oss<<"\n";
+	  }
+	  oss<<"\n";
+	}
+	return oss.str();  
+      }
+
+      if(k==6){
+	for(int i0=0; i0<dims[0]; i0++){
+	  for(int i1=0; i1<dims[1]; i1++){
+	    for(int i2=0; i2<dims[2]; i2++){
+	      for(int i3=0; i3<dims[3]; i3++){
+		for(int i4=0; i4<dims[4]; i4++){
+		  oss<<indent<<"[ ";
+		  for(int j=0; j<dims[5]; j++)
+		    oss<<(*this)({i0,i1,i2,i3,i4,j})<<" ";
+		  oss<<"]";
+		  oss<<"\n";
+		}
+		oss<<"\n";
+	      }
+	      oss<<"\n";
+	    }
+	    oss<<"\n";
+	  }
+	  oss<<"\n";
+	}
+	return oss.str();  
+      }
+
+      if(k==6){
+	for(int i0=0; i0<dims[0]; i0++){
+	  for(int i1=0; i1<dims[1]; i1++){
+	    for(int i2=0; i2<dims[2]; i2++){
+	      for(int i3=0; i3<dims[3]; i3++){
+		for(int i4=0; i4<dims[4]; i4++){
+		  for(int i5=0; i4<dims[5]; i5++){
+		    oss<<indent<<"[ ";
+		    for(int j=0; j<dims[6]; j++)
+		      oss<<(*this)({i0,i1,i2,i3,i4,i5,j})<<" ";
+		    oss<<"]";
+		    oss<<"\n";
+		  }
+		  oss<<"\n";
+		}
+		oss<<"\n";
+	      }
+	      oss<<"\n";
+	    }
+	    oss<<"\n";
+	  }
+	  oss<<"\n";
+	}
+	return oss.str();  
+      }
+
       /*
       if(k>2){
 	for(int offs=0; offs<asize; offs+=strides[k-3]){

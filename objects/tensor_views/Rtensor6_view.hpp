@@ -42,7 +42,8 @@ namespace cnine{
 
     Rtensor6_view(float* _arr, const int _n0, const int _n1, const int _n2, const int _n3, const int _n4, const int _n5, 
       const int _s0, const int _s1, const int _s2, const int _s3, const int _s4, const int _s5, const int _dev=0): 
-      arr(_arr), n0(_n0), n1(_n1), n2(_n2), n3(_n3), n4(_n4), n5(_n5), s0(_s0), s1(_s1), s2(_s2), s3(_s3), s4(_s4), s5(_s5), dev(_dev){}
+      arr(_arr), n0(_n0), n1(_n1), n2(_n2), n3(_n3), n4(_n4), n5(_n5), 
+      s0(_s0), s1(_s1), s2(_s2), s3(_s3), s4(_s4), s5(_s5), dev(_dev){}
 
     Rtensor6_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
       arr(_arr), dev(_dev){
@@ -65,6 +66,10 @@ namespace cnine{
 
   public: // ---- Access ------------------------------------------------------------------------------------
 
+
+    Gdims get_dims() const{
+      return Gdims(n0,n1,n2,n3,n4,n5);
+    }
 
     float operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i4<0 || i5<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3 || i4>=n4 || i5>=n5) 

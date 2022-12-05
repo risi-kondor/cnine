@@ -69,6 +69,10 @@ namespace cnine{
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
+    Gdims get_dims() const{
+      return Gdims(n0,n1,n2,n3,n4,n5,n6);
+    }
+
     float operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i4<0 || i5<0 || i6<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3 || i4>=n4 || i5>=n5 || i6>=n6) 
 	  throw std::out_of_range("cnine::Rtensor7_view: index "+Gindex({i0,i1,i2,i3,i4,i5,i6}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3,n4,n5,n6}).str()));

@@ -72,6 +72,27 @@ namespace cnine{
       (*this)[4]=i4;
     }
 
+    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5): 
+      vector<int>(6){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+      (*this)[5]=i5;
+    }
+
+    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6): 
+      vector<int>(7){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+      (*this)[5]=i5;
+      (*this)[6]=i6;
+    }
+
     Gdims(const Gdims& d1, const Gdims& d2): 
       vector<int>(d1.size()+d2.size()){
       for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
