@@ -45,7 +45,7 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=0; j1<nj2; j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3+threadIdx.y*xs4]*
-	    w[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
+	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
 
   rarr[i0*rs0+i1*rs1+i2*rs2+threadIdx.x*rs3+threadIdx.y*rs4]+=t;
 }
@@ -67,7 +67,7 @@ __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int r
     for(int j1=0; j1<nj1; j1++)
       for(int a=0; a<na; a++)
 	t+=xarr[(i0+j0-padding0)*xs0+(i1+j1-padding1)*xs1+a*xs2+threadIdx.x*xs3]*
-	  w[blockIdx.z*ws0+j0*ws1+j1*ws2+a*ws3];
+	  warr[blockIdx.z*ws0+j0*ws1+j1*ws2+a*ws3];
 
   rarr[i0*rs0+i1*rs1+blockIdx.z*rs2+threadIdx.x*rs3]+=t;
 }
@@ -87,7 +87,7 @@ _global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int rs
     for(int j1=0; j1<nj1; j1++)
       for(int a=0; a<na; a++)
 	t+=xarr[blockIdx.x*xs0+(i0+j0)*xs1+(i1+j1)*xs2+a*xs3+threadIdx.x*xs4]*
-	  w[blockIdx.z*ws0+j0*ws1+j1*ws2+a*ws3];
+	  warr[blockIdx.z*ws0+j0*ws1+j1*ws2+a*ws3];
 
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
 }
@@ -108,7 +108,7 @@ __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int r
     for(int j1=max(0,padding1-i1); j1<min(nj1-i1+padding1); j1++)
       for(int a=0; a<na; a++)
 	t+=xarr[blockIdx.x*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+a*xs3+threadIdx.x*xs4]*
-	  w[blockIdx.z*ws0+j0*ws1+j1*ws2+a*ws3];
+	  warr[blockIdx.z*ws0+j0*ws1+j1*ws2+a*ws3];
 
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
 }
@@ -133,7 +133,7 @@ __global__ void RtensorConvolve2d_sparse_kernel
     int j0=s/(nj1*na);
     int j1=(s/na)%nj1;
     int a=s%na;
-    t+=xarr[blockIdx.x*xs0+(i0+j0)*xs1+(i1+j1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1]
+t+=xarr[blockIdx.x*xs0+(i0+j0)*xs1+(i1+j1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1];
   }
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
   
@@ -162,7 +162,7 @@ __global__ void RtensorConvolve2d_sparse_padded_kernel
     if(i0+j0-padding0<0 || i0+j0-padding0>=xn1) continue;
     if(i1+j1-padding1<0 || i1+j1-padding1>=xn2) continue;
     int a=s%na;
-    t+=xarr[blockIdx.x*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1]
+    t+=xarr[blockIdx.x*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1];
   }
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
   
@@ -188,17 +188,17 @@ namespace cnine{
     dim3 threads(r.n3,r.n4);
 
     if(padding0==0&&padding1==0){
-      RtensorConvolve2d_kernel<<<blocks,threads,0,stream>>>
-	(r.arrg,r.s0,r.s1,r.s2,r.s3,r.s4,
-	  x.arrg,x.s0,x.s1,x.s2,x.s3,x.s4,
-	  w.arrg,w.s0,s.s1,w.s2,w.s3,w.s4,
+      RtensorConvolve3d_kernel<<<blocks,threads,0,stream>>>
+	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
+	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
+	  w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
 	  w.n1,w.n2,w.n3,w.n4); 
     }else{
       /*
-	RtensorConvolve2d_kernel<<<blocks,r.n4,0,stream>>>
-	(r.arrg,r.s0,r.s1,r.s2,r.s3,r.s4,
-	x.arrg,x.s0,x.s1,x.s2,x.s3,x.s4,
-	w.arrg,w.s0,s.s1,w.s2,w.s3,
+	RtensorConvolve3d_kernel<<<blocks,r.n4,0,stream>>>
+	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
+	x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
+	w.arr,w.s0,w.s1,w.s2,w.s3,
 	r.n1,w.n1,w.n2,w.n3,
 	x.n1,x.n2,padding0,padding1); 
       */
@@ -215,16 +215,16 @@ namespace cnine{
     dim3 blocks(r.n0,r.n1*r.n2,r.n3);
 
     if(padding0==0&&padding1==0){
-      RtensorConvolve2d_kernel<<<blocks,r.n4,0,stream>>>
-	(r.arrg,r.s0,r.s1,r.s2,r.s3,r.s4,
-	  x.arrg,x.s0,x.s1,x.s2,x.s3,x.s4,
-	  w.arrg,w.s0,s.s1,w.s2,w.s3,
+      RtensorConvolve3d_kernel<<<blocks,r.n4,0,stream>>>
+	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
+	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
+	  w.arr,w.s0,w.s1,w.s2,w.s3,
 	  r.n1,w.n1,w.n2,w.n3); // changed x.n1 to r.n1 
     }else{
-     RtensorConvolve2d_kernel<<<blocks,r.n4,0,stream>>>
-	(r.arrg,r.s0,r.s1,r.s2,r.s3,r.s4,
-	  x.arrg,x.s0,x.s1,x.s2,x.s3,x.s4,
-	  w.arrg,w.s0,s.s1,w.s2,w.s3,
+     RtensorConvolve3d_kernel<<<blocks,r.n4,0,stream>>>
+	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
+	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
+	  w.arr,w.s0,w.s1,w.s2,w.s3,
 	  r.n1,w.n1,w.n2,w.n3,
 	  x.n1,x.n2,padding0,padding1); 
     }

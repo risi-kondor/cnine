@@ -21,7 +21,7 @@ int main(int argc, char** argv){
   int nout=1;
   int padding=0;
 
-  if(true){
+  if(false){
     cout<<"3D case"<<endl;
 
     RtensorA x=RtensorA::zero({nx,nx,1});
@@ -39,6 +39,12 @@ int main(int argc, char** argv){
     auto rs=convolve2D(x,ws,nw,nw);
     cout<<rs.view3().slice2(0)<<endl;
 
+    #ifdef _WITH_CUDA
+    RtensorA xg(x,1);
+    RtensorA wg(w,1);
+    auto rg=convolve2D(xg,wg);
+    cout<<rg.to_device(0).view3().slice2(0)<<endl;
+    #endif 
     cout<<endl;
   }
 

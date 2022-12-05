@@ -14,8 +14,8 @@ CENGINE_ROOT=$(ROOTDIR)/../cengine/v2
 
 # ---- CUDA OPTIONS ------------------------------------
 
-# WITH_CUDA=t
-# CUDA_HOME=/usr/local/cuda
+#WITH_CUDA=t
+#CUDA_HOME=/usr/local/cuda
 
 #WITH_CUBLAS=t
 

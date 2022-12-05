@@ -11,7 +11,10 @@ DEPS=$(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(SCALARDIR)/*.hpp  $(TENSORVIEWDIR)
 
 EXECS= 
 
-CUDA_OBJECTS=  
+
+CUDA_OBJECTS+=$(CUDADIR)/BasicCtensorProducts.o 
+CUDA_OBJECTS+=$(CUDADIR)/RtensorUtils.o  
+CUDA_OBJECTS+= $(CUDADIR)/RtensorConvolve2d.o  
 CUDA_EXTERNS=
 
 ifdef WITH_CUDA
