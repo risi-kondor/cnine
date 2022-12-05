@@ -178,7 +178,7 @@ namespace cnine{
 
 
   void RtensorConvolve3d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const Rtensor5_view& w, 
-    const int padding0, const int padding1, const cudaStream_t& stream){
+    const int padding0, const int padding1, const int padding2, const cudaStream_t& stream){
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
     CNINE_ASSRT(w.dev==1);
@@ -187,7 +187,7 @@ namespace cnine{
     dim3 blocks(r.n0,r.n1,r.n2);
     dim3 threads(r.n3,r.n4);
 
-    if(padding0==0&&padding1==0){
+    if(padding0==0&&padding1==0&&padding2==0){
       RtensorConvolve3d_kernel<<<blocks,threads,0,stream>>>
 	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
 	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
@@ -200,7 +200,7 @@ namespace cnine{
 	x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
 	w.arr,w.s0,w.s1,w.s2,w.s3,
 	r.n1,w.n1,w.n2,w.n3,
-	x.n1,x.n2,padding0,padding1); 
+	x.n1,x.n2,x.n3,padding0,padding1,padding2); 
       */
     }
   }

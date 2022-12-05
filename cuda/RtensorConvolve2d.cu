@@ -58,10 +58,8 @@ __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int r
   int i1=blockIdx.y;
 
   float t=0;
-  for(int j0=0; j0<nj0; j0++)
   for(int j0=max(0,padding0-i0); j0<min(nj0,xn0-i0+padding0); j0++)
     for(int j1=max(0,padding1-i1); j1<min(nj1,xn1-i1+padding1); j1++)
-    for(int j1=0; j1<nj1; j1++)
       for(int a=0; a<na; a++)
 	t+=xarr[(i0+j0-padding0)*xs0+(i1+j1-padding1)*xs1+a*xs2+threadIdx.x*xs3]*
 	  warr[blockIdx.z*ws0+j0*ws1+j1*ws2+a*ws3];

@@ -15,6 +15,7 @@ EXECS=
 CUDA_OBJECTS+=$(CUDADIR)/BasicCtensorProducts.o 
 CUDA_OBJECTS+=$(CUDADIR)/RtensorUtils.o  
 CUDA_OBJECTS+= $(CUDADIR)/RtensorConvolve2d.o  
+CUDA_OBJECTS+= $(CUDADIR)/RtensorConvolve3d.o  
 CUDA_EXTERNS=
 
 ifdef WITH_CUDA

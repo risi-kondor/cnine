@@ -21,7 +21,8 @@
 namespace cnine{
 
   #ifdef _WITH_CUDA
-  //extern void RtensorConvolve3d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const Rtensor4_view& w, const int padding0, const int padding1, const cudaStream_t& stream);
+  extern void RtensorConvolve3d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const Rtensor5_view& w, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
+  //extern void RtensorConvolve3d_cu(const Rtensor6_view& r, const Rtensor6_view& x, const Rtensor5_view& w, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
   #endif
 
 
@@ -63,7 +64,7 @@ namespace cnine{
 	}
       }
       if(r.dev==1){
-	CNINE_CPUONLY();
+	int dev=r.dev; CNINE_CPUONLY();
 	//CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,stream));
       }
     }
@@ -115,7 +116,7 @@ namespace cnine{
       int padding1=(r.n2-x.n2+w.n2-1)/2;
       int padding2=(r.n3-x.n3+w.n3-1)/2;
 
-      if(r.dev==0){
+      if(r.dev==0 || r.dev==1){
 	for(int b=0; b<x.n0; b++){
 	  (*this)(r.slice0(b),x.slice0(b),w);
 	}
@@ -131,12 +132,12 @@ namespace cnine{
 
 
   inline RtensorA convolve3D(const RtensorA& x, const RtensorA& w, const int padding0=0, const int padding1=0, const int padding2=0){
-      CNINE_ASSRT(w.ndims()==4);
+      CNINE_ASSRT(w.ndims()==5);
 
       if(x.ndims()==4){
 	CNINE_ASSRT(w.dims[4]==x.dims[3]);
 	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,
-	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0]});
+	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0]},x.dev);
 	RtensorConvolve3d()(r.view4(),x.view4(),w.view5());
 	return r;
       }
@@ -144,7 +145,7 @@ namespace cnine{
       if(x.ndims()==5){ // add channels
 	CNINE_ASSRT(w.dims[4]==x.dims[3]);
 	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,
-	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[4]});
+	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[4]},x.dev);
 	RtensorConvolve3d()(r.view5(),x.view5(),w.view5());
 	return r;
       }
@@ -152,7 +153,7 @@ namespace cnine{
       if(x.ndims()==6){ // add batches
 	CNINE_ASSRT(w.dims[4]==x.dims[4]);
 	RtensorA r=RtensorA::zero({x.dims[0],x.dims[1]+2*padding0-w.dims[1]+1,x.dims[2]+2*padding1-w.dims[2]+1,
-	      x.dims[3]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[5]});
+	      x.dims[3]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[5]},x.dev);
 	RtensorConvolve3d()(r.view6(),x.view6(),w.view5());
 	return r;
       }
