@@ -206,7 +206,7 @@ namespace cnine{
 	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
 	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
 	  w.arr,w.s0,w.s1,w.s2,w.s3,
-	  r.n1,w.n1,w.n2,w.n3); // changed x.n1 to r.n1 
+	  r.n1,w.n1,w.n2,w.n3); // changed x.n1 to r.n1  should be r.n2??
     }else{
      RtensorConvolve2d_kernel<<<blocks,r.n4,0,stream>>>
 	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,

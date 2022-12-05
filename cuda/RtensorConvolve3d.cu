@@ -130,10 +130,10 @@ __global__ void RtensorConvolve3d_kernel
 (float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, const int rs5,   
   float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4, const int xs5, 
   float* warr, const int ws0, const int ws1, const int ws2, const int ws3, const int ws4, 
-  const int rn0, const int nj0, const int nj1, const int nj2, const int na){
+  const int rn1, const int nj0, const int nj1, const int nj2, const int na){
 
-  int b=blockIdx.x/rn0;
-  int i0=blockIdx.x%rn0;
+  int b=blockIdx.x/rn1;
+  int i0=blockIdx.x%rn1;
   int i1=blockIdx.y;
   int i2=blockIdx.z;
 
@@ -153,11 +153,11 @@ __global__ void RtensorConvolve3d_kernel
 (float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, const int rs5,   
   float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4, const int xs5, 
   float* warr, const int ws0, const int ws1, const int ws2, const int ws3, const int ws4, 
-  const int rn0, const int nj0, const int nj1, const int nj2, const int na,
+  const int rn1, const int nj0, const int nj1, const int nj2, const int na,
   const int xn0, const int xn1, const int xn2, const int padding0, const int padding1, const int padding2){
 
-  int b=blockIdx.x/rn0;
-  int i0=blockIdx.x%rn0;
+  int b=blockIdx.x/rn1;
+  int i0=blockIdx.x%rn1;
   int i1=blockIdx.y;
   int i2=blockIdx.z;
 
@@ -319,13 +319,13 @@ namespace cnine{
 	  (r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,r.s5,
 	    x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,x.s5,
 	    w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
-	    r.n0,w.n1,w.n2,w.n3,w.n4); 
+	    r.n1,w.n1,w.n2,w.n3,w.n4); 
       }else{
 	RtensorConvolve3d_kernel<<<blocks,threads,0,stream>>>
 	  (r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,r.s5,
 	    x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,x.s5,
 	    w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
-	    r.n0,w.n1,w.n2,w.n3,w.n4,
+	    r.n1,w.n1,w.n2,w.n3,w.n4,
 	    x.n1,x.n2,x.n3,padding0,padding1,padding2); 
       }
 
