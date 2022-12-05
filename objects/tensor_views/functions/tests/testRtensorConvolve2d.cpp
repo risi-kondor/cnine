@@ -21,7 +21,9 @@ int main(int argc, char** argv){
   int nout=1;
   int padding=0;
 
-  if(false){
+  bool sparse=false;
+
+  if(true){
     cout<<"3D case"<<endl;
 
     RtensorA x=RtensorA::zero({nx,nx,1});
@@ -30,14 +32,9 @@ int main(int argc, char** argv){
     
     RtensorA w=RtensorA::sequential({nout,nw,nw,1});
     cout<<w.view4().slice0(0).slice2(0)<<endl;
-    CSRmatrix<float> ws(w.view4().fuse23().fuse12());
-    cout<<ws<<endl;
     
     auto r=convolve2D(x,w);
     cout<<r.view3().slice2(0)<<endl;
-
-    auto rs=convolve2D(x,ws,nw,nw);
-    cout<<rs.view3().slice2(0)<<endl;
 
     #ifdef _WITH_CUDA
     RtensorA xg(x,1);
@@ -46,6 +43,15 @@ int main(int argc, char** argv){
     cout<<rg.to_device(0).view3().slice2(0)<<endl;
     #endif 
     cout<<endl;
+
+    if(sparse){
+      CSRmatrix<float> ws(w.view4().fuse23().fuse12());
+      cout<<ws<<endl;
+      auto rs=convolve2D(x,ws,nw,nw);
+      cout<<rs.view3().slice2(0)<<endl;
+    }
+
+
   }
 
 
@@ -58,14 +64,17 @@ int main(int argc, char** argv){
     
     RtensorA w=RtensorA::sequential({nout,nw,nw,1});
     cout<<w.view4().slice0(0).slice2(0)<<endl;
-    CSRmatrix<float> ws(w.view4().fuse23().fuse12());
-    cout<<ws<<endl;
     
     auto r=convolve2D(x,w);
     cout<<r.view4().slice3(0).slice2(0)<<endl;
 
-    auto rs=convolve2D(x,ws,nw,nw);
-    cout<<rs.view4().slice3(0).slice2(0)<<endl;
+
+    if(sparse){
+      CSRmatrix<float> ws(w.view4().fuse23().fuse12());
+      cout<<ws<<endl;
+      auto rs=convolve2D(x,ws,nw,nw);
+      cout<<rs.view4().slice3(0).slice2(0)<<endl;
+     }
 
     cout<<endl;
   }
@@ -80,20 +89,23 @@ int main(int argc, char** argv){
     
     RtensorA w=RtensorA::sequential({nout,nw,nw,1});
     cout<<w.view4().slice0(0).slice2(0)<<endl;
-    CSRmatrix<float> ws(w.view4().fuse23().fuse12());
-    cout<<ws<<endl;
     
     auto r=convolve2D(x,w);
     cout<<r.view5().slice0(0).slice3(0).slice2(0)<<endl;
 
-    auto rs=convolve2D(x,ws,nw,nw);
-    cout<<rs.view5().slice0(0).slice3(0).slice2(0)<<endl;
+
+    if(sparse){
+      CSRmatrix<float> ws(w.view4().fuse23().fuse12());
+      cout<<ws<<endl;
+      auto rs=convolve2D(x,ws,nw,nw);
+      cout<<rs.view5().slice0(0).slice3(0).slice2(0)<<endl;
+    }
 
     cout<<endl;
   }
 
 
-  if(true){
+  if(false){
     cout<<"6D case"<<endl;
 
     RtensorA x=RtensorA::zero({nb,nx,nx,nd,1,nc});
