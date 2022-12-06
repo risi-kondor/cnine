@@ -40,7 +40,7 @@ int main(int argc, char** argv){
     cout<<"GPU"<<endl;
     RtensorA xg(x,1);
     RtensorA wg(w,1);
-    auto rg=convolve3D(xg,wg,padding,padding);
+    auto rg=convolve3D(xg,wg,padding,padding,padding);
     cout<<rg.to_device(0).view4().slice3(0).slice2(1)<<endl;
     #endif 
     cout<<endl;
