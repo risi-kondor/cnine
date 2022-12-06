@@ -68,7 +68,7 @@ __global__ void RtensorConvolve3d_kernel
     for(int j1=max(0,padding1-i1); j1<min(nj1,xn1-i1+padding1); j1++)
       for(int j2=max(0,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
-	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3]*
+	  t+=xarr[(i0+j0-padding0)*xs0+(i1+j1-padding1)*xs1+(i2+j2-padding2)*xs2+a*xs3]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
 
   rarr[i0*rs0+i1*rs1+i2*rs2+threadIdx.x*rs3]+=t;
@@ -116,7 +116,7 @@ __global__ void RtensorConvolve3d_kernel
     for(int j1=max(1,padding1-i1); j1<min(nj1,xn1-i1+padding1); j1++)
       for(int j2=max(2,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
-	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3+threadIdx.y*xs4]*
+	  t+=xarr[(i0+j0-padding0)*xs0+(i1+j1-padding1)*xs1+(i2+j2-padding2)*xs2+a*xs3+threadIdx.y*xs4]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
 
   rarr[i0*rs0+i1*rs1+i2*rs2+threadIdx.x*rs3+threadIdx.y*rs4]+=t;
@@ -167,7 +167,7 @@ __global__ void RtensorConvolve3d_kernel
     for(int j1=max(1,padding1-i1); j1<min(nj1,xn1-i1+padding1); j1++)
       for(int j2=max(2,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
-	  t+=xarr[b*xs0+(i0+j0)*xs1+(i1+j1)*xs2+(i2+j2)*xs3+a*xs4+threadIdx.y*xs5]*
+	  t+=xarr[b*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+(i2+j2-padding2)*xs3+a*xs4+threadIdx.y*xs5]*
 	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
 
   rarr[b*rs0+i0*rs1+i1*rs2+i2*rs3+threadIdx.x*rs4+threadIdx.y*rs5]+=t;
