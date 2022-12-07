@@ -123,7 +123,7 @@ namespace cnine{
 	arr=nullptr;
 	arrg=nullptr;
       }else{
-	if(arr) delete arr; 
+	if(arr) delete[] arr; 
 	arr=nullptr;
 	if(arrg){CUDA_SAFE(cudaFree(arrg));}
 	arrg=nullptr;
@@ -150,7 +150,7 @@ namespace cnine{
     array_pool<TYPE>& operator=(array_pool<TYPE>&& x){
       CNINE_MOVEASSIGN_WARNING();
       if(!is_view){
-	delete arr; 
+	delete[] arr; 
 	arr=nullptr;
 	if(arrg){CUDA_SAFE(cudaFree(arrg));}
 	arrg=nullptr;
@@ -160,7 +160,6 @@ namespace cnine{
       arrg=x.arrg; x.arrg=nullptr;
       tail=x.tail;
       memsize=x.memsize;
-      //lookup=x.lookup;
       dir=std::move(x.dir);
       is_view=x.is_view;
       return *this;
