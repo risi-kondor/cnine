@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   int nc=1;
   int nd=1;
   int nout=1;
-  int padding=0;
+  int padding=1;
 
   bool sparse=false;
 
