@@ -521,11 +521,12 @@ namespace cnine{
     }
 
     RtensorA& operator=(const RtensorA& x){
-      k=x.k; dims=x.dims; strides=x.strides; asize=x.asize; dev=x.dev;
+      k=x.k; dims=x.dims; strides=x.strides; dev=x.dev;
       memsize=x.memsize; cst=x.cst;
       CNINE_ASSIGN_WARNING();
 
       if(is_view){
+	CNINE_ASSRT(asize==x.asize);
 	if(dev==0){
 	  std::copy(x.arr,x.arr+asize,arr);
 	}
@@ -535,8 +536,9 @@ namespace cnine{
 	return *this;
       }
 
-      delete arr;
+      delete[] arr;
       if(arrg){CUDA_SAFE(cudaFree(arrg));}
+      asize=x.asize; 
       if(dev==0){
 	arr=new float[memsize]; 
 	std::copy(x.arr,x.arr+asize,arr);
@@ -554,7 +556,7 @@ namespace cnine{
       CNINE_MOVEASSIGN_WARNING();
       k=x.k; dims=x.dims; strides=x.strides; asize=x.asize; dev=x.dev; 
       memsize=x.memsize; cst=x.cst; 
-      if(!is_view && arr) delete arr;
+      if(!is_view && arr) delete[] arr;
       if(!is_view && arrg) {CUDA_SAFE(cudaFree(arrg));}
       arr=x.arr; x.arr=nullptr; 
       arrg=x.arrg; x.arrg=nullptr; 
