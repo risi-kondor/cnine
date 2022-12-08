@@ -233,6 +233,7 @@ namespace cnine{
     }
 
 
+    // potential memory leak if called from move constructor!
     RtensorA(const int _k, const Gdims& _dims, const vector<int>_strides, const int _asize, 
       const int _memsize, const int _cst, const int _dev=0):
       k(_k), dims(_dims), strides(_strides), asize(_asize), memsize(_memsize), cst(_cst), dev(_dev){
@@ -246,6 +247,12 @@ namespace cnine{
       }
 
     }
+
+
+   RtensorA(const int _k, const Gdims& _dims, const vector<int>_strides, const int _asize, 
+     const int _memsize, const int _cst, const fill_noalloc& dummy, const int _dev=0):
+     k(_k), dims(_dims), strides(_strides), asize(_asize), memsize(_memsize), cst(_cst), dev(_dev){}
+
 
     /*
     RtensorA(const int _k, const Gdims& _dims, const int _nbu, const vector<int>& _strides, const int _asize, 
@@ -496,7 +503,7 @@ namespace cnine{
     }
         
     RtensorA(RtensorA&& x): 
-      RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,x.dev){
+      RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,fill_noalloc(),x.dev){
       CNINE_MOVE_WARNING();
       arr=x.arr; x.arr=nullptr; 
       arrg=x.arrg; x.arrg=nullptr;
@@ -504,6 +511,7 @@ namespace cnine{
       //cout<<"move RtensorA 0"<<endl; 
     }
 
+    /*
     RtensorA(RtensorA& x, const string _dummy): // deprecated debugging only
       RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,x.dev){
       CNINE_MOVE_WARNING();
@@ -512,6 +520,7 @@ namespace cnine{
       is_view=x.is_view;
       cout<<"move RtensorA 1"<<endl; 
     }
+    */
 
     RtensorA(const RtensorA& x, const fill_raw& dummy): 
       RtensorA(x.k,x.dims,x.strides,x.asize,x.memsize,x.cst,x.dev){}
