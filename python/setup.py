@@ -11,7 +11,7 @@ def main():
  # --- User settings ------------------------------------------------------------------------------------------
 
 
- compile_with_cuda=False 
+ compile_with_cuda=True
 
  copy_warnings=False
  torch_convert_warnings=False
@@ -20,8 +20,8 @@ def main():
  # ------------------------------------------------------------------------------------------------------------
 
 
- if 'CUDAHOME' in os.environ:
-     print("CUDA found at "+os.environ['CUDAHOME'])
+ if 'CUDA_HOME' in os.environ:
+     print("CUDA found at "+os.environ['CUDA_HOME'])
  else:
      print("No CUDA found, installing without GPU support.")
      compile_with_cuda=False
