@@ -2,7 +2,7 @@
 #include "RtensorA.hpp"
 #include "CnineSession.hpp"
 #include "RtensorConvolve3d.hpp"
-//#include "RtensorConvolve3dSparse.hpp"
+#include "RtensorConvolve3dSparse.hpp"
 
 using namespace cnine;
 
@@ -21,7 +21,7 @@ int main(int argc, char** argv){
   int nout=1;
   int padding=1;
 
-  bool sparse=false;
+  bool sparse=true;
 
   if(true){
     cout<<"4D case"<<endl;
@@ -47,11 +47,10 @@ int main(int argc, char** argv){
 
     if(sparse){
       CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
-      cout<<ws<<endl;
-      //auto rs=convolve2D(x,ws,nw,nw);
-      //cout<<rs.view4().slice3(0).slice2(0)<<endl;
+      //cout<<ws<<endl;
+      auto rs=convolve3D(x,ws,nw,nw,nw);
+      cout<<rs.view4().slice3(0).slice2(1)<<endl;
     }
-
 
   }
 
@@ -68,7 +67,7 @@ int main(int argc, char** argv){
     
     auto r=convolve3D(x,w,padding,padding,padding);
     cout<<r.view5().slice4(0).slice3(0).slice2(1)<<endl;
-
+    
     #ifdef _WITH_CUDA
     cout<<"GPU"<<endl;
     RtensorA xg(x,1);
@@ -77,13 +76,13 @@ int main(int argc, char** argv){
     cout<<rg.to_device(0).view5().slice4(0).slice3(0).slice2(1)<<endl;
     #endif 
     cout<<endl;
-
+    
     if(sparse){
       CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
-      cout<<ws<<endl;
-      //auto rs=convolve3D(x,ws,nw,nw);
-      //cout<<rs.view4().slice3(0).slice2(0)<<endl;
-     }
+      //cout<<ws<<endl;
+      auto rs=convolve3D(x,ws,nw,nw,nw);
+      cout<<rs.view5().slice4(0).slice3(0).slice2(1)<<endl;
+    }
 
     cout<<endl;
   }
@@ -112,9 +111,9 @@ int main(int argc, char** argv){
 
     if(sparse){
       CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
-      cout<<ws<<endl;
-      //auto rs=convolve2D(x,ws,nw,nw);
-      //cout<<rs.view4().slice3(0).slice2(0)<<endl;
+      //cout<<ws<<endl;
+      auto rs=convolve3D(x,ws,nw,nw,nw);
+      cout<<rs.view6().slice0(0).slice4(0).slice3(0).slice2(1)<<endl;
     }
 
     cout<<endl;
@@ -122,10 +121,5 @@ int main(int argc, char** argv){
 
 
   cout<<endl;
-
-
   
-
 }
-    //RtensorA r=RtensorA::zero({nx-nw+1+2*padding,nx-nw+1+2*padding,nout});
-    //RtensorConvolve2d()(r.view5(),x.view5(),w.view4());
