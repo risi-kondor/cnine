@@ -48,7 +48,7 @@ int main(int argc, char** argv){
     if(sparse){
       CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
       //cout<<ws<<endl;
-      auto rs=convolve3D(x,ws,nw,nw,nw);
+      auto rs=convolve3D(x,ws,nw,nw,nw,padding,padding,padding);
       cout<<rs.view4().slice3(0).slice2(1)<<endl;
     }
 
@@ -80,7 +80,7 @@ int main(int argc, char** argv){
     if(sparse){
       CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
       //cout<<ws<<endl;
-      auto rs=convolve3D(x,ws,nw,nw,nw);
+      auto rs=convolve3D(x,ws,nw,nw,nw,padding,padding,padding);
       cout<<rs.view5().slice4(0).slice3(0).slice2(1)<<endl;
     }
 
@@ -112,7 +112,7 @@ int main(int argc, char** argv){
     if(sparse){
       CSRmatrix<float> ws(w.view5().fuse34().fuse23().fuse12());
       //cout<<ws<<endl;
-      auto rs=convolve3D(x,ws,nw,nw,nw);
+      auto rs=convolve3D(x,ws,nw,nw,nw,padding,padding,padding);
       cout<<rs.view6().slice0(0).slice4(0).slice3(0).slice2(1)<<endl;
     }
 
