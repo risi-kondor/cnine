@@ -108,6 +108,7 @@ __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int r
 }
 
 
+/*
 __global__ void RtensorConvolve2d_sparse_kernel
 (float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, 
   float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4,  
@@ -131,8 +132,10 @@ __global__ void RtensorConvolve2d_sparse_kernel
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
   
 }
+*/
 
 
+ /*
 __global__ void RtensorConvolve2d_sparse_padded_kernel
 (float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, 
   float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4,  
@@ -159,6 +162,7 @@ __global__ void RtensorConvolve2d_sparse_padded_kernel
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
   
 }
+ */
 
 
 // ----------------------------------------------------------------------------------------------------------

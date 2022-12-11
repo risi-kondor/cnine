@@ -90,7 +90,7 @@ namespace cnine{
 
 
     CSRmatrix(const CSRmatrix& x, const int _dev):
-      array_pool<float>(x), n(x.n), m(x.m){
+      array_pool<float>(x,_dev), n(x.n), m(x.m){
     }
 
     CSRmatrix& to_device(const int _dev){

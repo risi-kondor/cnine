@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   int nc=1;
   int nd=1;
   int nout=1;
-  int padding=1;
+  int padding=0;
 
   bool sparse=true;
 
@@ -50,6 +50,15 @@ int main(int argc, char** argv){
       //cout<<ws<<endl;
       auto rs=convolve3D(x,ws,nw,nw,nw,padding,padding,padding);
       cout<<rs.view4().slice3(0).slice2(1)<<endl;
+
+      #ifdef _WITH_CUDA
+      cout<<"GPU"<<endl;
+      RtensorA xg(x,1);
+      CSRmatrix wg(ws,1);
+      auto rsg=convolve3D(xg,wg,nw,nw,nw,padding,padding,padding);
+      cout<<rsg.to_device(0).view4().slice3(0).slice2(1)<<endl;
+      #endif 
+    cout<<endl;
     }
 
   }
@@ -82,6 +91,14 @@ int main(int argc, char** argv){
       //cout<<ws<<endl;
       auto rs=convolve3D(x,ws,nw,nw,nw,padding,padding,padding);
       cout<<rs.view5().slice4(0).slice3(0).slice2(1)<<endl;
+
+     #ifdef _WITH_CUDA
+      cout<<"GPU"<<endl;
+      RtensorA xg(x,1);
+      CSRmatrix wg(ws,1);
+      auto rsg=convolve3D(xg,wg,nw,nw,nw,padding,padding,padding);
+      cout<<rsg.to_device(0).view5().slice4(0).slice3(0).slice2(1)<<endl;
+      #endif 
     }
 
     cout<<endl;
@@ -114,6 +131,14 @@ int main(int argc, char** argv){
       //cout<<ws<<endl;
       auto rs=convolve3D(x,ws,nw,nw,nw,padding,padding,padding);
       cout<<rs.view6().slice0(0).slice4(0).slice3(0).slice2(1)<<endl;
+
+     #ifdef _WITH_CUDA
+      cout<<"GPU"<<endl;
+      RtensorA xg(x,1);
+      CSRmatrix wg(ws,1);
+      auto rsg=convolve3D(xg,wg,nw,nw,nw,padding,padding,padding);
+      cout<<rsg.to_device(0).view6().slice0(0).slice4(0).slice3(0).slice2(1)<<endl;
+      #endif 
     }
 
     cout<<endl;

@@ -32,7 +32,7 @@
 // ---- 5D case (i0,i1,i2,a,c)*(a',j0,j1,j2,a) -> (i0+j0,i1+j1,i2+j2,a',c) -----------------------------------
 
 __global__ void RtensorConvolve3d_sparse_kernel
-(const cnine::Rtensor5_view& r, const cnine::Rtensor5_view& x, float* warr, int* wdir, 
+(const cnine::Rtensor5_view r, const cnine::Rtensor5_view x, float* warr, int* wdir, 
   const int J0, const int J1, const int J2){
 
   int i0=blockIdx.x/(r.n1*r.n2);
@@ -47,15 +47,18 @@ __global__ void RtensorConvolve3d_sparse_kernel
   int n=wdir[2*blockIdx.y+1];
   int na=x.n3;
 
+  //printf("%d %d %d %d\n",J0,J1,J2,na);
   float t=0;
   for(int i=0; i<n; i++){
     int s=*reinterpret_cast<int*>(warr+offs+2*i);
     int j0=s/(J1*J2*na);
-    int j1=s/(J2*na)-J0*J1;
-    int j2=s/na-(J0*J1*J2+J1*J2);
+    int j1=s/(J2*na)-j0*J1;
+    int j2=s/na-(j0*J1*J2+j1*J2);
     int a=s%na;
     t+=x.arr[(i0+j0)*x.s0+(i1+j1)*x.s1+(i2+j2)*x.s2+a*x.s3+threadIdx.x*x.s4]*warr[offs+2*i+1];
+    //printf("%d %d %d %d %d %f\n",s,j0,j1,j2,a,t);
   }
+  //printf("%f\n",t);
   r.arr[i0*r.s0+i1*r.s1+i2*r.s2+blockIdx.y*r.s3+threadIdx.x*r.s4]+=t;
   
 }
@@ -100,7 +103,7 @@ namespace cnine{
 
 // ---- 5D case (i0,i1,i2,a,c)*(a',j0,j1,j2,a) -> (i0+j0,i1+j1,i2+j2,a',c) -----------------------------------
 
-  void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, 
+  void RtensorConvolve3d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, 
     const int J0, const int J1, const int J2, 
     const int padding0, const int padding1,  const int padding2, const cudaStream_t& stream){
     CNINE_ASSRT(r.dev==1);

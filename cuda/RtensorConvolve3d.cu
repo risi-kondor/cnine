@@ -267,6 +267,7 @@ namespace cnine{
   }
   
 
+  /*
   void RtensorConvolve3d_cu(const Rtensor4_view& r, const Rtensor4_view& x, const Rtensor5_view& w, 
     const int padding0, const int padding1, const int padding2, const cudaStream_t& stream){
     CNINE_ASSRT(r.dev==1);
@@ -291,6 +292,7 @@ namespace cnine{
 	  x.n0,x.n1,x.n2,padding0,padding1,padding2); 
     }
   }
+  */
   
 
   // ---- 5D case (i0,i1,i2,a,c)*(a',j0,j1,j2,a) -> (i0+j0,i1+j1,i2+j2,a',c) -----------------------------------

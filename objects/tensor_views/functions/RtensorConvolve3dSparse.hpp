@@ -23,8 +23,8 @@ namespace cnine{
   #ifdef _WITH_CUDA
   //extern void RtensorConvolve3d_cu(const Rtensor4_view& r, const Rtensor4_view& x, const CSRmatrix<float>& w, 
   //const int J0, const int J1, const int J2, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
-  //extern void RtensorConvolve3d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, 
-  //const int J0, const int J1, const int J2, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
+  extern void RtensorConvolve3d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, 
+    const int J0, const int J1, const int J2, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
   //extern void RtensorConvolve3d_cu(const Rtensor6_view& r, const Rtensor6_view& x, const CSRmatrix<float>& w, 
   //const int J0, const int J1, const int J2, const int padding0, const int padding1, const int padding2, const cudaStream_t& stream);
   #endif
@@ -63,7 +63,7 @@ namespace cnine{
 	}
       if(r.dev==1){
 	//int dev=r.dev; CNINE_CPUONLY();
-	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,J0,11,J2,padding0,padding1,padding2,stream));
+	//CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,J0,J1,J2,padding0,padding1,padding2,stream));
       }
     }
 
@@ -102,7 +102,7 @@ namespace cnine{
       }
       if(r.dev==1){
 	//int dev=r.dev; CNINE_CPUONLY();
-	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,J0,11,J2,padding0,padding1,padding2,stream));
+	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,J0,J1,J2,padding0,padding1,padding2,stream));
       }
     }
 
@@ -123,7 +123,7 @@ namespace cnine{
       }
       if(r.dev==1){
 	//int dev=r.dev; CNINE_CPUONLY();
-	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,J0,11,J2,padding0,padding1,padding2,stream));
+	//CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,J0,J1,J2,padding0,padding1,padding2,stream));
       }
     }
 
@@ -135,14 +135,14 @@ namespace cnine{
 
       if(x.ndims()==4){
 	CNINE_ASSRT(w.m==J0*J1*J2*x.dims[3]);
-	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-J0+1,x.dims[1]+2*padding1-J1+1,x.dims[2]+2*padding2-J2+1,w.n});
+	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-J0+1,x.dims[1]+2*padding1-J1+1,x.dims[2]+2*padding2-J2+1,w.n},x.dev);
 	RtensorConvolve3dSparse()(r.view4(),x.view4(),w,J0,J1,J2);
 	return r;
       }
 
       if(x.ndims()==5){ // add channels
 	CNINE_ASSRT(w.m==J0*J1*J2*x.dims[3]);
-	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-J0+1,x.dims[1]+2*padding1-J1+1,x.dims[2]+2*padding2-J2+1,w.n,x.dims[4]});
+	RtensorA r=RtensorA::zero({x.dims[0]+2*padding0-J0+1,x.dims[1]+2*padding1-J1+1,x.dims[2]+2*padding2-J2+1,w.n,x.dims[4]},x.dev);
 	RtensorConvolve3dSparse()(r.view5(),x.view5(),w,J0,J1,J2);
 	return r;
       }
@@ -150,7 +150,7 @@ namespace cnine{
       if(x.ndims()==6){ // add batches
 	CNINE_ASSRT(w.m==J0*J1*J2*x.dims[4]);
 	RtensorA r=RtensorA::zero({x.dims[0],x.dims[1]+2*padding0-J0+1,x.dims[2]+2*padding1-J1+1,
-	      x.dims[3]+2*padding2-J2+1,w.n,x.dims[5]});
+	      x.dims[3]+2*padding2-J2+1,w.n,x.dims[5]},x.dev);
 	RtensorConvolve3dSparse()(r.view6(),x.view6(),w,J0,J1,J2);
 	return r;
       }
