@@ -25,13 +25,14 @@
 #include "Rtensor5_view.hpp"
 #include "Itensor1_view.hpp"
 #include "Itensor2_view.hpp"
+#include "CSRmatrix.hpp"
 #include "CUDAhelpers.hpp"
 
 
 // ---- 5D case (i0,i1,i2,a,c)*(a',j0,j1,j2,a) -> (i0+j0,i1+j1,i2+j2,a',c) -----------------------------------
 
 __global__ void RtensorConvolve3d_sparse_kernel
-(const Rtensor5_view& r, const Rtensor5_view& x, float* warr, int* wdir, 
+(const cnine::Rtensor5_view& r, const cnine::Rtensor5_view& x, float* warr, int* wdir, 
   const int J0, const int J1, const int J2){
 
   int i0=blockIdx.x/(r.n1*r.n2);
@@ -43,18 +44,19 @@ __global__ void RtensorConvolve3d_sparse_kernel
   //int j2=blockIdx.y%J2;
 
   int offs=wdir[2*blockIdx.y];
-  int n=wdir[2*row+1];
-  
+  int n=wdir[2*blockIdx.y+1];
+  int na=x.n3;
+
   float t=0;
   for(int i=0; i<n; i++){
     int s=*reinterpret_cast<int*>(warr+offs+2*i);
     int j0=s/(J1*J2*na);
-    int j1=s/(j2*na)-j0*J1;
-    int j2=s/na-(j0*j1*J2+j1*J2);
+    int j1=s/(J2*na)-J0*J1;
+    int j2=s/na-(J0*J1*J2+J1*J2);
     int a=s%na;
-    t+=xarr[(i0+j0)*x.s0+(i1+j1)*xs.1++(i2+j2)*xs.2+a*x.s3+threadIdx.x*x.s4]*warr[offs+2*i+1]
+    t+=x.arr[(i0+j0)*x.s0+(i1+j1)*x.s1+(i2+j2)*x.s2+a*x.s3+threadIdx.x*x.s4]*warr[offs+2*i+1];
   }
-  rarr[i0*r.s0+i1*r.s1+i2*r.s2+blockIdx.y*r.s3+threadIdx.x*r.s4]+=t;
+  r.arr[i0*r.s0+i1*r.s1+i2*r.s2+blockIdx.y*r.s3+threadIdx.x*r.s4]+=t;
   
 }
 
@@ -86,7 +88,7 @@ __global__ void RtensorConvolve2d_sparse_padded_kernel
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
   
 }
-*/]
+*/
 
 // ----------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
@@ -98,7 +100,7 @@ namespace cnine{
 
 // ---- 5D case (i0,i1,i2,a,c)*(a',j0,j1,j2,a) -> (i0+j0,i1+j1,i2+j2,a',c) -----------------------------------
 
-  void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix& w, 
+  void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, 
     const int J0, const int J1, const int J2, 
     const int padding0, const int padding1,  const int padding2, const cudaStream_t& stream){
     CNINE_ASSRT(r.dev==1);
@@ -108,7 +110,7 @@ namespace cnine{
     dim3 blocks(r.n0*r.n1*r.n2,r.n3);
 
     if(padding0==0&&padding1==0&&padding2==0){
-      RtensorConvolve2d_sparse_kernel<<<blocks,r.n4,0,stream>>>(r,x,w.arrg,w.get_dirg(1),J0,J1,J2);
+      RtensorConvolve3d_sparse_kernel<<<blocks,r.n4,0,stream>>>(r,x,w.arrg,w.get_dirg(1),J0,J1,J2);
       //RtensorConvolve2d_sparse_kernel<<<blocks,r.n4,0,stream>>>
       //(r.arrg,r.s0,r.s1,r.s2,r.s3,r.s4,
       //  x.arrg,x.s0,x.s1,x.s2,x.s3,x.s4,

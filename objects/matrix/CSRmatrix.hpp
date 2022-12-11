@@ -239,7 +239,7 @@ namespace cnine{
   public: // ---- GPU access ---------------------------------------------------------------------------------
 
     
-    int* get_dirg(const int _dev=1){
+    int* get_dirg(const int _dev=1) const{
       return dir.get_arrg(_dev);
     }
 

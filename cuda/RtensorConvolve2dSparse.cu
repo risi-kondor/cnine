@@ -25,6 +25,7 @@
 #include "Rtensor5_view.hpp"
 #include "Itensor1_view.hpp"
 #include "Itensor2_view.hpp"
+#include "CSRmatrix.hpp"
 #include "CUDAhelpers.hpp"
 
 
@@ -46,7 +47,7 @@ __global__ void RtensorConvolve2d_sparse_kernel
     int j0=s/(nj1*na);
     int j1=(s/na)%nj1;
     int a=s%na;
-    t+=xarr[blockIdx.x*xs0+(i0+j0)*xs1+(i1+j1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1]
+    t+=xarr[blockIdx.x*xs0+(i0+j0)*xs1+(i1+j1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1];
   }
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
   
@@ -74,7 +75,7 @@ __global__ void RtensorConvolve2d_sparse_kernel
     if(i0+j0-padding0<0 || i0+j0-padding0>=xn1) continue;
     if(i1+j1-padding1<0 || i1+j1-padding1>=xn2) continue;
     int a=s%na;
-    t+=xarr[blockIdx.x*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1]
+    t+=xarr[blockIdx.x*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1];
   }
   rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
   
@@ -89,8 +90,8 @@ __global__ void RtensorConvolve2d_sparse_kernel
 namespace cnine{
 
 
-  void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix& w, 
-    const int padding0, const int padding1, const cudaStream_t& stream){
+  void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, 
+    const int J0, const int J1, const int padding0, const int padding1, const cudaStream_t& stream){
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
     CNINE_ASSRT(w.dev==1);
@@ -99,17 +100,17 @@ namespace cnine{
 
     if(padding0==0&&padding1==0){
       RtensorConvolve2d_sparse_kernel<<<blocks,r.n4,0,stream>>>
-	(r.arrg,r.s0,r.s1,r.s2,r.s3,r.s4,
-	  x.arrg,x.s0,x.s1,x.s2,x.s3,x.s4,
+	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
+	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
 	  w.arrg,w.get_dirg(1),
-	  r.n1,w.n2,w.n3); // changed x.n1 to r.n1
+	  J0,J1,w.m); // check this
     }else{
-      RtensorConvolve2d_sparse_kernel<<<blocks,r.n4,0,stream>>>
-	(r.arrg,r.s0,r.s1,r.s2,r.s3,r.s4,
-	  x.arrg,x.s0,x.s1,x.s2,x.s3,x.s4,
-	  w.arrg,w.get_dirg(1),
-	  r.n1,w.n2,w.n3,
-	  x.n1,x.n2,padding0,padding1); 
+      //RtensorConvolve2d_sparse_kernel<<<blocks,r.n4,0,stream>>>
+      //(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
+      //  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
+      //  w.arrg,w.get_dirg(1),
+      //  r.n1,w.n2,w.m,
+      //  x.n1,x.n2,padding0,padding1); 
     }
 
   }
