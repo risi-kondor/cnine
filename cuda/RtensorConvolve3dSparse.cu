@@ -57,9 +57,9 @@ __global__ void RtensorConvolve3d_sparse_kernel
 }
 
 
-__global__ void RtensorConvolve3d_sparse_padded_kernel
-(const cnine::Rtensor5_view r, const cnine::Rtensor5_view x, float* warr, int* wdir, 
-  const int J0, const int J1, const int J2){
+__global__ void RtensorConvolve3d_sparse_kernel
+(const cnine::Rtensor4_view r, const cnine::Rtensor4_view x, float* warr, int* wdir, 
+  const int J0, const int J1, const int J2, const int padding0, const int padding1, const int padding2){
 
   int i0=blockIdx.x/(r.n1*r.n2);
   int i1=(blockIdx.x/r.n2)-i0*r.n1;
@@ -114,9 +114,9 @@ __global__ void RtensorConvolve3d_sparse_kernel
 }
 
 
-__global__ void RtensorConvolve3d_sparse_padded_kernel
+__global__ void RtensorConvolve3d_sparse_kernel
 (const cnine::Rtensor5_view r, const cnine::Rtensor5_view x, float* warr, int* wdir, 
-  const int J0, const int J1, const int J2){
+  const int J0, const int J1, const int J2, const int padding0, const int padding1, const int padding2){
 
   int i0=blockIdx.x/(r.n1*r.n2);
   int i1=(blockIdx.x/r.n2)-i0*r.n1;
@@ -149,13 +149,13 @@ __global__ void RtensorConvolve3d_sparse_kernel
 (const cnine::Rtensor6_view r, const cnine::Rtensor6_view x, float* warr, int* wdir, 
   const int J0, const int J1, const int J2){
 
-  int i0=blockIdx.x/(r.n1*r.n2);
-  int i1=(blockIdx.x/r.n2)-i0*r.n1;
-  int i2=blockIdx.x%r.n2;
+  int i0=blockIdx.x/(r.n2*r.n3);
+  int i1=(blockIdx.x/r.n3)-i0*r.n2;
+  int i2=blockIdx.x%r.n3;
 
   int offs=wdir[2*blockIdx.y];
   int n=wdir[2*blockIdx.y+1];
-  int na=x.n3;
+  int na=x.n4;
 
   float t=0;
   for(int i=0; i<n; i++){
@@ -166,22 +166,23 @@ __global__ void RtensorConvolve3d_sparse_kernel
     int a=s%na;
     t+=x.arr[blockIdx.z*x.s0+(i0+j0)*x.s1+(i1+j1)*x.s2+(i2+j2)*x.s3+a*x.s4+threadIdx.x*x.s5]*warr[offs+2*i+1];
   }
+  //printf("%d %d %d %d %d %d %f\n",blockIdx.z,i0,i1,i2,blockIdx.y,threadIdx.x,t);
   r.arr[blockIdx.z*r.s0+i0*r.s1+i1*r.s2+i2*r.s3+blockIdx.y*r.s4+threadIdx.x*r.s5]+=t;
   
 }
 
 
-__global__ void RtensorConvolve3d_sparse_padded_kernel
+__global__ void RtensorConvolve3d_sparse_kernel
 (const cnine::Rtensor6_view r, const cnine::Rtensor6_view x, float* warr, int* wdir, 
-  const int J0, const int J1, const int J2){
+  const int J0, const int J1, const int J2, const int padding0, const int padding1, const int padding2){
 
-  int i0=blockIdx.x/(r.n1*r.n2);
-  int i1=(blockIdx.x/r.n2)-i0*r.n1;
-  int i2=blockIdx.x%r.n2;
+  int i0=blockIdx.x/(r.n2*r.n3);
+  int i1=(blockIdx.x/r.n3)-i0*r.n2;
+  int i2=blockIdx.x%r.n3;
 
   int offs=wdir[2*blockIdx.y];
   int n=wdir[2*blockIdx.y+1];
-  int na=x.n3;
+  int na=x.n4;
 
   float t=0;
   for(int i=0; i<n; i++){
@@ -261,7 +262,7 @@ namespace cnine{
     CNINE_ASSRT(x.n0==r.n0);
     CNINE_ASSRT(x.n5==r.n5);
 
-    dim3 blocks(r.n1*r.n2*r.n3,r.n4.r.n0);
+    dim3 blocks(r.n1*r.n2*r.n3,r.n4,r.n0);
 
     if(padding0==0&&padding1==0&&padding2==0)
       RtensorConvolve3d_sparse_kernel<<<blocks,r.n5,0,stream>>>(r,x,w.arrg,w.get_dirg(1),J0,J1,J2);
