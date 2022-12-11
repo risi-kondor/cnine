@@ -21,7 +21,7 @@
 namespace cnine{
 
   #ifdef _WITH_CUDA
-  //extern void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, const int padding0, const int padding1, const cudaStream_t& stream);
+  extern void RtensorConvolve2d_cu(const Rtensor5_view& r, const Rtensor5_view& x, const CSRmatrix<float>& w, const int padding0, const int padding1, const cudaStream_t& stream);
   #endif
 
 
