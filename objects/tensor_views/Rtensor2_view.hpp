@@ -333,13 +333,21 @@ namespace cnine{
 	}
       }
       if(dev==1){
-	
-	//thrust::device_vector<float> ones(n0,1.f);
-	//const float alpha=1.0;
-	//CUBLAS_SAFE(cublasSgemv(cnine_cublas,CUBLAS_OP_N,n1,n0,
-	//&alpha,arr,s1,
-	//cuda_oneS,0,
-	//&alpha,r.arr,1));
+	CUDA_STREAM(Rtensor_sum0_into_cu(r,*this,stream));
+      }
+    }
+
+    void avg0_into(const Rtensor1_view& r) const{
+      assert(r.n0==n1);
+      if(dev==0){
+	for(int j=0; j<n1; j++){
+	  float t=0; 
+	  for(int i=0; i<n0; i++)
+	    t+=arr[i*s0+j*s1];
+	  r.inc(j,t/n0);
+	}
+      }
+      if(dev==1){
 	CUDA_STREAM(Rtensor_sum0_into_cu(r,*this,stream));
       }
     }

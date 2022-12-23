@@ -36,6 +36,7 @@ namespace cnine{
   extern void Rtensor_inc_cu(float* p, const float v);
   extern void Rtensor_copy_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
   extern void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
+  extern void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const float c, const cudaStream_t& stream);
   #endif 
 
   class Rtensor3_view{
@@ -143,6 +144,17 @@ namespace cnine{
       }
     }
 
+    void add(const Rtensor3_view& x, const float c) const{
+      CNINE_DEVICE_SAME(x);
+      if(x.n0==n0 && x.n1==n1 && x.n2==n2 && is_regular() && x.is_regular()){
+	CPUCODE(stdadd<float>(x.arr,x.arr+n0*n1*n2,arr));
+	GPUCODE(CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0*n1*n2,&c,x.arr,1,arr,1)));
+      }else{
+	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) for(int i2=0; i2<x.n2; i2++) {inc(i0,i1,i2,x(i0,i1,i2)*c);});
+	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x,c,stream)));
+      }
+    }
+
     void operator+=(const Rtensor3_view& x) const{
       return add(x);
     }
@@ -183,6 +195,19 @@ namespace cnine{
 	}
     }
 
+    void avg0_into(const Rtensor2_view& r){
+      CNINE_CPUONLY();
+      assert(r.n0==n1);
+      assert(r.n1==n2);
+      for(int i1=0; i1<n1; i1++)
+	for(int i2=0; i2<n2; i2++){
+	  float t=0; 
+	  for(int i0=0; i0<n0; i0++) 
+	    t+=arr[s0*i0+s1*i1+s2*i2];
+	  r.inc(i1,i2,t/n0);
+	}
+    }
+
     void sum1_into(const Rtensor2_view& r){
       CNINE_CPUONLY();
       assert(r.n0==n0);
@@ -193,6 +218,19 @@ namespace cnine{
 	  for(int i1=0; i1<n1; i1++)
 	    t+=arr[s0*i0+s1*i1+s2*i2];
 	  r.inc(i0,i2,t);
+	}
+    }
+
+    void avg1_into(const Rtensor2_view& r){
+      CNINE_CPUONLY();
+      assert(r.n0==n0);
+      assert(r.n1==n2);
+      for(int i0=0; i0<n0; i0++) 
+	for(int i2=0; i2<n2; i2++){
+	  float t=0; 
+	  for(int i1=0; i1<n1; i1++)
+	    t+=arr[s0*i0+s1*i1+s2*i2];
+	  r.inc(i0,i2,t/n1);
 	}
     }
 
@@ -209,6 +247,19 @@ namespace cnine{
 	}
     }
 
+    void avg2_into(const Rtensor2_view& r){
+      CNINE_CPUONLY();
+      assert(r.n0==n0);
+      assert(r.n1==n1);
+      for(int i0=0; i0<n0; i0++) 
+	for(int i1=0; i1<n1; i1++){
+	  float t=0; 
+	  for(int i2=0; i2<n2; i2++)
+	    t+=arr[s0*i0+s1*i1+s2*i2];
+	  r.inc(i0,i1,t/n2);
+	}
+    }
+
     void sum01_into(const Rtensor1_view& r){
       CNINE_CPUONLY();
       assert(r.n0==n2);
@@ -218,6 +269,18 @@ namespace cnine{
 	    for(int i1=0; i1<n1; i1++)
 	      t+=arr[s0*i0+s1*i1+s2*i2];
 	  r.inc(i2,t);
+	}
+    }
+
+    void avg01_into(const Rtensor1_view& r){
+      CNINE_CPUONLY();
+      assert(r.n0==n2);
+	for(int i2=0; i2<n2; i2++){
+	  float t=0; 
+	  for(int i0=0; i0<n0; i0++) 
+	    for(int i1=0; i1<n1; i1++)
+	      t+=arr[s0*i0+s1*i1+s2*i2];
+	  r.inc(i2,t/n0/n1);
 	}
     }
 

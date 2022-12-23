@@ -139,6 +139,27 @@ __global__ void Rtensor_copy_kernel_bbb(float* rarr, const float* arr,
 }
 
 
+__global__ void Rtensor_copy_kernel_ttt(float* rarr, const float* arr, 
+  const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2, const float c){
+  rarr[threadIdx.x*rs0+threadIdx.y*rs1+threadIdx.z*rs2]=arr[threadIdx.x*s0+threadIdx.y*s1+threadIdx.z*s2]*c;
+}
+
+__global__ void Rtensor_copy_kernel_btt(float* rarr, const float* arr, 
+  const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2, const float c){
+  rarr[blockIdx.x*rs0+threadIdx.x*rs1+threadIdx.y*rs2]=arr[blockIdx.x*s0+threadIdx.x*s1+threadIdx.y*s2]*c;
+}
+
+__global__ void Rtensor_copy_kernel_bbt(float* rarr, const float* arr, 
+  const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2, const float c){
+  rarr[blockIdx.x*rs0+blockIdx.y*rs1+threadIdx.x*rs2]=arr[blockIdx.x*s0+blockIdx.y*s1+threadIdx.x*s2]*c;
+}
+
+__global__ void Rtensor_copy_kernel_bbb(float* rarr, const float* arr, 
+  const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2, const float c){
+  rarr[blockIdx.x*rs0+blockIdx.y*rs1+blockIdx.z*rs2]=arr[blockIdx.x*s0+blockIdx.y*s1+blockIdx.z*s2]*c;
+}
+
+
 // ---- Rtensor3 add ----------------------------------------------------------------------------------------
 
 
@@ -345,6 +366,18 @@ namespace cnine{
 	Rtensor_add_kernel_bbt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);},
       [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
 	Rtensor_add_kernel_bbb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2);});
+  }
+
+  void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const float c, const cudaStream_t& stream){
+    dispatch(r,x,
+      [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
+	Rtensor_add_kernel_ttt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2,c);},
+      [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
+	Rtensor_add_kernel_btt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2,c);},
+      [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
+	Rtensor_add_kernel_bbt<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2,c);},
+      [&](const dim3& blocks, const dim3& threads, const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2){      
+	Rtensor_add_kernel_bbb<<<blocks,threads,0,stream>>>(r.arr,x.arr,s0,s1,s2,rs0,rs1,rs2,c);});
   }
 
 
