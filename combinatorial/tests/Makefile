@@ -3,7 +3,7 @@ include $(ROOTDIR)/common.txt
 
 INCLUDE= -I$(INCLUDEDIR) -I$(COMBIDIR) -I$(SCALARDIR) -I$(TENSORDIR) -I$(TENSORVIEWDIR) 
 
-TESTS= testCombinations
+TESTS=$(patsubst %.cpp,%,$(wildcard *.cpp))
 
 DEPS=$(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(SCALARDIR)/*.hpp  
 
@@ -19,16 +19,12 @@ CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu
 endif 
 
 
-# -------------------------------------------------------------------------------------------------------------
-
-
-testCombinations: testCombinations.cpp $(DEPS)
+$(TESTS): %: %.cpp
 ifdef WITH_CUDA
-	$(NVCC) $(NVCCFLAGS) -o testCombinations testCombinations.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+	$(NVCC) $(NVCCFLAGS) -o $@ $@.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else
-	$(CC) -o testCombinations testCombinations.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
+	$(CC) -o $@ $@.cpp $(CFLAGS) $(INCLUDE) $(LIBS) 
 endif
-
 
 
 objects: $(OBJECTS) $(CUDA_OBJECTS)

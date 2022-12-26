@@ -173,6 +173,12 @@ namespace cnine{
   public: // ---- Conversions ---------------------------------------------------------------------------------
 
 
+    RtensorPackB(const RtensorPack& x, const int _nc):
+      RtensorPack(x), nc(_nc){}
+
+    RtensorPackB(RtensorPack&& x, const int _nc):
+      RtensorPack(std::move(x)), nc(_nc){}
+
     RtensorPackB(const rtensor& x){
       CNINE_ASSRT(x.ndims()==2);
       nc=x.dim(1);
@@ -232,7 +238,7 @@ namespace cnine{
     RtensorPackB(const at::Tensor& T):
       RtensorPackB(rtensor(T)){
       assert(size()>0);
-      nc=dim_of(0,0);
+      //nc=dim_of(0,0);
     }
     #endif 
 
