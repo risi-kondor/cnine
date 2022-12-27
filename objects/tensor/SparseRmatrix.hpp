@@ -160,6 +160,7 @@ namespace cnine{
       return R;
     }
 
+
   public: // ---- Conversions ------------------------------------------------------------------------------
 
 
@@ -189,6 +190,13 @@ namespace cnine{
 
     int getm() const{
       return m;
+    }
+
+    float operator(const int i, const j){
+      auto& r=row(i);
+      auto it=r(i).find(j);
+      if(it==r.end()) return 0;
+      return it->second;
     }
  
     void set(const int i, const int j, const float v){

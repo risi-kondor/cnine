@@ -52,6 +52,34 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    bool find(const TYPE& x) const{
+      return branch(x)!=nullptr;
+    }
+
+    bool find(const vector<TYPE>& x) const{
+      if(x.size()==0) return true;
+      auto p=branch(x[0]);
+      if(!p) return false;
+      return p->find(vector<TYPE>(x.begin()+1,x.end()));
+    }
+
+    bool contains_some_permutation_of(std::vector<TYPE>& x) const{
+      set<TYPE> s(x.begin(),x.end());
+      contains_some_permutation_of(s);
+    }
+
+    bool contains_some_permutation_of(std::set<TYPE>& x) const{ // faulty!
+      if(x.size()==0) return true;
+      for(auto& p:children){
+	auto it=x.find(p.first);
+	if(it==x.end()) return false;
+	set<TYPE> setd(set);
+	setd.erase(p.first);
+	return p.second->contains_some_permutation_of(setd);
+      }
+      return false;
+    }
+
     PrefixTree* branch(const TYPE& x) const{
       auto it=children.find(x);
       if(it!=children.end()) return it->second;
@@ -65,34 +93,62 @@ namespace cnine{
       return *children[x];
     }
 
-    bool find(const TYPE& x) const{
-      return branch(x)!=nullptr;
-    }
-
-    bool find(const vector<TYPE>& x) const{
-      if(x.size()==0) return true;
-      auto p=branch(x[0]);
-      if(!p) return false;
-      p->find(vector<TYPE>(x.begin()+1,x.end()));
-    }
-
     void add_path(const vector<TYPE> x){
       if(x.size()==0) return;
       get_branch(x[0]).add_path(vector<TYPE>(x.begin()+1,x.end()));
     }
 
-    void forall_maximal_paths(const std::function<void(const vector<TYPE>&)> lambda) const{
+    void for_each_maximal_path(const std::function<void(const vector<TYPE>&)> lambda) const{
       vector<TYPE> prefix;
-      forall_maximal_paths(prefix,lambda);
+      for_each_maximal_paths(prefix,lambda);
     }
 
-    void forall_maximal_paths(vector<TYPE>& prefix, const std::function<void(const vector<TYPE>&)> lambda) const{
+    void for_each_maximal_path(vector<TYPE>& prefix, const std::function<void(const vector<TYPE>&)> lambda) const{
       if(children.size()==0) lambda(prefix);
       for(auto& p: children){
 	prefix.push_back(p.first);
-	p.second->forall_maximal_paths(prefix,lambda);
+	p.second->for_each_maximal_paths(prefix,lambda);
 	prefix.pop_back();
       }
+    }
+
+    void depth_first(const std::function<void(const TYPE&)> lambda) const{
+      for(auto& p: children){
+	lambda(p.first);
+	p.second->depth_first(lambda);
+      }
+    }
+
+    int depth_first(const std::function<void(const TYPE&, const int)> lambda, const int ix) const{
+      int j=0;
+      for(auto& p: children){
+	lambda(p.first,ix);
+	j+=p.second->depth_first(lambda,ix+j+1)+1;
+      }
+      return j;
+    }
+
+    vector<TYPE> depth_first_traversal() const{
+      vector<TYPE> R;
+      depth_first([&](const TYPE& x){R.push_back(x);});
+      return R;
+    }
+
+    vector<TYPE> indexed_depth_first_traversal() const{
+      vector<pair<TYPE,int> > R;
+      depth_first([&](const TYPE& x, const int ix){
+	  R.push_back(pair<TYPE,int>(x,ix));
+	},-1);
+      return R;
+    }
+
+    vector<TYPE> indexed_depth_first_traversal(const TYPE& root_label) const{
+      vector<pair<TYPE,int> > R;
+      R.push_back(pair<TYPE,int>(root_label,-1));
+      depth_first([&](const TYPE& x, const int ix){
+	  R.push_back(pair<TYPE,int>(x,ix));
+	},0);
+      return R;
     }
 
 
@@ -101,7 +157,7 @@ namespace cnine{
 
     string str(const string indent="") const{
       ostringstream oss;
-      forall_maximal_paths([&](const vector<TYPE>& x){
+      for_each_maximal_path([&](const vector<TYPE>& x){
 	  oss<<indent<<"(";
 	  for(int i=0; i<x.size()-1; i++) oss<<x[i]<<",";
 	  if(x.size()>0) oss<<x.back();
