@@ -160,6 +160,7 @@ namespace cnine{
       return R;
     }
 
+
   public: // ---- Conversions ------------------------------------------------------------------------------
 
 
@@ -190,6 +191,14 @@ namespace cnine{
     int getm() const{
       return m;
     }
+
+    float operator()(const int i, const int j) const{
+      auto r=conditional_rowp(i);
+      if(r==nullptr) return 0;
+      auto it=r->find(j);
+      if(it==r->end()) return 0;
+      return it->second;
+    }
  
     void set(const int i, const int j, const float v){
       //pack_current=false;
@@ -209,6 +218,20 @@ namespace cnine{
       if(lists.find(i)==lists.end())
 	lists[i]=new SparseVec(m);
       return *lists[i];
+    }
+
+    const SparseVec& row(const int i) const{
+      CNINE_ASSRT(i<n);
+      if(lists.find(i)==lists.end())
+	const_cast<SparseRmatrix*>(this)->lists[i]=new SparseVec(m);
+      return *(const_cast<SparseRmatrix*>(this)->lists[i]);
+    }
+
+    SparseVec* conditional_rowp(const int i) const{
+      CNINE_ASSRT(i<n);
+      auto it=lists.find(i);
+      if(lists.find(i)==lists.end()) return nullptr;
+      return it->second;
     }
 
     void forall_nonzero(std::function<void(const int, const int, const float)> lambda) const{

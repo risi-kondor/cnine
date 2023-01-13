@@ -184,7 +184,6 @@ __global__ void Rtensor_add_kernel_bbb(float* rarr, const float* arr,
 }
 
 
-
 __global__ void Rtensor_add_kernel_ttt(float* rarr, const float* arr, 
   const int s0, const int s1, const int s2, const int rs0, const int rs1, const int rs2, const float c){
   rarr[threadIdx.x*rs0+threadIdx.y*rs1+threadIdx.z*rs2]+=arr[threadIdx.x*s0+threadIdx.y*s1+threadIdx.z*s2]*c;

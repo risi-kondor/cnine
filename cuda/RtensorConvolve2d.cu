@@ -72,10 +72,10 @@ __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int r
 __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, 
   float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4,  
   float* warr, const int ws0, const int ws1, const int ws2, const int ws3, 
-  const int ni0, const int nj0, const int nj1, const int na){
+  const int rn2, const int nj0, const int nj1, const int na){
 
-  int i0=blockIdx.y/ni0;
-  int i1=blockIdx.y%ni0;
+  int i0=blockIdx.y/rn2;
+  int i1=blockIdx.y%rn2;
 
   float t=0;
   for(int j0=0; j0<nj0; j0++)
@@ -91,11 +91,11 @@ __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int r
 __global__ void RtensorConvolve2d_kernel(float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, 
   float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4,  
   float* warr, const int ws0, const int ws1, const int ws2, const int ws3, 
-  const int ni0, const int nj0, const int nj1, const int na, 
+  const int rn2, const int nj0, const int nj1, const int na, 
   const int xn0, const int xn1, const int padding0, const int padding1){
 
-  int i0=blockIdx.y/ni0;
-  int i1=blockIdx.y%ni0;
+  int i0=blockIdx.y/rn2;
+  int i1=blockIdx.y%rn2;
 
   float t=0;
   for(int j0=max(0,padding0-i0); j0<min(nj0,xn0-i0+padding0); j0++)
@@ -193,7 +193,7 @@ namespace cnine{
 	  x.arr,x.s0,x.s1,x.s2,x.s3,
 	  w.arr,w.s0,w.s1,w.s2,w.s3,
 	  w.n1,w.n2,w.n3,
-	  x.n1,x.n2,padding0,padding1); 
+	  x.n0,x.n1,padding0,padding1); // changed from x.n1, x.n2
     }
   }
 
@@ -210,13 +210,13 @@ namespace cnine{
 	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
 	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
 	  w.arr,w.s0,w.s1,w.s2,w.s3,
-	  r.n1,w.n1,w.n2,w.n3); // changed x.n1 to r.n1  should be r.n2??
+	  r.n2,w.n1,w.n2,w.n3); // changed to r.n2??
     }else{
      RtensorConvolve2d_kernel<<<blocks,r.n4,0,stream>>>
 	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
 	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
 	  w.arr,w.s0,w.s1,w.s2,w.s3,
-	  r.n1,w.n1,w.n2,w.n3,
+	  r.n2,w.n1,w.n2,w.n3, // changed to r.n2
 	  x.n1,x.n2,padding0,padding1); 
     }
   }

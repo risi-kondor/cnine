@@ -110,7 +110,14 @@ namespace cnine{
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static RtensorPackB zeros_like(const RtensorPackB& x){
+    static RtensorPackB raw_like(const RtensorPackB& x){
+      RtensorPackB R(x.dir,x.nc,x.dev);
+      R.reserve(x.tail);
+      R.tail=x.tail;
+      return R;
+    }
+
+   static RtensorPackB zeros_like(const RtensorPackB& x){
       RtensorPackB R(x.dir,x.nc,x.dev);
       R.reserve(x.tail);
       R.tail=x.tail;
@@ -165,6 +172,12 @@ namespace cnine{
 
   public: // ---- Conversions ---------------------------------------------------------------------------------
 
+
+    RtensorPackB(const RtensorPack& x, const int _nc):
+      RtensorPack(x), nc(_nc){}
+
+    RtensorPackB(RtensorPack&& x, const int _nc):
+      RtensorPack(std::move(x)), nc(_nc){}
 
     RtensorPackB(const rtensor& x){
       CNINE_ASSRT(x.ndims()==2);
@@ -225,7 +238,7 @@ namespace cnine{
     RtensorPackB(const at::Tensor& T):
       RtensorPackB(rtensor(T)){
       assert(size()>0);
-      nc=dim_of(0,0);
+      //nc=dim_of(0,0);
     }
     #endif 
 
@@ -269,6 +282,24 @@ namespace cnine{
       r.add_Mprod_TA(x.view_as_matrix(),view_as_matrix());
     }
 
+    void add_scale_channels(const RtensorPackB& x, const Rtensor1_view& y){
+      CNINE_DEVICE_SAME(x);
+      CNINE_DEVICE_SAME(y);
+      CNINE_ASSRT(x.tail==tail);
+      CNINE_ASSRT(x.nc==nc);
+      CNINE_ASSRT(y.n0==nc);
+      if(dev==0){
+	int n=tail/nc;
+	for(int i=0; i<n; i++)
+	  for(int j=0; j<nc; j++)
+	    arr[i*nc+j]+=x.arr[i*nc+j]*y.arr[j];
+      }
+      if(dev==1){
+	add(x.scale_channels(y));
+	//CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
+      }    
+    }
+
     void add_bias(const rtensor& b){
       matrix_view().add_broadcast0(b.view1());
     }
@@ -292,6 +323,26 @@ namespace cnine{
 
     void add_linear_back2_to(rtensor& b){
       add_bias_back1_to(b);
+    }
+
+
+  public: // ---- Operations ---------------------------------------------------------------------------------
+
+
+    RtensorPackB scale_channels(const Rtensor1_view& y) const{
+      RtensorPackB R=RtensorPackB::raw_like(*this);
+      CNINE_DEVICE_SAME(y);
+      CNINE_ASSRT(y.n0==nc);
+      if(dev==0){
+	int n=tail/nc;
+	for(int i=0; i<n; i++)
+	  for(int j=0; j<nc; j++)
+	    R.arr[i*nc+j]=arr[i*nc+j]*y.arr[j];
+      }
+      if(dev==1){
+	CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
+      }
+      return R;
     }
 
 

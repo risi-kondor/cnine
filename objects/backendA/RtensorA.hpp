@@ -2004,6 +2004,15 @@ namespace cnine{
       return a;
     }
 
+    float max() const{
+      CNINE_CPUONLY();
+      if(asize==0) return 0;
+      float t=arr[0];
+      for(int i=0; i<asize; i++) 
+	t=std::max(t,arr[i]);
+      return t;
+    }
+
 
   public: // ---- Vecttor valued operations ------------------------------------------------------------------
 
