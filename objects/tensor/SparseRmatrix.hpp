@@ -39,7 +39,21 @@ namespace cnine{
     SparseVec(const int _n): n(_n){}
 
     
-  public:
+  public: // ---- Boolean ----------------------------------------------------------------------------------
+
+
+    bool operator==(const SparseVec& x){
+      for(auto p: *this){
+	auto it=x.find(p.first);
+	if(it==x.end()) return false;
+	if(p.second!=it->second) return false;
+      }
+      return true;
+    }
+
+
+  public: // ---- Access ------------------------------------------------------------------------------------
+
 
     void set(const int i, const float v){
       (*this)[i]=v;
@@ -178,6 +192,19 @@ namespace cnine{
       forall_nonzero([&](const int i, const int j, const float v){
 	  R.set(i,j,v);});
       return R;
+    }
+
+
+  public: // ---- Boolean ----------------------------------------------------------------------------------
+
+
+    bool operator==(const SparseRmatrix& x) const{
+      for(auto p: lists){
+	auto it=x.lists.find(p.first);
+	if(it==x.lists.end()) return false;
+	if(*p.second!=*it->second) return false;
+      }
+      return true;
     }
 
 
@@ -355,7 +382,38 @@ namespace cnine{
     
   };
 
-
 }
+
+
+namespace std{
+  template<>
+  struct hash<cnine::SparseVec>{
+  public:
+    size_t operator()(const cnine::SparseVec& x) const{
+      size_t t=1;
+      for(auto p: x){
+	t=(t<<1)^hash<int>()(p.first);
+	t=(t<<1)^hash<int>()(p.second);
+      }
+      return t;
+    }
+  };
+}
+
+namespace std{
+  template<>
+  struct hash<cnine::SparseRmatrix>{
+  public:
+    size_t operator()(const cnine::SparseRmatrix& x) const{
+      size_t t=1;
+      for(auto p: x.lists){
+	t=(t<<1)^hash<int>()(p.first);
+	t=(t<<1)^hash<cnine::SparseVec>()(*p.second);
+      }
+      return t;
+    }
+  };
+}
+
 
 #endif 
