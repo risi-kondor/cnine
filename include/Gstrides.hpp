@@ -124,6 +124,13 @@ namespace cnine{
   public: // ---- Operations ---------------------------------------------------------------------------------
 
 
+    Gstrides fuse(const int a, const int n) const{
+      Gstrides R(size()-n+1,fill_raw());
+      for(int i=0; i<a; i++) R[i]=(*this)[i];
+      for(int i=0; i<size()-(a+n-1); i++) R[a+i]=(*this)[a+n+i-1];
+      return R;
+    }
+    
     Gstrides remove(const int j) const{
       Gstrides R;
       assert(j<size());

@@ -179,6 +179,18 @@ namespace cnine{
       return t;
     }
 
+    Gdims fuse(const int a, const int n) const{
+      assert(n<=size());
+      assert(a+n<=size());
+      Gdims R(size()-n+1,fill_raw());
+      for(int i=0; i<a; i++) R[i]=(*this)[i];
+      int t=1; 
+      for(int i=0; i<n; i++) t*=(*this)[a+i];
+      R[a]=t;
+      for(int i=0; i<size()-(a+n); i++) R[a+i+1]=(*this)[a+i+n];
+      return R;
+    }
+
     Gdims chunk(const int beg, int n=-1) const{
       if(n==-1) n=size()-beg;
       Gdims R;
@@ -211,7 +223,6 @@ namespace cnine{
       for(int i=j; i<size(); i++) R.push_back((*this)[i]);
       return R;
     }
-
 
     Gdims append(const int i) const{
       Gdims R=*this;

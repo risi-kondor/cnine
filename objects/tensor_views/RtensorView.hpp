@@ -311,6 +311,10 @@ namespace cnine{
       return RtensorView(arr,d,s,dev);
     }    
 
+    Rtensor3_view fuse_all_but_last_two() const{
+      CNINE_NDIMS_LEAST(3);
+      return Rtensor3_view(arr,dims.fuse(0,dims.size()-2),strides.fuse(0,dims.size()-2),dev);
+    }
 
 
     /*
