@@ -1482,11 +1482,11 @@ namespace cnine{
 
 
     RtensorView viewx(){
-      return RtensorView(arr,dims,strides);
+      return RtensorView(arr,dims,strides,dev);
     }
 
     const RtensorView viewx() const{
-      return RtensorView(arr,dims,strides);
+      return RtensorView(arr,dims,strides,dev);
     }
 
 
