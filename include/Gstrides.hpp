@@ -24,7 +24,7 @@ namespace cnine{
   class Gstrides: public vector<int>{
   public:
 
-    bool regular;
+    //bool regular;
 
     Gstrides(){}
 
@@ -71,8 +71,8 @@ namespace cnine{
       assert(k>0);
       (*this)[k-1]=s0;
       for(int i=k-2; i>=0; i--)
-	(*this)[i]=(*this)[i+1]*dims[i+1];
-      regular=true;
+      (*this)[i]=(*this)[i+1]*dims[i+1];
+      //regular=true;
     }
 
     Gstrides(const vector<int>& x):
@@ -91,8 +91,31 @@ namespace cnine{
       return (*this)[size()-1-i];
     }
 
-    bool is_regular() const{
-      return regular;
+    bool is_regular(const Gdims& dims) const{
+      CNINE_ASSRT(size()==dims.size());
+      int k=size();
+      int t=1;
+      for(int i=k-1; i>=0; i--){
+	if((*this)[i]!=t) return false;
+	t*=dims[i];
+      }
+      return true;
+    }
+
+    int memsize(const Gdims& dims) const{
+      CNINE_ASSRT(size()==dims.size());
+      int t=0;
+      for(int i=0; i<size(); i++)
+	t=std::max(t,(*this)[i]*dims[i]);
+      return t;
+    }
+
+    int operator()(const vector<int>& ix) const{
+      CNINE_ASSRT(ix.size()<=size());
+      int t=0;
+      for(int i=0; i<ix.size(); i++)
+	t+=(*this)[i]*ix[i];
+      return t;
     }
 
     int offs(const int i0) const{

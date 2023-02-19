@@ -91,6 +91,7 @@ using namespace std;
 #define CNINE_CHECK_RANGE(expr) expr
 #define CNINE_CHECK_SIZE(expr) expr
 #define CNINE_IN_RANGE(ix,tsize) if(ix>=tsize) throw std::out_of_range("Cnine error in "+string(__PRETTY_FUNCTION__)+": index "+to_string(ix)+" out of range (0,"+to_string(tsize-1)+").");
+#define CNINE_DIMS(d) if(dims.size()!=d) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": number of dimensions in "+dims.str()+" is not "+to_string(d)+".");
 #define CNINE_DIMS_VALID(dims) if(!dims.valid()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": invalid dimensions"+dims.str()+".");
 #define CNINE_DIMS_SAME(x) if(x.dims!=dims) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+dims.str()+" and "+x.dims.str()+".");
 #define CNINE_DIMS_EQ(a,b) if(a!=b) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+a.str()+" and "+b.str()+".");
@@ -99,10 +100,12 @@ using namespace std;
 #define CNINE_NDIMS_IS(n) if(dims.size()!=n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is of order "+to_string(dims.size())+"."); 
 #define CNINE_NDIMS_LEAST(n) if(dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(dims.size())+"."); 
 #define CNINE_NDIMS_LEASTX(x,n) if(x.dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(x.dims.size())+"."); 
+#define CNINE_CHECK_DIM(d,i) if(dims[d]<=i) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": "+to_string(i)+" is out of bounds for dimension "+to_string(d)+" in "+dims.str()+"."); 
 #define CNINE_NTENS_SAME(x) if(x.tensors.size()!=tensors.size()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch in number of tensors "+to_string(x.tensors.size())+" vs "+to_string(tensors.size())+".");
 #else
 #define CNINE_CHECK_RANGE(expr)
 #define CNINE_CHECK_SIZE(expr)
+#define CNINE_DIMS(d)
 #define CNINE_IN_RANGE(ix,tsize)
 #define CNINE_DIMS_VALID(dims)
 #define CNINE_DIMS_SAME(x)
@@ -112,6 +115,7 @@ using namespace std;
 #define CNINE_NDIMS_IS(n)
 #define CNINE_NDIMS_LEAST(n)
 #define CNINE_NDIMS_LEASTX(x,n)
+#define CNINE_CHECK_DIM(d,i)
 #define CNINE_NTENS_SAME(x)
 #endif
 
@@ -154,7 +158,8 @@ using namespace std;
 #define CNINE_CHECK_BATCH2(x,y) if(x.n0!=y.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 #define CNINE_CHECK_BATCH3(x,y,z) if(x.n0!=y.n0 || x.n0!=z.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 
-
+#define BLOB_DEBUG(str) {CoutLock lk; cerr<<str<<endl;}
+//#define BLOB_DEBUG(str)
 
 
 namespace cnine{

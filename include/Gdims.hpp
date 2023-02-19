@@ -99,6 +99,15 @@ namespace cnine{
       for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
     }
 
+    Gdims(const vector<vector<int> >& list){
+      int n=0; 
+      for(auto& p:list) n+=p.size();
+      resize(n);
+      int i=0;
+      for(auto& p:list)
+	for(auto q:p)
+	  (*this)[i++]=q;
+    }
 
     Gdims(const int k, const fill_raw& dummy): 
       vector<int>(k){}
@@ -366,6 +375,32 @@ namespace cnine{
 
     void check_cell_eq(const Gdims& x) const{
       if(!((*this)==x)) throw std::out_of_range("Tensor cell dimensions "+str()+" do not match "+x.str()+".");
+    }
+
+    void check_in_range(const vector<int> ix, const string name) const{
+      if(size()!=ix.size()) throw std::out_of_range("cnine::"+name+" index "+Gdims(ix).str()+" out of range of "+str());
+      for(int i=0; i<size(); i++)
+	if(ix[i]<0 || ix[i]>=(*this)[i]) throw std::out_of_range("cnine::"+name+" index "+Gdims(ix).str()+" out of range of "+str());
+    }
+
+    void check_in_range(const int i0, const string name) const{
+      CNINE_CHECK_RANGE(if(size()!=1 || i0<0 || i0>=(*this)[0]) 
+	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0}).str()+" out of range of "+str()));
+    }
+
+    void check_in_range(const int i0, const int i1, const string name) const{
+      CNINE_CHECK_RANGE(if(size()!=2 || i0<0 || i0>=(*this)[0] || i1<0 || i1>=(*this)[1]) 
+	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0,i1}).str()+" out of range of "+str()));
+    }
+
+    void check_in_range(const int i0, const int i1, const int i2, const string name) const{
+      CNINE_CHECK_RANGE(if(size()!=3 || i0<0 || i0>=(*this)[0] || i1<0 || i1>=(*this)[1] || i2<0 || i2>=(*this)[2]) 
+	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0,i1,i2}).str()+" out of range of "+str()));
+    }
+
+    void check_in_range(const int i0, const int i1, const int i2, const int i3, const string name) const{
+      CNINE_CHECK_RANGE(if(size()!=4 || i0<0 || i0>=(*this)[0] || i1<0 || i1>=(*this)[1] || i2<0 || i2>=(*this)[2] || i3<0 || i3>=(*this)[3]) 
+	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0,i1,i2,i3}).str()+" out of range of "+str()));
     }
 
 

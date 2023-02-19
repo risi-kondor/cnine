@@ -285,6 +285,10 @@ namespace cnine{
     }
 
 
+  public: // ---- Shape and strides -------------------------------------------------------------------------
+
+
+
   public: // ---- Filled constructors -----------------------------------------------------------------------
 
 
@@ -427,8 +431,7 @@ namespace cnine{
       RtensorA(x.dims,fill::raw,0){
       assert(x.dev==0);
       for(int i=0; i<asize; i++){
-	float t=fn(x.arr[i]);
-	arr[i]=std::real(t);
+	arr[i]=fn(x.arr[i]);
       }
     }
 
@@ -1487,6 +1490,11 @@ namespace cnine{
 
     const RtensorView viewx() const{
       return RtensorView(arr,dims,strides,dev);
+    }
+
+    RtensorView block(const Gdims& d){
+      if(d.size()!=dims.size()) throw std::out_of_range("Cnine error in RtensorView::block: block has "+d.size()+" dimensions but tensor is only "+dims.size()+" dimensional");
+      return RtensorView(arr,d,strides,dev);
     }
 
 

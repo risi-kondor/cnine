@@ -64,6 +64,12 @@ namespace cnine{
     }
 
 
+  public: // ---- Copying ------------------------------------------------------------------------------------
+
+
+    //RtensorView(const RtensorView& x):
+    //arr(x.arr), dims(x.dims), strides(x.strides), dev(x.dev){}
+
 
   public: // ---- Getters ------------------------------------------------------------------------------------
 
