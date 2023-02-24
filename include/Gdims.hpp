@@ -264,6 +264,15 @@ namespace cnine{
       return Gdims((*this)[1],(*this)[0]);
     }
 
+    Gdims permute(const vector<int>& p) const{
+      CNINE_ASSRT(p.size()==size());
+      Gdims R;
+      R.resize(size());
+      for(int i=0; i<size(); i++)
+	R[i]=(*this)[p[i]];
+      return R;
+    }
+
     Gdims convolve(const Gdims& y) const{
       assert(size()==y.size());
       Gdims R(*this);
@@ -334,7 +343,7 @@ namespace cnine{
 	R[i]=(*this)[i+1]*R[i+1];
       return R;
     }
-
+    
     template<typename TYPE>
     vector<TYPE> to_vec() const{
       vector<TYPE> R(size());
@@ -346,6 +355,10 @@ namespace cnine{
 
   public: // ---- Lambdas -----------------------------------------------------------------------------------
 
+
+    void for_each_index(const std::function<void(const vector<int>&)>& lambda) const{
+      foreach_index(lambda);
+    }
 
     void foreach_index(const std::function<void(const vector<int>&)>& lambda) const{
       int k=size();
@@ -401,6 +414,11 @@ namespace cnine{
     void check_in_range(const int i0, const int i1, const int i2, const int i3, const string name) const{
       CNINE_CHECK_RANGE(if(size()!=4 || i0<0 || i0>=(*this)[0] || i1<0 || i1>=(*this)[1] || i2<0 || i2>=(*this)[2] || i3<0 || i3>=(*this)[3]) 
 	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0,i1,i2,i3}).str()+" out of range of "+str()));
+    }
+
+    void check_in_range_d(const int d, const int i0, const string name="") const{
+      CNINE_CHECK_RANGE(if(size()<=d || i0<0 || i0>=(*this)[d]) 
+	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0}).str()+" out of range of dimension "+to_string(d)+" of "+str()+"."));
     }
 
 

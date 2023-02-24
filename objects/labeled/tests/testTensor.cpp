@@ -37,8 +37,20 @@ int main(int argc, char** argv){
   cout<<B<<endl;
   cout<<A<<endl;
 
-  Tensor<float> C(B);
+  A.slice(1,0)=A.slice(0,2);
+  cout<<A<<endl;
+
+  Tensor<float> C(A);
+  C.set(0,0,32);
   cout<<C<<endl;
+  cout<<A<<endl;
+
+  Tensor<float> D(B);
+  cout<<B<<endl;
+  cout<<D<<endl;
+
+  //Tensor<float> C(B);
+  //cout<<C<<endl;
 
 }
 

@@ -75,6 +75,12 @@ using namespace std;
 #define CNINE_MOVEASSIGN_WARNING()
 #endif 
 
+#ifdef CNINE_CONVERT_WARNINGS
+#define CNINE_CONVERT_WARNING() cout<<"\e[1mcnine:\e[0m conversion in "<<string(__PRETTY_FUNCTION__)<<" ."<<endl;
+#else 
+#define CNINE_CONVERT_WARNING()
+#endif 
+
 #ifdef CNINE_ATEN_CONVERT_WARNINGS
 #define CNINE_CONVERT_FROM_ATEN_WARNING() cout<<"\e[1mcnine:\e[0m ATen tensor converted to "<<classname()<<"."<<endl;
 #define CNINE_CONVERT_TO_ATEN_WARNING() cout<<"\e[1mcnine:\e[0m "<<classname()<<" converted to ATen tensor."<<endl;
@@ -100,7 +106,7 @@ using namespace std;
 #define CNINE_NDIMS_IS(n) if(dims.size()!=n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is of order "+to_string(dims.size())+"."); 
 #define CNINE_NDIMS_LEAST(n) if(dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(dims.size())+"."); 
 #define CNINE_NDIMS_LEASTX(x,n) if(x.dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(x.dims.size())+"."); 
-#define CNINE_CHECK_DIM(d,i) if(dims[d]<=i) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": "+to_string(i)+" is out of bounds for dimension "+to_string(d)+" in "+dims.str()+"."); 
+//#define CNINE_CHECK_DIM(d,i) if(dims[d]<=i) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": "+to_string(i)+" is out of bounds for dimension "+to_string(d)+" in "+dims.str()+"."); 
 #define CNINE_NTENS_SAME(x) if(x.tensors.size()!=tensors.size()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch in number of tensors "+to_string(x.tensors.size())+" vs "+to_string(tensors.size())+".");
 #else
 #define CNINE_CHECK_RANGE(expr)
@@ -115,7 +121,7 @@ using namespace std;
 #define CNINE_NDIMS_IS(n)
 #define CNINE_NDIMS_LEAST(n)
 #define CNINE_NDIMS_LEASTX(x,n)
-#define CNINE_CHECK_DIM(d,i)
+//#define CNINE_CHECK_DIM(d,i)
 #define CNINE_NTENS_SAME(x)
 #endif
 
@@ -158,8 +164,8 @@ using namespace std;
 #define CNINE_CHECK_BATCH2(x,y) if(x.n0!=y.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 #define CNINE_CHECK_BATCH3(x,y,z) if(x.n0!=y.n0 || x.n0!=z.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 
-#define BLOB_DEBUG(str) {CoutLock lk; cerr<<str<<endl;}
-//#define BLOB_DEBUG(str)
+//#define BLOB_DEBUG(str) {CoutLock lk; cerr<<str<<endl;}
+#define BLOB_DEBUG(str)
 
 
 namespace cnine{

@@ -12,12 +12,11 @@
  */
 
 
-#ifndef _CnineLabeledTensor
-#define _CnineLabeledTensor
+#ifndef _CnineLtensorView
+#define _CnineLtensorView
 
-#include "Tensor.hpp"
-#include "Ldims.hpp"
-#include "LdimsList.hpp"
+#include "Cnine_base.hpp"
+#include "TensorView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -32,32 +31,13 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
-  inline vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
-    vector<vector<int> > R;
-    for(auto& p:_ldims)
-      R.push_back(p);
-    return R;
-  }
-
-  /*
-  inline vector<Ldims*> convertB(const initializer_list<Ldims>& _ldims){
-    vector<Ldims* > R;
-    for(auto& p:_ldims)
-      R.push_back(p.clone());
-    return R;
-  }
-  */
-
   template<typename TYPE>
-  class LabeledTensor: public Tensor<TYPE>{
+  class LtensorView{
   public:
 
-    //vector<Ldims*> ldims;
     LdimsList ldims;
 
-    ~LabeledTensor(){
-      //for(auto p:ldims)
-      //delete p;
+    ~LtensorView(){
     }
 
 
@@ -66,23 +46,43 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    LabeledTensor(const initializer_list<Ldims>& _ldims, const int _dev=0):
-      Tensor<TYPE>(Gdims(convert(_ldims)),_dev),
-      ldims(_ldims){}
-    //ldims(convertB(_ldims)){}
+    //LtensorView(const initializer_list<Ldims>& _ldims, const int _dev=0):
+    //TensorView<TYPE>(Gdims(convert(_ldims)),_dev),
+    //ldims(_ldims){}
 
+  private:
+
+    static vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
+      vector<vector<int> > R;
+      for(auto& p:_ldims)
+	R.push_back(p);
+      return R;
+    }
+
+
+  public: // ---- Copying -----------------------------------------------------------------------------------
+
+
+    LtensorView(const LtensorView<TYPE>& x):
+      TensorView<TYPE>(x), 
+      ldims(x.ldims){}
+
+    LtensorView& operator=(const LtensorView& x){
+      assert(ldims==x.ldims);
+      TensorView<TYPE>::operator=(x);
+    }
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
     string str(const string indent="") const{
       ostringstream oss;
-      oss<<indent<<"Tensor["<<ldims<<"]:";
+      oss<<indent<<"LtensorView["<<ldims<<"]:";
       
       return oss.str();
     }
 
-    friend ostream& operator<<(ostream& stream, const LabeledTensor& x){
+    friend ostream& operator<<(ostream& stream, const LtensorView& x){
       stream<<x.str(); return stream;}
 
 
