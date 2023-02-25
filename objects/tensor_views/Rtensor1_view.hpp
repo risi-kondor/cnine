@@ -70,7 +70,7 @@ namespace cnine{
     Rtensor1_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
       const GindexSet& a):
       arr(_arr){
-      assert(_strides.is_regular());
+      assert(_strides.is_regular(_dims));
       assert(a.is_contiguous());
       assert(a.covers(_dims.size()));
       n0=_dims.unite(a);

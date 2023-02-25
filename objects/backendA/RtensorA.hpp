@@ -1493,7 +1493,7 @@ namespace cnine{
     }
 
     RtensorView block(const Gdims& d){
-      if(d.size()!=dims.size()) throw std::out_of_range("Cnine error in RtensorView::block: block has "+d.size()+" dimensions but tensor is only "+dims.size()+" dimensional");
+      //if(d.size()!=dims.size()) throw std::out_of_range("Cnine error in RtensorView::block: block has "+d.size()+" dimensions but tensor is only "+dims.size()+" dimensional");
       return RtensorView(arr,d,strides,dev);
     }
 
