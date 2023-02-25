@@ -65,7 +65,7 @@ namespace cnine{
     Ctensor3_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
       const GindexSet& a, const GindexSet& b, const GindexSet& c, const int _coffs=1, const int _dev=0):
       arr(_arr), arrc(_arr+_coffs), dev(_dev){
-      assert(_strides.is_regular());
+      assert(_strides.is_regular(_dims));
       assert(a.is_contiguous());
       assert(b.is_contiguous());
       assert(c.is_contiguous());

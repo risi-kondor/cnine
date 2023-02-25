@@ -74,7 +74,7 @@ namespace cnine{
     Rtensor2_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
       const GindexSet& a, const GindexSet& b, const int _dev=0):
       arr(_arr), dev(_dev){
-      assert(_strides.is_regular());
+      assert(_strides.is_regular(_dims));
       assert(a.is_contiguous());
       assert(b.is_contiguous());
       assert(a.is_disjoint(b));
