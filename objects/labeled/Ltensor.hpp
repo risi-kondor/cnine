@@ -18,6 +18,7 @@
 #include "Tensor.hpp"
 #include "Ldims.hpp"
 #include "LdimsList.hpp"
+#include "LtensorView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -52,58 +53,58 @@ namespace cnine{
   class Ltensor: public LtensorView<TYPE>{
   public:
 
-    using TensorView<TYPE>::TensorView;
-    using TensorView<TYPE>::arr;
-    using TensorView<TYPE>::dims;
-    using TensorView<TYPE>::strides;
+    using LtensorView<TYPE>::LtensorView;
+    using LtensorView<TYPE>::arr;
+    using LtensorView<TYPE>::dims;
+    using LtensorView<TYPE>::strides;
+    using LtensorView<TYPE>::ldims;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    Ltensor(const initializer_list<Ldims>& _ldims, const int _dev=0):
-      LtensorView<TYPE>(Gdims(convert(_ldims)),_dev),
+    Ltensor(const LdimsList& _ldims, const int _dev=0):
+      LtensorView<TYPE>(MemArr<TYPE>(_ldims.total(),_dev),_ldims,GstridesB(Gdims(_ldims))){}
 
-    Tensor(const Gdims& _dims, const int _dev=0): 
-      TensorView<TYPE>(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+    Ltensor(const LdimsList& _ldims, const fill_zero& dummy, const int _dev=0): 
+      LtensorView<TYPE>(MemArr<TYPE>(_ldims.total(),dummy,_dev),_ldims,GstridesB(Gdims(_ldims))){}
 
-    Tensor(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
-      TensorView<TYPE>(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
-
-    Tensor(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
-      Tensor(_dims,_dev){
-      int N=dims.total();
+    Ltensor(const LdimsList& _ldims, const fill_sequential& dummy, const int _dev=0):
+      Ltensor(_ldims,_dev){
+      int N=ldims.total();
       for(int i=0; i<N; i++)
 	arr[i]=i;
     }
     
   private:
 
+    /*
     static vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
       vector<vector<int> > R;
       for(auto& p:_ldims)
 	R.push_back(p);
       return R;
     }
+    */
+
+  public: // ---- Named constructors ------------------------------------------------------------------------
 
 
-  public:
+    static Ltensor<TYPE> zero(const LdimsList& _ldims, const int _dev=0){
+      return Ltensor<TYPE>(_ldims,fill_zero(),_dev);
+    }
 
-  public: // ---- Constructors ------------------------------------------------------------------------------
-
-
-    Ltensor(const initializer_list<Ldims>& _ldims, const int _dev=0):
-      Tensor<TYPE>(Gdims(convert(_ldims)),_dev),
-      ldims(_ldims){}
-    //ldims(convertB(_ldims)){}
+    static Ltensor<TYPE> sequential(const LdimsList& _ldims, const int _dev=0){
+      return Ltensor<TYPE>(_ldims,fill_sequential(),_dev);
+    }
 
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
-
+    
     string str(const string indent="") const{
       ostringstream oss;
-      oss<<indent<<"Tensor["<<ldims<<"]:";
+      oss<<indent<<"Tensor["<<ldims<<"]:"<<endl;
       oss<<TensorView<TYPE>::str(indent);
       return oss.str();
     }

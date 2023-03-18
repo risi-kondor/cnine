@@ -13,7 +13,7 @@
 
 
 #include "Cnine_base.cpp"
-#include "LabeledTensor.hpp"
+#include "Ltensor.hpp"
 #include "CnineSession.hpp"
 #include "Lgrid.hpp"
 
@@ -26,10 +26,11 @@ int main(int argc, char** argv){
 
   cout<<endl;
 
-  Lgrid grid0({3,3,3});
+  Lgrid grid0({3,3});
   //cout<<grid0<<endl;
 
-  LabeledTensor<float> A({grid0});
+  //Ltensor<float> A({grid0});
+  Ltensor<float> A=Ltensor<float>::sequential({grid0});
   cout<<A<<endl;
 
 }

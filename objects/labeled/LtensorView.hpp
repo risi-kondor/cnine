@@ -32,7 +32,7 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
   template<typename TYPE>
-  class LtensorView{
+  class LtensorView: public TensorView<TYPE>{
   public:
 
     LdimsList ldims;
@@ -46,19 +46,21 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    //LtensorView(const initializer_list<Ldims>& _ldims, const int _dev=0):
-    //TensorView<TYPE>(Gdims(convert(_ldims)),_dev),
-    //ldims(_ldims){}
+    LtensorView(const MemArr<TYPE>& _arr, const LdimsList& _ldims, const GstridesB& _strides):
+      TensorView<TYPE>(_arr,Gdims(_ldims),_strides),
+      ldims(_ldims){}
+
 
   private:
 
+    /*
     static vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
       vector<vector<int> > R;
       for(auto& p:_ldims)
 	R.push_back(p);
       return R;
     }
-
+    */
 
   public: // ---- Copying -----------------------------------------------------------------------------------
 
@@ -77,8 +79,8 @@ namespace cnine{
 
     string str(const string indent="") const{
       ostringstream oss;
-      oss<<indent<<"LtensorView["<<ldims<<"]:";
-      
+      oss<<indent<<"LtensorView["<<ldims<<"]:"<<endl;
+      oss<<TensorView<TYPE>::str(indent);
       return oss.str();
     }
 

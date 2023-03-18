@@ -38,6 +38,7 @@ namespace cnine{
     int dev=0;
     
     ~MemBlob(){
+      BLOB_DEBUG("Delete blob.");
       if(dev==0 && arr) {delete[] arr;}
       if(dev==1 && arr) {CUDA_SAFE(cudaFree(arrg));}
     }

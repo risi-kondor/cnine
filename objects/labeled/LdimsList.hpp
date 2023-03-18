@@ -16,25 +16,51 @@
 #define __LdimsList
 
 #include "Cnine_base.hpp"
+#include "pvector.hpp"
 #include "GindexSet.hpp"
 #include "Ldims.hpp"
-
+#include "Gdims.hpp"
 
 namespace cnine{
 
 
-  class LdimsList: public vector<Ldims*>{
+  class LdimsList: public pvector<Ldims>{
   public:
 
     ~LdimsList(){
-      for(auto p:*this)
-	delete p;
     }
 
     LdimsList(const initializer_list<Ldims>& _ldims){
       for(auto& p:_ldims)
 	push_back(p.clone());
     }
+
+
+  public: // ---- Copying ------------------------------------------------------------------------------------
+
+
+  public: // ---- Conversions --------------------------------------------------------------------------------
+
+
+    operator Gdims() const{
+      Gdims R;
+      for(auto p:*this){
+	Gdims D(*p);
+	for(auto d:D)
+	  R.push_back(d);
+      }
+      return R;
+    }
+
+
+  public: // ---- Operations ---------------------------------------------------------------------------------
+
+
+    int total() const{
+      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i]->total();
+      return t;
+    }
+
 
   public: // ---- I/O ----------------------------------------------------------------------------------------
 

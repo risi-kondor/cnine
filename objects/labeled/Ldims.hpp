@@ -25,6 +25,7 @@ namespace cnine{
   class Ldims: public vector<int>{
   public:
 
+
     Ldims(){}
 
     Ldims(const vector<int>& x):
@@ -39,6 +40,18 @@ namespace cnine{
       return new Ldims(*this);
     }
 
+
+  public: // ---- Conversions --------------------------------------------------------------------------------
+
+
+
+  public: // ---- Access -------------------------------------------------------------------------------------
+
+
+    int total() const{
+      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
+      return t;
+    }
 
 
   public: // ---- I/O ----------------------------------------------------------------------------------------
