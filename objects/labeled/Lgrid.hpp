@@ -43,7 +43,7 @@ namespace cnine{
       return "grid";
     }
 
-    string str() const{
+    virtual string str() const{
       return Ldims::str();
     }
 
@@ -51,6 +51,12 @@ namespace cnine{
       stream<<x.str(); return stream;}
 
   };
+
+
+  // dangerous hack
+  inline Lgrid* grid(const vector<int>& x){
+    return new Lgrid(x);
+  }
 
 }
 

@@ -15,11 +15,17 @@
 #ifndef __LdimsList
 #define __LdimsList
 
+#include <functional>
+
 #include "Cnine_base.hpp"
 #include "pvector.hpp"
 #include "GindexSet.hpp"
 #include "Ldims.hpp"
+#include "Lbatch.hpp"
+#include "Lgrid.hpp"
+#include "Larray.hpp"
 #include "Gdims.hpp"
+
 
 namespace cnine{
 
@@ -30,16 +36,32 @@ namespace cnine{
     ~LdimsList(){
     }
 
-    LdimsList(const initializer_list<Ldims>& _ldims){
+    LdimsList(){}
+
+    LdimsList(const initializer_list<reference_wrapper<Ldims> > _ldims){
       for(auto& p:_ldims)
-	push_back(p.clone());
+	push_back(p.get().clone());
+    }
+
+    // this takes ownership of the Ldims!
+    LdimsList(const initializer_list<Ldims*> _ldims){
+      for(auto& p:_ldims)
+	push_back(p);
     }
 
 
   public: // ---- Copying ------------------------------------------------------------------------------------
 
 
+
   public: // ---- Conversions --------------------------------------------------------------------------------
+
+
+    LdimsList(const pvector<Ldims>& x):
+      pvector<Ldims>(x){}
+
+    LdimsList(pvector<Ldims>&& x):
+      pvector<Ldims>(std::move(x)){}
 
 
     operator Gdims() const{
@@ -62,6 +84,21 @@ namespace cnine{
     }
 
 
+  public: // ---- Batches ------------------------------------------------------------------------------------
+
+
+    bool is_batched() const{
+      if(size()==0) return false;
+      if(!dynamic_cast<Lbatch*>((*this)[0])) return false;
+      return true;
+    }
+
+    int nbatch() const{
+      if(!is_batched()) return 1;
+      return (*(*this)[0])[0];
+    }
+
+
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
 
@@ -79,6 +116,14 @@ namespace cnine{
 
   };
 
+
 }
 
 #endif 
+    /*
+    LdimsList(const vector<Ldims*>& _ldims){
+      for(auto& p:_ldims)
+	push_back(p->clone());
+    }
+    */
+

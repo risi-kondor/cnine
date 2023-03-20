@@ -39,10 +39,14 @@ namespace cnine{
     using TensorView<TYPE>::arr;
     using TensorView<TYPE>::dims;
     using TensorView<TYPE>::strides;
+    using TensorView<TYPE>::dev;
+    using TensorView<TYPE>::ndims;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
+
+    Tensor(){};
 
     Tensor(const Gdims& _dims, const int _dev=0): 
       TensorView<TYPE>(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
@@ -86,7 +90,7 @@ namespace cnine{
     }
         
     Tensor(const Tensor<TYPE>&& x):
-      TensorView<TYPE>(x.arr,x.dims,x.strides,x.dev){
+      TensorView<TYPE>(x.arr,x.dims,x.strides){
       CNINE_MOVE_WARNING();
     }
         
@@ -116,6 +120,35 @@ namespace cnine{
 
     const TensorView<TYPE> view() const{
       return TensorView<TYPE>(*this);
+    }
+
+
+  public: // ---- Operations --------------------------------------------------------------------------------
+
+
+    Tensor operator*(const TensorView<TYPE>& y) const{
+      CNINE_ASSERT(ndims()==1||ndims()==2,"first operand of product must be a vector or a matrix");
+      CNINE_ASSERT(y.ndims()==1||y.ndims()==2,"second operand of product must be a vector or a matrix");
+
+      if(ndims()==1 && y.ndims()==2){
+	Tensor R=zero({y.dims[1]},dev);
+	R.add_mvprod_T(y,*this);
+	return R;
+      }
+
+      if(ndims()==2 && y.ndims()==1){
+	Tensor R=zero({dims[0]},dev);
+	R.add_mvprod(*this,y);
+	return R;
+      }
+
+      if(ndims()==2 && y.ndims()==2){
+	Tensor R=zero({dims[0],y.dims[1]},dev);
+	R.add_mprod(*this,y);
+	return R;
+      }
+
+      return Tensor();
     }
 
 

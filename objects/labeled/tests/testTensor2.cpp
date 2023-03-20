@@ -13,10 +13,8 @@
 
 
 #include "Cnine_base.cpp"
-#include "Ltensor.hpp"
+#include "Tensor.hpp"
 #include "CnineSession.hpp"
-#include "Lbatch.hpp"
-#include "Lgrid.hpp"
 
 using namespace cnine;
 
@@ -27,12 +25,13 @@ int main(int argc, char** argv){
 
   cout<<endl;
 
-  Lbatch batch0(2);
-  Lgrid grid0({3,3});
+  Tensor<float> A=Tensor<float>::sequential({3,3});
+  Tensor<float> v=Tensor<float>::sequential({3});
 
-  Ltensor<float> A=Ltensor<float>::sequential({batch0,grid0});
-  //Ltensor<float> A=Ltensor<float>::sequential({batch(2),grid({3,3})});
-  cout<<A<<endl;
+  cout<<A*v<<endl;
+  cout<<v*A<<endl;
+  cout<<A*A<<endl;
+
 
 }
 

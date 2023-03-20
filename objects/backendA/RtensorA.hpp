@@ -2635,13 +2635,25 @@ namespace cnine{
    
   };
 
-
   // ---- Post-class inline functions ------------------------------------------------------------------------
 
-
-
-
 }
+
+
+namespace std{
+
+  template<>
+  struct hash<cnine::RtensorA>{
+  public:
+    size_t operator()(const cnine::RtensorA& x) const{
+      CNINE_ASSRT(x.dev==0);
+      size_t t=0;
+      for(int i=0; i<x.asize; i++) t=(t^hash<int>()(x.arr[i]))<<1;
+      return t;
+    }
+  };
+}
+
 
 #endif
 

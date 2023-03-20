@@ -58,6 +58,8 @@ namespace cnine{
     using LtensorView<TYPE>::dims;
     using LtensorView<TYPE>::strides;
     using LtensorView<TYPE>::ldims;
+    using LtensorView<TYPE>::is_batched;
+    using LtensorView<TYPE>::batchwise;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -76,16 +78,6 @@ namespace cnine{
 	arr[i]=i;
     }
     
-  private:
-
-    /*
-    static vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
-      vector<vector<int> > R;
-      for(auto& p:_ldims)
-	R.push_back(p);
-      return R;
-    }
-    */
 
   public: // ---- Named constructors ------------------------------------------------------------------------
 
@@ -99,13 +91,23 @@ namespace cnine{
     }
 
 
+  public: // ---- Batches -----------------------------------------------------------------------------------
+
+
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
     
     string str(const string indent="") const{
       ostringstream oss;
       oss<<indent<<"Tensor["<<ldims<<"]:"<<endl;
-      oss<<TensorView<TYPE>::str(indent);
+      if(!is_batched())
+	oss<<TensorView<TYPE>::str(indent);
+      else{
+	batchwise([&](const int b, const LtensorView<TYPE>& x){
+	    oss<<"  Batch "<<b<<":"<<endl;
+	    oss<<x.str(indent+"  ")<<endl;
+	  });
+      }
       return oss.str();
     }
 
@@ -115,6 +117,23 @@ namespace cnine{
 
   };
 
+
+  public: // ---- Functions ---------------------------------------------------------------------------------
+
+
+  Tensor<TYPE> operator*(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    
+  }
+
 }
 
 #endif 
+    /*
+    static vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
+      vector<vector<int> > R;
+      for(auto& p:_ldims)
+	R.push_back(p);
+      return R;
+    }
+    */
+

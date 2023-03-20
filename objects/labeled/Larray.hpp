@@ -24,11 +24,26 @@ namespace cnine{
   class Larray: public Ldims{
   public:
 
+    Larray(){}
+
     Larray(const vector<int>& x):
-      Ldims(x){
+      Ldims(x){}
+
+
+  public: // ---- Copying ------------------------------------------------------------------------------------
+
+    
+    virtual Larray* clone() const{
+      return new Larray(*this);
     }
 
+
   public: // ---- I/O ----------------------------------------------------------------------------------------
+
+
+    virtual string name() const{
+      return "array";
+    }
 
     string str(const string indent="") const{
       osstream oss(indent);
@@ -42,6 +57,28 @@ namespace cnine{
     }
 
   };
+
+
+  // ---- Functions ------------------------------------------------------------------------------------------
+
+
+  inline Larray operator*(const Larray& x, const Larray& y){
+    CNINE_ASSERT(x.size()==1||x.size()==2,"first operand of product must be a vector or a matrix");
+    CNINE_ASSERT(x,size()==1||y.size()==2,"second operand of product must be a vector or a matrix");
+    if(x.size()==1 && y.size()==2){
+      CNINE_ASSRT(x[0]==y[0]);
+      return Larray({y[1]});
+    }
+    if(x.size()==2 && y.size()==1){
+      CNINE_ASSRT(x[1]==y[0]);
+      return Larray({x[0]});
+    }
+    if(x.size()==2 && y.size()==2){
+      CNINE_ASSRT(x[1]==y[0]);
+      return Larray({x[0],y[1]});
+    }
+    return Larray();
+  }
 
 }
 

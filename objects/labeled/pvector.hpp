@@ -23,9 +23,15 @@ namespace cnine{
   class pvector: public vector<TYPE*>{
   public:
 
+    using vector<TYPE*>::size;
+    using vector<TYPE*>::operator[];
     using vector<TYPE*>::push_back;
 
     pvector(){}
+
+    pvector(const int n):
+      vector<TYPE*>(n){}
+
 
     ~pvector(){
       for(auto p:*this)
@@ -38,7 +44,7 @@ namespace cnine{
 
     pvector(const pvector& x){
       for(auto p:x)
-	push_back(new TYPE(*p));
+	push_back(p->clone());
     }
 
     pvector(pvector&& x){
@@ -51,7 +57,7 @@ namespace cnine{
       for(auto p:*this)
 	delete p;
       for(auto p:x)
-	push_back(new TYPE(*p));
+	push_back(p->clone());
     }
 
     pvector& operator=(pvector&& x){
@@ -61,6 +67,21 @@ namespace cnine{
 	push_back(p);
       x.clear();
     }
+
+
+  public: // ---- Operations ---------------------------------------------------------------------------------
+
+
+    pvector remove(const int j) const{
+      CNINE_ASSRT(j<size());
+      pvector<TYPE> r(size()-1);
+      for(int i=0; i<j; i++)
+	r[i]=(*this)[i]->clone();
+      for(int i=j+1; i<size(); i++)
+	r[i-1]=(*this)[i]->clone();
+      return r;
+    }
+
 
   };
 

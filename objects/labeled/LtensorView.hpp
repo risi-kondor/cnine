@@ -41,8 +41,6 @@ namespace cnine{
     }
 
 
-  public:
-
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
@@ -51,16 +49,6 @@ namespace cnine{
       ldims(_ldims){}
 
 
-  private:
-
-    /*
-    static vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
-      vector<vector<int> > R;
-      for(auto& p:_ldims)
-	R.push_back(p);
-      return R;
-    }
-    */
 
   public: // ---- Copying -----------------------------------------------------------------------------------
 
@@ -74,13 +62,82 @@ namespace cnine{
       TensorView<TYPE>::operator=(x);
     }
 
+
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+
+    LtensorView(const TensorView<TYPE>& x, const LdimsList& _ldims):
+      TensorView<TYPE>(x),
+      ldims(_ldims){}
+
+    LtensorView(TensorView<TYPE>&& x, const LdimsList& _ldims):
+      TensorView<TYPE>(std::move(x)),
+      ldims(_ldims){}
+
+
+  public: // ---- Devices -----------------------------------------------------------------------------------
+
+    
+
+  public: // ---- Batches -----------------------------------------------------------------------------------
+
+    
+    bool is_batched() const{
+      return ldims.is_batched();
+    }
+
+    int nbatch() const{
+      return ldims.nbatch();
+    }
+
+    LtensorView batch(const int b) const{
+      if(!is_batched()) return *this;
+      return LtensorView(TensorView<TYPE>::slice(0,b),ldims.remove(0));
+    }
+
+    void batchwise(std::function<void(int, const LtensorView&)> lambda) const{
+      if(!is_batched()){
+	lambda(0,*this);
+	return;
+      }
+      int B=nbatch();
+      for(int b=0; b<B; b++){
+	lambda(b,batch(b));
+      }
+    }
+
+    static LdimsList common_batch(const LtensorView& x, constLtensorView& y){
+      if(x.is_batched()){
+	if(y.is_batched()){
+	  CNINE_ASSRT(x.nbatch()==y.nbatch());
+	  return LdimsList({Lbatch(x.nbatch())});
+	}else{
+	  return LdimsList({Lbatch(x.nbatch())});
+	}
+      }else{
+	if(y.is_batched()){
+	  return LdimsList({Lbatch(x.nbatch())});
+	}else{
+	  return LdimsList();
+	}
+      }
+    }
+
+
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
     string str(const string indent="") const{
       ostringstream oss;
       oss<<indent<<"LtensorView["<<ldims<<"]:"<<endl;
-      oss<<TensorView<TYPE>::str(indent);
+      if(!is_batched())
+	oss<<TensorView<TYPE>::str(indent+"  ");
+      else{
+	batchwise([&](const int b, const LtensorView& x){
+	    oss<<"Batch "<<b<<":"<<endl;
+	    oss<<x.str(indent)<<endl;
+	  });
+      }
       return oss.str();
     }
 
@@ -93,3 +150,30 @@ namespace cnine{
 }
 
 #endif 
+    /*
+    const LtensorView batch(const int b) const{
+      if(!is_batched()) return *this;
+      return LtensorView(const_cast<LtensorView&>(*this).TensorView<TYPE>::slice(0,b),ldims.remove(0));
+    }
+    */
+
+    /*
+    void batchwise(std::function<void(int, const LtensorView&)> lambda) const{
+      if(!is_batched()){
+	lambda(0,*this);
+	return;
+      }
+      int B=nbatch();
+      for(int b=0; b<B; b++)
+	lambda(b,batch(b));
+    }
+    */
+
+    /*
+    static vector<vector<int> > convert(const initializer_list<Ldims>& _ldims){
+      vector<vector<int> > R;
+      for(auto& p:_ldims)
+	R.push_back(p);
+      return R;
+    }
+    */

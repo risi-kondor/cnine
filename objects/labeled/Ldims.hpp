@@ -61,9 +61,9 @@ namespace cnine{
       return "dims";
     }
 
-    string str(const string indent="") const{
+    virtual string str() const{
       ostringstream oss;
-      oss<<indent;
+      //oss<<indent;
       oss<<name()<<"(";
       for(int i=0; i<size(); i++){
 	oss<<(*this)[i];

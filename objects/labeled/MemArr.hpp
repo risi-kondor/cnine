@@ -38,6 +38,10 @@ namespace cnine{
 
     std::shared_ptr<MemBlob<TYPE> > blob;
 
+    MemArr(){
+      CNINE_ERROR("MemArr must always be initialized to a new or existing block of memory");
+    }
+
     MemArr(const int _memsize, const int _dev=0):
       blob(new MemBlob<TYPE>(_memsize,_dev)){}
 
