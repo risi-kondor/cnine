@@ -59,6 +59,16 @@ namespace cnine{
       int N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=i;
+      move_to_device(_dev);
+    }
+
+    Tensor(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
+      Tensor(_dims,_dev){
+      int N=dims.total();
+      normal_distribution<double> distr;
+      for(int i=0; i<N; i++) 
+	arr[i]=distr(rndGen)*dummy.c;
+      move_to_device(_dev);
     }
 
 
@@ -73,6 +83,9 @@ namespace cnine{
       return Tensor<TYPE>(_dims,fill_sequential(),_dev);
     }
 
+    static Tensor<TYPE> gaussian(const Gdims& _dims, const int _dev=0){
+      return Tensor<TYPE>(_dims,fill_gaussian(),_dev);
+    }
 
 
   public: // ---- Copying -----------------------------------------------------------------------------------
@@ -94,6 +107,11 @@ namespace cnine{
       CNINE_MOVE_WARNING();
     }
         
+    Tensor& operator=(const Tensor& x){
+      arr=x.arr;
+      return *this;
+    }
+    
 
   public: // ---- Transport -----------------------------------------------------------------------------------
 
@@ -101,7 +119,12 @@ namespace cnine{
     Tensor(const TensorView<TYPE>& x, const int _dev):
       Tensor(x.dims,_dev){
       CNINE_COPY_WARNING();
-      view()=x.view();
+      view()=x;
+    }
+
+    void move_to_device(const int _dev) const{
+      if(dev==_dev) return;
+      const_cast<Tensor&>(*this)=Tensor(*this,_dev);
     }
 
 

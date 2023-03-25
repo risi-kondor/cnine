@@ -73,12 +73,12 @@ namespace cnine{
 
       if(is_contiguous() && x.is_contiguous()){
 	if(device()==0){
-	  if(x.device()==0) std::copy(x.get_arr(),x.get_arr()+memsize(),get_arr());
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(get_arr(),x.get_arr(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
+	  if(x.device()==0) std::copy(x.get_arro(),x.get_arro()+memsize(),get_arro());
+	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(get_arro(),x.get_arro(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
 	}
 	if(device()==1){
-	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(get_arr(),x.get_arr(),memsize()*sizeof(float),cudaMemcpyHostToDevice));
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(get_arr(),x.get_arr(),memsize()*sizeof(float),cudaMemcpyDeviceToDevice));  
+	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(get_arro(),x.get_arro(),memsize()*sizeof(float),cudaMemcpyHostToDevice));
+	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(get_arro(),x.get_arro(),memsize()*sizeof(float),cudaMemcpyDeviceToDevice));  
 	}      
       }else{
 	for_each([&](const Gindex& ix, TYPE& v) {v=x(ix);});
@@ -130,6 +130,14 @@ namespace cnine{
 
     const TYPE* get_arr() const{
       return arr.get_arr();
+    } 
+
+   TYPE* get_arro(){
+      return arr.get_arr()+strides.offset;
+    } 
+
+    const TYPE* get_arro() const{
+      return arr.get_arr()+strides.offset;
     } 
 
 
