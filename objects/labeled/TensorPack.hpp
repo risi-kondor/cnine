@@ -32,7 +32,7 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
   template<typename TYPE>
-  class TensorPack: virtual public TensorPackView<TYPE>{
+  class TensorPack: public TensorPackView<TYPE>{
   public:
 
     using TensorPackView<TYPE>::arr;

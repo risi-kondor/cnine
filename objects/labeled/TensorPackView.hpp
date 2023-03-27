@@ -49,12 +49,15 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    TensorPackView(){}
+    ///TensorPackView(){
+    //cout<<"init2"<<endl;
+    //}
 
     TensorPackView(const TensorPackDir& _dir, const MemArr<TYPE>& _arr):
       arr(_arr),
       dir(_dir),
-      dev(_arr.device()){}
+      dev(_arr.device()){
+    }
 
 
   public: // ---- Copying ------------------------------------------------------------------------------------
