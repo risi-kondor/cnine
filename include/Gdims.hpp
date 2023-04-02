@@ -200,7 +200,8 @@ namespace cnine{
       return R;
     }
 
-    Gdims chunk(const int beg, int n=-1) const{
+    Gdims chunk(int beg, int n=-1) const{
+      if(beg<0) beg=size()+beg;
       if(n==-1) n=size()-beg;
       Gdims R;
       for(int i=0; i<n; i++)
@@ -355,6 +356,10 @@ namespace cnine{
 
   public: // ---- Lambdas -----------------------------------------------------------------------------------
 
+
+    void for_each(const std::function<void(const vector<int>&)>& lambda) const{
+      foreach_index(lambda);
+    }
 
     void for_each_index(const std::function<void(const vector<int>&)>& lambda) const{
       foreach_index(lambda);

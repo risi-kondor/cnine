@@ -226,7 +226,8 @@ namespace cnine{
       return R.set_offset(offset);
     }
 
-    GstridesB chunk(const int beg, int n=-1) const{
+    GstridesB chunk(int beg, int n=-1) const{
+      if(beg<0) beg=size()+beg;
       if(n==-1) n=size()-beg;
       GstridesB R(n,fill_raw());
       for(int i=0; i<n; i++)
@@ -248,6 +249,7 @@ namespace cnine{
 
   public: // ---- offset -------------------------------------------------------------------------------------
     
+
     GstridesB& set_offset(const int i){
       offset=i;
       return *this;
@@ -264,13 +266,17 @@ namespace cnine{
     string str(const string indent="") const{
       ostringstream oss;
       int k=size();
-      oss<<indent<<"[";
+      oss<<indent<<"(";
       for(int i=0; i<k; i++){
 	oss<<(*this)[i];
 	if(i<k-1) oss<<",";
       }
-      oss<<"]";
+      oss<<")["<<offset<<"]";
       return oss.str();
+    }
+
+    friend ostream& operator<<(ostream& stream, const GstridesB& x){
+      stream<<x.str(); return stream;
     }
 
   };

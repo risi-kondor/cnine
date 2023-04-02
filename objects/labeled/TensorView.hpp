@@ -264,6 +264,11 @@ namespace cnine{
       return TensorView<TYPE>(arr,dims.remove(d),strides.remove(d).inc_offset(strides[d]*i));
     }
 
+    TensorView<TYPE> slice(const Gindex& ix) const{
+      const int k=ix.size();
+      return TensorView<TYPE>(arr,dims.chunk(k),strides.chunk(k).set_offset(strides.chunk(0,k)(ix)));
+    }
+    
 
   public: // ---- In-place Operations ------------------------------------------------------------------------
 
@@ -450,6 +455,14 @@ namespace cnine{
 	  oss<<"]"<<endl;
 	}
 	return oss.str();
+      }
+
+      if(ndims()>2){
+	Gdims adims=dims.chunk(0,ndims()-2);
+	adims.for_each_index([&](const Gindex& ix){
+	    oss<<indent<<"Slice"<<ix<<":"<<endl;
+	    oss<<slice(ix).str(indent+"  ")<<endl;
+	  });
       }
 
       return oss.str();

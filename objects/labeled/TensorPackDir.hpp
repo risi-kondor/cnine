@@ -28,10 +28,14 @@ namespace cnine{
   class TensorPackDir: public array_pool<int>{
   public:
 
+
     TensorPackDir(){}
 
   public: // ---- Constructors -------------------------------------------------------------------------------
 
+
+    TensorPackDir(const int n, const Gdims& dims):
+      TensorPackDir(dims,n){}
 
     TensorPackDir(const Gdims& dims, const int n):
       array_pool<int>(n,2*dims.size()+1){

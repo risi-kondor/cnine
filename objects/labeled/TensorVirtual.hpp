@@ -148,6 +148,7 @@ namespace cnine{
 
   public: // ---- Operations --------------------------------------------------------------------------------
 
+
     /*
     TensorVirtual operator*(const BASE& y) const{
       CNINE_ASSERT(ndims()==1||ndims()==2,"first operand of product must be a vector or a matrix");

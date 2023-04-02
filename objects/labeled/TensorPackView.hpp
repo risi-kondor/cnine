@@ -100,6 +100,10 @@ namespace cnine{
       return dir.strides(i);
     }
 
+    TensorView<TYPE> operator[](const int i) const{
+      return TensorView<TYPE>(arr,dims(i),strides(i));
+    }
+
     TensorView<TYPE> operator()(const int i) const{
       return TensorView<TYPE>(arr,dims(i),strides(i));
     }
@@ -116,7 +120,7 @@ namespace cnine{
       ostringstream oss;
       for(int i=0; i<size(); i++){
 	oss<<indent<<"Tensor "<<i<<":"<<endl;
-	oss<<(*this)(i).str(indent)<<endl;
+	oss<<(*this)(i).str(indent+"  ")<<endl;
       }
       return oss.str();
     }
