@@ -37,6 +37,7 @@ namespace cnine{
     using TensorPackView::strides;
     using TensorPackView::arr;
     using TensorPackView::size;
+    using TensorPackView::offset;
 
 
   public: // ---- Constructors --------------------------------------------------------------------------------

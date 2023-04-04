@@ -121,6 +121,7 @@ using namespace std;
 #define CNINE_DIMS_SAME(x)
 #define CNINE_DIMS_EQ(a,b)
 #define CNINE_DIMS_EQ_TOTAL(a,b)
+#define CNINE_NDIMS_IS_1(a)
 #define CNINE_NDIMS_IS_2(a)
 #define CNINE_NDIMS_IS(n)
 #define CNINE_NDIMS_LEAST(n)

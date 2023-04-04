@@ -21,11 +21,18 @@
 namespace cnine{
 
 
-  class GstridesB: public vector<int>{
-  public:
+  class TensorPackDir;
 
-    int offset=0;
+
+  class GstridesB: public vector<int>{
+  private:
+
+    int offset=0; // deprecated
+
+  public:
     //bool regular=false;
+
+    friend class TensorPackDir;
 
     GstridesB(){}
 
@@ -250,15 +257,18 @@ namespace cnine{
   public: // ---- offset -------------------------------------------------------------------------------------
     
 
+    // deprecated
     GstridesB& set_offset(const int i){
       offset=i;
       return *this;
     }
 
-    GstridesB& inc_offset(const int i){
-      offset+=i;
-      return *this;
-    }
+    // deprecated 
+    //GstridesB& inc_offset(const int i){
+      //offset+=i;
+      //return *this;
+    //}
+
 
   public: // ---- I/O ----------------------------------------------------------------------------------------
 

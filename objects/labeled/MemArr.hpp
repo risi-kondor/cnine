@@ -37,6 +37,7 @@ namespace cnine{
   public:
 
     std::shared_ptr<MemBlob<TYPE> > blob;
+    int offset=0;
 
     MemArr(){
       cout<<"empty"<<endl;
@@ -50,6 +51,11 @@ namespace cnine{
       MemArr(_memsize,_dev){
       if(device()==0) std::fill(blob->arr,blob->arr+_memsize,0);
       if(device()==1) CUDA_SAFE(cudaMemset(blob->arrarr,0,_memsize*sizeof(TYPE)));
+    }
+
+    MemArr(const MemArr& x, const int i):
+      MemArr(x){
+      offset+=i;
     }
 
     //MemArr(const int _memsize, const fill_sequential& dummy, const int _dev=0):
@@ -80,6 +86,7 @@ namespace cnine{
 
     MemArr& operator=(const MemArr& x){
       blob=x.blob;
+      offset=x.offset;
       return *this;
     }
 
@@ -92,21 +99,29 @@ namespace cnine{
     }
 
     TYPE* get_arr(){
-      return blob->arr;
+      return blob->arr+offset;
     } 
 
     const TYPE* get_arr() const{
-      return blob->arr;
+      return blob->arr+offset;
     } 
 
     TYPE operator[](const int i) const{
-      return blob->arr[i];
+      return blob->arr[i+offset];
     }
 
     TYPE& operator[](const int i){
-      return blob->arr[i];
+      return blob->arr[i+offset];
     }
 
+
+    // ---- Operations ---------------------------------------------------------------------------------------
+
+
+    // experimental
+    MemArr operator+(const int i) const{
+      return MemArr(*this, i);
+    }
 
   };
 

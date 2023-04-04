@@ -39,6 +39,9 @@ namespace cnine{
     using TensorPackView<TYPE>::dir;
     using TensorPackView<TYPE>::dev;
 
+    using TensorPackView<TYPE>::is_contiguous;
+    using TensorPackView<TYPE>::set_contiguous;
+
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -53,10 +56,14 @@ namespace cnine{
       TensorPack(TensorPackDir(n,_dims),_dev){}
 
     TensorPack(const TensorPackDir& _dir, const int _dev=0): 
-      TensorPackView<TYPE>(_dir,MemArr<TYPE>(_dir.total(),_dev)){}
+      TensorPackView<TYPE>(_dir,MemArr<TYPE>(_dir.total(),_dev)){
+      set_contiguous(true);
+    }
 
     TensorPack(const TensorPackDir& _dir, const fill_zero& dummy, const int _dev=0): 
-      TensorPackView<TYPE>(_dir,MemArr<TYPE>(_dir.total(),dummy,_dev)){}
+      TensorPackView<TYPE>(_dir,MemArr<TYPE>(_dir.total(),dummy,_dev)){
+      set_contiguous(true);
+    }
     
     TensorPack(const TensorPackDir& _dir, const fill_sequential& dummy, const int _dev=0):
       TensorPack(_dir,_dev){
@@ -110,19 +117,6 @@ namespace cnine{
 
 
   public: // ---- Named constructors ------------------------------------------------------------------------
-
-
-    //static TensorPack<TYPE> zero(const Gdims& _dims, const int n, const int _dev=0){
-    //return TensorPack<TYPE>(TensorPackDir(_dims,n),fill_zero(),_dev);
-    //}
-
-    //static TensorPack<TYPE> sequential(const Gdims& _dims, const int n, const int _dev=0){
-    //return TensorPack<TYPE>(TensorPackDir(_dims,n),fill_sequential(),_dev);
-    //}
-
-    // static TensorPack<TYPE> gaussian(const Gdims& _dims, const int n, const int _dev=0){
-    //return TensorPack<TYPE>(TensorPackDir(_dims,n),fill_gaussian(),_dev);
-    //}
 
 
     static TensorPack<TYPE> zero(const int n, const Gdims& _dims, const int _dev=0){
@@ -208,3 +202,18 @@ namespace cnine{
 };
 
 #endif 
+
+
+    //static TensorPack<TYPE> zero(const Gdims& _dims, const int n, const int _dev=0){
+    //return TensorPack<TYPE>(TensorPackDir(_dims,n),fill_zero(),_dev);
+    //}
+
+    //static TensorPack<TYPE> sequential(const Gdims& _dims, const int n, const int _dev=0){
+    //return TensorPack<TYPE>(TensorPackDir(_dims,n),fill_sequential(),_dev);
+    //}
+
+    // static TensorPack<TYPE> gaussian(const Gdims& _dims, const int n, const int _dev=0){
+    //return TensorPack<TYPE>(TensorPackDir(_dims,n),fill_gaussian(),_dev);
+    //}
+
+

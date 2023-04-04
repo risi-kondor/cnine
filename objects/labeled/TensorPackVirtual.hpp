@@ -38,7 +38,10 @@ namespace cnine{
     using BASE::arr;
     using BASE::dir;
     using BASE::dev;
+    using BASE::dims;
+    using BASE::strides;
 
+    using BASE::is_contiguous;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------

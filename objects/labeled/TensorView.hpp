@@ -73,12 +73,12 @@ namespace cnine{
 
       if(is_contiguous() && x.is_contiguous()){
 	if(device()==0){
-	  if(x.device()==0) std::copy(x.get_arro(),x.get_arro()+memsize(),get_arro());
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(get_arro(),x.get_arro(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
+	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
+	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
 	}
 	if(device()==1){
-	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(get_arro(),x.get_arro(),memsize()*sizeof(float),cudaMemcpyHostToDevice));
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(get_arro(),x.get_arro(),memsize()*sizeof(float),cudaMemcpyDeviceToDevice));  
+	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(float),cudaMemcpyHostToDevice));
+	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(float),cudaMemcpyDeviceToDevice));  
 	}      
       }else{
 	for_each([&](const Gindex& ix, TYPE& v) {v=x(ix);});
@@ -124,21 +124,30 @@ namespace cnine{
       return strides.memsize(dims);
     }
 
-    TYPE* get_arr(){
-      return arr.get_arr();
-    } 
+    // replace with get_arro?
+    //TYPE* get_arr(){
+    //return arr.get_arr();
+    //} 
 
-    const TYPE* get_arr() const{
-      return arr.get_arr();
-    } 
+    //const TYPE* get_arr() const{
+    //return arr.get_arr();
+    //} 
 
-   TYPE* get_arro(){
-      return arr.get_arr()+strides.offset;
-    } 
+    //TYPE* get_arro(){
+    //return arr.get_arr()+strides.offset;
+    //} 
 
-    const TYPE* get_arro() const{
-      return arr.get_arr()+strides.offset;
-    } 
+    //const TYPE* get_arro() const{
+    //return arr.get_arr()+strides.offset;
+    //} 
+
+    TYPE* mem() const{
+      return const_cast<TYPE*>(arr.get_arr())/*+strides.offset*/;
+    }
+
+    //TYPE& mem(const int i) const{
+    //return *(const_cast<TYPE*>(arr.get_arr())+strides.offset);
+    //}
 
 
   public: // ---- Getters ------------------------------------------------------------------------------------
@@ -202,27 +211,27 @@ namespace cnine{
   public: // ---- Incrementers -------------------------------------------------------------------------------
 
 
-    void inc(const Gindex& ix, const TYPE x){
+    void inc(const Gindex& ix, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(ix)]+=x;
     }
 
-    void inc(const int i0, const TYPE x){
+    void inc(const int i0, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0)]+=x;
     }
 
-    void inc(const int i0, const int i1,  const TYPE x){
+    void inc(const int i0, const int i1,  const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1)]+=x;
     }
 
-    void inc(const int i0, const int i1, const int i2, const TYPE x){
+    void inc(const int i0, const int i1, const int i2, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1,i2)]+=x;
     }
 
-    void inc(const int i0, const int i1, const int i2, const int i3, const TYPE x){
+    void inc(const int i0, const int i1, const int i2, const int i3, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1,i2,i3)]+=x;
     }
@@ -231,15 +240,15 @@ namespace cnine{
   public: // ---- Lambdas -----------------------------------------------------------------------------------
 
 
-    void for_each(const std::function<void(const Gindex&, TYPE& x)>& lambda){
+    void for_each(const std::function<void(const Gindex&, TYPE& x)>& lambda) const{
       dims.for_each_index([&](const Gindex& ix){
-	  lambda(ix,arr[strides.offs(ix)]);});
+	  lambda(ix,const_cast<MemArr<TYPE>&>(arr)[strides.offs(ix)]);});
     }
 
-    void for_each(const std::function<void(const Gindex&, TYPE x)>& lambda) const{
-      dims.for_each_index([&](const Gindex& ix){
-	  lambda(ix,arr[strides.offs(ix)]);});
-    }
+    //void for_each(const std::function<void(const Gindex&, TYPE x)>& lambda) const{
+    //dims.for_each_index([&](const Gindex& ix){
+    //  lambda(ix,arr[strides.offs(ix)]);});
+    //}
 
 
   public: // ---- Index changes ------------------------------------------------------------------------------
@@ -261,35 +270,35 @@ namespace cnine{
 
     TensorView<TYPE> slice(const int d, const int i) const{
       CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
-      return TensorView<TYPE>(arr,dims.remove(d),strides.remove(d).inc_offset(strides[d]*i));
+      return TensorView<TYPE>(arr+strides[d]*i,dims.remove(d),strides.remove(d)/*.inc_offset(strides[d]*i)*/);
     }
 
     TensorView<TYPE> slice(const Gindex& ix) const{
       const int k=ix.size();
-      return TensorView<TYPE>(arr,dims.chunk(k),strides.chunk(k).set_offset(strides.chunk(0,k)(ix)));
+      return TensorView<TYPE>(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k)/*.set_offset(strides.chunk(0,k)(ix))*/);
     }
     
 
   public: // ---- In-place Operations ------------------------------------------------------------------------
 
 
-    void set_zero(){
+    void set_zero() const{
       if(dev==0){
 	if(is_contiguous())
-	  std::fill(arr.get_arr(),arr.get_arr()+asize(),0);
+	  std::fill(mem(),mem()+asize(),0);
 	else
 	  CNINE_UNIMPL();
       }
       if(dev==1){
 	if(is_contiguous()){
-	  CUDA_SAFE(cudaMemset(arrg,0,asize*sizeof(TYPE)));
+	  CUDA_SAFE(cudaMemset(mem(),0,asize*sizeof(TYPE)));
 	}else
 	  CNINE_UNIMPL();
       }
     }
 
 
-    void inplace_times(const float c){
+    void inplace_times(const TYPE c){
       if(dev==0){
 	if(is_contiguous())
 	  for(int i=0; i<asize(); i++) arr[i]*=c;
@@ -299,7 +308,7 @@ namespace cnine{
       if(dev==1){
 	if(is_contiguous()){
 	  const float cr=c;
-	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas,asize(),&cr,get_arr(), 1,get_arr(), 1));
+	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas,asize(),&cr,mem(), 1,mem(), 1));
 	}else
 	  CNINE_UNIMPL();
       }
@@ -309,18 +318,20 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    void add(const TensorView& x){
+    void add(const TensorView& x) const{
       CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize()==x.asize());
       if(dev==0){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides())
-	  for(int i=0; i<asize(); i++) arr[i]+=x.arr[i];
-	else
-	  for_each([&](const Gindex& ix, const TYPE& v){v+=x(ix);});
+	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr()/*+strides.offset*/;
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
+	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i];
+	}else
+	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
       }
       if(dev==1){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides()){
+	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
 	  const TYPE alpha=1.0;
 	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1));
 	}else
@@ -333,13 +344,15 @@ namespace cnine{
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(asize()==x.asize());
       if(dev==0){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides())
-	  for(int i=0; i<asize(); i++) arr[i]+=c*x.arr[i];
-	else
+	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
+	  for(int i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
+	}else
 	  for_each([&](const Gindex& ix, const TYPE& v){v+=c*x(ix);});
       }
       if(dev==1){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides()){
+	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
 	  const TYPE alpha=c;
 	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1));
 	}else
@@ -351,8 +364,8 @@ namespace cnine{
   public: // ---- Matrix multiplication ---------------------------------------------------------------------
 
 
-    void add_mvprod(const TensorView& x, const TensorView& y){
-      reconcile_devices<TensorView<TYPE> >(*this,x,y,[](TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    void add_mvprod(const TensorView& x, const TensorView& y) const{
+      reconcile_devices<TensorView<TYPE> >(*this,x,y,[](const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
 	  CNINE_NDIMS_IS_1(r);
 	  CNINE_NDIMS_IS_2(x);
 	  CNINE_NDIMS_IS_1(y);
@@ -397,8 +410,8 @@ namespace cnine{
     }
 
 
-    void add_mprod(const TensorView& x, const TensorView& y){
-      reconcile_devices<TensorView<TYPE> >(*this,x,y,[](TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    void add_mprod(const TensorView& x, const TensorView& y) const{
+      reconcile_devices<TensorView<TYPE> >(*this,x,y,[](const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
 	  CNINE_NDIMS_IS_2(r);
 	  CNINE_NDIMS_IS_2(x);
 	  CNINE_NDIMS_IS_2(y);

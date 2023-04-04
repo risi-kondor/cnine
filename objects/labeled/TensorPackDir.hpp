@@ -28,8 +28,11 @@ namespace cnine{
   class TensorPackDir: public array_pool<int>{
   public:
 
+    bool contiguous=false;
+    int uniform_last=0;
 
     TensorPackDir(){}
+
 
   public: // ---- Constructors -------------------------------------------------------------------------------
 
@@ -56,6 +59,7 @@ namespace cnine{
 	  arr[i*M+m+j]=strides[j];
 	arr[i*M+2*m]=t*i;
       }
+      contiguous=true;
     }
 
     TensorPackDir(const vector<Gdims>& _dims):
@@ -76,6 +80,7 @@ namespace cnine{
 	tail+=2*_dims[i].size()+1;
 	t+=_dims[i].total();
       }
+      contiguous=true;
     }
 
     template<typename TYPE>
@@ -102,16 +107,35 @@ namespace cnine{
       return dir.dims[0];
     }
 
-    int ndims(const int i) const{
-      CNINE_ASSRT(i<size());
-      return (dir(i,1)-1)/2;
-    }
-
     int total() const{
       int t=0;
       for(int i=0; i<size(); i++)
 	t+=dims(i).total();
       return t;
+    }
+
+    bool is_contiguous() const{
+      return contiguous;
+    }
+
+    int uniform_last_dim() const{
+      return uniform_last;
+    }
+
+    bool dims_equal(const TensorPackDir& x) const{
+      if(size()!=x.size()) return false;
+      for(int i=0; i<size(); i++)
+	if(dims(i)!=x.dims(i)) return false;
+      return true;
+    }
+
+
+  public: // individual dims and strides
+
+
+    int ndims(const int i) const{
+      CNINE_ASSRT(i<size());
+      return (dir(i,1)-1)/2;
     }
 
     Gdims dims(const int i) const{
@@ -123,6 +147,11 @@ namespace cnine{
       CNINE_ASSRT(i<size());
       const int m=ndims(i);
       return GstridesB(vector<int>(arr+dir(i,0)+m,arr+dir(i,0)+2*m)).set_offset(arr[dir(i,0)+2*m]);
+    }
+
+    int offset(const int i) const{
+      CNINE_ASSRT(i<size());
+      return arr[dir(i,0)+2*ndims(i)];
     }
 
     void set_dims(const int i, const Gdims& x){
@@ -139,7 +168,15 @@ namespace cnine{
       arr[dir(i,0)+2*m]=x.offset;
     }
 
-      
+
+  public: // ---- Checks -------------------------------------------------------------------------------------
+
+
+    void check_dims_equal(const TensorPackDir& x) const{
+      if(!dims_equal(x)) throw std::out_of_range("Tensor dimensions "+str()+" do not match "+x.str()+".");
+    }
+
+
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
 
