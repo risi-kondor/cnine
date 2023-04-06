@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "Gdims.hpp"
+#include "Gstrides.hpp"
 
 namespace cnine{
 
@@ -27,7 +28,7 @@ namespace cnine{
   class GstridesB: public vector<int>{
   private:
 
-    int offset=0; // deprecated
+    //int offset=0; // deprecated
 
   public:
     //bool regular=false;
@@ -140,13 +141,20 @@ namespace cnine{
       return t;
     }
 
+    Gstrides reals() const{
+      Gstrides R(size(),fill_raw());
+      for(int i=0; i<size(); i++)
+	R[i]=(*this)[i]*2;
+      return R;
+    }
+
 
   public: // ---- Indexing -----------------------------------------------------------------------------------
 
 
     int operator()(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()<=size());
-      int t=offset;
+      int t=0; //offset;
       for(int i=0; i<ix.size(); i++)
 	t+=(*this)[i]*ix[i];
       return t;
@@ -154,26 +162,26 @@ namespace cnine{
 
     int offs(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()<=size());
-      int t=offset;
+      int t=0; //offset;
       for(int i=0; i<ix.size(); i++)
 	t+=(*this)[i]*ix[i];
       return t;
     }
 
     int offs(const int i0) const{
-      return offset+i0*(*this)[0];
+      return i0*(*this)[0];
     }
 
     int offs(const int i0, const int i1) const{
-      return offset+i0*(*this)[0]+i1*(*this)[1];
+      return i0*(*this)[0]+i1*(*this)[1];
     }
 
     int offs(const int i0, const int i1, const int i2) const{
-      return offset+i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2];
+      return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2];
     }
 
     int offs(const int i0, const int i1, const int i2, const int i3) const{
-      return offset+i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];
+      return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];
     }
 
     int combine(const vector<int>& v) const{
@@ -191,7 +199,7 @@ namespace cnine{
 
     GstridesB transp() const{
       CNINE_ASSRT(size()==2);
-      return GstridesB((*this)[1],(*this)[0]).set_offset(offset);
+      return GstridesB((*this)[1],(*this)[0]); //.set_offset(offset);
     }
 
     GstridesB permute(const vector<int>& p) const{
@@ -200,14 +208,14 @@ namespace cnine{
       R.resize(size());
       for(int i=0; i<size(); i++)
 	R[i]=(*this)[p[i]];
-      return R.set_offset(offset);
+      return R;//.set_offset(offset);
     }
 
     GstridesB fuse(const int a, const int n) const{
       GstridesB R(size()-n+1,fill_raw());
       for(int i=0; i<a; i++) R[i]=(*this)[i];
       for(int i=0; i<size()-(a+n-1); i++) R[a+i]=(*this)[a+n+i-1];
-      return R.set_offset(offset);
+      return R;//.set_offset(offset);
     }
     
     GstridesB remove(const int j) const{
@@ -224,13 +232,13 @@ namespace cnine{
 	for(int i=0; i<size(); i++)
 	  if(i!=j) R.push_back((*this)[i]);
       }
-      return R.set_offset(offset);
+      return R;//.set_offset(offset);
     }
     
     GstridesB append(const int s) const{
       GstridesB R(*this);
       R.push_back(s);
-      return R.set_offset(offset);
+      return R;//.set_offset(offset);
     }
 
     GstridesB chunk(int beg, int n=-1) const{
@@ -239,7 +247,7 @@ namespace cnine{
       GstridesB R(n,fill_raw());
       for(int i=0; i<n; i++)
 	R[i]=(*this)[beg+i];
-      return R.set_offset(offset);
+      return R;//.set_offset(offset);
     }
 
     int offs(int j, const GstridesB& source) const{
@@ -258,10 +266,10 @@ namespace cnine{
     
 
     // deprecated
-    GstridesB& set_offset(const int i){
-      offset=i;
-      return *this;
-    }
+    //GstridesB& set_offset(const int i){
+    //offset=i;
+    //return *this;
+    //}
 
     // deprecated 
     //GstridesB& inc_offset(const int i){
@@ -281,7 +289,7 @@ namespace cnine{
 	oss<<(*this)[i];
 	if(i<k-1) oss<<",";
       }
-      oss<<")["<<offset<<"]";
+      oss<<")";//["<<offset<<"]";
       return oss.str();
     }
 

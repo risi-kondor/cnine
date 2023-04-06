@@ -40,7 +40,7 @@ namespace cnine{
     using TensorPackView<TYPE>::dev;
 
     using TensorPackView<TYPE>::is_contiguous;
-    using TensorPackView<TYPE>::set_contiguous;
+    //using TensorPackView<TYPE>::set_contiguous;
 
 
 
@@ -57,12 +57,12 @@ namespace cnine{
 
     TensorPack(const TensorPackDir& _dir, const int _dev=0): 
       TensorPackView<TYPE>(_dir,MemArr<TYPE>(_dir.total(),_dev)){
-      set_contiguous(true);
+      //set_contiguous(true);
     }
 
     TensorPack(const TensorPackDir& _dir, const fill_zero& dummy, const int _dev=0): 
       TensorPackView<TYPE>(_dir,MemArr<TYPE>(_dir.total(),dummy,_dev)){
-      set_contiguous(true);
+      //set_contiguous(true);
     }
     
     TensorPack(const TensorPackDir& _dir, const fill_sequential& dummy, const int _dev=0):

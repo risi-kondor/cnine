@@ -54,7 +54,8 @@ namespace cnine{
       arr(_arr),
       dims(_dims), 
       strides(_strides), 
-      dev(_arr.device()){}
+      dev(_arr.device()){
+    }
 
 
   public: // ---- Copying -----------------------------------------------------------------------------------
@@ -97,6 +98,45 @@ namespace cnine{
     }
 
 
+  public: // ---- ATen --------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    // TODO
+    TensorView(const at::Tensor& T):
+      dims(Gdims(T)){}
+
+    TensorView& operator=(const at::Tensor& T){
+      CNINE_CONVERT_FROM_ATEN_WARNING();
+      CNINE_ASSRT(dims==Gdims(T));
+      CNINE_ASSRT(dev==T.type().is_cuda());
+      if(dev==0){
+	//std::copy(T.data<TYPE>(),T.data<c10::TYPE>()+total(),arr.ptr());
+	std::copy(T.data<TYPE>(),T.data<TYPE>()+total(),arr.ptr());
+      }
+      if(dev==1){
+	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::TYPE>(),total()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<TYPE>(),total()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+      }
+      return *this;
+    }
+
+    at::Tensor torch() const{
+      CNINE_CONVERT_TO_ATEN_WARNING();
+      assert(dev==0);
+      int k=ndims();
+      vector<int64_t> v(k); 
+      for(int i=0; i<k; i++) v[i]=dims[i];
+      at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+      //std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
+      std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<TYPE>());
+      return R;
+    }
+
+    #endif
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -118,6 +158,10 @@ namespace cnine{
 
     int asize() const{
       return dims.asize();
+    }
+
+    int total() const{
+      return dims.total();
     }
 
     int memsize() const{

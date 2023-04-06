@@ -25,12 +25,7 @@ namespace cnine{
   class TensorArrayPackView: public cnine::TensorPackView<TYPE>{
   public:
 
-    typedef cnine::device device;
-    typedef cnine::fill_pattern fill_pattern;
-    typedef cnine::CoutLock CoutLock;
-    typedef cnine::Gdims Gdims;
-
-    typedef cnine::TensorPackView<TYPE> TensorPackView;
+    typedef TensorPackView<TYPE> TensorPackView;
 
     using TensorPackView::TensorPackView;
     using TensorPackView::dims;

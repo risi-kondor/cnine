@@ -126,6 +126,20 @@ namespace cnine{
       return Gdims(k,fill_zero());}
 
 
+  public: // ---- ATEN ---------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    Gdims(const at::Tensor& T):
+      Gdims(T.dim(),fill_raw()){
+      for(int i=0; i<size() ; i++)
+	(*this)[i]=T.size(i);
+    }
+
+    #endif 
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 

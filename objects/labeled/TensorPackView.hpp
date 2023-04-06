@@ -84,6 +84,24 @@ namespace cnine{
     }
 
 
+  public: // ---- ATen --------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    // deprecated
+    //TensorPackView(const vector<const at::Tensor& T>& v):
+    //TensorPackView(TensorPackDir(v),T.type().is_cuda()){
+    //}
+	
+    TensorPackView& operator=(const vector<const at::Tensor>& v){
+      for(int i=0; i<size(); i++)
+	(*this)[i]=v[i];
+    }
+
+    #endif 
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -135,7 +153,7 @@ namespace cnine{
     }
 
     TensorView<TYPE> operator[](const int i) const{
-      return TensorView<TYPE>(arr+offset(i),dims(i),strides(i));
+      return TensorView<TYPE>(arr+offset(i),dims(i),strides(i));//.set_offset(0));
     }
 
 
@@ -144,14 +162,14 @@ namespace cnine{
     
     TensorView<TYPE> fuse() const{
       CNINE_ASSRT(is_contiguous());
-      return TensorView<TYPE>(arr,{total()},GstridesB({1}).set_offset(offset()));
+      return TensorView<TYPE>(arr,{total()},GstridesB({1})/*.set_offset(offset())*/);
     }
 
     TensorView<TYPE> fuse_with_all_but_last() const{
       CNINE_ASSRT(is_contiguous());
       CNINE_ASSRT(uniform_last_dim());
       const int m=uniform_last_dim();
-      return TensorView<TYPE>(arr,{total()/m,m},GstridesB({m,1}).set_offset(offset()));
+      return TensorView<TYPE>(arr,{total()/m,m},GstridesB({m,1})/*.set_offset(offset())*/);
     }
 
 
@@ -197,14 +215,14 @@ namespace cnine{
 
     void add(const TensorPackView& x){
       CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_dims_equal(x.dims));
+      //CNINE_CHECK_SIZE(dims.check_dims_equal(x.dims));
       if(is_contiguous() && x.is_contiguous()) fuse().add(x.fuse());
       else zip(x,[&](const TensorView<TYPE>& x, const TensorView<TYPE>& y, const int i){x.add(y);});
     }
 
     void add(const TensorPackView& x, const TYPE c){
       CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_dims_equal(x.dims));
+      //CNINE_CHECK_SIZE(dims.check_dims_equal(x.dims));
       if(is_contiguous() && x.is_contiguous()) fuse().add(x.fuse(),c);
       else zip(x,[&](const TensorView<TYPE>& x, const TensorView<TYPE>& y, const int i){x.add(y,c);});
     }
@@ -255,7 +273,7 @@ namespace cnine{
     string str(const string indent="") const{
       ostringstream oss;
       for(int i=0; i<size(); i++){
-	oss<<indent<<"sTensor "<<i<<":"<<endl;
+	oss<<indent<<"Tensor "<<i<<":"<<endl;
 	oss<<(*this)[i].str(indent+"  ")<<endl;
       }
       return oss.str();

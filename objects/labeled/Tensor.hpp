@@ -1,7 +1,7 @@
 /*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
- * Copyright (c) 2021, Imre Risi Kondor
+ * Copyright (c) 2023, Imre Risi Kondor
  *
  * This source code file is subject to the terms of the noncommercial 
  * license distributed with cnine in the file LICENSE.TXT. Commercial 
@@ -40,6 +40,8 @@ namespace cnine{
     using TensorView<TYPE>::dims;
     using TensorView<TYPE>::strides;
     using TensorView<TYPE>::dev;
+
+    using TensorView<TYPE>::operator=;
     using TensorView<TYPE>::ndims;
 
 
@@ -128,6 +130,19 @@ namespace cnine{
     }
 
 
+  public: // ---- ATen --------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    Tensor(const at::Tensor& T):
+      Tensor(Gdims(T),T.type().is_cuda()){
+      (*this)=T;
+    }
+
+    #endif
+
+
   public: // ---- Views -------------------------------------------------------------------------------------
 
 
@@ -187,8 +202,6 @@ namespace cnine{
       oss<<"Tensor"<<dims<<" ["<<strides<<"]"<<endl;
       return oss.str();
     }
-
-    
 
     friend ostream& operator<<(ostream& stream, const Tensor<TYPE>& x){
       stream<<x.str(); return stream;

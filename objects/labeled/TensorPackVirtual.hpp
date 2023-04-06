@@ -125,6 +125,19 @@ namespace cnine{
     }
 
 
+  public: // ---- ATen --------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    TensorPackVirtual(const vector<const at::Tensor& T>& v):
+      TensorPackVirtual(TensorPackDir(v),T.type().is_cuda()){
+      (*this)=v;
+    }
+
+    #endif 
+
+
   public: // ---- Copying ------------------------------------------------------------------------------------
 
 

@@ -76,7 +76,8 @@ namespace cnine{
 	dir.set(i,0,tail);
 	dir.set(i,1,2*_dims[i].size()+1);
 	set_dims(i,_dims[i]);
-	set_strides(i,GstridesB(_dims[i]).set_offset(t));
+	set_strides(i,GstridesB(_dims[i])); //.set_offset(t));
+	set_offset(i,t);
 	tail+=2*_dims[i].size()+1;
 	t+=_dims[i].total();
       }
@@ -98,6 +99,37 @@ namespace cnine{
 	R.push_back(p.dims);
       return R;
     }
+
+
+  public: // ---- ATEN ---------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    TensorPackDir(const vector<const at::Tensor>& v){
+      int n=v.size();
+
+      int t=0;
+      for(int i=0; i<n; i++)
+	t+=2*v[i].dim()+1;
+      reserve(t);
+
+      t=0;
+      for(int i=0; i<n; i++){
+	dir.set(i,0,tail);
+	dir.set(i,1,2*v[i].dim()+1);
+	Gdims dims(v[i]);
+	set_dims(i,dims);
+	set_strides(i,GstridesB(dims)); //.set_offset(t));
+	set_offset(t);
+	tail+=2*v[i].dim()+1;
+	t+=dims.total();
+      }
+
+      contiguous=true;
+    }
+
+    #endif 
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
@@ -146,9 +178,9 @@ namespace cnine{
     GstridesB strides(const int i) const{
       CNINE_ASSRT(i<size());
       const int m=ndims(i);
-      return GstridesB(vector<int>(arr+dir(i,0)+m,arr+dir(i,0)+2*m)).set_offset(arr[dir(i,0)+2*m]);
+      return GstridesB(vector<int>(arr+dir(i,0)+m,arr+dir(i,0)+2*m)); //.set_offset(arr[dir(i,0)+2*m]);
     }
-
+    
     int offset(const int i) const{
       CNINE_ASSRT(i<size());
       return arr[dir(i,0)+2*ndims(i)];
@@ -165,9 +197,13 @@ namespace cnine{
       CNINE_ASSRT(ndims(i)==x.size());
       const int m=ndims(i);
       std::copy(x.begin(),x.end(),arr+dir(i,0)+m);
-      arr[dir(i,0)+2*m]=x.offset;
+      //arr[dir(i,0)+2*m]=x.offset;
     }
 
+    void set_offset(const int i, const int offs){
+      arr[dir(i,0)+2*ndims(i)]=offs;
+    }
+  
 
   public: // ---- Checks -------------------------------------------------------------------------------------
 

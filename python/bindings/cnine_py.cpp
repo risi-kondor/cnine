@@ -40,6 +40,8 @@
 
 #include "CellwiseBinaryCmap.hpp"
 
+#include "Tensor.hpp"
+#include "TensorPack.hpp"
 
 //  using namespace cnine;
 //namespace py=pybind11;
@@ -111,6 +113,8 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
 
 #include "rtensor_py.cpp"
 #include "ctensor_py.cpp"
+#include "tensor_py.cpp"
+#include "tensorpack_py.cpp"
 
 #include "ctensorpack_py.cpp"
   

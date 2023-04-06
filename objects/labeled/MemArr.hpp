@@ -98,6 +98,15 @@ namespace cnine{
       return blob->dev;
     }
 
+    TYPE* ptr() const{
+      return blob->arr+offset;
+    } 
+
+    template<typename TYPE2>
+    TYPE2* ptr_as() const{
+      return reinterpret_cast<TYPE2*>(blob->arr+offset);
+    } 
+
     TYPE* get_arr(){
       return blob->arr+offset;
     } 
@@ -106,7 +115,7 @@ namespace cnine{
       return blob->arr+offset;
     } 
 
-    TYPE operator[](const int i) const{
+    TYPE& operator[](const int i) const{
       return blob->arr[i+offset];
     }
 

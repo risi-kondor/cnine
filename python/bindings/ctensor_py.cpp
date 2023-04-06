@@ -103,6 +103,7 @@ pybind11::class_<CtensorObj>(m,"ctensor")
 
   .def("copy",[](const RtensorObj& obj){return obj;})
 
+
 // ---- Conversions, transport, etc. ------------------------------------------------------------------------
 
 
