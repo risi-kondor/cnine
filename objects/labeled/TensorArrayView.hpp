@@ -37,25 +37,109 @@ namespace cnine{
 
     typedef TensorView<TYPE> TensorView;
 
-    using TensorView::TensorView;
+    //using TensorView::TensorView;
     using TensorView::arr;
     using TensorView::dims;
     using TensorView::strides;
-
+    using TensorView::dev;
+    
     using TensorView::device;
     using TensorView::total;
 
+    int ak=0;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
+    TensorArrayView(const MemArr<TYPE>& _arr, const int _ak, const Gdims& _dims, const GstridesB& _strides):
+      TensorView(_arr,_dims,_strides), ak(_ak){}
+
+    TensorArrayView(const Gdims& _adims, const Gdims& _dims, const int _dev=0):
+      TensorView(_adims.cat(_dims),_dev),ak(_adims.size()){}
+
+    template<typename FILLTYPE, typename = typename 
+	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    TensorArrayView(const Gdims& _adims, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
+      TensorView(_adims.cat(_dims),fill,_dev), ak(_adims.size()){}
+
+
+  public: // ---- Copying -----------------------------------------------------------------------------------
+
+
+    TensorArrayView* clone() const{
+      auto r=new TensorArrayView(MemArr<TYPE>(dims.total(),dev),ak,dims,GstridesB(dims));
+      (*r)=*this;
+      return r;
+    }
+
+
+  public: // ---- Conversions --------------------------------------------------------------------------------
+
+
+    TensorArrayView(const TensorView& x, const Gdims& _adims):
+      TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)), ak(_adims.size()){
+    }
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    int nadims() const{
+      return ak;
+    }
+
+    int nddims() const{
+      return dims.size()-ak;
+    }
+
+    Gdims get_adims() const{
+      return dims.chunk(0,ak);
+    }
+
+    Gdims get_ddims() const{
+      return dims.chunk(ak);
+    }
+
+    Gdims get_astrides() const{
+      return strides.chunk(0,ak);
+    }
+
+    Gdims get_dstrides() const{
+      return strides.chunk(ak);
+    }
+
     int getN() const{
-      return total()/strides.back(2);
+      return total()/strides[ak-1];
+    }
+
+
+    TensorView operator()(const int i0){
+      CNINE_ASSRT(ak==1);
+      return TensorView(arr+strides[0]*i0,get_ddims(),get_dstrides());
+    }
+
+    TensorView operator()(const int i0, const int i1){
+      CNINE_ASSRT(ak==2);
+      return TensorView(arr+strides[0]*i0+strides[1]*i1,get_ddims(),get_dstrides());
+    }
+
+    TensorView operator()(const int i0, const int i1, const int i2){
+      CNINE_ASSRT(ak==3);
+      return TensorView(arr+strides[0]*i0+strides[1]*i1+strides[2]*i2,get_ddims(),get_dstrides());
+    }
+
+    TensorView operator()(const Gindex& ix){
+      CNINE_ASSRT(ix.size()==ak);
+      return TensorView(arr+strides(ix),get_ddims(),get_dstrides());
+    }
+
+
+  public: // ---- Cumulative Operations ----------------------------------------------------------------------
+
+
+    void add(const TensorView& x) const{
+      add(TensorArrayView(x,get_adims()));
     }
 
 

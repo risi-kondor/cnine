@@ -40,6 +40,9 @@ namespace cnine{
     GstridesB(const int k, const fill_raw& dummy): 
       vector<int>(k){}
 
+    GstridesB(const int k, const fill_zero& dummy): 
+      vector<int>(k,0){}
+
     GstridesB(const initializer_list<int>& lst):
       vector<int>(lst){}
 
@@ -239,6 +242,13 @@ namespace cnine{
       GstridesB R(*this);
       R.push_back(s);
       return R;//.set_offset(offset);
+    }
+
+    GstridesB cat(const GstridesB& y) const{
+      GstridesB R(size()+y.size(),fill_raw());
+      for(int i=0; i<size(); i++) R[i]=(*this)[i];
+      for(int i=0; i<y.size(); i++) R[size()+i]=y[i];
+      return R;
     }
 
     GstridesB chunk(int beg, int n=-1) const{

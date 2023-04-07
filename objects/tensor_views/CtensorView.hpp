@@ -184,6 +184,37 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
+  public: // ---- Slices --------------------------------------------------------------------------------------
+
+
+    CtensorView slice0(const int i){
+      CNINE_NDIMS_LEAST(1);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[0]) 
+	  throw std::out_of_range("cnine::CtensorView:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[0]-1)+"]");)
+	return CtensorView(arr+i*dims[0],arrc+i*dims[0],dims.remove(0),strides.remove(0),dev);
+    }
+
+    CtensorView slice1(const int i){
+      CNINE_NDIMS_LEAST(2);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[1]) 
+	  throw std::out_of_range("cnine::CtensorView:slice1(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[1]-1)+"]");)
+	return CtensorView(arr+i*dims[1],arrc+i*dims[1],dims.remove(1),strides.remove(1),dev);
+    }
+
+    CtensorView slice2(const int i){
+      CNINE_NDIMS_LEAST(3);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[2]) 
+	  throw std::out_of_range("cnine::CtensorView:slice2(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[2]-1)+"]");)
+	return CtensorView(arr+i*dims[2],arrc+i*dims[2],dims.remove(2),strides.remove(2),dev);
+    }
+
+    CtensorView slice3(const int i){
+      CNINE_NDIMS_LEAST(4);
+      CNINE_CHECK_RANGE(if(i<0 || i>=dims[3]) 
+	  throw std::out_of_range("cnine::CtensorView:slice3(int): index "+to_string(i)+" out of range of [0,"+to_string(dims[3]-1)+"]");)
+	return CtensorView(arr+i*dims[3],arrc+i*dims[3],dims.remove(3),strides.remove(3),dev);
+    }
+
 
   public: // ---- Other views -------------------------------------------------------------------------------
 

@@ -16,7 +16,7 @@
 
 #include "GElib_base.hpp"
 #include "TensorPackView.hpp"
-//#include "TensorArrayView.hpp"
+#include "TensorArrayView.hpp"
 
 
 namespace cnine{
@@ -34,20 +34,46 @@ namespace cnine{
     using TensorPackView::size;
     using TensorPackView::offset;
 
+    int ak=0;
 
   public: // ---- Constructors --------------------------------------------------------------------------------
 
   public: // ---- Access --------------------------------------------------------------------------------------
 
 
-    //TensorArrayView<RTYPE> operator[](const int i) const{
-    //return TensorArrayView<RTYPE>(arr,dims(i),strides(i));
-    //}
+
+  public: // individual tensor arrays
 
 
-    //TensorArrayView<RTYPE> operator()(const int i){
-    //return cnine::TensorView<complex<RTYPE> >(arr,dims(i),strides(i));
-    //}
+    int nadims(const int i) const{
+      return ak;
+    }
+
+    int nddims(const int i) const{
+      return dims(i).size()-ak;
+    }
+
+    Gdims adims(const int i) const{
+      return dims(i).chunk(0,ak);
+    }
+
+    Gdims ddims(const int i) const{
+      return dims(i).chunk(ak);
+    }
+
+    Gdims astrides(const int i) const{
+      return strides(i).chunk(0,ak);
+    }
+
+    Gdims dstrides(const int i) const{
+      return strides(i).chunk(ak);
+    }
+
+    TensorArrayView<TYPE> operator[](const int i) const{
+      return TensorArrayView<TYPE>(arr+offset(i),ak,adims(i),strides(i));
+    }
+
+
 
 
   public: // ---- I/O ----------------------------------------------------------------------------------------

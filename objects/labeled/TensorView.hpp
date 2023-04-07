@@ -57,6 +57,33 @@ namespace cnine{
       dev(_arr.device()){
     }
 
+    // not really a view
+    TensorView(const Gdims& _dims, const int _dev=0): 
+      TensorView(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+
+    // not really a view
+    TensorView(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
+      TensorView(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
+
+    // not really a view
+    TensorView(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
+      TensorView(_dims,_dev){
+      int N=dims.total();
+      for(int i=0; i<N; i++)
+	arr[i]=i;
+      //move_to_device(_dev);
+    }
+
+    // not really a view
+    TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
+      TensorView(_dims,_dev){
+      int N=dims.total();
+      normal_distribution<double> distr;
+      for(int i=0; i<N; i++) 
+	arr[i]=distr(rndGen)*dummy.c;
+      //move_to_device(_dev);
+    }
+
 
   public: // ---- Copying -----------------------------------------------------------------------------------
 
@@ -86,6 +113,12 @@ namespace cnine{
       }
 
       return *this;
+    }
+
+    TensorView* clone() const{
+      auto r=new TensorView(MemArr<TYPE>(dims.total(),dev),dims,GstridesB(dims));
+      (*r)=*this;
+      return r;
     }
 
 

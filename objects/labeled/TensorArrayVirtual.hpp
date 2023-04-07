@@ -49,14 +49,15 @@ namespace cnine{
     TensorArrayVirtual(){};
 
     // need this?
-    TensorArrayVirtual(const Gdims& _dims, const int _dev=0): 
-      BASE(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+    //TensorArrayVirtual(const Gdims& _dims, const int _dev=0): 
+    //BASE(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
 
     // need this?
-    TensorArrayVirtual(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
-      BASE(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
+    //TensorArrayVirtual(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
+    //BASE(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
 
     // need this?
+    /*
     TensorArrayVirtual(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       TensorArrayVirtual(_dims,_dev){
       int N=dims.total();
@@ -64,8 +65,10 @@ namespace cnine{
 	arr[i]=i;
       move_to_device(_dev);
     }
+    */
 
     // need this?
+    /*
     TensorArrayVirtual(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       TensorArrayVirtual(_dims,_dev){
       int N=dims.total();
@@ -74,8 +77,9 @@ namespace cnine{
 	arr[i]=distr(rndGen)*dummy.c;
       move_to_device(_dev);
     }
+    */
 
-
+    /*
     TensorArrayVirtual(const Gdims& _adims, const Gdims& _dims, const int _dev=0): 
       BASE(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
 
@@ -98,6 +102,7 @@ namespace cnine{
 	arr[i]=distr(rndGen)*dummy.c;
       move_to_device(_dev);
     }
+    */
 
 
   public: // ---- Named constructors ------------------------------------------------------------------------
