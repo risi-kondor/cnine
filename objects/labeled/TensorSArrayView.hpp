@@ -16,13 +16,15 @@
 #define _CnineTensorSarrView
 
 #include "Cnine_base.hpp"
-#include <unordered_map>
+#include "TensorView.hpp"
+#include "SparseTensor.hpp"
 
-#include "Hvector.hpp"
-#include "Gdims.hpp"
-#include "IntTensor.hpp"
-#include "RtensorA.hpp"
-#include "CSRmatrix.hpp"
+//#include <unordered_map>
+//#include "Hvector.hpp"
+//#include "Gdims.hpp"
+//#include "IntTensor.hpp"
+//#include "RtensorA.hpp"
+//#include "CSRmatrix.hpp"
 
 
 namespace cnine{
@@ -36,7 +38,7 @@ namespace cnine{
 
     MemArr<TYPE> arr;
     SparseTensor<int> offs;
-    //Gdims adims;
+    Gdims adims;
     Gdims ddims;
     Gdims dstrides;
 
@@ -51,10 +53,44 @@ namespace cnine{
       dstrides(_dstrides){}
 
 
+  public: // ---- Constructors for non-view child classes ---------------------------------------------------
+
+
+    template<typename FILLTYPE, typename = typename 
+	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    TensorSArrayView(const Gdims& _adims, const Gdims& _ddims, const map_of_lists<int,int>& mask, const FILLTYPE& fill, const int _dev=0):
+      TensorView(_adims.prepend(mask.total()),fill,_dev),
+      offs(adims,mask,fill_sequential()),
+      adims(_adims),
+      ddims(_ddims){
+      dstrides=TensorView::strides.chunk(1);
+    }
+
+    TensorSArrayView(const Gdims& _adims, const Gdims& _ddims, const SparseTensor<int>& _offs, const int _dev=0):
+      TensorView(_adims.prepend(_offs.nfilled()),_dev),
+      offs(_offs),
+      adims(_adims),
+      ddims(_ddims){
+      int i=0; offs.for_each_nonzero([&](const Gindex& ix, int& x){x=i++;});
+      dstrides=TensorView::strides.chunk(1);
+    }
+
+    template<typename FILLTYPE, typename = typename 
+	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    TensorSArrayView(const Gdims& _adims, const Gdims& _ddims, const SparseTensor<int>& _offs, const FILLTYPE& fill, const int _dev=0):
+      TensorView(_adims.prepend(_offs.nfilled()),fill,_dev),
+      offs(_offs),
+      adims(_adims),
+      ddims(_ddims){
+      int i=0; offs.for_each_nonzero([&](const Gindex& ix, int& x){x=i++;});
+      dstrides=TensorView::strides.chunk(1);
+    }
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
     
 
-    TensorView operator(const Gindex& ix) const{
+    TensorView operator()(const Gindex& ix) const{
       CNINE_ASSRT(offs.is_filled(ix));
       return TensorView(arr+offs(ix),ddims,dstrides);
     }
@@ -64,7 +100,7 @@ namespace cnine{
 
 
     void for_each_cell(const std::function<void(const Gindex&, const TensorView&)>& lambda) const{
-      dir.for_each_nonzero([&](const Gindex& ix){
+      offs.for_each_nonzero([&](const Gindex& ix){
 	  lambda(ix,(*this)(ix));
 	});
     }
@@ -82,17 +118,15 @@ namespace cnine{
       for_each_cell([&](const Gindex& ix, const TensorView& x){
 	  oss<<indent<<"Cell"<<ix<<":"<<endl;
 	  oss<<x.str(indent+"  ")<<endl;
-      return oss.str();
+	  return oss.str();
+	});
     }
 
-    friend ostream& operator<<(ostream& stream, const TensorArrayView<TYPE>& x){
+    friend ostream& operator<<(ostream& stream, const TensorSArrayView<TYPE>& x){
       stream<<x.str(); return stream;
     }
 
-
-
-
-  }
+  };
 
 }
 

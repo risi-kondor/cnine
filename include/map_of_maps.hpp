@@ -30,6 +30,13 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    int nfilled() const{
+      int t=0;
+      for(auto& p:data)
+	t+=p.second.size();
+      return t;
+    }
+
     bool is_filled(const KEY1& i, const KEY2& j){
       auto it=data.find(i);
       if(it==data.end()) return false;

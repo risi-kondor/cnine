@@ -55,6 +55,10 @@ namespace cnine{
     TensorArrayView(const MemArr<TYPE>& _arr, const int _ak, const Gdims& _dims, const GstridesB& _strides):
       TensorView(_arr,_dims,_strides), ak(_ak){}
 
+
+  public: // ---- Constructors for non-view child classes ---------------------------------------------------
+
+
     TensorArrayView(const Gdims& _adims, const Gdims& _dims, const int _dev=0):
       TensorView(_adims.cat(_dims),_dev),ak(_adims.size()){}
 
@@ -77,7 +81,12 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    TensorArrayView(const TensorView& x, const Gdims& _adims):
+    // probably deprecated
+    //TensorArrayView(const TensorView& x, const Gdims& _adims):
+    //TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)), ak(_adims.size()){
+    //}
+
+    TensorArrayView(const Gdims& _adims, const TensorView& x):
       TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)), ak(_adims.size()){
     }
 

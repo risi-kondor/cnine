@@ -24,12 +24,45 @@ namespace cnine{
   class map_of_lists{
   public:
 
-    map<KEY,std::vector<ITEM> > data;
+    unordered_map<KEY,std::vector<ITEM> > data;
+
+
+  public: // ---- Constructors -------------------------------------------------------------------------------
+
+
+    map_of_lists(const initializer_list<pair<KEY,initializer_list<ITEM> > >& list){
+      for(auto& p:list){
+	KEY key=p.first;
+	for(auto& q:p.second)
+	  push_back(key,q);
+      }
+    }
+
+
+  public: // ---- Access -------------------------------------------------------------------------------------
+
+
+    int total() const{
+      int t=0;
+      for(auto& p:data)
+	t+=p.second.size();
+      return t;
+    }
 
     void push_back(const KEY& x, const ITEM& y){
       auto it=data.find(x);
       if(it==data.end()) data[x]=vector<ITEM>({y});
       else it->second.push_back(y);
+    }
+
+
+  public: // ---- Lambdas ------------------------------------------------------------------------------------
+
+  
+    void for_each(const std::function<void(const KEY&, const ITEM&)>& lambda){
+      for(auto& p:data)
+	for(auto& q: p.second)
+	  lambda(p.first,q);
     }
 
     void for_each_in_list(const KEY& x, const std::function<void(const ITEM&)>& lambda){
@@ -38,6 +71,31 @@ namespace cnine{
       auto& v=it->second;
       for(int i=0; i<v.size(); i++)
 	lambda(v[i]);
+    }
+
+    
+  public: // ---- I/O ----------------------------------------------------------------------------------------
+
+
+    string classname() const{
+      return "map_of_lists";
+    }
+
+    string str(const string indent="") const{
+      ostringstream oss;
+      for(auto& p:data){
+	oss<<indent<<p.first<<": (";
+	for(int i=0; i<p.second.size()-1; i++)
+	  oss<<p.second[i]<<",";
+	if(p.second.size()>0) 
+	  oss<<p.second.back();
+	oss<<")"<<endl;
+      }
+      return oss.str();
+    }
+
+    friend ostream& operator<<(ostream& stream, const map_of_lists& x){
+      stream<<x.str(); return stream;
     }
 
   };

@@ -16,7 +16,7 @@
 #define _CnineTensorArrayVirtual
 
 #include "Cnine_base.hpp"
-#include "TensorView.hpp"
+#include "TensorArrayView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -47,6 +47,130 @@ namespace cnine{
 
 
     TensorArrayVirtual(){};
+
+
+  public: // ---- Named constructors ------------------------------------------------------------------------
+
+
+  public: // ---- Copying -----------------------------------------------------------------------------------
+
+
+    TensorArrayVirtual(const TensorArrayVirtual& x):
+      TensorArrayVirtual(x.dims,x.dev){
+      CNINE_COPY_WARNING();
+      view()=x.view();
+    }
+        
+    TensorArrayVirtual(const TensorArrayVirtual& x, const nowarn_flag& dummy):
+      TensorArrayVirtual(x.dims,x.dev){
+      view()=x.view();
+    }
+        
+    TensorArrayVirtual(const TensorArrayVirtual&& x):
+      BASE(x.arr,x.dims,x.strides){
+      CNINE_MOVE_WARNING();
+    }
+        
+    TensorArrayVirtual& operator=(const TensorArrayVirtual& x){
+      arr=x.arr;
+      return *this;
+    }
+
+    
+  public: // ---- Conversions ---------------------------------------------------------------------------------
+
+
+    TensorArrayVirtual(const BASE& x):
+      TensorArrayVirtual(x.get_adims(),x.get_ddims(),x.dev){
+      CNINE_CONVERT_WARNING();
+      view()=x;
+    }
+
+
+  public: // ---- Transport -----------------------------------------------------------------------------------
+
+
+    TensorArrayVirtual(const BASE& x, const int _dev):
+      TensorArrayVirtual(x.dims,_dev){
+      CNINE_COPY_WARNING();
+      view()=x;
+    }
+
+    void move_to_device(const int _dev) const{
+      if(dev==_dev) return;
+      const_cast<TensorArrayVirtual&>(*this)=TensorArrayVirtual(*this,_dev);
+    }
+
+
+  public: // ---- ATen --------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    TensorArrayVirtual(const at::Tensor& T):
+      TensorArrayVirtual(Gdims(x),T.type().is_cuda()){
+      (*this)=T;
+    }
+
+    #endif
+
+
+  public: // ---- Views -------------------------------------------------------------------------------------
+
+
+    BASE view(){
+      return BASE(*this);
+    }
+
+    const BASE view() const{
+      return BASE(*this);
+    }
+
+
+  public: // ---- Operations --------------------------------------------------------------------------------
+
+
+    /*
+    TensorArrayVirtual operator*(const BASE& y) const{
+      CNINE_ASSERT(ndims()==1||ndims()==2,"first operand of product must be a vector or a matrix");
+      CNINE_ASSERT(y.ndims()==1||y.ndims()==2,"second operand of product must be a vector or a matrix");
+
+      if(ndims()==1 && y.ndims()==2){
+	TensorArrayVirtual R=zero({y.dims[1]},dev);
+	R.add_mvprod_T(y,*this);
+	return R;
+      }
+
+      if(ndims()==2 && y.ndims()==1){
+	TensorArrayVirtual R=zero({dims[0]},dev);
+	R.add_mvprod(*this,y);
+	return R;
+      }
+
+      if(ndims()==2 && y.ndims()==2){
+	TensorArrayVirtual R=zero({dims[0],y.dims[1]},dev);
+	R.add_mprod(*this,y);
+	return R;
+      }
+
+      return TensorArrayVirtual();
+    }
+    */
+
+
+  public: // ---- I/O ---------------------------------------------------------------------------------------
+
+
+    string classname() const{
+      return "TensorArrayVirtual";
+    }
+
+  };
+
+}
+    
+#endif 
+
 
     // need this?
     //TensorArrayVirtual(const Gdims& _dims, const int _dev=0): 
@@ -103,135 +227,16 @@ namespace cnine{
       move_to_device(_dev);
     }
     */
+    //static TensorArrayVirtual zero(const Gdims& _dims, const int _dev=0){
+    //return TensorArrayVirtual (_dims,fill_zero(),_dev);
+    //}
+
+    //static TensorArrayVirtual sequential(const Gdims& _dims, const int _dev=0){
+    //return TensorArrayVirtual(_dims,fill_sequential(),_dev);
+    //}
+
+    //static TensorArrayVirtual gaussian(const Gdims& _dims, const int _dev=0){
+    //return TensorArrayVirtual(_dims,fill_gaussian(),_dev);
+    //}
 
 
-  public: // ---- Named constructors ------------------------------------------------------------------------
-
-
-    static TensorArrayVirtual zero(const Gdims& _dims, const int _dev=0){
-      return TensorArrayVirtual (_dims,fill_zero(),_dev);
-    }
-
-    static TensorArrayVirtual sequential(const Gdims& _dims, const int _dev=0){
-      return TensorArrayVirtual(_dims,fill_sequential(),_dev);
-    }
-
-    static TensorArrayVirtual gaussian(const Gdims& _dims, const int _dev=0){
-      return TensorArrayVirtual(_dims,fill_gaussian(),_dev);
-    }
-
-
-  public: // ---- Copying -----------------------------------------------------------------------------------
-
-
-    TensorArrayVirtual(const TensorArrayVirtual& x):
-      TensorArrayVirtual(x.dims,x.dev){
-      CNINE_COPY_WARNING();
-      view()=x.view();
-    }
-        
-    TensorArrayVirtual(const TensorArrayVirtual& x, const nowarn_flag& dummy):
-      TensorArrayVirtual(x.dims,x.dev){
-      view()=x.view();
-    }
-        
-    TensorArrayVirtual(const TensorArrayVirtual&& x):
-      BASE(x.arr,x.dims,x.strides){
-      CNINE_MOVE_WARNING();
-    }
-        
-    TensorArrayVirtual& operator=(const TensorArrayVirtual& x){
-      arr=x.arr;
-      return *this;
-    }
-    
-
-  public: // ---- Transport -----------------------------------------------------------------------------------
-
-
-    TensorArrayVirtual(const BASE& x, const int _dev):
-      TensorArrayVirtual(x.dims,_dev){
-      CNINE_COPY_WARNING();
-      view()=x;
-    }
-
-    void move_to_device(const int _dev) const{
-      if(dev==_dev) return;
-      const_cast<TensorArrayVirtual&>(*this)=TensorArrayVirtual(*this,_dev);
-    }
-
-
-  public: // ---- ATen --------------------------------------------------------------------------------------
-
-
-    #ifdef _WITH_ATEN
-
-    TensorArrayVirtual(const at::Tensor& T):
-      TensorArrayVirtual(Gdims(x),T.type().is_cuda()){
-      (*this)=T;
-    }
-
-    #endif
-
-
-  public: // ---- Views -------------------------------------------------------------------------------------
-
-
-    TensorArrayVirtual(const BASE& x):
-      TensorArrayVirtual(x.dims,x.dev){
-      CNINE_CONVERT_WARNING();
-      view()=x;
-    }
-
-    BASE view(){
-      return BASE(*this);
-    }
-
-    const BASE view() const{
-      return BASE(*this);
-    }
-
-
-  public: // ---- Operations --------------------------------------------------------------------------------
-
-
-    /*
-    TensorArrayVirtual operator*(const BASE& y) const{
-      CNINE_ASSERT(ndims()==1||ndims()==2,"first operand of product must be a vector or a matrix");
-      CNINE_ASSERT(y.ndims()==1||y.ndims()==2,"second operand of product must be a vector or a matrix");
-
-      if(ndims()==1 && y.ndims()==2){
-	TensorArrayVirtual R=zero({y.dims[1]},dev);
-	R.add_mvprod_T(y,*this);
-	return R;
-      }
-
-      if(ndims()==2 && y.ndims()==1){
-	TensorArrayVirtual R=zero({dims[0]},dev);
-	R.add_mvprod(*this,y);
-	return R;
-      }
-
-      if(ndims()==2 && y.ndims()==2){
-	TensorArrayVirtual R=zero({dims[0],y.dims[1]},dev);
-	R.add_mprod(*this,y);
-	return R;
-      }
-
-      return TensorArrayVirtual();
-    }
-    */
-
-
-  public: // ---- I/O ---------------------------------------------------------------------------------------
-
-
-    string classname() const{
-      return "TensorArrayVirtual";
-    }
-
-  };
-
-}
-    
-#endif 
