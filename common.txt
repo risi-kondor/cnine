@@ -6,6 +6,7 @@ CUDADIR=$(ROOTDIR)/cuda
 SCALARDIR=$(ROOTDIR)/objects/scalar
 MATRIXDIR=$(ROOTDIR)/objects/matrix
 TENSORDIR=$(ROOTDIR)/objects/tensor
+NTENSORDIR=$(ROOTDIR)/objects/ntensor
 TENSORVIEWDIR=$(ROOTDIR)/objects/tensor_views
 TENSORARRAYDIR=$(ROOTDIR)/objects/tensor_array
 BACKENDADIR=$(ROOTDIR)/objects/backendA
