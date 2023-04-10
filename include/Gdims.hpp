@@ -326,6 +326,17 @@ namespace cnine{
       return R;
     }
 
+    Gdims mvprod(const Gdims& y) const{
+      int d=size()-1;
+      CNINE_ASSRT(y.size()==d);
+      CNINE_ASSRT(chunk(0,d-1)==y.chunk(0,d-1));
+      CNINE_ASSRT((*this)[d]==y[d-1]);
+      Gdims R(d,fill::raw);
+      for(int i=0; i<d-1; i++) R[i]=(*this)[i];
+      R[d-1]=(*this)[d-1];
+      return R;
+    }
+
   public:
 
     Gdims select(const GindexSet& s) const{

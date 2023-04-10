@@ -86,6 +86,9 @@ namespace cnine{
     }
 
 
+    // ---- operator() const
+
+
     TYPE operator()(const int i0) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
       auto it=map.find(i0);
@@ -109,6 +112,16 @@ namespace cnine{
       if(it==map.end()) return TYPE();
       return it->second;
     }
+
+   TYPE operator()(const Gindex& ix) const{
+     //CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
+      auto it=map.find(ix);
+      if(it==map.end()) return TYPE();
+      return it->second;
+    }
+
+
+    // ---- operator() 
 
 
     TYPE& operator()(const int i0){
@@ -134,6 +147,16 @@ namespace cnine{
       if(it==map.end()) return TYPE();
       return it->second;
     }
+
+   TYPE operator()(const Gindex& ix){
+     //CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
+      auto it=map.find(ix);
+      if(it==map.end()) return TYPE();
+      return it->second;
+    }
+
+
+    // ---- set
 
 
     void set(const int i0, const TYPE& x){

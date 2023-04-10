@@ -152,6 +152,10 @@ namespace cnine{
       return dir.strides(i);
     }
 
+    TensorView<TYPE> operator()(const int i) const{
+      return TensorView<TYPE>(arr+offset(i),dims(i),strides(i));//.set_offset(0));
+    }
+
     TensorView<TYPE> operator[](const int i) const{
       return TensorView<TYPE>(arr+offset(i),dims(i),strides(i));//.set_offset(0));
     }

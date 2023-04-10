@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
+#include "MultiLoop.hpp"
 #include "Rtensor6_view.hpp"
 #include "Ctensor4_view.hpp"
 
@@ -99,7 +100,7 @@ namespace cnine{
     }
 
 
-  public: // ---- foreach ------------------------------------------------------------------------------------
+  public: // ---- Lambdas ------------------------------------------------------------------------------------
 
 
     template<typename VIEW>
@@ -111,6 +112,7 @@ namespace cnine{
       for(int i=0; i<n0; i++)
 	lambda(slice0(i),x.slice0(i));
     }
+
 
 
   public: // ---- Cumulative operations ---------------------------------------------------------------------
@@ -203,6 +205,31 @@ namespace cnine{
 
   };
 
+
+  // The last two dimensions are tensor dims
+  inline void batched_cmvprod(const Ctensor4_view& r, const Ctensor5_view& x, const Ctensor4_view& y, 
+    const std::function<void(const Ctensor2_view&, const Ctensor2_view&, const Ctensor2_view&)>& lambda){
+      CNINE_CHECK_BATCH3(r,x,y);
+      CNINE_ASSRT(x.n1==r.n1);
+      CNINE_ASSRT(x.n2==y.n1);
+      const int J=x.n1;
+      const int K=x.n2;
+
+      MultiLoop(r.n0,[&](const int b){
+	  Ctensor3_view rb=r.slice0(b);
+	  Ctensor4_view xb=x.slice0(b);
+	  Ctensor3_view yb=y.slice0(b);
+
+	  for(int j=0; j<J; j++){
+	    Ctensor2_view R=rb.slice0(j);
+	    Ctensor3_view X=xb.slice0(j);
+
+	    for(int k=0; k<K; k++)
+	      lambda(R,X.slice0(k),yb.slice0(k));
+	  }
+
+	});
+    }
 
 
 

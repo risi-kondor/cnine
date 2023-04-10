@@ -46,7 +46,7 @@ namespace cnine{
     }
 
     string str(const string indent="") const{
-      osstream oss(indent);
+      ostringstream oss(indent);
       oss<<"array(";
       for(int i=0; i<size(); i++){
 	oss<<(*this)[i];
@@ -64,7 +64,7 @@ namespace cnine{
 
   inline Larray operator*(const Larray& x, const Larray& y){
     CNINE_ASSERT(x.size()==1||x.size()==2,"first operand of product must be a vector or a matrix");
-    CNINE_ASSERT(x,size()==1||y.size()==2,"second operand of product must be a vector or a matrix");
+    CNINE_ASSERT(x.size()==1||y.size()==2,"second operand of product must be a vector or a matrix");
     if(x.size()==1 && y.size()==2){
       CNINE_ASSRT(x[0]==y[0]);
       return Larray({y[1]});

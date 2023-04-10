@@ -28,7 +28,7 @@ int main(int argc, char** argv){
 
   Gdims dims({3,3});
 
-  TensorPack<float> A=TensorPack<float>::sequential(dims,3);
+  TensorPack<float> A=TensorPack<float>::sequential(3,dims);
   cout<<A<<endl;
 
   Tensor<float> B0=Tensor<float>::sequential({2,2});

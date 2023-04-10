@@ -59,13 +59,13 @@ namespace cnine{
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
   
-    void for_each(const std::function<void(const KEY&, const ITEM&)>& lambda){
+    void for_each(const std::function<void(const KEY&, const ITEM&)>& lambda) const{
       for(auto& p:data)
 	for(auto& q: p.second)
 	  lambda(p.first,q);
     }
 
-    void for_each_in_list(const KEY& x, const std::function<void(const ITEM&)>& lambda){
+    void for_each_in_list(const KEY& x, const std::function<void(const ITEM&)>& lambda) const{
       auto it=data.find(x);
       if(it==data.end()) return;
       auto& v=it->second;

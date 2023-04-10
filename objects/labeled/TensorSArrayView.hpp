@@ -31,7 +31,7 @@ namespace cnine{
 
 
   template<typename TYPE>
-  class TensorSArrayView{
+  class TensorSArrayView: public TensorView<TYPE>{
   public:
 
     typedef TensorView<TYPE> TensorView;
@@ -100,7 +100,7 @@ namespace cnine{
 
 
     void for_each_cell(const std::function<void(const Gindex&, const TensorView&)>& lambda) const{
-      offs.for_each_nonzero([&](const Gindex& ix){
+      offs.for_each_nonzero([&](const Gindex& ix, const int dummy){
 	  lambda(ix,(*this)(ix));
 	});
     }
@@ -118,8 +118,8 @@ namespace cnine{
       for_each_cell([&](const Gindex& ix, const TensorView& x){
 	  oss<<indent<<"Cell"<<ix<<":"<<endl;
 	  oss<<x.str(indent+"  ")<<endl;
-	  return oss.str();
 	});
+      return oss.str();
     }
 
     friend ostream& operator<<(ostream& stream, const TensorSArrayView<TYPE>& x){

@@ -106,7 +106,8 @@ namespace cnine{
       }
     }
 
-    static LdimsList common_batch(const LtensorView& x, constLtensorView& y){
+    static LdimsList common_batch(const LtensorView& x, const LtensorView& y){
+      /*
       if(x.is_batched()){
 	if(y.is_batched()){
 	  CNINE_ASSRT(x.nbatch()==y.nbatch());
@@ -121,6 +122,7 @@ namespace cnine{
 	  return LdimsList();
 	}
       }
+      */
     }
 
 

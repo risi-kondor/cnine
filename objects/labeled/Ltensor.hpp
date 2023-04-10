@@ -118,9 +118,10 @@ namespace cnine{
   };
 
 
-  public: // ---- Functions ---------------------------------------------------------------------------------
+  // ---- Functions ------------------------------------------------------------------------------------------
 
 
+  template<typename TYPE>
   Tensor<TYPE> operator*(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
     
   }

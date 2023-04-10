@@ -144,6 +144,40 @@ namespace cnine{
     }
 
 
+  public: // ---- Lambdas ------------------------------------------------------------------------------------
+
+
+    void apply_as_mvprod(const TensorArrayView& x, const TensorArrayView& y, 
+      const std::function<void(const TensorView&, const TensorView&, const TensorView&)>& lambda){
+      CNINE_ASSRT(nadims()==1);
+      CNINE_ASSRT(x.nadims()==2);
+      CNINE_ASSRT(y.nadims()==1);
+      CNINE_ASSRT(x.dims[0]==dims[0]);
+      CNINE_ASSRT(x.dims[1]==y.dims[0]);
+      for(int i=0; i<dims[0]; i++)
+	for(int j=0; j<dims[1]; j++)
+	  lambda((*this)(i),x(i,j),y(j));
+    }
+
+    void apply_as_mmprod(const TensorArrayView& x, const TensorArrayView& y, 
+      const std::function<void(const TensorView&, const TensorView&, const TensorView&)>& lambda){
+      CNINE_ASSRT(nadims()==2);
+      CNINE_ASSRT(x.nadims()==2);
+      CNINE_ASSRT(y.nadims()==2);
+      CNINE_ASSRT(dims[0]==x.dims[0]);
+      CNINE_ASSRT(x.dims[1]==y.dims[0]);
+      CNINE_ASSRT(dims[1]==y.dims[1]);
+
+      int I=dims[0];
+      int J=dims[1];
+      int K=x.dims[1];
+      for(int i=0; i<I; i++)
+	for(int j=0; j<J; j++)
+	  for(int k=0; k<K; k++)
+	    lambda((*this)(i,j),x(j,k),y(k,j));
+    }
+
+
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 

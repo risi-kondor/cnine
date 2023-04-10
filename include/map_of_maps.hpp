@@ -37,7 +37,7 @@ namespace cnine{
       return t;
     }
 
-    bool is_filled(const KEY1& i, const KEY2& j){
+    bool is_filled(const KEY1& i, const KEY2& j) const{
       auto it=data.find(i);
       if(it==data.end()) return false;
       auto it2=it->second.find(j);

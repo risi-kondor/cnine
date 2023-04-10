@@ -45,8 +45,8 @@ namespace cnine{
       arr(_arr), arrc(_arrc), n0(_n0), n1(_n1), n2(_n2), n3(_n3), s0(_s0), s1(_s1), s2(_s2), s3(_s3), dev(_dev){}
 
     Ctensor4_view(float* _arr, const int _n0, const int _n1, const int _n2, const int _n3,
-      const int _s0, const int _s1, const int _s2, const int _s3, const int _coffs=1): 
-      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), n3(_n3), s0(_s0), s1(_s1), s2(_s2), s3(_s3){}
+      const int _s0, const int _s1, const int _s2, const int _s3, const int _coffs=1, const int _dev=0): 
+      arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), n3(_n3), s0(_s0), s1(_s1), s2(_s2), s3(_s3), dev(_dev){}
 
     Ctensor4_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1, const int _dev=0):
       arr(_arr), arrc(_arr+_coffs), dev(_dev){
