@@ -147,6 +147,15 @@ namespace cnine{
       return R;
     }
 
+    Gindex chunk(int beg, int n=-1) const{
+      if(beg<0) beg=size()+beg;
+      if(n==-1) n=size()-beg;
+      Gindex R(n,fill_raw());
+      for(int i=0; i<n; i++)
+	R[i]=(*this)[beg+i];
+      return R;
+    }
+
 
   public:
 

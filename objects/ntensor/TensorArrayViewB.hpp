@@ -16,7 +16,7 @@
 #define _CnineTensorArrayViewB
 
 #include "Cnine_base.hpp"
-#include "TensorViewB.hpp"
+#include "BatchedTensorView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -36,7 +36,7 @@ namespace cnine{
   public:
 
     typedef TensorArrayView<TYPE> TensorArrayView;
-    typedef TensorViewB<TYPE> TensorViewB;
+    typedef BatchedTensorView<TYPE> BatchedTensorView;
 
     //using TensorView::TensorView;
     using TensorArrayView::arr;
@@ -55,7 +55,7 @@ namespace cnine{
 
 
     //TensorArrayViewB(const MemArr<TYPE>& _arr, const int _ak, const Gdims& _dims, const GstridesB& _strides):
-    //TensorViewB(_arr,_dims,_strides), ak(_ak){}
+    //BatchedTensorView(_arr,_dims,_strides), ak(_ak){}
 
 
   public: // ---- Constructors for non-view child classes ---------------------------------------------------
@@ -83,8 +83,8 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    TensorArrayViewB(const Gdims& _adims, const TensorViewB& x):
-      TensorViewB(x.arr,_adims.prepend(x.getb()).cat(x.dims.chunk(1)),
+    TensorArrayViewB(const Gdims& _adims, const BatchedTensorView& x):
+      BatchedTensorView(x.arr,_adims.prepend(x.getb()).cat(x.dims.chunk(1)),
 	GstridesB(_adims.size(),fill_zero()).cat(x.strides.chunk(1)).prepend(x.strides(0))), 
       ak(_adims.size()+1){
     }
@@ -149,30 +149,30 @@ namespace cnine{
 
 
 
-    TensorViewB operator()(const int i0){
+    BatchedTensorView operator()(const int i0){
       CNINE_ASSRT(ak==1);
-      return TensorViewB(arr+astride(0)*i0,
+      return BatchedTensorView(arr+astride(0)*i0,
 	get_ddims().prepend(getb()),
 	get_dstrides().prepend(get_bstride()));
     }
 
-    TensorViewB operator()(const int i0, const int i1){
+    BatchedTensorView operator()(const int i0, const int i1){
       CNINE_ASSRT(ak==2);
-      return TensorViewB(arr+astride(0)*i0+astride(1)*i1,
+      return BatchedTensorView(arr+astride(0)*i0+astride(1)*i1,
 	get_ddims().prepend(getb()),
 	get_dstrides().prepend(get_bstride()));
     }
 
-    TensorViewB operator()(const int i0, const int i1, const int i2){
+    BatchedTensorView operator()(const int i0, const int i1, const int i2){
       CNINE_ASSRT(ak==3);
-      return TensorViewB(arr+astride(0)*i0+astride(1)*i1+astride(2)*i2,
+      return BatchedTensorView(arr+astride(0)*i0+astride(1)*i1+astride(2)*i2,
 	get_ddims().prepend(getb()),
 	get_dstrides().prepend(get_bstride()));
     }
 
-    TensorViewB operator()(const Gindex& ix){
+    BatchedTensorView operator()(const Gindex& ix){
       CNINE_ASSRT(ix.size()==ak);
-      return TensorViewB(arr+strides(ix),get_ddims().prepend(get_b()),get_dstrides().prepend(get_bstride()));
+      return BatchedTensorView(arr+strides(ix),get_ddims().prepend(get_b()),get_dstrides().prepend(get_bstride()));
     }
 
 
@@ -180,7 +180,7 @@ namespace cnine{
 
 
     void apply_as_mvprod(const TensorArrayViewB& x, const TensorArrayViewB& y, 
-      const std::function<const TensorViewB&, const TensorViewB&, const TensorViewB&>& lambda){
+      const std::function<const BatchedTensorView&, const BatchedTensorView&, const BatchedTensorView&>& lambda){
       CNINE_ASSRT(nadims()==1);
       CNINE_ASSRT(x.nadims()==2);
       CNINE_ASSRT(y.nadims()==1);
@@ -192,7 +192,7 @@ namespace cnine{
     }
 
     void apply_as_mmprod(const TensorArrayViewB& x, const TensorArrayViewB& y, 
-      const std::function<const TensorViewB&, const TensorViewB&, const TensorViewB&>& lambda){
+      const std::function<const BatchedTensorView&, const BatchedTensorView&, const BatchedTensorView&>& lambda){
       CNINE_ASSRT(nadims()==2);
       CNINE_ASSRT(x.nadims()==2);
       CNINE_ASSRT(y.nadims()==2);
@@ -213,7 +213,7 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    void add(const TensorViewB& x) const{
+    void add(const BatchedTensorView& x) const{
       add(TensorArrayViewB(get_adims(),x));
     }
 

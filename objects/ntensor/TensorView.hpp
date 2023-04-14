@@ -116,9 +116,10 @@ namespace cnine{
     }
 
     TensorView* clone() const{
-      auto r=new TensorView(MemArr<TYPE>(dims.total(),dev),dims,GstridesB(dims));
-      (*r)=*this;
-      return r;
+      return new TensorView(*this);
+      //auto r=new TensorView(MemArr<TYPE>(dims.total(),dev),dims,GstridesB(dims));
+      //(*r)=*this;
+      //return r;
     }
 
 
@@ -177,16 +178,20 @@ namespace cnine{
       return dev;
     }
     
-    int ndims() const{
-      return dims.size();
-    }
-
     bool is_regular() const{
       return strides.is_regular(dims);
     }
 
     bool is_contiguous() const{
       return strides.is_contiguous(dims);
+    }
+
+    int ndims() const{
+      return dims.size();
+    }
+
+    int dim(const int i) const{
+      return dims[i];
     }
 
     int asize() const{

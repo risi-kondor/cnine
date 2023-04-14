@@ -165,9 +165,17 @@ namespace cnine{
 
     int offs(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()<=size());
-      int t=0; //offset;
+      int t=0;
       for(int i=0; i<ix.size(); i++)
 	t+=(*this)[i]*ix[i];
+      return t;
+    }
+
+    int offs(const int i, const vector<int>& ix) const{
+      CNINE_ASSRT(ix.size()<=size()-1);
+      int t=((*this)[0]);
+      for(int i=0; i<ix.size(); i++)
+	t+=(*this)[i+1]*ix[i];
       return t;
     }
 
@@ -185,6 +193,10 @@ namespace cnine{
 
     int offs(const int i0, const int i1, const int i2, const int i3) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];
+    }
+
+    int offs(const int i0, const int i1, const int i2, const int i3, const int i4) const{
+      return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3]+i4*(*this)[4];
     }
 
     int combine(const vector<int>& v) const{
