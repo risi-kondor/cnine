@@ -1,7 +1,7 @@
 /*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
- * Copyright (c) 2021, Imre Risi Kondor
+ * Copyright (c) 2023, Imre Risi Kondor
  *
  * This source code file is subject to the terms of the noncommercial 
  * license distributed with cnine in the file LICENSE.TXT. Commercial 
@@ -12,11 +12,11 @@
  */
 
 
-#ifndef _CnineTensorVirtual
-#define _CnineTensorVirtual
+#ifndef _CnineBatchedTensorArrayVirtual
+#define _CnineBatchedTensorArrayVirtual
 
 #include "Cnine_base.hpp"
-#include "TensorView.hpp"
+#include "TensorArrayView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -28,11 +28,11 @@
 extern cublasHandle_t cnine_cublas;
 #endif 
 
-
+// deprecated 
 namespace cnine{
 
   template<typename TYPE, typename BASE>
-  class TensorVirtual: public BASE{
+  class BatchedTensorArrayVirtual: public BASE{
   public:
 
     using BASE::BASE;
@@ -46,87 +46,59 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    TensorVirtual(){};
-
-    TensorVirtual(const Gdims& _dims, const int _dev=0): 
-      BASE(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
-
-    TensorVirtual(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
-      BASE(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
-
-    TensorVirtual(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
-      TensorVirtual(_dims,_dev){
-      int N=dims.total();
-      for(int i=0; i<N; i++)
-	arr[i]=i;
-      move_to_device(_dev);
-    }
-
-    /*
-    TensorVirtual(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
-      TensorVirtual(_dims,_dev){
-      int N=dims.total();
-      normal_distribution<double> distr;
-      for(int i=0; i<N; i++) 
-	arr[i]=distr(rndGen)*dummy.c;
-      move_to_device(_dev);
-    }
-    */
+    BatchedTensorArrayVirtual(){};
 
 
   public: // ---- Named constructors ------------------------------------------------------------------------
 
 
-    static TensorVirtual zero(const Gdims& _dims, const int _dev=0){
-      return TensorVirtual (_dims,fill_zero(),_dev);
-    }
-
-    static TensorVirtual sequential(const Gdims& _dims, const int _dev=0){
-      return TensorVirtual(_dims,fill_sequential(),_dev);
-    }
-
-    static TensorVirtual gaussian(const Gdims& _dims, const int _dev=0){
-      return TensorVirtual(_dims,fill_gaussian(),_dev);
-    }
-
-
   public: // ---- Copying -----------------------------------------------------------------------------------
 
 
-    TensorVirtual(const TensorVirtual& x):
-      TensorVirtual(x.dims,x.dev){
+    BatchedTensorArrayVirtual(const BatchedTensorArrayVirtual& x):
+      BatchedTensorArrayVirtual(x.dims,x.dev){
       CNINE_COPY_WARNING();
       view()=x.view();
     }
         
-    TensorVirtual(const TensorVirtual& x, const nowarn_flag& dummy):
-      TensorVirtual(x.dims,x.dev){
+    BatchedTensorArrayVirtual(const BatchedTensorArrayVirtual& x, const nowarn_flag& dummy):
+      BatchedTensorArrayVirtual(x.dims,x.dev){
       view()=x.view();
     }
         
-    TensorVirtual(const TensorVirtual&& x):
+    BatchedTensorArrayVirtual(const BatchedTensorArrayVirtual&& x):
       BASE(x.arr,x.dims,x.strides){
       CNINE_MOVE_WARNING();
     }
         
-    TensorVirtual& operator=(const TensorVirtual& x){
+    BatchedTensorArrayVirtual& operator=(const BatchedTensorArrayVirtual& x){
       arr=x.arr;
       return *this;
     }
+
     
+  public: // ---- Conversions ---------------------------------------------------------------------------------
+
+
+    BatchedTensorArrayVirtual(const BASE& x):
+      BatchedTensorArrayVirtual(x.get_adims(),x.get_ddims(),x.dev){
+      CNINE_CONVERT_WARNING();
+      view()=x;
+    }
+
 
   public: // ---- Transport -----------------------------------------------------------------------------------
 
 
-    TensorVirtual(const BASE& x, const int _dev):
-      TensorVirtual(x.dims,_dev){
+    BatchedTensorArrayVirtual(const BASE& x, const int _dev):
+      BatchedTensorArrayVirtual(x.dims,_dev){
       CNINE_COPY_WARNING();
       view()=x;
     }
 
     void move_to_device(const int _dev) const{
       if(dev==_dev) return;
-      const_cast<TensorVirtual&>(*this)=TensorVirtual(*this,_dev);
+      const_cast<BatchedTensorArrayVirtual&>(*this)=BatchedTensorArrayVirtual(*this,_dev);
     }
 
 
@@ -135,8 +107,8 @@ namespace cnine{
 
     #ifdef _WITH_ATEN
 
-    TensorVirtual(const at::Tensor& T):
-      TensorVirtual(Gdims(x),T.type().is_cuda()){
+    BatchedTensorArrayVirtual(const at::Tensor& T):
+      BatchedTensorArrayVirtual(Gdims(x),T.type().is_cuda()){
       (*this)=T;
     }
 
@@ -145,12 +117,6 @@ namespace cnine{
 
   public: // ---- Views -------------------------------------------------------------------------------------
 
-
-    TensorVirtual(const BASE& x):
-      TensorVirtual(x.dims,x.dev){
-      CNINE_CONVERT_WARNING();
-      view()=x;
-    }
 
     BASE view(){
       return BASE(*this);
@@ -164,54 +130,45 @@ namespace cnine{
   public: // ---- Operations --------------------------------------------------------------------------------
 
 
-    TensorVirtual operator*(const BASE& y) const{
+    /*
+    BatchedTensorArrayVirtual operator*(const BASE& y) const{
       CNINE_ASSERT(ndims()==1||ndims()==2,"first operand of product must be a vector or a matrix");
       CNINE_ASSERT(y.ndims()==1||y.ndims()==2,"second operand of product must be a vector or a matrix");
 
       if(ndims()==1 && y.ndims()==2){
-	TensorVirtual R=zero({y.dims[1]},dev);
+	BatchedTensorArrayVirtual R=zero({y.dims[1]},dev);
 	R.add_mvprod_T(y,*this);
 	return R;
       }
 
       if(ndims()==2 && y.ndims()==1){
-	TensorVirtual R=zero({dims[0]},dev);
+	BatchedTensorArrayVirtual R=zero({dims[0]},dev);
 	R.add_mvprod(*this,y);
 	return R;
       }
 
       if(ndims()==2 && y.ndims()==2){
-	TensorVirtual R=zero({dims[0],y.dims[1]},dev);
+	BatchedTensorArrayVirtual R=zero({dims[0],y.dims[1]},dev);
 	R.add_mprod(*this,y);
 	return R;
       }
 
-      return TensorVirtual();
+      return BatchedTensorArrayVirtual();
     }
+    */
 
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
     string classname() const{
-      return "TensorVirtual";
+      return "BatchedTensorArrayVirtual";
     }
-
-    //string describe() const{
-    //ostringstream oss;
-    //oss<<"TensorVirtual"<<dims<<" ["<<strides<<"]"<<endl;
-    //return oss.str();
-    //}
-
-    
-
-    //friend ostream& operator<<(ostream& stream, const TensorVirtual& x){
-    //stream<<x.str(); return stream;
-    //}
 
   };
 
-
 }
+    
+#endif 
 
-#endif
+

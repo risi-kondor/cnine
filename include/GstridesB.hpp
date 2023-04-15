@@ -151,6 +151,11 @@ namespace cnine{
       return R;
     }
 
+    int total() const{
+      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
+      return t;
+    }
+
 
   public: // ---- Indexing -----------------------------------------------------------------------------------
 
@@ -260,6 +265,14 @@ namespace cnine{
       GstridesB R(size()+y.size(),fill_raw());
       for(int i=0; i<size(); i++) R[i]=(*this)[i];
       for(int i=0; i<y.size(); i++) R[size()+i]=y[i];
+      return R;
+    }
+
+    GstridesB prepend(const int i) const{
+      if(i<0) return *this;
+      GstridesB R;
+      R.push_back(i);
+      for(auto p:*this) R.push_back(p);
       return R;
     }
 

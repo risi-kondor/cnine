@@ -138,7 +138,7 @@ namespace cnine{
       return TensorView(arr+strides[0]*i0+strides[1]*i1+strides[2]*i2,get_ddims(),get_dstrides());
     }
 
-    TensorView operator()(const Gindex& ix){
+    TensorView operator()(const Gindex& ix) const{
       CNINE_ASSRT(ix.size()==ak);
       return TensorView(arr+strides(ix),get_ddims(),get_dstrides());
     }
@@ -146,6 +146,11 @@ namespace cnine{
 
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
+
+    void for_each_cell(const std::function<void(const Gindex&, const TensorView& x)>& lambda) const{
+      get_adims().for_each_index([&](const Gindex& ix){
+	  lambda(ix,(*this)(ix));});
+    }
 
     void apply_as_mvprod(const TensorArrayView& x, const TensorArrayView& y, 
       const std::function<void(const TensorView&, const TensorView&, const TensorView&)>& lambda){
@@ -196,6 +201,16 @@ namespace cnine{
     string describe() const{
       ostringstream oss;
       oss<<"TensorArrayView"<<dims<<" ["<<strides<<"]"<<endl;
+      return oss.str();
+    }
+
+    string str(const string indent="") const{
+      CNINE_CPUONLY();
+      ostringstream oss;
+      for_each_cell([&](const Gindex& ix, const TensorView& x){
+	  oss<<indent<<"Cell"<<ix<<":"<<endl;
+	  oss<<indent<<x<<endl;
+	});
       return oss.str();
     }
 

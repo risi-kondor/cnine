@@ -78,9 +78,15 @@ namespace cnine{
     TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       TensorView(_dims,_dev){
       int N=dims.total();
-      normal_distribution<double> distr;
-      for(int i=0; i<N; i++) 
-	arr[i]=distr(rndGen)*dummy.c;
+      if constexpr(is_complex<TYPE>()){
+	normal_distribution<double> distr;
+	for(int i=0; i<N; i++) 
+	  arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
+      }else{
+	normal_distribution<TYPE> distr;
+	for(int i=0; i<N; i++) 
+	  arr[i]=distr(rndGen)*dummy.c;
+      }
       //move_to_device(_dev);
     }
 
@@ -594,3 +600,16 @@ namespace cnine{
       CNINE_MOVE_WARNING();
     }
     */
+    /*
+    template<class S=TYPE, typename=typename std::enable_if<is_complex<S>::value, S>::type>
+    TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
+      TensorView(_dims,_dev){
+      int N=dims.total();
+      normal_distribution<double> distr;
+      for(int i=0; i<N; i++) 
+	arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
+      //move_to_device(_dev);
+    }
+    */
+    //template<class S=TYPE, typename std::enable_if<false,void>::is_complex<S> >* = nullptr>
+    //template<class S=TYPE, typename=typename std::enable_if<!is_complex<S>::value, S>::type>
