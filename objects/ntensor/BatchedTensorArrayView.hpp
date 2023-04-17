@@ -48,6 +48,7 @@ namespace cnine{
     
     using TensorArrayView::device;
     using TensorArrayView::total;
+    using TensorArrayView::slice;
 
     //int ak=0;
 
@@ -259,10 +260,14 @@ namespace cnine{
     string str(const string indent="") const{
       CNINE_CPUONLY();
       ostringstream oss;
-      for_each_batch([&](const int b, const TensorArrayView& x){
-	  oss<<indent<<"Batch "<<b<<":"<<endl;
-	  oss<<indent<<"  "<<x<<endl;
-	});
+      if(getb()>1){
+	for_each_batch([&](const int b, const TensorArrayView& x){
+	    oss<<indent<<"Batch "<<b<<":"<<endl;
+	    oss<<x.str(indent+"  ");
+	  });
+      }else{
+	oss<<slice(0,0).str(indent);
+      }
       return oss.str();
     }
 

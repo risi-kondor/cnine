@@ -209,7 +209,7 @@ namespace cnine{
       ostringstream oss;
       for_each_cell([&](const Gindex& ix, const TensorView& x){
 	  oss<<indent<<"Cell"<<ix<<":"<<endl;
-	  oss<<indent<<x<<endl;
+	  oss<<x.str(indent+"  ")<<endl;
 	});
       return oss.str();
     }

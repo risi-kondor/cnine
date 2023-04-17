@@ -42,6 +42,7 @@ namespace cnine{
     using TensorView::dims;
     using TensorView::strides;
     using TensorView::dev;
+    using TensorView::slice;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -73,6 +74,13 @@ namespace cnine{
   public: // ---- Devices ------------------------------------------------------------------------------------
 
 
+  public: // ---- Conversions --------------------------------------------------------------------------------
+
+
+    BatchedTensorView(const TensorView& x):
+      TensorView(x){}
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -91,6 +99,11 @@ namespace cnine{
     TensorView batch(const int i) const{
       CNINE_CHECK_RANGE(dims.check_in_range_d(0,i,string(__PRETTY_FUNCTION__)));
       return TensorView(arr+strides[0]*i,dims.chunk(1),strides.chunk(1));
+    }
+
+    BatchedTensorView bbatch(const int i) const{
+      CNINE_CHECK_RANGE(dims.check_in_range_d(0,i,string(__PRETTY_FUNCTION__)));
+      return BatchedTensorView(arr+strides[0]*i,dims.chunk(1).prepend(1),strides);
     }
 
 
@@ -327,10 +340,13 @@ namespace cnine{
     string str(const string indent="") const{
       CNINE_CPUONLY();
       ostringstream oss;
-      for_each_batch([&](const int b, const TensorView& x){
-	  oss<<indent<<"Batch "<<b<<":"<<endl;
-	  oss<<indent<<x<<endl;
-	});
+      if(getb()>1)
+	for_each_batch([&](const int b, const TensorView& x){
+	    oss<<indent<<"Batch "<<b<<":"<<endl;
+	    oss<<x.str(indent+"  ")<<endl; 
+	  });
+      else 
+	oss<<slice(0,0).str(indent)<<endl;
       return oss.str();
     }
 
@@ -345,64 +361,4 @@ namespace cnine{
 
 #endif
 
-
-    /*
-    BatchedTensorView(const BatchedTensorView<TYPE>& x):
-      arr(x.arr),
-      dims(x.dims),
-      strides(x.strides),
-      dev(x.dev){
-    }
-        
-    BatchedTensorView& operator=(const BatchedTensorView& x){
-      CNINE_ASSRT(dims==x.dims);
-      CNINE_ASSIGN_WARNING();
-
-      if(is_contiguous() && x.is_contiguous()){
-	if(device()==0){
-	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
-	}
-	if(device()==1){
-	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(float),cudaMemcpyHostToDevice));
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(float),cudaMemcpyDeviceToDevice));  
-	}      
-      }else{
-	for_each([&](const Gindex& ix, TYPE& v) {v=x(ix);});
-      }
-
-      return *this;
-    }
-
-    BatchedTensorView* clone() const{
-      auto r=new BatchedTensorView(MemArr<TYPE>(dims.total(),dev),dims,GstridesB(dims));
-      (*r)=*this;
-      return r;
-    }
-    */
-    //BatchedTensorView(const MemArr<TYPE>& _arr, const int _b, const Gdims& _dims, const int const GstridesB& _strides):
-    //arr(_arr),
-    //dims(_dims), 
-    //strides(_strides), 
-    //dev(_arr.device()){
-    //}
-
-    //BatchedTensorView(const BatchedTensorView<TYPE>& x, const int _dev):
-    //BatchedTensorView<TYPE>(MemArr<TYPE>(x.dims.total(),_dev),x.dims,GstridesB(x.dims)){
-    //(*this)=x;
-    //}
-
-
-
-    //int total() const{
-    //return dims.total();
-    //}
-
-    //TYPE* mem() const{
-    //return const_cast<TYPE*>(arr.get_arr())/*+strides.offset*/;
-    //}
-
-    //TYPE& mem(const int i) const{
-    //return *(const_cast<TYPE*>(arr.get_arr())+strides.offset);
-    //}
 
