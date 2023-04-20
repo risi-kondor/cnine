@@ -15,6 +15,8 @@
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
 
+#include "Cnine_base.cpp"
+
 #include "Gdims.hpp"
 #include "Gindex.hpp"
 
@@ -33,7 +35,6 @@
 #include "CSRmatrix.hpp"
 
 //std::default_random_engine rndGen;
-#include "Cnine_base.cpp"
 
 #include "RtensorA_add_plus_cop.hpp"
 #include "CtensorA_add_plus_cop.hpp"

@@ -121,7 +121,7 @@ namespace cnine{
 	Gdims dims(v[i]);
 	set_dims(i,dims);
 	set_strides(i,GstridesB(dims)); //.set_offset(t));
-	set_offset(t);
+	set_offset(i,t);
 	tail+=2*v[i].dim()+1;
 	t+=dims.total();
       }

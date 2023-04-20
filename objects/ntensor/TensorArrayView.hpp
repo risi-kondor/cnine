@@ -106,8 +106,16 @@ namespace cnine{
       return dims.chunk(0,ak);
     }
 
+    int adim(const int i) const{
+      return dims(i);
+    }
+
     Gdims get_ddims() const{
       return dims.chunk(ak);
+    }
+
+    int ddim(const int i) const{
+      return dims(ak+i);
     }
 
     Gdims get_astrides() const{
@@ -180,6 +188,19 @@ namespace cnine{
 	for(int j=0; j<J; j++)
 	  for(int k=0; k<K; k++)
 	    lambda((*this)(i,j),x(j,k),y(k,j));
+    }
+
+
+  public: // ---- Reshapings ---------------------------------------------------------------------------------
+
+    
+    TensorView<TYPE> permute_adims(const vector<int>& p){
+      return TensorView<TYPE>(arr,get_adims().permute(p).cat(get_ddims()),
+	get_astrides().permute(p).get_dstrides());
+    }
+
+    TensorView aflatten() const{
+      return TensorView(arr,get_ddims().prepend(getN()),get_dstrides().prepend(strides[ak-1]));
     }
 
 

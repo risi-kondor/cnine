@@ -365,7 +365,27 @@ namespace cnine{
       const int k=ix.size();
       return TensorView<TYPE>(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k)/*.set_offset(strides.chunk(0,k)(ix))*/);
     }
-    
+
+    TensorView<TYPE> unsqueeze(const int d){
+      int s;
+      if(d==0) s=strides.memsize(dims);
+      else s=strides[d-1];
+      TensorView(arr,Gdims(dims).insert(d,1),GstridesB(strides).insert(d,s));
+    }
+
+    TensorView<TYPE> insert_dim(const int d, const int n){
+      TensorView(arr,Gdims(dims).insert(d,n),GstridesB(strides).insert(d,0));
+    }
+
+    TensorView<TYPE> cinflate(const int d, const int n){
+      CNINE_ASSRT(dims[d]==1||dims[d]==n);
+      if(dims[d]==n) return *this; 
+      TensorView<TYPE> R(*this);
+      R.dims[d]=n;
+      R.strides[d]=0;
+      return R;
+    }
+
 
   public: // ---- In-place Operations ------------------------------------------------------------------------
 

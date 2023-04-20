@@ -248,6 +248,10 @@ namespace cnine{
       return R;
     }
 
+    Gdims unsqueeze(const int d) const{
+      return insert(d,1);
+    }
+
     Gdims append(const int i) const{
       Gdims R=*this;
       if(i>=0) R.push_back(i);

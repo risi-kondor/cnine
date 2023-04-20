@@ -19,6 +19,7 @@
 #endif 
 
 namespace cnine{
+
   thread_local int nthreads=1;
   float* cuda_oneS=nullptr;
 }

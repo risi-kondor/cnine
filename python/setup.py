@@ -40,7 +40,8 @@ def main():
      cwd+'/../objects/tensor_array',
      cwd+'/../objects/tensor_array/cell_maps',
      cwd+'/../objects/tensor_array/cell_ops',
-     cwd+'/../objects/labeled'
+     cwd+'/../objects/labeled',
+     cwd+'/../objects/ntensor'
      ]
 
  _nvcc_compile_args=[
