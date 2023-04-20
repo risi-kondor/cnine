@@ -40,7 +40,7 @@ namespace cnine{
     ~MemBlob(){
       BLOB_DEBUG("Delete blob.");
       if(dev==0 && arr) {delete[] arr;}
-      if(dev==1 && arr) {CUDA_SAFE(cudaFree(arrg));}
+      if(dev==1 && arr) {CUDA_SAFE(cudaFree(arr));}
     }
 
   public: // ---- Constructors ------------------------------------------------------------------------------

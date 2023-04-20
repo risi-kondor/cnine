@@ -21,8 +21,8 @@
 //#include "Rmask1.hpp"
 
 #include "Ctensor1_view.hpp"
-
 #include "Rtensor2_view.hpp"
+#include "TensorView.hpp"
 
 #ifdef _WITH_CUBLAS
 #include <cublas_v2.h>
@@ -84,6 +84,16 @@ namespace cnine{
       s1=_strides[b.back()];
     }
 
+    Ctensor2_view(const TensorView<complex<float> >& x):
+      arr(x.arr.ptr_as<float>()),
+      arrc(x.arr.ptr_as<float>()+1),
+      dev(x.dev){
+      CNINE_ASSRT(x.ndims()==2);
+      n0=x.dim(0);
+      n1=x.dim(1);
+      s0=x.strides[0];
+      s1=x.strides[1];
+    }
     
 
   public: // ---- Access ------------------------------------------------------------------------------------
@@ -296,7 +306,7 @@ namespace cnine{
     Ctensor1_view slice1(const int i) const{
       return Ctensor1_view(arr+i*s1,arrc+i*s1,n0,s0,dev);
     }
-
+    
     Ctensor1_view fuse01() const{
       return Ctensor1_view(arr,arrc,n0*s0,s1,dev);
     }
