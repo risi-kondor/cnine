@@ -399,7 +399,7 @@ namespace cnine{
       }
       if(dev==1){
 	if(is_contiguous()){
-	  CUDA_SAFE(cudaMemset(mem(),0,asize*sizeof(TYPE)));
+	  CUDA_SAFE(cudaMemset(mem(),0,asize()*sizeof(TYPE)));
 	}else
 	  CNINE_UNIMPL();
       }
@@ -441,7 +441,7 @@ namespace cnine{
       if(dev==1){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
 	  const TYPE alpha=1.0;
-	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1));
+	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arr, 1, arr, 1));
 	}else
 	  CNINE_UNIMPL();
       }
@@ -462,7 +462,7 @@ namespace cnine{
       if(dev==1){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
 	  const TYPE alpha=c;
-	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arrg, 1, arrg, 1));
+	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
 	}else
 	  CNINE_UNIMPL();
       }
