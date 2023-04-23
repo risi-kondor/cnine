@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
+#include "BatchedTensorView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -56,6 +57,14 @@ namespace cnine{
     Tensor(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
       TensorView<TYPE>(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
 
+    Tensor(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
+      Tensor(_dims,_dev){
+      int N=dims.total();
+      for(int i=0; i<N; i++)
+	arr[i]=dummy.v;
+      move_to_device(_dev);
+    }
+
     Tensor(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       Tensor(_dims,_dev){
       int N=dims.total();
@@ -79,6 +88,10 @@ namespace cnine{
 
     static Tensor<TYPE> zero(const Gdims& _dims, const int _dev=0){
       return Tensor<TYPE>(_dims,fill_zero(),_dev);
+    }
+
+    static Tensor<TYPE> constant(const Gdims& _dims, const TYPE v, const int _dev=0){
+      return Tensor<TYPE>(_dims,fill_constant<TYPE>(v),_dev);
     }
 
     static Tensor<TYPE> sequential(const Gdims& _dims, const int _dev=0){
@@ -114,6 +127,15 @@ namespace cnine{
       return *this;
     }
     
+
+  public: // ---- Conversions ---------------------------------------------------------------------------------
+
+
+    // Doesn't work 
+    //operator BatchedTensorView<TYPE>() const{
+    //return TensorView(*this);
+    //}
+
 
   public: // ---- Transport -----------------------------------------------------------------------------------
 
@@ -209,6 +231,21 @@ namespace cnine{
 
   };
 
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator+(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    Tensor<TYPE> R(x);
+    R.add(y);
+    return R;
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> prod(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    Tensor<TYPE> R=Tensor<TYPE>::zero(x.dims,x.dev);
+    R.add_prod(x,y);
+    return R;
+  }
+    
 
 }
 

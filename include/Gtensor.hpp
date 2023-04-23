@@ -234,11 +234,11 @@ namespace cnine{
       to_device(_dev);
     }
 
-    Gtensor(const Gdims& _dims, const fill_const<TYPE>& dummy, const device& _dev=0):
-      Gtensor(_dims){
-      for(int i=0; i<asize; i++) arr[i]=dummy.p;
-      to_device(_dev);
-    }
+    //Gtensor(const Gdims& _dims, const fill_const<TYPE>& dummy, const device& _dev=0):
+    //Gtensor(_dims){
+    //for(int i=0; i<asize; i++) arr[i]=dummy.p;
+    //to_device(_dev);
+    //}
 
     Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_zero& dummy, const device& _dev=0):
       Gtensor(_adims,_dims,_dev){

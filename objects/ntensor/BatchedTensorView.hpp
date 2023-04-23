@@ -17,6 +17,10 @@
 
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
+#include "TensorTemplates.hpp"
+
+#include "Btensor_add_prodFn.hpp"
+#include "Btensor_add_RprodFn.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -42,13 +46,32 @@ namespace cnine{
     using TensorView::dims;
     using TensorView::strides;
     using TensorView::dev;
-    using TensorView::slice;
+    //using TensorView::slice;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
     BatchedTensorView(){}
+
+    BatchedTensorView(const int _b, const TensorView& x):
+      TensorView(x.arr,x.dims.prepend(1),x.strides.prepend(0)){}
+
+    BatchedTensorView(const _batched<TensorView>& x):
+      BatchedTensorView(1,x.x){}
+
+
+    //BatchedTensorView(const TensorView& x)=delete;
+
+    // Shall we change to this??
+    BatchedTensorView(const TensorView& x):
+      BatchedTensorView(1,x){
+      cout<<"Promoting"<<endl;
+    }
+    //BatchedTensorView(const Tensor& x):
+    //BatchedTensorView(TensorView(x)){
+    //cout<<"Promoting"<<endl;
+    //}
 
 
   public: // ---- Constructors for non-view child classes ---------------------------------------------------
@@ -77,8 +100,13 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    BatchedTensorView(const TensorView& x):
-      TensorView(x){}
+    //BatchedTensorView(const TensorView& x)=delete ;
+
+    
+
+
+    //BatchedTensorView(const TensorView& x):
+    //TensorView(x){}
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
@@ -86,6 +114,10 @@ namespace cnine{
 
     int getb() const{
       return dims[0];
+    }
+
+    Gdims ddims() const{
+      return dims.chunk(1);
     }
 
     int ndims() const{
@@ -203,6 +235,20 @@ namespace cnine{
 	lambda(b,batch(b));
     }
 
+    void for_each_batch(const BatchedTensorView& x, 
+      const std::function<void(const int, const TensorView& r, const TensorView& x)>& fn) const{
+      int B=getb();
+      for(int b=0; b<B; b++)
+	lambda(b,batch(b),x.batch(b));
+    }
+
+    void for_each_batch(const BatchedTensorView& x, const BatchedTensorView& y, 
+      const std::function<void(const int, const TensorView& r, const TensorView& x, const TensorView& y)>& fn) const{
+      int B=getb();
+      for(int b=0; b<B; b++)
+	fn(b,batch(b),x.batch(b),y.batch(b));
+    }
+
     void for_each(const std::function<void(const int, const Gindex&, TYPE& x)>& lambda) const{
       dims.for_each_index([&](const Gindex& ix){
 	  lambda(ix[0],ix.chunk(1),ix,const_cast<MemArr<TYPE>&>(arr)[strides.offs(ix)]);});
@@ -210,6 +256,23 @@ namespace cnine{
 
 
   public: // ---- Index changes ------------------------------------------------------------------------------
+
+
+    BatchedTensorView<TYPE> unsqueeze(const int d) const{
+      int s;
+      if(d==0) s=strides.memsize(dims);
+      else s=strides[d-1];
+      return BatchedTensorView(arr,Gdims(dims).insert(d,1),GstridesB(strides).insert(d,s));
+    }
+
+    BatchedTensorView<TYPE> cinflate(const int d, const int n) const{
+      CNINE_ASSRT(dims[d]==1||dims[d]==n);
+      if(dims[d]==n) return *this; 
+      BatchedTensorView<TYPE> R(*this);
+      R.dims[d]=n;
+      R.strides[d]=0;
+      return R;
+    }
 
 
     /*
@@ -243,6 +306,16 @@ namespace cnine{
     
 
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
+
+  public: // ---- Cumulative Operations ----------------------------------------------------------------------
+
+
+    void add_prod(const BatchedTensorView& x, const BatchedTensorView& y) const{
+      reconcile_batches<BatchedTensorView>(*this,x,y,
+	[&](const auto& r, const auto& x, const auto& y){Btensor_add_prodFn()(r,x,y);},
+	[&](const auto& r, const auto& x, const auto& y){Btensor_add_RprodFn()(r,x,y);});
+    }
+
 
 
   public: // ---- Matrix multiplication ---------------------------------------------------------------------
@@ -324,6 +397,17 @@ namespace cnine{
     */
 
 
+  public: // ---- Scalar valued operations ------------------------------------------------------------------
+
+
+    TYPE diff2(const BatchedTensorView& x){
+      TYPE t=0;
+      for_each_batch(x,[&](const int b, const auto& _x, const auto& _y){
+	  t+=_x.diff2(_y);});
+      return t;
+    }
+
+
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
@@ -346,7 +430,7 @@ namespace cnine{
 	    oss<<x.str(indent+"  ")<<endl; 
 	  });
       else 
-	oss<<slice(0,0).str(indent)<<endl;
+	oss<<batch(0).str(indent)<<endl;
       return oss.str();
     }
 

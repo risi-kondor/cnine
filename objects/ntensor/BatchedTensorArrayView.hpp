@@ -19,6 +19,9 @@
 #include "TensorArrayView.hpp"
 #include "BatchedTensorView.hpp"
 
+#include "Btensor_add_prodFn.hpp"
+#include "Btensor_add_RprodFn.hpp"
+
 #ifdef _WITH_CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -49,6 +52,8 @@ namespace cnine{
     using TensorArrayView::device;
     using TensorArrayView::total;
     using TensorArrayView::slice;
+    using TensorArrayView::unsqueeze;
+    using TensorArrayView::cinflate;
 
     //int ak=0;
 
@@ -88,6 +93,9 @@ namespace cnine{
 
   public: // ---- Conversions --------------------------------------------------------------------------------
 
+
+    BatchedTensorArrayView(const TensorArrayView& x):
+      TensorArrayView(x){}
 
     BatchedTensorArrayView(const Gdims& _adims, const BatchedTensorView& x):
       TensorArrayView(x.arr,_adims.size()+1,_adims.prepend(x.getb()).cat(x.dims.chunk(1)),
@@ -235,12 +243,49 @@ namespace cnine{
 	    lambda((*this)(i,j),x(j,k),y(k,j));
     }
 
+  public: // ---- Reshapings ---------------------------------------------------------------------------------
+
+
+   BatchedTensorArrayView aflatten() const{
+     return TensorArrayView(arr,2,get_ddims().prepend(getN()).prepend(getb()),
+       get_dstrides().prepend(strides[ak-1]).prepend(strides[0]));
+    }
+
+   BatchedTensorArrayView baflatten() const{
+     return TensorArrayView(arr,1,get_ddims().prepend(getb()*getN()),get_dstrides().prepend(strides[ak-1]));
+    }
+
+   BatchedTensorArrayView permute_indices(const vector<int>& v) const{
+     return TensorArrayView(arr,ak,dims.permute(v),strides.permute(v));
+   }
+
+   BatchedTensorArrayView swap_batch_array() const{
+     return aflatten().permute_indices({0,1});
+   }
+
 
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
     void add(const BatchedTensorView& x) const{
       add(BatchedTensorArrayView(get_adims(),x));
+    }
+
+    //void add_prod(const BatchedTensorView& x, const BatchedTensorView& y) const{
+    //reconcile_batched_array<BatchedTensorView>(*this,x,y,
+    //[&](const auto& r, const auto& x, const auto& y){Btensor_add_prodFn()(r,x,y);},
+    //[&](const auto& r, const auto& x, const auto& y){Btensor_add_RprodFn()(r,x,y);});
+    //}
+
+
+  public: // ---- Scalar valued operations ------------------------------------------------------------------
+
+
+    TYPE diff2(const BatchedTensorArrayView& x){
+      TYPE t=0;
+      for_each_batch(x,[&](const int b, const auto& _x, const auto& _y){
+	  t+=_x.diff2(_y);});
+      return t;
     }
 
 

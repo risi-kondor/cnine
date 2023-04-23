@@ -48,6 +48,12 @@ namespace cnine{
 
     BatchedTensorArrayVirtual(){};
 
+    BatchedTensorArrayVirtual(const BatchedTensorArrayVirtual<TYPE>& x):
+      BatchedTensorArrayVirtual(x.getb(),x.adims(),x.ddims(),x.dev){
+      CNINE_COPY_WARNING();
+      view()=x.view();
+    }
+
 
   public: // ---- Named constructors ------------------------------------------------------------------------
 

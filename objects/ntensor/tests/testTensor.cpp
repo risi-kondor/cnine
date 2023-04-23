@@ -45,9 +45,7 @@ int main(int argc, char** argv){
   cout<<C<<endl;
   cout<<A<<endl;
 
-  Tensor<float> D(B);
-  cout<<B<<endl;
-  cout<<D<<endl;
+  cout<<A+A<<endl;
 
   //Tensor<float> C(B);
   //cout<<C<<endl;

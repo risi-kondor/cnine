@@ -74,6 +74,25 @@ namespace cnine{
     //TensorArrayVirtual(x){}
 
 
+  public: // ---- Views -------------------------------------------------------------------------------------
+
+
+    TensorArray(const TensorArrayView<TYPE>& x):
+      TensorArray(x.adims(),x.ddims(),x.dev){
+      CNINE_COPY_WARNING();
+      view()=x;
+
+    }
+
+    TensorArrayView<TYPE> view(){
+      return TensorArrayView<TYPE>(*this);
+    }
+
+    const TensorArrayView<TYPE> view() const{
+      return TensorArrayView<TYPE>(*this);
+    }
+
+
   public: // ---- Access --------------------------------------------------------------------------------------
 
 

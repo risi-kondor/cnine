@@ -46,6 +46,9 @@ namespace cnine{
     using TensorView::device;
     using TensorView::total;
 
+    //using TensorView::unsqueeze;
+    //using TensorView::cinflate;
+
     int ak=0;
 
 
@@ -86,8 +89,15 @@ namespace cnine{
     //TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)), ak(_adims.size()){
     //}
 
+    TensorArrayView(const int _ak, const TensorView& x):
+      TensorView(x), ak(_ak){}
+
     TensorArrayView(const Gdims& _adims, const TensorView& x):
-      TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)), ak(_adims.size()){
+      TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)),ak(_adims.size()){
+    }
+
+    TensorArrayView(const TensorView& x, const Gdims& _ddims):
+      TensorView(x.arr,x.dims.cat(_ddims),x.strides.cat(GstridesB(_ddims.size(),fill_zero()))),ak(x.ndims()){
     }
 
 
@@ -122,7 +132,7 @@ namespace cnine{
       return strides.chunk(0,ak);
     }
 
-    Gdims get_dstrides() const{
+    GstridesB get_dstrides() const{
       return strides.chunk(ak);
     }
 
@@ -160,6 +170,19 @@ namespace cnine{
 	  lambda(ix,(*this)(ix));});
     }
 
+    void for_each_cell(const TensorArrayView& x, 
+      const std::function<void(const Gindex&, const TensorView& r, const TensorView& x)>& lambda) const{
+      get_adims().for_each_index([&](const Gindex& ix){
+	  lambda(ix,(*this)(ix),x(ix));});
+    }
+
+    void for_each_cell(const TensorArrayView& x, const TensorArrayView& y, 
+      const std::function<void(const Gindex&, const TensorView& r, const TensorView& x, const TensorView& y)>& lambda) const{
+      get_adims().for_each_index([&](const Gindex& ix){
+	  lambda(ix,(*this)(ix),x(ix),y(ix));});
+    }
+
+
     void apply_as_mvprod(const TensorArrayView& x, const TensorArrayView& y, 
       const std::function<void(const TensorView&, const TensorView&, const TensorView&)>& lambda){
       CNINE_ASSRT(nadims()==1);
@@ -194,13 +217,26 @@ namespace cnine{
   public: // ---- Reshapings ---------------------------------------------------------------------------------
 
     
-    TensorView<TYPE> permute_adims(const vector<int>& p){
-      return TensorView<TYPE>(arr,get_adims().permute(p).cat(get_ddims()),
+    TensorArrayView permute_adims(const vector<int>& p){
+      return TensorArrayView(arr,get_adims().permute(p).cat(get_ddims()),
 	get_astrides().permute(p).get_dstrides());
     }
 
-    TensorView aflatten() const{
-      return TensorView(arr,get_ddims().prepend(getN()),get_dstrides().prepend(strides[ak-1]));
+    TensorArrayView aflatten() const{
+      return TensorArrayView(arr,get_ddims().prepend(getN()),get_dstrides().prepend(strides[ak-1]));
+    }
+
+    TensorArrayView<TYPE> unsqueeze(const int d) const{
+      if(d<=ak) return TensorArrayView(ak+1,TensorView::unsqueeze(d));
+      else return TensorArrayView(ak,TensorView::unsqueeze(d));
+    }
+
+    //TensorArrayView<TYPE> insert_dim(const int d, const int n) const{
+    //return TensorArrayView(ak,insert_dim(d,n));
+    //}
+
+    TensorArrayView<TYPE> cinflate(const int d, const int n) const{
+      return TensorArrayView(ak,TensorView::cinflate(d,n));
     }
 
 
@@ -209,6 +245,17 @@ namespace cnine{
 
     void add(const TensorView& x) const{
       add(TensorArrayView(x,get_adims()));
+    }
+
+
+  public: // ---- Scalar valued operations ------------------------------------------------------------------
+
+
+    TYPE diff2(const TensorArrayView& x){
+      TYPE t=0;
+      for_each_cell(x,[&](const int b, const auto& _x, const auto& _y){
+	  t+=_x.diff2(_y);});
+      return t;
     }
 
 

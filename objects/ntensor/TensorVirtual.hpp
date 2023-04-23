@@ -54,6 +54,9 @@ namespace cnine{
     TensorVirtual(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
       BASE(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
 
+    TensorVirtual(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0): 
+      BASE(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
+
     TensorVirtual(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       TensorVirtual(_dims,_dev){
       int N=dims.total();
@@ -78,7 +81,11 @@ namespace cnine{
 
 
     static TensorVirtual zero(const Gdims& _dims, const int _dev=0){
-      return TensorVirtual (_dims,fill_zero(),_dev);
+      return TensorVirtual(_dims,fill_zero(),_dev);
+    }
+
+    static TensorVirtual constant(const Gdims& _dims, const TYPE& v, const int _dev=0){
+      return TensorVirtual(_dims,fill_constant<TYPE>(v),_dev);
     }
 
     static TensorVirtual sequential(const Gdims& _dims, const int _dev=0){
@@ -136,7 +143,7 @@ namespace cnine{
     #ifdef _WITH_ATEN
 
     TensorVirtual(const at::Tensor& T):
-      TensorVirtual(Gdims(x),T.type().is_cuda()){
+      TensorVirtual(Gdims(T),T.type().is_cuda()){
       (*this)=T;
     }
 

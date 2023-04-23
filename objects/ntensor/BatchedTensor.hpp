@@ -16,8 +16,8 @@
 #define _CnineBatchedTensor
 
 #include "Cnine_base.hpp"
-#include "TensorVirtual.hpp"
-#include "TensorView.hpp"
+#include "BatchedTensorView.hpp"
+#include "Tensor.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -33,20 +33,21 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
   template<typename TYPE>
-  class BatchedTensor: public TensorVirtual<TensorViewB<TYPE> >{
+  class BatchedTensor: public BatchedTensorView<TYPE>{
   public:
 
-    typedef TensorVirtual<TensorViewB<TYPE> > VTensor;
-    typedef TensorViewB<TYPE> BatchedTensorView;
+    typedef BatchedTensorView<TYPE> BatchedTensorView;
+    typedef TensorView<TYPE> TensorView;
 
-    using TensorView::TensorView;
-    using TensorView::arr;
-    using TensorView::dims;
-    using TensorView::strides;
-    using TensorView::dev;
+    using BatchedTensorView::BatchedTensorView;
+    using BatchedTensorView::arr;
+    using BatchedTensorView::dims;
+    using BatchedTensorView::strides;
+    using BatchedTensorView::dev;
 
-    using TensorView::operator=;
-    using TensorView::ndims;
+    using BatchedTensorView::operator=;
+    using BatchedTensorView::for_each_batch;
+    using BatchedTensorView::ndims;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -54,13 +55,22 @@ namespace cnine{
 
     BatchedTensor(){};
 
-    BatchedTensor(const int _b, const Gdims& _dims, const int _dev=0):
-      VTensor(_dims.prepend(_b),_dev){}
+    //BatchedTensor(const int _b, const Gdims& _dims, const int _dev=0):
+    //VTensor(_dims.prepend(_b),_dev){}
 
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    BatchedTensor(const int _b, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
-      VTensor(_dims.prepend(_b),_dev){}
+    //template<typename FILLTYPE, typename = typename 
+    //     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    //BatchedTensor(const int _b, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
+    //VTensor(_dims.prepend(_b),_dev){}
+
+
+  public: // ---- Lambda constructors -----------------------------------------------------------------------
+
+
+    BatchedTensor(const int _b, const Gdims& _dims, const std::function<TensorView(const int)>& fn, const int _dev=0):
+      BatchedTensor(_b,_dims,fill_zero(),_dev){
+      for_each_batch([&](const int b, const TensorView& x){x=fn(b);});
+    }
 
 
   public: // ---- Named constructors ------------------------------------------------------------------------
@@ -91,9 +101,25 @@ namespace cnine{
   public: // ---- Views -------------------------------------------------------------------------------------
 
 
+    BatchedTensor(const BatchedTensorView& x):
+      BatchedTensor(x.getb(),x.ddims(),x.dev){
+      CNINE_COPY_WARNING();
+      view()=x;
+    }
+ 
+    BatchedTensorView view(){
+      return BatchedTensorView(*this);
+    }
+
+    const BatchedTensorView view() const{
+      return BatchedTensorView(*this);
+    }
+
+
   public: // ---- Operations --------------------------------------------------------------------------------
 
 
+    /*
     BatchedTensor operator*(const BatchedTensorView& y) const{
       CNINE_ASSERT(ndims()==1||ndims()==2,"first operand of product must be a vector or a matrix");
       CNINE_ASSERT(y.ndims()==1||y.ndims()==2,"second operand of product must be a vector or a matrix");
@@ -118,7 +144,7 @@ namespace cnine{
 
       return BatchedTensor();
     }
-
+    */
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
@@ -140,35 +166,27 @@ namespace cnine{
   };
 
 
+  template<typename TYPE>
+  inline BatchedTensor<TYPE> prod(const BatchedTensorView<TYPE>& x, const BatchedTensorView<TYPE>& y){
+    BatchedTensor<TYPE> R=BatchedTensor<TYPE>::zero(std::max(x.getb(),y.getb()),x.ddims(),x.dev);
+    R.add_prod(x,y);
+    return R;
+  }
+
+  template<typename TYPE>
+  inline BatchedTensor<TYPE> prod(const BatchedTensorView<TYPE>& x, const TensorView<TYPE>& y){
+    BatchedTensor<TYPE> R=BatchedTensor<TYPE>::zero(x.getb(),x.ddims(),x.dev);
+    R.add_prod(x,batch(y));
+    return R;
+  }
+
+  template<typename TYPE>
+  inline BatchedTensor<TYPE> prod(const TensorView<TYPE>& x, const BatchedTensorView<TYPE>& y){
+    BatchedTensor<TYPE> R=BatchedTensor<TYPE>::zero(y.getb(),x.ddims(),x.dev);
+    R.add_prod(batch(x),y);
+    return R;
+  }
+
 }
 
 #endif
-    /*
-    BatchedTensor(const TensorView& x):
-      BatchedTensor(x.dims,x.dev){
-      CNINE_CONVERT_WARNING();
-      view()=x;
-    }
-
-    TensorView view(){
-      return TensorView(*this);
-    }
-
-    const TensorView view() const{
-      return TensorView(*this);
-    }
-    */
-
-
-    /*
-    BatchedTensor(const TensorView& x, const int _dev):
-      BatchedTensor(x.dims,_dev){
-      CNINE_COPY_WARNING();
-      view()=x;
-    }
-
-    void move_to_device(const int _dev) const{
-      if(dev==_dev) return;
-      const_cast<BatchedTensor&>(*this)=BatchedTensor(*this,_dev);
-    }
-    */

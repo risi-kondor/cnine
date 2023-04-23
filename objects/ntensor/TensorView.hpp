@@ -67,12 +67,20 @@ namespace cnine{
     TensorView(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
       TensorView(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
 
+    TensorView(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
+      TensorView(_dims,_dev){
+      int N=dims.total();
+      for(int i=0; i<N; i++)
+	arr[i]=dummy.v;
+      move_to_device(_dev);
+    }
+
     TensorView(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       TensorView(_dims,_dev){
       int N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=i;
-      //move_to_device(_dev);
+      move_to_device(_dev);
     }
 
     TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
@@ -87,7 +95,7 @@ namespace cnine{
 	for(int i=0; i<N; i++) 
 	  arr[i]=distr(rndGen)*dummy.c;
       }
-      //move_to_device(_dev);
+      move_to_device(_dev);
     }
 
 
@@ -101,7 +109,7 @@ namespace cnine{
       dev(x.dev){
     }
         
-    TensorView& operator=(const TensorView& x){
+    TensorView& operator=(const TensorView& x) const{
       CNINE_ASSRT(dims==x.dims);
       CNINE_ASSIGN_WARNING();
 
@@ -118,7 +126,7 @@ namespace cnine{
 	for_each([&](const Gindex& ix, TYPE& v) {v=x(ix);});
       }
 
-      return *this;
+      return const_cast<TensorView&>(*this);
     }
 
     TensorView* clone() const{
@@ -138,12 +146,21 @@ namespace cnine{
     }
 
 
+  private:
+    void move_to_device(const int _dev) const{
+      if(_dev==dev) return;
+      TensorView t(*this,_dev);
+      const_cast<MemArr<TYPE>&>(arr)=t.arr;
+      const_cast<int&>(dev)=t.dev;
+    }
+
+
   public: // ---- ATen --------------------------------------------------------------------------------------
 
 
     #ifdef _WITH_ATEN
 
-    // TODO
+    // TODO float is baked in here
     TensorView(const at::Tensor& T):
       dims(Gdims(T)){}
 
@@ -153,11 +170,11 @@ namespace cnine{
       CNINE_ASSRT(dev==T.type().is_cuda());
       if(dev==0){
 	//std::copy(T.data<TYPE>(),T.data<c10::TYPE>()+total(),arr.ptr());
-	std::copy(T.data<TYPE>(),T.data<TYPE>()+total(),arr.ptr());
+	std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+total(),arr.ptr());
       }
       if(dev==1){
-	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::TYPE>(),total()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
-	CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<TYPE>(),total()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
       }
       return *this;
     }
@@ -170,7 +187,7 @@ namespace cnine{
       for(int i=0; i<k; i++) v[i]=dims[i];
       at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
       //std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
-      std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<TYPE>());
+      std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
       return R;
     }
 
@@ -432,8 +449,8 @@ namespace cnine{
       assert(asize()==x.asize());
       if(dev==0){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
-	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr()/*+strides.offset*/;
-	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
 	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i];
 	}else
 	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
@@ -465,6 +482,25 @@ namespace cnine{
 	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
 	}else
 	  CNINE_UNIMPL();
+      }
+    }
+
+    void add_prod(const TensorView& x, const TensorView& y) const{
+      CNINE_DEVICE_SAME(x);
+      CNINE_DEVICE_SAME(y);
+      CNINE_DIMS_SAME(x);
+      CNINE_DIMS_SAME(y);
+      if(dev==0){
+	if(is_contiguous() && x.is_contiguous() && y.is_contiguous() && strides==x.strides&& strides==y.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
+	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i]*yptr[i];
+	}else
+	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix)*y(ix);});
+      }
+      if(dev==1){
+	CNINE_UNIMPL();
       }
     }
 
@@ -540,6 +576,27 @@ namespace cnine{
 	    CNINE_UNIMPL();
 	  }
 	});
+    }
+
+
+  public: // ---- Scalar valued operations ------------------------------------------------------------------
+
+
+    TYPE diff2(const TensorView& x){
+      CNINE_ASSRT(x.asize()==asize());
+      TYPE t=0;
+      if(is_contiguous() && x.is_contiguous()){
+	for(int i=0; i<asize(); i++){
+	  const TYPE a=x.arr[i]-arr[i];
+	  t+=a*std::conj(a);
+	}
+      }else{
+	for_each([&](const Gindex& ix, TYPE& v){
+	    const TYPE a=x(ix)-(*this)(ix);
+	    t+=a*std::conj(a);
+	  });
+      }
+      return t;
     }
 
 

@@ -223,12 +223,14 @@ namespace cnine{
     }
 
     GstridesB permute(const vector<int>& p) const{
-      CNINE_ASSRT(p.size()==size());
+      CNINE_ASSRT(p.size()<=size());
       GstridesB R;
       R.resize(size());
-      for(int i=0; i<size(); i++)
+      for(int i=0; i<p.size(); i++)
 	R[i]=(*this)[p[i]];
-      return R;//.set_offset(offset);
+      for(int i=p.size(); i<size(); i++)
+	R[i]=(*this)[i];
+      return R;
     }
 
     GstridesB fuse(const int a, const int n) const{

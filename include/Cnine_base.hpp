@@ -28,6 +28,7 @@
 #include <set>
 #include <list>
 #include <memory>
+#include <algorithm>
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -229,6 +230,13 @@ namespace cnine{
     fill_const(const TYPE _p):p(_p){}
   };
 
+  template<typename TYPE> 
+  struct fill_constant: public fill_pattern{
+    TYPE v=0;
+    fill_constant(){}
+    fill_constant(const TYPE _v):v(_v){}
+  };
+
   namespace fill{
     static const fill_noalloc noalloc;
     static const fill_raw raw; // 0
@@ -379,6 +387,18 @@ namespace cnine{
       stream<<x.str(); return stream;}
   };
 
+
+  template<typename TYPE>
+  class _batched{
+  public:
+    const TYPE& x;
+    _batched(const TYPE& _x):x(_x){}
+    operator TYPE(){return x;}
+  };
+
+  template<typename TYPE>
+  _batched<TYPE> batch(const TYPE& x){return x;}
+    
 
   // ---- Helper functions -----------------------------------------------------------------------------------
 
