@@ -45,7 +45,7 @@ namespace cnine{
     using BatchedTensorView::strides;
     using BatchedTensorView::dev;
 
-    using BatchedTensorView::operator=;
+    //using BatchedTensorView::operator=;
     using BatchedTensorView::for_each_batch;
     using BatchedTensorView::ndims;
 

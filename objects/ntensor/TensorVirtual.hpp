@@ -65,7 +65,6 @@ namespace cnine{
       move_to_device(_dev);
     }
 
-    /*
     TensorVirtual(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       TensorVirtual(_dims,_dev){
       int N=dims.total();
@@ -74,7 +73,6 @@ namespace cnine{
 	arr[i]=distr(rndGen)*dummy.c;
       move_to_device(_dev);
     }
-    */
 
 
   public: // ---- Named constructors ------------------------------------------------------------------------

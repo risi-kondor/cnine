@@ -42,7 +42,7 @@ namespace cnine{
     using TensorView<TYPE>::strides;
     using TensorView<TYPE>::dev;
 
-    using TensorView<TYPE>::operator=;
+    //using TensorView<TYPE>::operator=;
     using TensorView<TYPE>::ndims;
 
 

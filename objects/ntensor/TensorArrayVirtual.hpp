@@ -38,6 +38,7 @@ namespace cnine{
     using BASE::BASE;
     using BASE::arr;
     using BASE::dims;
+    using BASE::ak;
     using BASE::strides;
     using BASE::dev;
     using BASE::ndims;
@@ -46,7 +47,63 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
+    //TensorArrayVirtual(const Gdims& _adims, const Gdims& _ddims, const int _dev=0):
+    //TensorArrayView<TYPE>(_adims,_ddims,_dev){}
+
+
+    // DO NOT USE THESE
+
+    /*
     TensorArrayVirtual(){};
+
+    TensorArrayVirtual(const int _ak, const Gdims& _dims, const int _dev=0){
+      arr=MemArr<TYPE>(_dims.total(),_dev);
+      dims=_dims; 
+      strides=GstridesB(_dims); 
+      dev=_dev;
+      ak=_ak;
+    }
+    //arr(MemArr<TYPE>(_dims.total(),_dev)),
+    //dims(_dims), 
+    //strides(GstridesB(_dims)), 
+    //dev(_dev),
+    //ak(_ak){}
+
+    TensorArrayVirtual(const Gdims& _adims, const Gdims& _ddims, const int _dev=0):
+      TensorArrayVirtual(_adims.size(),_adims.cat(_ddims),_dev){}
+
+    TensorArrayVirtual(const Gdims& _adims, const Gdims& _ddims, const fill_zero& dummy, const int _dev=0):
+      TensorArrayVirtual(_adims,_ddims,_dev){
+      // TODO
+    }
+
+    TensorArrayVirtual(const Gdims& _adims, const Gdims& _ddims, const fill_constant<TYPE>& dummy, const int _dev=0):
+      TensorArrayVirtual(_adims,_ddims,_dev){
+      // TODO
+    }
+
+    TensorArrayVirtual(const Gdims& _adims, const Gdims& _ddims, const fill_sequential& dummy, const int _dev=0):
+      TensorArrayVirtual(_adims,_ddims,_dev){
+      int N=dims.total();
+      for(int i=0; i<N; i++)
+	arr[i]=i;
+      move_to_device(_dev);
+    }
+
+    TensorArrayVirtual(const Gdims& _adims, const Gdims& _ddims, const fill_gaussian& dummy, const int _dev=0):
+      TensorArrayVirtual(_adims,_ddims,_dev){
+      int N=dims.total();
+      normal_distribution<double> distr;
+      for(int i=0; i<N; i++) 
+	arr[i]=distr(rndGen)*dummy.c;
+      move_to_device(_dev);
+    }
+    */
+
+    //template<typename FILLTYPE, typename = typename 
+    //     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    //TensorArrayVirtual(const Gdims& _adims, const Gdims& _ddims, const FILLTYPE& fill, const int _dev=0):
+    //BASE(_adims,_ddims,fill,_dev){cout<<8878<<endl;}
 
 
   public: // ---- Named constructors ------------------------------------------------------------------------
@@ -55,8 +112,9 @@ namespace cnine{
   public: // ---- Copying -----------------------------------------------------------------------------------
 
 
+    // need a move too!
     TensorArrayVirtual(const TensorArrayVirtual& x):
-      TensorArrayVirtual(x.dims,x.dev){
+      TensorArrayVirtual(x.ak,x.dims,x.dev){
       CNINE_COPY_WARNING();
       view()=x.view();
     }
@@ -79,13 +137,13 @@ namespace cnine{
     
   public: // ---- Conversions ---------------------------------------------------------------------------------
 
-
+    /* caused construction problems
     TensorArrayVirtual(const BASE& x):
       TensorArrayVirtual(x.get_adims(),x.get_ddims(),x.dev){
       CNINE_CONVERT_WARNING();
       view()=x;
     }
-
+    */
 
   public: // ---- Transport -----------------------------------------------------------------------------------
 
@@ -109,7 +167,7 @@ namespace cnine{
 
     //TensorArrayVirtual(const at::Tensor& T):
     //TensorArrayVirtual(Gdims(T),T.type().is_cuda()){
-    //(*this)=T;
+    //BASE::operator=(T);
     //}
 
     #endif

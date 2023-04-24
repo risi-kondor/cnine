@@ -46,6 +46,7 @@ namespace cnine{
     using TensorView::device;
     using TensorView::total;
 
+
     //using TensorView::unsqueeze;
     //using TensorView::cinflate;
 
@@ -62,6 +63,9 @@ namespace cnine{
   public: // ---- Constructors for non-view child classes ---------------------------------------------------
 
 
+    TensorArrayView(const int _ak, const Gdims& _dims, const int _dev=0):
+      TensorView(_dims,_dev),ak(_ak){}
+
     TensorArrayView(const Gdims& _adims, const Gdims& _dims, const int _dev=0):
       TensorView(_adims.cat(_dims),_dev),ak(_adims.size()){}
 
@@ -73,6 +77,12 @@ namespace cnine{
 
   public: // ---- Copying -----------------------------------------------------------------------------------
 
+
+    TensorArrayView& operator=(const TensorArrayView& x) const{
+      TensorView::operator=(x);
+      const_cast<TensorArrayView&>(*this).ak=x.ak;
+      return const_cast<TensorArrayView&>(*this);
+    }
 
     TensorArrayView* clone() const{
       auto r=new TensorArrayView(MemArr<TYPE>(dims.total(),dev),ak,dims,GstridesB(dims));
@@ -101,6 +111,17 @@ namespace cnine{
     }
 
 
+  public: // ---- ATen --------------------------------------------------------------------------------------
+
+
+    #ifdef _WITH_ATEN
+
+    TensorArrayView(const int _ak, const at::Tensor& T):
+      TensorArrayView(_ak,TensorView(T)){}
+
+    #endif 
+
+    
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -243,9 +264,9 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    void add(const TensorView& x) const{
-      add(TensorArrayView(x,get_adims()));
-    }
+    //void add(const TensorView& x) const{
+    //add(TensorArrayView(x,get_adims()));
+    //}
 
 
   public: // ---- Scalar valued operations ------------------------------------------------------------------

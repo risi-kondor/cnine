@@ -43,6 +43,7 @@ namespace cnine{
     typedef BatchedTensorView<TYPE> BatchedTensorView;
 
     using TensorArrayView::TensorArrayView;
+    //using TensorArrayView::operator=;
     using TensorArrayView::arr;
     using TensorArrayView::dims;
     using TensorArrayView::strides;
@@ -77,7 +78,6 @@ namespace cnine{
 	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     BatchedTensorArrayView(const int _b, const Gdims& _adims, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
       TensorArrayView(_adims.prepend(_b),_dims,fill,_dev){
-      //ak=_adims.size()+1;
     }
 
 
@@ -267,9 +267,9 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    void add(const BatchedTensorView& x) const{
-      add(BatchedTensorArrayView(get_adims(),x));
-    }
+    //void add(const BatchedTensorView& x) const{
+    //add(BatchedTensorArrayView(get_adims(),x));
+    //}
 
     //void add_prod(const BatchedTensorView& x, const BatchedTensorView& y) const{
     //reconcile_batched_array<BatchedTensorView>(*this,x,y,
