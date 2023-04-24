@@ -162,7 +162,9 @@ namespace cnine{
 
     // TODO complex<float> is baked in here
     TensorView(const at::Tensor& T):
-      dims(Gdims(T),T.type().is_cuda()){}
+      TensorView(Gdims(T),T.type().is_cuda()){
+      operator=(T);
+    }
 
     TensorView& operator=(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
@@ -170,7 +172,8 @@ namespace cnine{
       CNINE_ASSRT(dev==T.type().is_cuda());
       if(dev==0){
 	//std::copy(T.data<TYPE>(),T.data<c10::TYPE>()+total(),arr.ptr());
-	std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+total(),arr.ptr());
+	std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+total(),
+	  reinterpret_cast<c10::complex<float>*>(arr.ptr()));
       }
       if(dev==1){
 	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));

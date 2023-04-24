@@ -107,10 +107,10 @@ namespace cnine{
 
     #ifdef _WITH_ATEN
 
-    TensorArrayVirtual(const at::Tensor& T):
-      TensorArrayVirtual(Gdims(x),T.type().is_cuda()){
-      (*this)=T;
-    }
+    //TensorArrayVirtual(const at::Tensor& T):
+    //TensorArrayVirtual(Gdims(T),T.type().is_cuda()){
+    //(*this)=T;
+    //}
 
     #endif
 

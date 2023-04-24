@@ -142,10 +142,13 @@ namespace cnine{
 
     #ifdef _WITH_ATEN
 
-    TensorVirtual(const at::Tensor& T):
-      TensorVirtual(Gdims(T),T.type().is_cuda()){
-      (*this)=T;
-    }
+    //TensorVirtual(const at::Tensor& T):
+    //TensorVirtual(Gdims(T),T.type().is_cuda()){
+    //cout<<77<<endl;
+    //BASE::
+    //(*this)=T;
+    //cout<<88<<endl;
+    //}
 
     #endif
 
