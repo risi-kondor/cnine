@@ -86,15 +86,15 @@ namespace cnine{
     TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       TensorView(_dims,_dev){
       int N=dims.total();
-      if constexpr(is_complex<TYPE>()){
+      //if constexpr(is_complex<TYPE>()){
+      //normal_distribution<double> distr;
+      //for(int i=0; i<N; i++) 
+      //arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
+      //}else{
 	normal_distribution<double> distr;
 	for(int i=0; i<N; i++) 
-	  arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
-      }else{
-	normal_distribution<TYPE> distr;
-	for(int i=0; i<N; i++) 
 	  arr[i]=distr(rndGen)*dummy.c;
-      }
+	//}
       move_to_device(_dev);
     }
 
@@ -160,9 +160,9 @@ namespace cnine{
 
     #ifdef _WITH_ATEN
 
-    // TODO float is baked in here
+    // TODO complex<float> is baked in here
     TensorView(const at::Tensor& T):
-      dims(Gdims(T)){}
+      dims(Gdims(T),T.type().is_cuda()){}
 
     TensorView& operator=(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
@@ -185,7 +185,7 @@ namespace cnine{
       int k=ndims();
       vector<int64_t> v(k); 
       for(int i=0; i<k; i++) v[i]=dims[i];
-      at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+      at::Tensor R(at::zeros(v,torch::CPU(at::kComplexFloat))); 
       //std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
       std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
       return R;
@@ -198,6 +198,10 @@ namespace cnine{
 
 
     int device() const{
+      return dev;
+    }
+    
+    int get_dev() const{
       return dev;
     }
     

@@ -33,7 +33,7 @@ namespace cnine{
   class RtensorArray: public CNINE_RTENSORARRAY_IMPL{
   public:
 
-    using CNINE_RTENSORARRAY_IMPL::CNINE_RTENSORARRAY_IMPL; 
+    //    using CNINE_RTENSORARRAY_IMPL::CNINE_RTENSORARRAY_IMPL; 
 
 
   public: // ---- Constructors -----------------------------------------------------------------------------
