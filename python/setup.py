@@ -41,7 +41,7 @@ def main():
      cwd+'/../objects/tensor_array/cell_maps',
      cwd+'/../objects/tensor_array/cell_ops',
      cwd+'/../objects/labeled',
-     cwd+'/../objects/ntensor'
+     cwd+'/../objects/ntensor',
      cwd+'/../objects/ntensor/functions'
      ]
 

@@ -33,10 +33,12 @@ namespace cnine{
   class RtensorArray: public CNINE_RTENSORARRAY_IMPL{
   public:
 
-    //    using CNINE_RTENSORARRAY_IMPL::CNINE_RTENSORARRAY_IMPL; 
+    using CNINE_RTENSORARRAY_IMPL::CNINE_RTENSORARRAY_IMPL; 
 
 
   public: // ---- Constructors -----------------------------------------------------------------------------
+
+    //RtensorArray(){}
 
 
     template<typename FILLTYPE, typename = typename 
@@ -458,7 +460,7 @@ namespace cnine{
     RtensorArray operator*(const RtensorArray& y) const{
       int I=cdims.combined(0,cdims.k()-1);
       int J=y.cdims.combined(1,y.cdims.k());
-      RtensorArray R(adims,cnine::dims(I,J),nbu,fill::zero,dev);
+      RtensorArray R(adims,cnine::dims(I,J),fill::zero,dev);
       R.add_mprod(*this,y);
       return R;
     }
