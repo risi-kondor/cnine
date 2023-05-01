@@ -327,7 +327,7 @@ namespace cnine{
   class CoutLock{
   public:
     CoutLock(): lock(mx){}
-    lock_guard<std::mutex> lock;
+    lock_guard<mutex> lock;
     static std::mutex mx;
   };
 
