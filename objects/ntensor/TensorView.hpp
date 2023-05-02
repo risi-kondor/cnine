@@ -468,7 +468,7 @@ namespace cnine{
       if(dev==1){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
 	  const TYPE alpha=1.0;
-	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize, &alpha, x.arr, 1, arr, 1));
+	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
 	}else
 	  CNINE_UNIMPL();
       }
