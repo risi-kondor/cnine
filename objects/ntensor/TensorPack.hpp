@@ -35,16 +35,16 @@ namespace cnine{
   class TensorPack: public TensorPackView<TYPE>{
   public:
 
-    typedef TensorPackView<float> TensorPackView;
+    typedef TensorPackView<float> TPview;
 
-    using TensorPackView::arr;
-    using TensorPackView::dir;
-    using TensorPackView::dev;
+    using TPview::arr;
+    using TPview::dir;
+    using TPview::dev;
 
-    using TensorPackView::is_contiguous;
+    using TPview::is_contiguous;
 
-    using TensorPackView::operator();
-    //using TensorPackView<TYPE>::set_contiguous;
+    using TPview::operator();
+    //using TPview<TYPE>::set_contiguous;
 
 
 
@@ -60,12 +60,12 @@ namespace cnine{
       TensorPack(TensorPackDir(n,_dims),_dev){}
 
     TensorPack(const TensorPackDir& _dir, const int _dev=0): 
-      TensorPackView(_dir,MemArr<TYPE>(_dir.total(),_dev)){
+      TPview(_dir,MemArr<TYPE>(_dir.total(),_dev)){
       //set_contiguous(true);
     }
 
     TensorPack(const TensorPackDir& _dir, const fill_zero& dummy, const int _dev=0): 
-      TensorPackView(_dir,MemArr<TYPE>(_dir.total(),dummy,_dev)){
+      TPview(_dir,MemArr<TYPE>(_dir.total(),dummy,_dev)){
       //set_contiguous(true);
     }
     
@@ -152,7 +152,7 @@ namespace cnine{
     }
 
     TensorPack(const TensorPack<TYPE>&& x):
-      TensorPackView(x.dir,x.arr){
+      TPview(x.dir,x.arr){
       CNINE_MOVE_WARNING();
     }
         
@@ -178,18 +178,18 @@ namespace cnine{
   public: // ---- Views --------------------------------------------------------------------------------------
 
 
-    TensorPack(const TensorPackView& x):
+    TensorPack(const TPview& x):
       TensorPack(x.dir,x.dev){
       CNINE_CONVERT_WARNING();
       view()=x;
     }
 
-    TensorPackView view(){
-      return TensorPackView(*this);
+    TPview view(){
+      return TPview(*this);
     }
 
-    const TensorPackView view() const{
-      return TensorPackView(*this);
+    const TPview view() const{
+      return TPview(*this);
     }
 
 

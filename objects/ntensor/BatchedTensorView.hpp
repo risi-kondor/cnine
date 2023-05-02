@@ -39,14 +39,14 @@ namespace cnine{
   class BatchedTensorView: public TensorView<TYPE>{
   public:
 
-    typedef TensorView<TYPE> TensorView;
+    typedef TensorView<TYPE> Tview;
     
-    using TensorView::TensorView;
-    using TensorView::arr;
-    using TensorView::dims;
-    using TensorView::strides;
-    using TensorView::dev;
-    //using TensorView::slice;
+    using Tview::Tview;
+    using Tview::arr;
+    using Tview::dims;
+    using Tview::strides;
+    using Tview::dev;
+    //using Tview::slice;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -54,22 +54,22 @@ namespace cnine{
 
     BatchedTensorView(){}
 
-    BatchedTensorView(const int _b, const TensorView& x):
-      TensorView(x.arr,x.dims.prepend(1),x.strides.prepend(0)){}
+    BatchedTensorView(const int _b, const Tview& x):
+      Tview(x.arr,x.dims.prepend(1),x.strides.prepend(0)){}
 
-    BatchedTensorView(const _batched<TensorView>& x):
+    BatchedTensorView(const _batched<Tview>& x):
       BatchedTensorView(1,x.x){}
 
 
-    //BatchedTensorView(const TensorView& x)=delete;
+    //BatchedTensorView(const Tview& x)=delete;
 
     // Shall we change to this??
-    BatchedTensorView(const TensorView& x):
+    BatchedTensorView(const Tview& x):
       BatchedTensorView(1,x){
       cout<<"Promoting"<<endl;
     }
     //BatchedTensorView(const Tensor& x):
-    //BatchedTensorView(TensorView(x)){
+    //BatchedTensorView(Tview(x)){
     //cout<<"Promoting"<<endl;
     //}
 
@@ -78,12 +78,12 @@ namespace cnine{
 
 
     BatchedTensorView(const int _b, const Gdims& _dims, const int _dev=0): 
-      TensorView(_dims.prepend(_b),_dev){}
+      Tview(_dims.prepend(_b),_dev){}
 
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     BatchedTensorView(const int _b, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0): 
-      TensorView(_dims.prepend(_b),fill,_dev){}
+      Tview(_dims.prepend(_b),fill,_dev){}
     
 
   public: // ---- Copying -----------------------------------------------------------------------------------
@@ -100,13 +100,13 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    //BatchedTensorView(const TensorView& x)=delete ;
+    //BatchedTensorView(const Tview& x)=delete ;
 
     
 
 
-    //BatchedTensorView(const TensorView& x):
-    //TensorView(x){}
+    //BatchedTensorView(const Tview& x):
+    //Tview(x){}
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
@@ -128,9 +128,9 @@ namespace cnine{
       return dims[i+1];
     }
 
-    TensorView batch(const int i) const{
+    Tview batch(const int i) const{
       CNINE_CHECK_RANGE(dims.check_in_range_d(0,i,string(__PRETTY_FUNCTION__)));
-      return TensorView(arr+strides[0]*i,dims.chunk(1),strides.chunk(1));
+      return Tview(arr+strides[0]*i,dims.chunk(1),strides.chunk(1));
     }
 
     BatchedTensorView bbatch(const int i) const{
@@ -229,21 +229,21 @@ namespace cnine{
   public: // ---- Lambdas -----------------------------------------------------------------------------------
 
 
-    void for_each_batch(const std::function<void(const int, const TensorView& x)>& lambda) const{
+    void for_each_batch(const std::function<void(const int, const Tview& x)>& lambda) const{
       int B=getb();
       for(int b=0; b<B; b++)
 	lambda(b,batch(b));
     }
 
     void for_each_batch(const BatchedTensorView& x, 
-      const std::function<void(const int, const TensorView& r, const TensorView& x)>& fn) const{
+      const std::function<void(const int, const Tview& r, const Tview& x)>& fn) const{
       int B=getb();
       for(int b=0; b<B; b++)
 	lambda(b,batch(b),x.batch(b));
     }
 
     void for_each_batch(const BatchedTensorView& x, const BatchedTensorView& y, 
-      const std::function<void(const int, const TensorView& r, const TensorView& x, const TensorView& y)>& fn) const{
+      const std::function<void(const int, const Tview& r, const Tview& x, const Tview& y)>& fn) const{
       int B=getb();
       for(int b=0; b<B; b++)
 	fn(b,batch(b),x.batch(b),y.batch(b));
@@ -425,7 +425,7 @@ namespace cnine{
       CNINE_CPUONLY();
       ostringstream oss;
       if(getb()>1)
-	for_each_batch([&](const int b, const TensorView& x){
+	for_each_batch([&](const int b, const Tview& x){
 	    oss<<indent<<"Batch "<<b<<":"<<endl;
 	    oss<<x.str(indent+"  ")<<endl; 
 	  });
