@@ -106,7 +106,7 @@ namespace cnine{
 
     #ifdef _WITH_ATEN
 
-    TensorPackDir(const vector<const at::Tensor>& v){
+    TensorPackDir(const vector<at::Tensor>& v){
       int n=v.size();
 
       int t=0;

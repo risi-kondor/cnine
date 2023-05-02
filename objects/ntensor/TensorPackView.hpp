@@ -94,7 +94,7 @@ namespace cnine{
     //TensorPackView(TensorPackDir(v),T.type().is_cuda()){
     //}
 	
-    TensorPackView& operator=(const vector<const at::Tensor>& v){
+    TensorPackView& operator=(const vector<at::Tensor>& v){
       for(int i=0; i<size(); i++)
 	(*this)[i]=v[i];
     }
