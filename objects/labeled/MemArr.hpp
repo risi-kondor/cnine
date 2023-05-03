@@ -50,7 +50,7 @@ namespace cnine{
     MemArr(const int _memsize, const fill_zero& dummy, const int _dev=0):
       MemArr(_memsize,_dev){
       if(device()==0) std::fill(blob->arr,blob->arr+_memsize,0);
-      if(device()==1) CUDA_SAFE(cudaMemset(blob->arrarr,0,_memsize*sizeof(TYPE)));
+      if(device()==1) CUDA_SAFE(cudaMemset(blob->arr,0,_memsize*sizeof(TYPE)));
     }
 
     MemArr(const MemArr& x, const int i):

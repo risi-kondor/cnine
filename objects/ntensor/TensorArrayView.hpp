@@ -35,20 +35,20 @@ namespace cnine{
   class TensorArrayView: public TensorView<TYPE>{
   public:
 
-    typedef TensorView<TYPE> TensorView;
+    typedef TensorView<TYPE> _TensorView;
 
-    //using TensorView::TensorView;
-    using TensorView::arr;
-    using TensorView::dims;
-    using TensorView::strides;
-    using TensorView::dev;
+    //using _TensorView::_TensorView;
+    using _TensorView::arr;
+    using _TensorView::dims;
+    using _TensorView::strides;
+    using _TensorView::dev;
     
-    using TensorView::device;
-    using TensorView::total;
+    using _TensorView::device;
+    using _TensorView::total;
 
 
-    //using TensorView::unsqueeze;
-    //using TensorView::cinflate;
+    //using _TensorView::unsqueeze;
+    //using _TensorView::cinflate;
 
     int ak=0;
 
@@ -57,29 +57,29 @@ namespace cnine{
 
 
     TensorArrayView(const MemArr<TYPE>& _arr, const int _ak, const Gdims& _dims, const GstridesB& _strides):
-      TensorView(_arr,_dims,_strides), ak(_ak){}
+      _TensorView(_arr,_dims,_strides), ak(_ak){}
 
 
   public: // ---- Constructors for non-view child classes ---------------------------------------------------
 
 
     TensorArrayView(const int _ak, const Gdims& _dims, const int _dev=0):
-      TensorView(_dims,_dev),ak(_ak){}
+      _TensorView(_dims,_dev),ak(_ak){}
 
     TensorArrayView(const Gdims& _adims, const Gdims& _dims, const int _dev=0):
-      TensorView(_adims.cat(_dims),_dev),ak(_adims.size()){}
+      _TensorView(_adims.cat(_dims),_dev),ak(_adims.size()){}
 
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     TensorArrayView(const Gdims& _adims, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
-      TensorView(_adims.cat(_dims),fill,_dev), ak(_adims.size()){}
+      _TensorView(_adims.cat(_dims),fill,_dev), ak(_adims.size()){}
 
 
   public: // ---- Copying -----------------------------------------------------------------------------------
 
 
     TensorArrayView& operator=(const TensorArrayView& x) const{
-      TensorView::operator=(x);
+      _TensorView::operator=(x);
       const_cast<TensorArrayView&>(*this).ak=x.ak;
       return const_cast<TensorArrayView&>(*this);
     }
@@ -95,19 +95,19 @@ namespace cnine{
 
 
     // probably deprecated
-    //TensorArrayView(const TensorView& x, const Gdims& _adims):
-    //TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)), ak(_adims.size()){
+    //TensorArrayView(const _TensorView& x, const Gdims& _adims):
+    //_TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)), ak(_adims.size()){
     //}
 
-    TensorArrayView(const int _ak, const TensorView& x):
-      TensorView(x), ak(_ak){}
+    TensorArrayView(const int _ak, const _TensorView& x):
+      _TensorView(x), ak(_ak){}
 
-    TensorArrayView(const Gdims& _adims, const TensorView& x):
-      TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)),ak(_adims.size()){
+    TensorArrayView(const Gdims& _adims, const _TensorView& x):
+      _TensorView(x.arr,_adims.cat(x.dims),GstridesB(_adims.size(),fill_zero()).cat(x.strides)),ak(_adims.size()){
     }
 
-    TensorArrayView(const TensorView& x, const Gdims& _ddims):
-      TensorView(x.arr,x.dims.cat(_ddims),x.strides.cat(GstridesB(_ddims.size(),fill_zero()))),ak(x.ndims()){
+    TensorArrayView(const _TensorView& x, const Gdims& _ddims):
+      _TensorView(x.arr,x.dims.cat(_ddims),x.strides.cat(GstridesB(_ddims.size(),fill_zero()))),ak(x.ndims()){
     }
 
 
@@ -117,7 +117,7 @@ namespace cnine{
     #ifdef _WITH_ATEN
 
     TensorArrayView(const int _ak, const at::Tensor& T):
-      TensorArrayView(_ak,TensorView(T)){}
+      TensorArrayView(_ak,_TensorView(T)){}
 
     #endif 
 
@@ -162,50 +162,50 @@ namespace cnine{
     }
 
 
-    TensorView operator()(const int i0){
+    _TensorView operator()(const int i0){
       CNINE_ASSRT(ak==1);
-      return TensorView(arr+strides[0]*i0,get_ddims(),get_dstrides());
+      return _TensorView(arr+strides[0]*i0,get_ddims(),get_dstrides());
     }
 
-    TensorView operator()(const int i0, const int i1){
+    _TensorView operator()(const int i0, const int i1){
       CNINE_ASSRT(ak==2);
-      return TensorView(arr+strides[0]*i0+strides[1]*i1,get_ddims(),get_dstrides());
+      return _TensorView(arr+strides[0]*i0+strides[1]*i1,get_ddims(),get_dstrides());
     }
 
-    TensorView operator()(const int i0, const int i1, const int i2){
+    _TensorView operator()(const int i0, const int i1, const int i2){
       CNINE_ASSRT(ak==3);
-      return TensorView(arr+strides[0]*i0+strides[1]*i1+strides[2]*i2,get_ddims(),get_dstrides());
+      return _TensorView(arr+strides[0]*i0+strides[1]*i1+strides[2]*i2,get_ddims(),get_dstrides());
     }
 
-    TensorView operator()(const Gindex& ix) const{
+    _TensorView operator()(const Gindex& ix) const{
       CNINE_ASSRT(ix.size()==ak);
-      return TensorView(arr+strides(ix),get_ddims(),get_dstrides());
+      return _TensorView(arr+strides(ix),get_ddims(),get_dstrides());
     }
 
 
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
 
-    void for_each_cell(const std::function<void(const Gindex&, const TensorView& x)>& lambda) const{
+    void for_each_cell(const std::function<void(const Gindex&, const _TensorView& x)>& lambda) const{
       get_adims().for_each_index([&](const Gindex& ix){
 	  lambda(ix,(*this)(ix));});
     }
 
     void for_each_cell(const TensorArrayView& x, 
-      const std::function<void(const Gindex&, const TensorView& r, const TensorView& x)>& lambda) const{
+      const std::function<void(const Gindex&, const _TensorView& r, const _TensorView& x)>& lambda) const{
       get_adims().for_each_index([&](const Gindex& ix){
 	  lambda(ix,(*this)(ix),x(ix));});
     }
 
     void for_each_cell(const TensorArrayView& x, const TensorArrayView& y, 
-      const std::function<void(const Gindex&, const TensorView& r, const TensorView& x, const TensorView& y)>& lambda) const{
+      const std::function<void(const Gindex&, const _TensorView& r, const _TensorView& x, const _TensorView& y)>& lambda) const{
       get_adims().for_each_index([&](const Gindex& ix){
 	  lambda(ix,(*this)(ix),x(ix),y(ix));});
     }
 
 
     void apply_as_mvprod(const TensorArrayView& x, const TensorArrayView& y, 
-      const std::function<void(const TensorView&, const TensorView&, const TensorView&)>& lambda){
+      const std::function<void(const _TensorView&, const _TensorView&, const _TensorView&)>& lambda){
       CNINE_ASSRT(nadims()==1);
       CNINE_ASSRT(x.nadims()==2);
       CNINE_ASSRT(y.nadims()==1);
@@ -217,7 +217,7 @@ namespace cnine{
     }
 
     void apply_as_mmprod(const TensorArrayView& x, const TensorArrayView& y, 
-      const std::function<void(const TensorView&, const TensorView&, const TensorView&)>& lambda){
+      const std::function<void(const _TensorView&, const _TensorView&, const _TensorView&)>& lambda){
       CNINE_ASSRT(nadims()==2);
       CNINE_ASSRT(x.nadims()==2);
       CNINE_ASSRT(y.nadims()==2);
@@ -248,8 +248,8 @@ namespace cnine{
     }
 
     TensorArrayView<TYPE> unsqueeze(const int d) const{
-      if(d<=ak) return TensorArrayView(ak+1,TensorView::unsqueeze(d));
-      else return TensorArrayView(ak,TensorView::unsqueeze(d));
+      if(d<=ak) return TensorArrayView(ak+1,_TensorView::unsqueeze(d));
+      else return TensorArrayView(ak,_TensorView::unsqueeze(d));
     }
 
     //TensorArrayView<TYPE> insert_dim(const int d, const int n) const{
@@ -257,14 +257,14 @@ namespace cnine{
     //}
 
     TensorArrayView<TYPE> cinflate(const int d, const int n) const{
-      return TensorArrayView(ak,TensorView::cinflate(d,n));
+      return TensorArrayView(ak,_TensorView::cinflate(d,n));
     }
 
 
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    //void add(const TensorView& x) const{
+    //void add(const _TensorView& x) const{
     //add(TensorArrayView(x,get_adims()));
     //}
 
@@ -296,7 +296,7 @@ namespace cnine{
     string str(const string indent="") const{
       CNINE_CPUONLY();
       ostringstream oss;
-      for_each_cell([&](const Gindex& ix, const TensorView& x){
+      for_each_cell([&](const Gindex& ix, const _TensorView& x){
 	  oss<<indent<<"Cell"<<ix<<":"<<endl;
 	  oss<<x.str(indent+"  ")<<endl;
 	});

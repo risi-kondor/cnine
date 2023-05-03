@@ -39,22 +39,22 @@ namespace cnine{
   class BatchedTensorArrayView: public TensorArrayView<TYPE>{
   public:
 
-    typedef TensorArrayView<TYPE> TensorArrayView;
-    typedef BatchedTensorView<TYPE> BatchedTensorView;
+    typedef TensorArrayView<TYPE> _TensorArrayView;
+    typedef BatchedTensorView<TYPE> _BatchedTensorView;
 
-    using TensorArrayView::TensorArrayView;
-    //using TensorArrayView::operator=;
-    using TensorArrayView::arr;
-    using TensorArrayView::dims;
-    using TensorArrayView::strides;
-    using TensorArrayView::dev;
-    using TensorArrayView::ak;
+    using _TensorArrayView::_TensorArrayView;
+    //using _TensorArrayView::operator=;
+    using _TensorArrayView::arr;
+    using _TensorArrayView::dims;
+    using _TensorArrayView::strides;
+    using _TensorArrayView::dev;
+    using _TensorArrayView::ak;
     
-    using TensorArrayView::device;
-    using TensorArrayView::total;
-    using TensorArrayView::slice;
-    using TensorArrayView::unsqueeze;
-    using TensorArrayView::cinflate;
+    using _TensorArrayView::device;
+    using _TensorArrayView::total;
+    using _TensorArrayView::slice;
+    using _TensorArrayView::unsqueeze;
+    using _TensorArrayView::cinflate;
 
     //int ak=0;
 
@@ -70,14 +70,14 @@ namespace cnine{
 
 
     BatchedTensorArrayView(const int _b, const Gdims& _adims, const Gdims& _dims, const int _dev=0):
-      TensorArrayView(_adims.prepend(_b),_dims,_dev){
+      _TensorArrayView(_adims.prepend(_b),_dims,_dev){
       //ak=_adims.size()+1;
     }
 
     template<typename FILLTYPE, typename = typename 
 	     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
     BatchedTensorArrayView(const int _b, const Gdims& _adims, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
-      TensorArrayView(_adims.prepend(_b),_dims,fill,_dev){
+      _TensorArrayView(_adims.prepend(_b),_dims,fill,_dev){
     }
 
 
@@ -94,11 +94,11 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    BatchedTensorArrayView(const TensorArrayView& x):
-      TensorArrayView(x){}
+    BatchedTensorArrayView(const _TensorArrayView& x):
+      _TensorArrayView(x){}
 
-    BatchedTensorArrayView(const Gdims& _adims, const BatchedTensorView& x):
-      TensorArrayView(x.arr,_adims.size()+1,_adims.prepend(x.getb()).cat(x.dims.chunk(1)),
+    BatchedTensorArrayView(const Gdims& _adims, const _BatchedTensorView& x):
+      _TensorArrayView(x.arr,_adims.size()+1,_adims.prepend(x.getb()).cat(x.dims.chunk(1)),
 	GstridesB(_adims.size(),fill_zero()).cat(x.strides.chunk(1)).prepend(x.strides(0))){
       //ak=_adims.size()+1;
     }
@@ -162,49 +162,49 @@ namespace cnine{
     }
 
 
-    TensorArrayView batch(const int i) const{
+    _TensorArrayView batch(const int i) const{
       CNINE_CHECK_RANGE(dims.check_in_range_d(0,i,string(__PRETTY_FUNCTION__)));
-      return TensorArrayView(arr+strides[0]*i,nadims(),dims.chunk(1),strides.chunk(1));
+      return _TensorArrayView(arr+strides[0]*i,nadims(),dims.chunk(1),strides.chunk(1));
     }
 
 
-    BatchedTensorView operator()(const int i0){
+    _BatchedTensorView operator()(const int i0){
       CNINE_ASSRT(ak==1);
-      return BatchedTensorView(arr+astride(0)*i0,
+      return _BatchedTensorView(arr+astride(0)*i0,
 	get_ddims().prepend(getb()),
 	get_dstrides().prepend(get_bstride()));
     }
 
-    BatchedTensorView operator()(const int i0, const int i1){
+    _BatchedTensorView operator()(const int i0, const int i1){
       CNINE_ASSRT(ak==2);
-      return BatchedTensorView(arr+astride(0)*i0+astride(1)*i1,
+      return _BatchedTensorView(arr+astride(0)*i0+astride(1)*i1,
 	get_ddims().prepend(getb()),
 	get_dstrides().prepend(get_bstride()));
     }
 
-    BatchedTensorView operator()(const int i0, const int i1, const int i2){
+    _BatchedTensorView operator()(const int i0, const int i1, const int i2){
       CNINE_ASSRT(ak==3);
-      return BatchedTensorView(arr+astride(0)*i0+astride(1)*i1+astride(2)*i2,
+      return _BatchedTensorView(arr+astride(0)*i0+astride(1)*i1+astride(2)*i2,
 	get_ddims().prepend(getb()),
 	get_dstrides().prepend(get_bstride()));
     }
 
-    BatchedTensorView operator()(const Gindex& ix){
+    _BatchedTensorView operator()(const Gindex& ix){
       CNINE_ASSRT(ix.size()==ak);
-      return BatchedTensorView(arr+strides(ix),get_ddims().prepend(getb()),get_dstrides().prepend(get_bstride()));
+      return _BatchedTensorView(arr+strides(ix),get_ddims().prepend(getb()),get_dstrides().prepend(get_bstride()));
     }
 
 
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
 
-    void for_each_batch(const std::function<void(const int, const TensorArrayView&)>& lambda) const{
+    void for_each_batch(const std::function<void(const int, const _TensorArrayView&)>& lambda) const{
       int B=getb();
       for(int b=0; b<B; b++)
 	lambda(b,batch(b));
     }
 
-    void for_each_cell(const std::function<void(const Gindex&, const BatchedTensorView&)>& lambda) const{
+    void for_each_cell(const std::function<void(const Gindex&, const _BatchedTensorView&)>& lambda) const{
       get_adims().for_each_index([&](const Gindex& ix){
 	  lambda(ix,(*this)(ix));});
     }
@@ -214,7 +214,7 @@ namespace cnine{
 
 
     void apply_as_mvprod(const BatchedTensorArrayView& x, const BatchedTensorArrayView& y, 
-      const std::function<void(const BatchedTensorView&, const BatchedTensorView&, const BatchedTensorView&)>& lambda){
+      const std::function<void(const _BatchedTensorView&, const _BatchedTensorView&, const _BatchedTensorView&)>& lambda){
       CNINE_ASSRT(nadims()==1);
       CNINE_ASSRT(x.nadims()==2);
       CNINE_ASSRT(y.nadims()==1);
@@ -226,7 +226,7 @@ namespace cnine{
     }
 
     void apply_as_mmprod(const BatchedTensorArrayView& x, const BatchedTensorArrayView& y, 
-      const std::function<void(const BatchedTensorView&, const BatchedTensorView&, const BatchedTensorView&)>& lambda){
+      const std::function<void(const _BatchedTensorView&, const _BatchedTensorView&, const _BatchedTensorView&)>& lambda){
       CNINE_ASSRT(nadims()==2);
       CNINE_ASSRT(x.nadims()==2);
       CNINE_ASSRT(y.nadims()==2);
@@ -247,16 +247,16 @@ namespace cnine{
 
 
    BatchedTensorArrayView aflatten() const{
-     return TensorArrayView(arr,2,get_ddims().prepend(getN()).prepend(getb()),
+     return _TensorArrayView(arr,2,get_ddims().prepend(getN()).prepend(getb()),
        get_dstrides().prepend(strides[ak-1]).prepend(strides[0]));
     }
 
    BatchedTensorArrayView baflatten() const{
-     return TensorArrayView(arr,1,get_ddims().prepend(getb()*getN()),get_dstrides().prepend(strides[ak-1]));
+     return _TensorArrayView(arr,1,get_ddims().prepend(getb()*getN()),get_dstrides().prepend(strides[ak-1]));
     }
 
    BatchedTensorArrayView permute_indices(const vector<int>& v) const{
-     return TensorArrayView(arr,ak,dims.permute(v),strides.permute(v));
+     return _TensorArrayView(arr,ak,dims.permute(v),strides.permute(v));
    }
 
    BatchedTensorArrayView swap_batch_array() const{
@@ -267,12 +267,12 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    //void add(const BatchedTensorView& x) const{
+    //void add(const _BatchedTensorView& x) const{
     //add(BatchedTensorArrayView(get_adims(),x));
     //}
 
-    //void add_prod(const BatchedTensorView& x, const BatchedTensorView& y) const{
-    //reconcile_batched_array<BatchedTensorView>(*this,x,y,
+    //void add_prod(const _BatchedTensorView& x, const _BatchedTensorView& y) const{
+    //reconcile_batched_array<_BatchedTensorView>(*this,x,y,
     //[&](const auto& r, const auto& x, const auto& y){Btensor_add_prodFn()(r,x,y);},
     //[&](const auto& r, const auto& x, const auto& y){Btensor_add_RprodFn()(r,x,y);});
     //}
@@ -306,7 +306,7 @@ namespace cnine{
       CNINE_CPUONLY();
       ostringstream oss;
       if(getb()>1){
-	for_each_batch([&](const int b, const TensorArrayView& x){
+	for_each_batch([&](const int b, const _TensorArrayView& x){
 	    oss<<indent<<"Batch "<<b<<":"<<endl;
 	    oss<<x.str(indent+"  ");
 	  });
