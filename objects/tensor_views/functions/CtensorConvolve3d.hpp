@@ -49,7 +49,7 @@ namespace cnine{
       if(x.ndims()==4){
 	CNINE_ASSRT(w.dims[4]==x.dims[3]);
 	CtensorB r=CtensorB::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,
-	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0]});
+	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0]},x.dev);
 	CtensorConvolve3d()(r.view4(),x.view4(),w.view5());
 	return r;
       }
@@ -57,7 +57,7 @@ namespace cnine{
       if(x.ndims()==5){ // add channels
 	CNINE_ASSRT(w.dims[4]==x.dims[3]);
 	CtensorB r=CtensorB::zero({x.dims[0]+2*padding0-w.dims[1]+1,x.dims[1]+2*padding1-w.dims[2]+1,
-	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[4]});
+	      x.dims[2]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[4]},x.dev);
 	CtensorConvolve3d()(r.view5(),x.view5(),w.view5());
 	return r;
       }
@@ -65,7 +65,7 @@ namespace cnine{
       if(x.ndims()==6){ // add batches
 	CNINE_ASSRT(w.dims[4]==x.dims[4]);
 	CtensorB r=CtensorB::zero({x.dims[0],x.dims[1]+2*padding0-w.dims[1]+1,x.dims[2]+2*padding1-w.dims[2]+1,
-	      x.dims[3]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[5]});
+	      x.dims[3]+2*padding2-w.dims[3]+1,w.dims[0],x.dims[5]},x.dev);
 	CtensorConvolve3d()(r.view6(),x.view6(),w.view5());
 	return r;
       }
