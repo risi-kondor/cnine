@@ -925,6 +925,10 @@ namespace cnine{
       else return arrg;
     }
 
+   float* true_arr() const{
+      if(dev==0) return arr;
+      else return arrg;
+    }
 
   public: // ---- Gindex case ---------
 

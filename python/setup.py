@@ -11,7 +11,7 @@ def main():
  # --- User settings ------------------------------------------------------------------------------------------
 
 
- compile_with_cuda=False
+ compile_with_cuda=True
 
  copy_warnings=False
  torch_convert_warnings=False

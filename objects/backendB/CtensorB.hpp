@@ -703,7 +703,6 @@ namespace cnine{
       if(R.dev==1){
 	R.arrg=reinterpret_cast<float*>(T.data<c10::complex<float> >());
       }
-
       return R;
     }
 
@@ -801,6 +800,11 @@ namespace cnine{
 
     int get_device() const{
       return dev;
+    }
+
+    float* get_arr() const{
+      if(dev==0) return arr;
+      else return arrg;
     }
 
     float* true_arr() const{
