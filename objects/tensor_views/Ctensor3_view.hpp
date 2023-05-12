@@ -205,9 +205,9 @@ namespace cnine{
 	assert(is_regular()); // stride this!!
 	CNINE_CPUONLY();
 	#ifdef _WITH_CUBLAS
-	cuComplex alpha;
-	alpha.x=1.0f;
-	alpha.y=0.0f;
+	//cuComplex alpha;
+	//alpha.x=1.0f;
+	//alpha.y=0.0f;
 	//CUBLAS_SAFE(cublasCgemmStridedBatched(cnine_cublas,CUBLAS_OP_H,CUBLAS_OP_N,n1,n0,x.n1,&alpha,
 	//  reinterpret_cast<cuComplex*>(y.arr),y.n1,0,
 	//  reinterpret_cast<cuComplex*>(x.arr),x.n1,x.s2,&alpha,
