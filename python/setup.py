@@ -46,7 +46,6 @@ def main():
      ]
 
  _nvcc_compile_args=[
-	'-fpermissive',
      '-D_WITH_CUDA',
      '-D_WITH_CUBLAS',
      '-DWITH_FAKE_GRAD'
