@@ -123,6 +123,7 @@ namespace cnine{
 	  (*this)(r.slice0(b),x.slice0(b),w);
 	}
       }
+
       if(r.dev==1){
 	CUDA_STREAM(RtensorConvolve3d_cu(r,x,w,padding0,padding1,padding2,stream));
       }
