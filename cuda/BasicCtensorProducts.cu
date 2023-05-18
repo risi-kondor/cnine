@@ -141,6 +141,19 @@ __global__ void Ctensor2_add_otimes_kernel(const cnine::Ctensor2_view r, const c
   r.arrc[i0*r.s0+i1*r.s1]+=(xr*yi+xi*yr)*c;
 }
 
+__global__ void Ctensor2_add_otimesc_kernel(const cnine::Ctensor2_view r, const cnine::Ctensor2_view x, const cnine::Ctensor2_view y, const float c){
+  const int t=blockIdx.x*blockDim.x+threadIdx.x;
+  const int i0=t/r.n1;
+  const int i1=t%r.n1;
+  if(i0>=r.n0) return;
+  float xr=x.arr[i0*x.s0+i1*x.s1];
+  float xi=x.arrc[i0*x.s0+i1*x.s1];
+  float yr=y.arr[i0*y.s0+i1*y.s1];
+  float yi=y.arrc[i0*y.s0+i1*y.s1];
+  r.arr[i0*r.s0+i1*r.s1]+=(xr*yr+xi*yi)*c;
+  r.arrc[i0*r.s0+i1*r.s1]+=(-xr*yi+xi*yr)*c;
+}
+
 
 namespace cnine{
 
@@ -214,6 +227,15 @@ namespace cnine{
     CNINE_ASSRT(r.n1==x.n1);
     CNINE_ASSRT(r.n1==y.n1);
     Ctensor2_add_otimes_kernel<<<roundup(r.n0*r.n1,32)/32,32,0,stream>>>(r,x,y,c);
+  }
+
+  void Ctensor2_add_otimesc_cu(const Ctensor2_view& r, const Ctensor2_view& x, const Ctensor2_view& y, const float c, 
+    const cudaStream_t& stream){
+    CNINE_ASSRT(r.n0==x.n0);
+    CNINE_ASSRT(r.n0==y.n0);
+    CNINE_ASSRT(r.n1==x.n1);
+    CNINE_ASSRT(r.n1==y.n1);
+    Ctensor2_add_otimesc_kernel<<<roundup(r.n0*r.n1,32)/32,32,0,stream>>>(r,x,y,c);
   }
 
 
