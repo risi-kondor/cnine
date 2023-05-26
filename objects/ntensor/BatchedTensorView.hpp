@@ -422,7 +422,6 @@ namespace cnine{
     }
 
     string str(const string indent="") const{
-      CNINE_CPUONLY();
       ostringstream oss;
       if(getb()>1)
 	for_each_batch([&](const int b, const Tview& x){

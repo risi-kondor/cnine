@@ -305,7 +305,7 @@ namespace cnine{
     }
 
     string str(const string indent="") const{
-      CNINE_CPUONLY();
+      if(dev>0) return BatchedTensorArrayView(*this,0).str(indent);
       ostringstream oss;
       if(getb()>1){
 	for_each_batch([&](const int b, const _TensorArrayView& x){

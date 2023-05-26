@@ -36,18 +36,18 @@ namespace cnine{
   class BatchedTensor: public BatchedTensorView<TYPE>{
   public:
 
-    typedef BatchedTensorView<TYPE> BatchedTensorView;
-    typedef TensorView<TYPE> TensorView;
+    typedef BatchedTensorView<TYPE> BTview;
+    typedef TensorView<TYPE> Tview;
 
-    using BatchedTensorView::BatchedTensorView;
-    using BatchedTensorView::arr;
-    using BatchedTensorView::dims;
-    using BatchedTensorView::strides;
-    using BatchedTensorView::dev;
+    using BTview::BTview;
+    using BTview::arr;
+    using BTview::dims;
+    using BTview::strides;
+    using BTview::dev;
 
-    //using BatchedTensorView::operator=;
-    using BatchedTensorView::for_each_batch;
-    using BatchedTensorView::ndims;
+    //using BTview::operator=;
+    using BTview::for_each_batch;
+    using BTview::ndims;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -67,9 +67,9 @@ namespace cnine{
   public: // ---- Lambda constructors -----------------------------------------------------------------------
 
 
-    BatchedTensor(const int _b, const Gdims& _dims, const std::function<TensorView(const int)>& fn, const int _dev=0):
+    BatchedTensor(const int _b, const Gdims& _dims, const std::function<Tview(const int)>& fn, const int _dev=0):
       BatchedTensor(_b,_dims,fill_zero(),_dev){
-      for_each_batch([&](const int b, const TensorView& x){x=fn(b);});
+      for_each_batch([&](const int b, const Tview& x){x=fn(b);});
     }
 
 
@@ -101,18 +101,18 @@ namespace cnine{
   public: // ---- Views -------------------------------------------------------------------------------------
 
 
-    BatchedTensor(const BatchedTensorView& x):
+    BatchedTensor(const BTview& x):
       BatchedTensor(x.getb(),x.ddims(),x.dev){
       CNINE_COPY_WARNING();
       view()=x;
     }
  
-    BatchedTensorView view(){
-      return BatchedTensorView(*this);
+    BTview view(){
+      return BTview(*this);
     }
 
-    const BatchedTensorView view() const{
-      return BatchedTensorView(*this);
+    const BTview view() const{
+      return BTview(*this);
     }
 
 
@@ -120,7 +120,7 @@ namespace cnine{
 
 
     /*
-    BatchedTensor operator*(const BatchedTensorView& y) const{
+    BatchedTensor operator*(const BTview& y) const{
       CNINE_ASSERT(ndims()==1||ndims()==2,"first operand of product must be a vector or a matrix");
       CNINE_ASSERT(y.ndims()==1||y.ndims()==2,"second operand of product must be a vector or a matrix");
 

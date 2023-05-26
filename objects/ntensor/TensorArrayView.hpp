@@ -93,6 +93,13 @@ namespace cnine{
     }
 
 
+  public: // ---- Devices ------------------------------------------------------------------------------------
+
+
+    TensorArrayView(const TensorArrayView<TYPE>& x, const int _dev):
+      _TensorView(x,_dev), ak(x.ak){}
+
+
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
@@ -296,7 +303,7 @@ namespace cnine{
     }
 
     string str(const string indent="") const{
-      CNINE_CPUONLY();
+      if(dev>0) return TensorArrayView(*this,0).str(indent);
       ostringstream oss;
       for_each_cell([&](const Gindex& ix, const _TensorView& x){
 	  oss<<indent<<"Cell"<<ix<<":"<<endl;

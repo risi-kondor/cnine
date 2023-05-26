@@ -71,7 +71,7 @@ namespace cnine{
       TensorView(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
 
     TensorView(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
-      TensorView(_dims,_dev){
+      TensorView(_dims,0){
       int N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=dummy.v;
@@ -79,7 +79,7 @@ namespace cnine{
     }
 
     TensorView(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
-      TensorView(_dims,_dev){
+      TensorView(_dims,0){
       int N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=i;
@@ -87,7 +87,7 @@ namespace cnine{
     }
 
     TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
-      TensorView(_dims,_dev){
+      TensorView(_dims,0){
       int N=dims.total();
       //if constexpr(is_complex<TYPE>()){
       //normal_distribution<double> distr;
@@ -122,8 +122,8 @@ namespace cnine{
 	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
 	}
 	if(device()==1){
-	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(float),cudaMemcpyHostToDevice));
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(float),cudaMemcpyDeviceToDevice));  
+	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyHostToDevice));
+	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
 	}      
       }else{
 	for_each([&](const Gindex& ix, TYPE& v) {v=x(ix);});
@@ -629,7 +629,7 @@ namespace cnine{
     }
 
     string str(const string indent="") const{
-      CNINE_CPUONLY();
+      if(dev>0) return TensorView(*this,0).str(indent);
       ostringstream oss;
 
       if(ndims()==1){
