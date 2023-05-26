@@ -59,7 +59,6 @@ namespace cnine{
       s0=_strides[0];
       s1=_strides[1];
       s2=_strides[2];
-      //cout<<"diff="<<arrc-arr<<endl;
     }
 
     Ctensor3_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 

@@ -62,6 +62,8 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
+    BatchedTensorArrayView(){}
+
     //BatchedTensorArrayView(const MemArr<TYPE>& _arr, const int _b, const Gdims& _dims, const GstridesB& _strides):
     //BatchedTensorView(_arr,_dims,_strides), ak(_ak){}
 

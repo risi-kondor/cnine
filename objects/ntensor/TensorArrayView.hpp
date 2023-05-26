@@ -56,6 +56,8 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
+    TensorArrayView(){}
+
     TensorArrayView(const MemArr<TYPE>& _arr, const int _ak, const Gdims& _dims, const GstridesB& _strides):
       _TensorView(_arr,_dims,_strides), ak(_ak){}
 
