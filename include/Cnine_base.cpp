@@ -21,6 +21,7 @@
 namespace cnine{
 
   thread_local int nthreads=1;
+  thread_local int streaming_footprint=1024;
   float* cuda_oneS=nullptr;
 }
 

@@ -47,6 +47,8 @@ int main(int argc, char** argv){
 
   cout<<A+A<<endl;
 
+  cout<<session<<endl;
+
   //Tensor<float> C(B);
   //cout<<C<<endl;
 

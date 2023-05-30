@@ -16,6 +16,9 @@
 #define _CnineSession
 
 #include "Cnine_base.hpp"
+#include <chrono>
+#include <ctime>
+
 
 #ifdef _WITH_CENGINE
 #include "CengineSession.hpp"
@@ -31,10 +34,15 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
   extern thread_local int nthreads;
+  extern thread_local int streaming_footprint;
   extern float* cuda_oneS;
+
 
   class cnine_session{
   public:
+
+    std::time_t start_time;
+
 
     #ifdef _WITH_CENGINE
     Cengine::CengineSession* cengine_session=nullptr;
@@ -42,6 +50,8 @@ namespace cnine{
 
 
     cnine_session(const int _nthreads=1){
+
+      start_time=std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
       nthreads=_nthreads;
 
@@ -68,6 +78,22 @@ namespace cnine{
 #endif 
     }
     
+
+  public: // ---- I/O ----------------------------------------------------------------------------------------
+
+
+    string str(const string indent="") const{
+      ostringstream oss;
+      cout<<indent<<"cnine session started "<<std::ctime(&start_time);
+      cout<<indent<<"Number of CPU threads: "<<nthreads<<endl;
+      cout<<indent<<"GPU footprint for streaming operations: "<<streaming_footprint<<" MB"<<endl;
+      return oss.str();
+    }
+
+    friend ostream& operator<<(ostream& stream, const cnine_session& x){
+      stream<<x.str(); return stream;
+    }
+
   };
 
 }

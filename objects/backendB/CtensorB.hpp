@@ -681,7 +681,7 @@ namespace cnine{
 
     static CtensorB view(at::Tensor& T){
       T.contiguous();
-      if(!is_regular(T)){cout<<"irregular!"<<endl; return CtensorB(T);}
+      if(!is_regular(T)){cout<<"irregular!"<<endl; /*return CtensorB(T);*/}
       
       CtensorB R;
       int k=T.dim(); //-1;
