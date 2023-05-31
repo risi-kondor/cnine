@@ -691,6 +691,8 @@ namespace cnine{
 	R.dims[i]=T.size(i);
       R.strides=Gstrides(R.dims,2);
       R.asize=R.strides[0]*R.dims[0]/2; 
+      for(int i=0; i<k; i++)
+	R.strides[i]=2*T.stride(i); // changed 
       R.memsize=R.strides[0]*R.dims[0]; 
       R.coffs=1;
       R.dev=T.type().is_cuda();

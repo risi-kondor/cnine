@@ -33,9 +33,10 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
-  extern thread_local int nthreads;
-  extern thread_local int streaming_footprint;
+  extern int streaming_footprint;
   extern float* cuda_oneS;
+
+  extern thread_local int nthreads;
 
 
   class cnine_session{

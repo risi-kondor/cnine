@@ -282,7 +282,7 @@ namespace cnine{
   static const nowarn_flag nowarn;
 
 
-  // --- DeviGPUces ---------------------------------------------------------------------------------------------
+  // --- Devices ---------------------------------------------------------------------------------------------
 
 
   struct device_id{
@@ -307,6 +307,12 @@ namespace cnine{
     static device CPU(0);
     static device GPU0(1);
   }    
+
+  class DeviceSelector{
+  public:
+    int dev=0;
+    int memomory_limit=1024;
+  }
 
 
   // ---- Formats -------------------------------------------------------------------------------------------
