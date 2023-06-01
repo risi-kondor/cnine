@@ -311,8 +311,29 @@ namespace cnine{
   class DeviceSelector{
   public:
     int dev=0;
-    int memomory_limit=1024;
+    int max_mem=1024;
   };
+
+
+  /*
+  class WorkOnDevice{
+  public:
+
+    int old_dev=0;
+
+    ~WorkOnDevice(){
+      dev_selector.dev=old_dev;
+    }
+
+
+    WorkOnDevice(const int _dev):
+      old_dev(dev_selector.dev){
+      dev_selector.dev=_dev;
+    }
+
+  };
+  */
+
 
 
   // ---- Formats -------------------------------------------------------------------------------------------
@@ -633,6 +654,29 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 #else
 #define GPUCODE(cmd) 
 #endif
+
+namespace cnine{
+
+  template<typename TYPE>
+  class ArrayOnDevice{
+  public:
+
+    TYPE* arr;
+
+    ArrayOnDevice(const int _n){
+      CUDA_SAFE(cudaMalloc((void **)&arr, _n*sizeof(TYPE)));
+    }
+
+    ~ArrayOnDevice(){
+      CUDA_SAFE(cudaFree(arr));
+    }
+
+    operator TYPE*() const{
+      return arr;
+    }
+  };
+
+}
 
 // ---- Cengine stuff ----------------------------------------------------------------------------------------
 
