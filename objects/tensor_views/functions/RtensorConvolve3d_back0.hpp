@@ -40,9 +40,13 @@ namespace cnine{
 
     // forward: (b,i0,i1,i2,a,c)*(a',j0,j1,j2,a) -> (b,i0+j0,i1+j1,i2+j2,a',c) 
     void operator()(const Rtensor6_view& rg, const Rtensor6_view& xg, const Rtensor5_view& w){
-      Rtensor5_view wt(w.arr+w.n1*w.s1+w.n2*w.s2+w.n3*w.s3,
-	w.n4,w.n1,w.n2,w.n3,w.n0,
-	w.s4,-w.s1,-w.s2,-w.s3,w.s0,w.dev);
+      cout<<"4445"<<endl;
+      Rtensor5_view wt(w.arr+(w.n1-1)*w.s1+(w.n2-1)*w.s2+(w.n3-1)*w.s3,
+      w.n4,w.n1,w.n2,w.n3,w.n0,
+      w.s4,-w.s1,-w.s2,-w.s3,w.s0,w.dev);
+      //Rtensor5_view wt(w.arr,
+      //w.n4,w.n1,w.n2,w.n3,w.n0,
+      //w.s4,w.s1,w.s2,w.s3,w.s0,w.dev);
       RtensorConvolve3d()(xg,rg,wt);
     }
 

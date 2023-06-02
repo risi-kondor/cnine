@@ -175,6 +175,8 @@ __global__ void RtensorConvolve3d_kernel
   //if(threadIdx.x==0 &&threadIdx.y==0 && i0==0 && i1==0){printf("%d\n",rarr);}
   //rarr[0]+=t;
   //if(b==0 && i0==0 && i1==0 && i2==0){printf("%d %d\n",threadIdx.x, threadIdx.y);}
+
+  //rarr[0]+=5.0;
   rarr[b*rs0+i0*rs1+i1*rs2+i2*rs3+threadIdx.x*rs4+threadIdx.y*rs5]+=t;
 }
 
@@ -355,6 +357,10 @@ namespace cnine{
 	    w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
 	    r.n1,w.n1,w.n2,w.n3,w.n4); 
       }else{
+	cout<<r.n0<<" "<<r.n1<<" "<<r.n2<<" "<<r.n3<<" "<<r.n4<<" "<<r.n5<<endl;
+	cout<<r.s0<<" "<<r.s1<<" "<<r.s2<<" "<<r.s3<<" "<<r.s4<<" "<<r.s5<<endl;
+	cout<<w.n0<<" "<<w.n1<<" "<<w.n2<<" "<<w.n3<<" "<<w.n4<<endl;
+	cout<<w.s0<<" "<<w.s1<<" "<<w.s2<<" "<<w.s3<<" "<<w.s4<<endl;
 	RtensorConvolve3d_kernel<<<blocks,threads,0,stream>>>
 	  (r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,r.s5,
 	    x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,x.s5,
