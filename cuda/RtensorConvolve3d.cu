@@ -168,7 +168,7 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=max(0,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[b*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+(i2+j2-padding2)*xs3+a*xs4+threadIdx.y*xs5]*
-	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
+	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4));
 
   //if(threadIdx.x==0 &&threadIdx.y==0){printf("%d %d %d %d\n",b,i0,i1,i2);}
   //if(threadIdx.x==0 &&threadIdx.y==0){printf("%d %d %d %d %d %d\n",rs0,rs1,rs2,rs3,rs4,rs5);}
