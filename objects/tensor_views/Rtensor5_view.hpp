@@ -343,6 +343,10 @@ namespace cnine{
     
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
+
+    string repr() const{
+      return "<<Rtensor5_view"+get_dims().str()+">";
+    }
   
     string str(const string indent="") const{
       return gtensor().str(indent);

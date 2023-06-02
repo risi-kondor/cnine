@@ -118,6 +118,8 @@ namespace cnine{
       int padding1=(r.n2-x.n2+w.n2-1)/2;
       int padding2=(r.n3-x.n3+w.n3-1)/2;
 
+      cout<<"RtensorConvolve3d "<<r.repr()<<" "<<x.repr()<<" "<<w.repr()<<endl;
+
       if(r.dev==0){
 	for(int b=0; b<x.n0; b++){
 	  (*this)(r.slice0(b),x.slice0(b),w);
