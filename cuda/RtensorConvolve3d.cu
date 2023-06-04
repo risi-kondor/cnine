@@ -47,7 +47,7 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=0; j2<nj2; j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3]*
-	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
+	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4));
 
   rarr[i0*rs0+i1*rs1+i2*rs2+threadIdx.x*rs3]+=t;
 }
@@ -69,7 +69,7 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=max(0,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0-padding0)*xs0+(i1+j1-padding1)*xs1+(i2+j2-padding2)*xs2+a*xs3]*
-	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
+	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4));
 
   rarr[i0*rs0+i1*rs1+i2*rs2+threadIdx.x*rs3]+=t;
 }
@@ -94,7 +94,7 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=0; j2<nj2; j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0)*xs0+(i1+j1)*xs1+(i2+j2)*xs2+a*xs3+threadIdx.y*xs4]*
-	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
+	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4));
 
   rarr[i0*rs0+i1*rs1+i2*rs2+threadIdx.x*rs3+threadIdx.y*rs4]+=t;
 }
@@ -117,7 +117,7 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=max(0,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[(i0+j0-padding0)*xs0+(i1+j1-padding1)*xs1+(i2+j2-padding2)*xs2+a*xs3+threadIdx.y*xs4]*
-	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
+	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4));
 
   rarr[i0*rs0+i1*rs1+i2*rs2+threadIdx.x*rs3+threadIdx.y*rs4]+=t;
 }
@@ -143,10 +143,9 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=0; j2<nj2; j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[b*xs0+(i0+j0)*xs1+(i1+j1)*xs2+(i2+j2)*xs3+a*xs4+threadIdx.y*xs5]*
-	    warr[threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4];
+	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4));
 
   rarr[b*rs0+i0*rs1+i1*rs2+i2*rs3+threadIdx.x*rs4+threadIdx.y*rs5]+=t;
-  //printf("(%d %d %d %d %d %d): %f\n",b,i0,i1,i2,threadIdx.x,threadIdx.y,t);
 }
 
 
@@ -168,74 +167,12 @@ __global__ void RtensorConvolve3d_kernel
       for(int j2=max(0,padding2-i2); j2<min(nj2,xn2-i2+padding2); j2++)
 	for(int a=0; a<na; a++)
 	  t+=xarr[b*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+(i2+j2-padding2)*xs3+a*xs4+threadIdx.y*xs5]*
-	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4));
+	    (*(warr+threadIdx.x*ws0+j0*ws1+j1*ws2+j2*ws3+a*ws4)); 
+  // CUDA apparently doesn't support negative array indices
 
-  //if(threadIdx.x==0 &&threadIdx.y==0){printf("%d %d %d %d\n",b,i0,i1,i2);}
-  //if(threadIdx.x==0 &&threadIdx.y==0){printf("%d %d %d %d %d %d\n",rs0,rs1,rs2,rs3,rs4,rs5);}
-  //if(threadIdx.x==0 &&threadIdx.y==0 && i0==0 && i1==0){printf("%d\n",rarr);}
-  //rarr[0]+=t;
-  //if(b==0 && i0==0 && i1==0 && i2==0){printf("%d %d\n",threadIdx.x, threadIdx.y);}
-
-  //rarr[0]+=5.0;
   rarr[b*rs0+i0*rs1+i1*rs2+i2*rs3+threadIdx.x*rs4+threadIdx.y*rs5]+=t;
 }
 
-
-
-/*
-__global__ void RtensorConvolve2d_sparse_kernel
-(float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, 
-  float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4,  
-  float* warr, int* wdir, const int rn1, const int nj1, const int na){
-
-  int i0=blockIdx.y/rn1;
-  int i1=blockIdx.y%rn1;
-
-  int row=blockIdx.y*blockDim.z+blockIdx.z;
-  int offs=wdir[2*row];
-  int n=wdir[2*row+1];
-  
-  float t=0;
-  for(int i=0; i<n; i++){
-    int s=*reinterpret_cast<int*>(warr+offs+2*i);
-    int j0=s/(nj1*na);
-    int j1=(s/na)%nj1;
-    int a=s%na;
-t+=xarr[blockIdx.x*xs0+(i0+j0)*xs1+(i1+j1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1];
-  }
-  rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
-  
-}
-*/
-
-/*
-__global__ void RtensorConvolve2d_sparse_padded_kernel
-(float* rarr, const int rs0, const int rs1, const int rs2, const int rs3, const int rs4, 
-  float* xarr, const int xs0, const int xs1, const int xs2, const int xs3, const int xs4,  
-  float* warr, int* wdir, const int rn1, const int nj1, const int na,
-  const int xn1, const int xn2, const int padding0, const int padding1){
-
-  int i0=blockIdx.y/rn1;
-  int i1=blockIdx.y%rn1;
-
-  int row=blockIdx.y*blockDim.z+blockIdx.z;
-  int offs=wdir[2*row];
-  int n=wdir[2*row+1];
-  
-  float t=0;
-  for(int i=0; i<n; i++){
-    int s=*reinterpret_cast<int*>(warr+offs+2*i);
-    int j0=s/(nj1*na);
-    int j1=(s/na)%nj1;
-    if(i0+j0-padding0<0 || i0+j0-padding0>=xn1) continue;
-    if(i1+j1-padding1<0 || i1+j1-padding1>=xn2) continue;
-    int a=s%na;
-    t+=xarr[blockIdx.x*xs0+(i0+j0-padding0)*xs1+(i1+j1-padding1)*xs2+a*xs3+threadIdx.x*xs4]*warr[offs+2*i+1];
-  }
-  rarr[blockIdx.x*rs0+i0*rs1+i1*rs2+blockIdx.z*rs3+threadIdx.x*rs4]+=t;
-  
-}
-*/
 
 // ----------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
@@ -272,35 +209,7 @@ namespace cnine{
 	  x.n0,x.n1,x.n2,padding0,padding1,padding2); 
     }
   }
-  
-
-  /*
-  void RtensorConvolve3d_cu(const Rtensor4_view& r, const Rtensor4_view& x, const Rtensor5_view& w, 
-    const int padding0, const int padding1, const int padding2, const cudaStream_t& stream){
-    CNINE_ASSRT(r.dev==1);
-    CNINE_ASSRT(x.dev==1);
-    CNINE_ASSRT(w.dev==1);
-
-    dim3 blocks(r.n0,r.n1,r.n2);
-    dim3 threads(r.n3);
-
-    if(padding0==0&&padding1==0&&padding2==0){
-      RtensorConvolve3d_kernel<<<blocks,threads,0,stream>>>
-	(r.arr,r.s0,r.s1,r.s2,r.s3,
-	  x.arr,x.s0,x.s1,x.s2,x.s3,
-	  w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
-	  w.n1,w.n2,w.n3,w.n4); 
-    }else{
-      RtensorConvolve3d_kernel<<<blocks,threads,0,stream>>>
-	(r.arr,r.s0,r.s1,r.s2,r.s3,
-	  x.arr,x.s0,x.s1,x.s2,x.s3,
-	  w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
-	  w.n1,w.n2,w.n3,w.n4,
-	  x.n0,x.n1,x.n2,padding0,padding1,padding2); 
-    }
-  }
-  */
-  
+    
 
   // ---- 5D case (i0,i1,i2,a,c)*(a',j0,j1,j2,a) -> (i0+j0,i1+j1,i2+j2,a',c) -----------------------------------
 
@@ -357,10 +266,6 @@ namespace cnine{
 	    w.arr,w.s0,w.s1,w.s2,w.s3,w.s4,
 	    r.n1,w.n1,w.n2,w.n3,w.n4); 
       }else{
-	cout<<r.n0<<" "<<r.n1<<" "<<r.n2<<" "<<r.n3<<" "<<r.n4<<" "<<r.n5<<endl;
-	cout<<r.s0<<" "<<r.s1<<" "<<r.s2<<" "<<r.s3<<" "<<r.s4<<" "<<r.s5<<endl;
-	cout<<w.n0<<" "<<w.n1<<" "<<w.n2<<" "<<w.n3<<" "<<w.n4<<endl;
-	cout<<w.s0<<" "<<w.s1<<" "<<w.s2<<" "<<w.s3<<" "<<w.s4<<endl;
 	RtensorConvolve3d_kernel<<<blocks,threads,0,stream>>>
 	  (r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,r.s5,
 	    x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,x.s5,
@@ -374,32 +279,6 @@ namespace cnine{
     }
 
   }
-
-  /*
-  void RtensorConvolve3d_cu(const Rtensor6_view& r, const Rtensor6_view& x, const Rtensor5_view& w, 
-    const int padding0, const int padding1, const cudaStream_t& stream){
-    CNINE_ASSRT(r.dev==1);
-    CNINE_ASSRT(x.dev==1);
-    CNINE_ASSRT(w.dev==1);
-
-    dim3 blocks(r.n0,r.n1*r.n2,r.n3);
-
-    if(padding0==0&&padding1==0){
-      RtensorConvolve3d_kernel<<<blocks,r.n4,0,stream>>>
-	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
-	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
-	  w.arr,w.s0,w.s1,w.s2,w.s3,
-	  r.n1,w.n1,w.n2,w.n3); // changed x.n1 to r.n1 
-    }else{
-     RtensorConvolve3d_kernel<<<blocks,r.n4,0,stream>>>
-	(r.arr,r.s0,r.s1,r.s2,r.s3,r.s4,
-	  x.arr,x.s0,x.s1,x.s2,x.s3,x.s4,
-	  w.arr,w.s0,w.s1,w.s2,w.s3,
-	  r.n1,w.n1,w.n2,w.n3,
-	  x.n1,x.n2,padding0,padding1); 
-    }
-  }
-  */
 
 }
 

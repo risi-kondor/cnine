@@ -16,6 +16,7 @@
 #define _CnineSession
 
 #include "Cnine_base.hpp"
+#include "CnineLog.hpp"
 #include <chrono>
 #include <ctime>
 
@@ -29,6 +30,7 @@
 extern cublasHandle_t cnine_cublas;
 #endif
 
+extern cnine::CnineLog cnine_log;
 
 
 namespace cnine{

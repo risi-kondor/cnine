@@ -315,26 +315,6 @@ namespace cnine{
   };
 
 
-  /*
-  class WorkOnDevice{
-  public:
-
-    int old_dev=0;
-
-    ~WorkOnDevice(){
-      dev_selector.dev=old_dev;
-    }
-
-
-    WorkOnDevice(const int _dev):
-      old_dev(dev_selector.dev){
-      dev_selector.dev=_dev;
-    }
-
-  };
-  */
-
-
 
   // ---- Formats -------------------------------------------------------------------------------------------
 
@@ -646,6 +626,27 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 #define CUDA_STREAM(cmd) CNINE_NOCUDA_ERROR
 #endif
 
+#ifdef _WITH_CUDA
+class cu_stream{
+public:
+
+  cudaStream_t stm;				\
+
+  cu_stream(){
+    CUDA_SAFE(cudaStreamCreate(&stm));
+  }
+
+  ~cu_stream(){
+    CUDA_SAFE(cudaStreamSynchronize(stm));
+    CUDA_SAFE(cudaStreamDestroy(stm));
+  }
+
+  operator cudaStream_t() const{
+    return stm;
+  }
+
+};
+#endif 
 
 #define CPUCODE(cmd) if(dev==0){cmd;}
 

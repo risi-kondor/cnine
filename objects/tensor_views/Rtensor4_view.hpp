@@ -66,6 +66,10 @@ namespace cnine{
       return Gdims(n0,n1,n2,n3);
     }
 
+    Gstrides get_strides() const{
+      return Gstrides(s0,s1,s2,s3);
+    }
+
     float operator()(const int i0, const int i1, const int i2, const int i3) const{
       CNINE_CHECK_RANGE(if(i0<0 || i1<0 || i2<0 || i3<0 || i0>=n0 || i1>=n1 || i2>=n2 || i3>=n3) 
 	  throw std::out_of_range("cnine::Rtensor4_view: index "+Gindex({i0,i1,i2,i3}).str()+" out of range of view size "+Gdims({n0,n1,n2,n3}).str()));
@@ -285,6 +289,10 @@ namespace cnine{
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
   
+    string repr() const{
+      return "<Rtensor4_view"+get_dims().str()+get_strides().str()+":"+to_string(dev)+">";
+    }
+
     string str(const string indent="") const{
       return gtensor().str(indent);
     }

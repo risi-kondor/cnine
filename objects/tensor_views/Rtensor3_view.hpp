@@ -73,6 +73,14 @@ namespace cnine{
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
+    Gdims get_dims() const{
+      return Gdims(n0,n1,n2);
+    }
+
+    Gstrides get_strides() const{
+      return Gstrides(s0,s1,s2);
+    }
+
     virtual bool is_regular() const{
       if(s2!=1) return false;
       if(s1!=n2) return false;
@@ -450,6 +458,10 @@ namespace cnine{
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
   
+    string repr() const{
+      return "<Rtensor3_view"+get_dims().str()+get_strides().str()+":"+to_string(dev)+">";
+    }
+
     string str(const string indent="") const{
       return gtensor().str(indent);
     }

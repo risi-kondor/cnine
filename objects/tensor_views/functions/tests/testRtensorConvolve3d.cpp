@@ -3,6 +3,8 @@
 #include "CnineSession.hpp"
 #include "RtensorConvolve3d.hpp"
 #include "RtensorConvolve3dSparse.hpp"
+#include "CtensorConvolve3d.hpp"
+#include "CtensorConvolve3d_back0.hpp"
 
 using namespace cnine;
 

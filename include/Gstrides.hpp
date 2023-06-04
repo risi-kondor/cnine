@@ -64,6 +64,15 @@ namespace cnine{
       (*this)[4]=i4;
     }
 
+    Gstrides(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5): vector<int>(5){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+      (*this)[5]=i5;
+    }
+
 
     Gstrides(const Gdims& dims, const int s0=1): 
       vector<int>(dims.size()){

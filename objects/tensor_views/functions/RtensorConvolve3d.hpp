@@ -16,7 +16,7 @@
 #define _CnineRtensorConvolve3d
 
 #include "Rtensor6_view.hpp"
-#include "CSRmatrix.hpp"
+#include "LoggedOp.hpp"
 
 namespace cnine{
 
@@ -118,7 +118,8 @@ namespace cnine{
       int padding1=(r.n2-x.n2+w.n2-1)/2;
       int padding2=(r.n3-x.n3+w.n3-1)/2;
 
-      cout<<"RtensorConvolve3d "<<r.repr()<<" "<<x.repr()<<" "<<w.repr()<<endl;
+      //cout<<"RtensorConvolve3d "<<r.repr()<<" "<<x.repr()<<" "<<w.repr()<<endl;
+      LoggedOp("RtensorConvolve3d",r,x,w);
 
       if(r.dev==0){
 	for(int b=0; b<x.n0; b++){

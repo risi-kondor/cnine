@@ -32,10 +32,14 @@ namespace cnine{
     }
 
     void operator()(const Ctensor4_view& r, const Ctensor4_view& x, const Rtensor4_view& w){
+      if(r.s3!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of r must be 1. Skipping this operation."); return;}
+      if(x.s3!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of x must be 1. Skipping this operation."); return;}
       RtensorConvolve2d()(r.as_real().fuse34(),x.as_real().fuse34(),w);
     }
 
     void operator()(const Ctensor5_view& r, const Ctensor5_view& x, const Rtensor4_view& w){
+      if(r.s4!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of r must be 1. Skipping this operation."); return;}
+      if(x.s4!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of x must be 1. Skipping this operation."); return;}
       RtensorConvolve2d()(r.as_real().fuse45(),x.as_real().fuse45(),w);
     }
 

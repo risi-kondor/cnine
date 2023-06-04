@@ -28,14 +28,20 @@ namespace cnine{
   public:
 
     void operator()(const Ctensor4_view& r, const Ctensor4_view& x, const Rtensor5_view& w){
+      if(r.s3!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of r must be 1. Skipping this operation."); return;}
+      if(x.s3!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of x must be 1. Skipping this operation."); return;}
       RtensorConvolve3d()(r.as_real().fuse34(),x.as_real().fuse34(),w);
     }
 
     void operator()(const Ctensor5_view& r, const Ctensor5_view& x, const Rtensor5_view& w){
+      if(r.s4!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of r must be 1. Skipping this operation."); return;}
+      if(x.s4!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of x must be 1. Skipping this operation."); return;}
       RtensorConvolve3d()(r.as_real().fuse45(),x.as_real().fuse45(),w);
     }
 
     void operator()(const Ctensor6_view& r, const Ctensor6_view& x, const Rtensor5_view& w){
+      if(r.s5!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of r must be 1. Skipping this operation."); return;}
+      if(x.s5!=1) {cnine_log.error(__PRETTY_FUNCTION__,"Last stride of x must be 1. Skipping this operation."); return;}
       RtensorConvolve3d()(r.as_real().fuse56(),x.as_real().fuse56(),w);
     }
 

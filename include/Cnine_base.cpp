@@ -13,6 +13,7 @@
 
 
 #include "Cnine_base.hpp"
+#include "CnineLog.hpp"
 
 #ifdef _WITH_CENGINE
 #include "Cengine_base.cpp"
@@ -27,6 +28,8 @@ namespace cnine{
 
   int streaming_footprint=1024;
   thread_local DeviceSelector dev_selector;
+
+  CnineLog cnine_log;
 
 }
 

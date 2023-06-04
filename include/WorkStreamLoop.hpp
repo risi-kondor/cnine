@@ -33,6 +33,23 @@ namespace cnine{
 
   };
 
+
+  class StreamingBlock{
+  public:
+
+    int old_dev=0;
+
+    StreamingBlock(const int _dev):
+      old_dev(dev_selector.dev){
+      dev_selector.dev=_dev;
+    }
+
+    ~StreamingBlock(){
+      dev_selector.dev=old_dev;
+    }
+
+  };
+
 }
 
 #endif 

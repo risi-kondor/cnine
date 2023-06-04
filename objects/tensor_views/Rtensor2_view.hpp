@@ -99,8 +99,12 @@ namespace cnine{
       return true;
     }
 
-    Gdims get_dims(){
+    Gdims get_dims() const{
       return Gdims({n0,n1});
+    }
+
+    Gstrides get_strides() const{
+      return Gstrides(s0,s1);
     }
 
     virtual float operator()(const int i0, const int i1) const{
@@ -539,6 +543,10 @@ namespace cnine{
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
   
+    string repr() const{
+      return "<Rtensor2_view"+get_dims().str()+get_strides().str()+":"+to_string(dev)+">";
+    }
+
     string str(const string indent="") const{
       return gtensor().str(indent);
     }
