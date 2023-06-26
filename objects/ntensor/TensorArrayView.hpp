@@ -303,6 +303,7 @@ namespace cnine{
     }
 
     string str(const string indent="") const{
+      cout<<334<<endl;
       if(dev>0) return TensorArrayView(*this,0).str(indent);
       ostringstream oss;
       for_each_cell([&](const Gindex& ix, const _TensorView& x){

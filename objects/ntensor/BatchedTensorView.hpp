@@ -66,7 +66,7 @@ namespace cnine{
     // Shall we change to this??
     BatchedTensorView(const Tview& x):
       BatchedTensorView(1,x){
-      cout<<"Promoting"<<endl;
+      //cout<<"Promoting"<<endl;
     }
     //BatchedTensorView(const Tensor& x):
     //BatchedTensorView(Tview(x)){

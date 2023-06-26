@@ -48,11 +48,11 @@ namespace cnine{
 
     BatchedTensorArrayVirtual(){};
 
-    BatchedTensorArrayVirtual(const BatchedTensorArrayVirtual<TYPE>& x):
-      BatchedTensorArrayVirtual(x.getb(),x.adims(),x.ddims(),x.dev){
-      CNINE_COPY_WARNING();
-      view()=x.view();
-    }
+    //BatchedTensorArrayVirtual(const BatchedTensorArrayVirtual<TYPE,BASE>& x):
+    //BatchedTensorArrayVirtual(x.getb(),x.adims(),x.ddims(),x.dev){
+    //CNINE_COPY_WARNING();
+    //view()=x.view();
+    //}
 
 
   public: // ---- Named constructors ------------------------------------------------------------------------
@@ -114,7 +114,7 @@ namespace cnine{
     #ifdef _WITH_ATEN
 
     BatchedTensorArrayVirtual(const at::Tensor& T):
-      BatchedTensorArrayVirtual(Gdims(x),T.type().is_cuda()){
+      BatchedTensorArrayVirtual(Gdims(T),T.type().is_cuda()){
       (*this)=T;
     }
 
