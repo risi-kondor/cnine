@@ -1,7 +1,9 @@
+
+
 `cnine` is a lightweight C++ tensor library with a CUDA backend. 
 The primary purpose of `cnine` is to provide provide direct control over  
 GP-GPU functionality to Python and C++ developers.  
-This document gives a high level introduction to `cnine`'s PyTorch interface.  
+This document is an introduction to `cnine`'s PyTorch interface.  
 
 `cnine` is developed by Risi Kondor and released for noncommercial use only 
 under a custom license that can be found in the file LICENSE.TXT
