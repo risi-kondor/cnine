@@ -142,8 +142,9 @@ namespace cnine{
         
     Tensor& operator=(const Tensor& x){
       CNINE_ASSIGN_WARNING();
+      arr=MemArr<TYPE>(x.dims.total(),x.dev);
       dims=x.dims;
-      strides=x.strides;
+      strides=GstridesB(dims);
       dev=x.dev;
       TensorView<TYPE>::operator=(x);
       return *this;

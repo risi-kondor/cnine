@@ -524,8 +524,9 @@ namespace cnine{
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
 	  for(int i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
-	}else
+	}else{
 	  for_each([&](const Gindex& ix, TYPE& v){v+=c*x(ix);});
+	}
       }
       if(dev==1){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
@@ -643,8 +644,7 @@ namespace cnine{
 
 	  for(int i=0; i<x.dims[0]; i++)
 	    for(int j=0; j<x.dims[1]; j++){
-	      cout<<i<<j<<endl;
-	      block({y.dims[0],y.dims[1]},{i*y.dims[0],j*dims[1]}).add(y,x(i,j));
+	      block({y.dims[0],y.dims[1]},{i*y.dims[0],j*y.dims[1]}).add(y,x(i,j));
 	    }
 	});
     }

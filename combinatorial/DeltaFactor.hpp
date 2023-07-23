@@ -62,6 +62,7 @@ namespace cnine{
 	  const int b=x.b;
 	  const int c=x.c;
 
+	  //cout<<"Delta("<<a<<","<<b<<","<<c<<")"<<endl;
 	  frational R=ffactorial(a+b-c);
 	  return new frational(R*ffactorial(a-b+c)*ffactorial(-a+b+c)/ffactorial(a+b+c+1));
 	}){}
