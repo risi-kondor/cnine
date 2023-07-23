@@ -1,7 +1,7 @@
 /*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
- * Copyright (c) 2022, Imre Risi Kondor
+ * Copyright (c) 2021, Imre Risi Kondor
  *
  * This source code file is subject to the terms of the noncommercial 
  * license distributed with cnine in the file LICENSE.TXT. Commercial 
@@ -11,36 +11,26 @@
  *
  */
 
-#ifndef _FFactorial
-#define _FFactorial
+
+#ifndef _CnineLtensorView
+#define _CnineLtensorView
 
 #include "Cnine_base.hpp"
-#include <map>
-#include "frational.hpp"
+#include "TensorView.hpp"
+#include "LList.hpp"
+
 
 namespace cnine{
 
-  class FFactorial{
+  template<typename TYPE>
+  class LtensorView: public TensorView<TYPE>{
   public:
 
-    vector<frational> f;
 
-    FFactorial(){
-      f.push_back(1);
-    }
+    Llists labels;
 
-    frational operator()(const int x){
-      extend(x);
-      return f[x];
-    }
-    
-    void extend(const int x){
-      if(x<f.size()) return;
-      for(int i=f.size(); i<=x; i++){
-	frational I(i);
-	f.push_back(f.back()*I);
-      }
-    }
+
+  public: // ---- Constructors ------------------------------------------------------------------------------
 
   };
 

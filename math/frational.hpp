@@ -15,16 +15,19 @@
 #define _frational
 
 #include "Cnine_base.hpp"
-#include <map>
 #include "Primes.hpp"
 
 namespace cnine{
+
+  extern Primes primes;
+
 
   class frational{
   public:
 
     map<int,int> factors;
 
+    frational(){}
 
     frational(int x){
       primes.extend(x);
@@ -50,6 +53,13 @@ namespace cnine{
       double r=1.0;
       for(auto& x:factors)
 	r*=pow(x.first,x.second);
+      return r;
+    }
+
+    double log() const{
+      double r=0;
+      for(auto& x:factors)
+	r+=::log(x.first)*x.second;
       return r;
     }
 
@@ -81,6 +91,10 @@ namespace cnine{
       for(auto& x:y.factors)
 	r.factors[x.first]+=x.second;
       return r;
+    }
+
+    frational operator*(const int y){
+      return (*this)*frational(y);
     }
 
 

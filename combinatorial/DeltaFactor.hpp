@@ -15,36 +15,11 @@
 #define _DeltaFactor
 
 #include "Cnine_base.hpp"
-#include <map>
+#include "object_bank.hpp"
 #include "frational.hpp"
+#include "FFactorial.hpp"
 
 namespace cnine{
-
-  template<typename KEY, typename OBJ>
-  class Gbank: public unordered_map<KEY,OBJ*>{
-  public:
-
-    using unordered_map<KEY,OBJ*>::find;
-
-
-    std::function<OBJ*(const KEY&)> make_obj;
-    
-    ~Gbank(){
-      for(auto& p:*this) delete p.second;
-    }
-
-    Gbank(std::function<OBJ*(const KEY&)> _make_obj):
-      make_obj(_make_obj){}
-
-    OBJ& operator()(const KEY& key){
-      auto it=find(key);
-      if(it!=unordered_map<KEY,OBJ*>::end()) return *(*this)[key];
-      OBJ* new_obj=make_obj(key);
-      (*this)[key]=new_obj;
-      return *new_obj;
-    }
-
-  };
 
   class DeltaSignature{
   public:
@@ -73,14 +48,16 @@ namespace std{
 
 namespace cnine{
 
-  class DeltaFactor: public Gbank<DeltaSignature,frational>{
+  extern FFactorial ffactorial;
+
+  class DeltaFactor: public object_bank<DeltaSignature,frational>{
   public:
 
-    using  Gbank<DeltaSignature,frational>::Gbank; //<DeltaSignature,frational>;
-    using  Gbank<DeltaSignature,frational>::operator();
+    using  object_bank<DeltaSignature,frational>::object_bank; //<DeltaSignature,frational>;
+    using  object_bank<DeltaSignature,frational>::operator();
 
     DeltaFactor():
-      Gbank<DeltaSignature,frational>([](const DeltaSignature& x){
+      object_bank<DeltaSignature,frational>([](const DeltaSignature& x){
 	  const int a=x.a;
 	  const int b=x.b;
 	  const int c=x.c;
@@ -91,6 +68,10 @@ namespace cnine{
 
     double operator()(const int a, const int b, const int c){
       return sqrt((*this)(DeltaSignature(a,b,c)));
+    }
+
+    frational squared(const int a, const int b, const int c){
+      return (*this)(DeltaSignature(a,b,c));
     }
 
   };

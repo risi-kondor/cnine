@@ -514,6 +514,14 @@ namespace cnine{
       OBJ::reshape(_dims);}
   };
 
+  inline Gdims tprod(const Gdims& x, const Gdims& y){
+    CNINE_ASSRT(x.size()==y.size());
+    Gdims r(x.size(),fill_raw());
+    for(int i=0; i<x.size(); i++)
+      r[i]=x[i]*y[i];
+    return r;
+  }
+
 
 }
 

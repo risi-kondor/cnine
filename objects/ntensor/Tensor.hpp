@@ -44,12 +44,16 @@ namespace cnine{
 
     //using TensorView<TYPE>::operator=;
     using TensorView<TYPE>::ndims;
+    using TensorView<TYPE>::dim;
+    using TensorView<TYPE>::set;
+    using TensorView<TYPE>::transp;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    Tensor(){};
+    Tensor():
+      TensorView<TYPE>(MemArr<TYPE>(1),{1},{1}){}
 
     Tensor(const Gdims& _dims, const int _dev=0): 
       TensorView<TYPE>(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
@@ -62,6 +66,16 @@ namespace cnine{
       int N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=dummy.v;
+      move_to_device(_dev);
+    }
+
+    Tensor(const Gdims& _dims, const fill_identity& dummy, const int _dev=0):
+      Tensor(_dims,fill_zero()){
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(dim(0)==dim(1));
+      int N=dim(0);
+      for(int i=0; i<N; i++)
+	set(i,i,1.0);
       move_to_device(_dev);
     }
 
@@ -94,6 +108,10 @@ namespace cnine{
       return Tensor<TYPE>(_dims,fill_constant<TYPE>(v),_dev);
     }
 
+    static Tensor<TYPE> identity(const Gdims& _dims, const int _dev=0){
+      return Tensor<TYPE>(_dims,fill_identity(),_dev);
+    }
+
     static Tensor<TYPE> sequential(const Gdims& _dims, const int _dev=0){
       return Tensor<TYPE>(_dims,fill_sequential(),_dev);
     }
@@ -123,6 +141,19 @@ namespace cnine{
     }
         
     Tensor& operator=(const Tensor& x){
+      CNINE_ASSIGN_WARNING();
+      dims=x.dims;
+      strides=x.strides;
+      dev=x.dev;
+      TensorView<TYPE>::operator=(x);
+      return *this;
+    }
+    
+    Tensor& operator=(Tensor&& x){
+      CNINE_MOVEASSIGN_WARNING();
+      dims=x.dims;
+      strides=x.strides;
+      dev=x.dev;
       arr=x.arr;
       return *this;
     }
@@ -245,7 +276,50 @@ namespace cnine{
     R.add_prod(x,y);
     return R;
   }
-    
+
+
+  // ---- Matrix products
+
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator*(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    Tensor<TYPE> R=Tensor<TYPE>::zero(x.dims.Mprod(y.dims),x.dev);
+    R.add_mprod(x,y);
+    return R;
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator*(const TensorView<TYPE>& x, const Transpose<TensorView<TYPE> >& y){
+    return x*(y.obj.transp());
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator*(const TensorView<TYPE>& x, const Transpose<Tensor<TYPE> >& y){
+    return x*(y.obj.transp());
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator*(const Transpose<TensorView<TYPE> >& x, const TensorView<TYPE>& y){
+    return (x.obj.transp())*y;
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator*(const Transpose<Tensor<TYPE> >& x, const TensorView<TYPE>& y){
+    return (x.obj.transp())*y;
+  }
+
+
+  // ---- Tensor Products 
+
+
+  template<typename TYPE>
+  inline Tensor<TYPE> tprod(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    Tensor<TYPE> R=Tensor<TYPE>::zero(tprod(x.dims,y.dims),x.dev);
+    R.add_tprod(x,y);
+    return R;
+  }
+
+  
 
 }
 

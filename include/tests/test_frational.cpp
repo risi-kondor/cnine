@@ -15,12 +15,12 @@
 
 #include "CnineSession.hpp"
 #include "Primes.hpp"
+#include "frational.hpp"
 
 namespace cnine{
   Primes primes;
 }
 
-#include "frational.hpp"
 
 
 using namespace cnine;

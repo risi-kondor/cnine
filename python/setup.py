@@ -30,6 +30,10 @@ def main():
 
  _include_dirs=[
      cwd+'/../include',
+     cwd+'/../combinatorial',
+     cwd+'/../containers',
+     cwd+'/../math',
+     cwd+'/../wrappers',
      cwd+'/../include/cmaps',
      cwd+'/../objects/scalar',
      cwd+'/../objects/matrix',

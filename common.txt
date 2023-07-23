@@ -12,6 +12,7 @@ TENSORARRAYDIR=$(ROOTDIR)/objects/tensor_array
 BACKENDADIR=$(ROOTDIR)/objects/backendA
 BACKENDBDIR=$(ROOTDIR)/objects/backendB
 LABELEDDIR=$(ROOTDIR)/objects/labeled 
+LABELED2DIR=$(ROOTDIR)/objects/labeled2 
 
 MANAGEDDIR=$(ROOTDIR)/managed
 MSCALARDIR=$(ROOTDIR)/managed/scalar

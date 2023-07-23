@@ -16,6 +16,7 @@
 #define _CnineTensorView
 
 #include "Cnine_base.hpp"
+#include "ExprTemplates.hpp"
 #include "Gdims.hpp"
 #include "GstridesB.hpp"
 #include "Gindex.hpp"
@@ -75,6 +76,16 @@ namespace cnine{
       int N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=dummy.v;
+      move_to_device(_dev);
+    }
+
+    TensorView(const Gdims& _dims, const fill_identity& dummy, const int _dev=0):
+      TensorView(_dims,fill_zero(),0){
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(dim(0)==dim(1));
+      int N=dim(0);
+      for(int i=0; i<N; i++)
+	set(i,i,1.0);
       move_to_device(_dev);
     }
 
@@ -378,6 +389,10 @@ namespace cnine{
       return TensorView<TYPE>(arr,dims.transp(),strides.transp());
     }
 
+    const TensorView<TYPE> transp() const{
+      return TensorView<TYPE>(arr,dims.transp(),strides.transp());
+    }
+
     TensorView<TYPE> permute_indices(const vector<int>& p){
       return TensorView<TYPE>(arr,dims.permute(p),strides.permute(p));
     }
@@ -416,6 +431,27 @@ namespace cnine{
       R.dims[d]=n;
       R.strides[d]=0;
       return R;
+    }
+
+    TensorView<TYPE> block(const Gdims& _dims, const Gindex& offs) const{
+      return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
+    }
+
+    TensorView<TYPE> tprod_view(const Gdims& dims1, const Gdims& dims2) const{
+      int k=ndims();
+      CNINE_ASSRT(dims1.size()==k);
+      CNINE_ASSRT(dims2.size()==k);
+      Gdims rdims(2*k,fill_raw());
+      for(int i=0; i<k; i++){
+	rdims[2*i]=dims1[i];
+	rdims[2*i+1]=dims2[i];
+      }
+      GstridesB rstrides(2*k,fill_raw());
+      for(int i=0; i<k; i++){
+	rdims[2*i]=dims2[i]*strides[i];
+	rdims[2*i+1]=strides[i];
+      }
+      return TensorView<TYPE>(arr,rdims,rstrides);
     }
 
 
@@ -489,7 +525,7 @@ namespace cnine{
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
 	  for(int i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
 	}else
-	  for_each([&](const Gindex& ix, const TYPE& v){v+=c*x(ix);});
+	  for_each([&](const Gindex& ix, TYPE& v){v+=c*x(ix);});
       }
       if(dev==1){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
@@ -590,6 +626,26 @@ namespace cnine{
 	  if(r.dev==1){
 	    CNINE_UNIMPL();
 	  }
+	});
+    }
+
+
+  public: // ---- Tensor multiplication ---------------------------------------------------------------------
+
+
+    void add_tprod(const TensorView& x, const TensorView& y) const{
+      reconcile_devices<TensorView<TYPE> >(*this,x,y,[&](const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+	  CNINE_NDIMS_IS_2(r);
+	  CNINE_NDIMS_IS_2(x);
+	  CNINE_NDIMS_IS_2(y);
+	  CNINE_ASSRT(r.dims[0]==x.dims[0]*y.dims[0]);
+	  CNINE_ASSRT(r.dims[1]==x.dims[1]*y.dims[1]);
+
+	  for(int i=0; i<x.dims[0]; i++)
+	    for(int j=0; j<x.dims[1]; j++){
+	      cout<<i<<j<<endl;
+	      block({y.dims[0],y.dims[1]},{i*y.dims[0],j*dims[1]}).add(y,x(i,j));
+	    }
 	});
     }
 

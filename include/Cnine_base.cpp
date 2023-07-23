@@ -13,6 +13,9 @@
 
 
 #include "Cnine_base.hpp"
+#include "Primes.hpp"
+#include "FFactorial.hpp"
+#include "DeltaFactor.hpp"
 #include "CnineLog.hpp"
 
 #ifdef _WITH_CENGINE
@@ -21,13 +24,15 @@
 
 namespace cnine{
 
-
-
   thread_local int nthreads=1;
   float* cuda_oneS=nullptr;
 
   int streaming_footprint=1024;
   thread_local DeviceSelector dev_selector;
+
+  Primes primes;
+  FFactorial ffactorial;
+  DeltaFactor delta_factor;
 
   CnineLog cnine_log;
 
