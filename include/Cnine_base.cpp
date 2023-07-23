@@ -14,6 +14,7 @@
 
 #include "Cnine_base.hpp"
 #include "Primes.hpp"
+#include "Factorial.hpp"
 #include "FFactorial.hpp"
 #include "DeltaFactor.hpp"
 #include "CnineLog.hpp"
@@ -31,6 +32,7 @@ namespace cnine{
   thread_local DeviceSelector dev_selector;
 
   Primes primes;
+  Factorial factorial;
   FFactorial ffactorial;
   DeltaFactor delta_factor;
 
