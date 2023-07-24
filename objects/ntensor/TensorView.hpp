@@ -653,7 +653,33 @@ namespace cnine{
   public: // ---- Scalar valued operations ------------------------------------------------------------------
 
 
-    TYPE diff2(const TensorView& x){
+    TYPE max() const{
+      if(asize()==0) return 0;
+      TYPE t=arr[0];
+      if(is_contiguous()){
+	for(int i=0; i<asize(); i++)
+	  if(arr[i]>t) t=arr[i];
+      }else{
+	for_each([&](const Gindex& ix, TYPE& v){
+	    if(v>t) t=v;});
+      }
+      return t; 
+    }
+
+    TYPE min() const{
+      if(asize()==0) return 0;
+      TYPE t=arr[0];
+      if(is_contiguous()){
+	for(int i=0; i<asize(); i++)
+	  if(arr[i]<t) t=arr[i];
+      }else{
+	for_each([&](const Gindex& ix, TYPE& v){
+	    if(v<t) t=v;});
+      }
+      return t; 
+    }
+
+    TYPE diff2(const TensorView& x) const{
       CNINE_ASSRT(x.asize()==asize());
       TYPE t=0;
       if(is_contiguous() && x.is_contiguous()){
@@ -688,6 +714,9 @@ namespace cnine{
       if(dev>0) return TensorView(*this,0).str(indent);
       ostringstream oss;
 
+      TYPE largest=std::max(-min(),max());
+      TYPE limit=largest/10e5;
+
       if(ndims()==1){
 	oss<<indent<<"[ ";
 	for(int i0=0; i0<dims[0]; i0++)
@@ -700,7 +729,8 @@ namespace cnine{
 	for(int i0=0; i0<dims[0]; i0++){
 	  oss<<indent<<"[ ";
 	  for(int i1=0; i1<dims[1]; i1++)
-	    oss<<(*this)(i0,i1)<<" ";
+	    if(abs((*this)(i0,i1))>limit) oss<<(*this)(i0,i1)<<" ";
+	    else oss<<TYPE(0)<<" ";
 	  oss<<"]"<<endl;
 	}
 	return oss.str();
