@@ -15,6 +15,7 @@
 #include "Cnine_base.cpp"
 #include "Tensor.hpp"
 #include "CnineSession.hpp"
+#include "SingularValueDecomposition.hpp"
 
 using namespace cnine;
 
@@ -25,37 +26,17 @@ int main(int argc, char** argv){
 
   cout<<endl;
 
-  Gdims dims({3,3});
-  
-  Tensor<float> A=Tensor<float>::sequential(dims);
+  Tensor<double> A=Tensor<double>::randn({5,5});
   cout<<A<<endl;
 
-  auto B=A.slice(1,1);
-  cout<<B<<endl;
+  auto svd=SingularValueDecomposition(A);
+  //print(svd.S());
+  //print(svd.U());
+  //print(svd.V());
 
-  B.set(1,99);
-  cout<<B<<endl;
-  cout<<A<<endl;
+  auto U=svd.U();
+  auto V=svd.V();
+  auto S=svd.S();
 
-  A.slice(1,0)=A.slice(0,2);
-  cout<<A<<endl;
-
-  Tensor<float> C(A);
-  C.set(0,0,32);
-  cout<<C<<endl;
-  cout<<A<<endl;
-
-  cout<<A+A<<endl;
-
-
-  auto U=Tensor<float>::random_unitary({5,5});
-  cout<<U<<endl;
-  cout<<transp(U)*U<<endl;
-
-  cout<<session<<endl;
-
-  //Tensor<float> C(B);
-  //cout<<C<<endl;
-
+  print(U*diag(S)*cnine::transp(V));
 }
-

@@ -46,6 +46,7 @@ namespace cnine{
     using TensorView<TYPE>::ndims;
     using TensorView<TYPE>::dim;
     using TensorView<TYPE>::set;
+    using TensorView<TYPE>::row;
     using TensorView<TYPE>::transp;
 
 
@@ -76,6 +77,22 @@ namespace cnine{
       int N=dim(0);
       for(int i=0; i<N; i++)
 	set(i,i,1.0);
+      move_to_device(_dev);
+    }
+
+    Tensor(const Gdims& _dims, const fill_random_unitary& dummy, const int _dev=0):
+      Tensor(_dims,fill_zero(),0){
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(dim(0)==dim(1));
+      int N=dim(0);
+      for(int i=0; i<N; i++){
+	auto v=Tensor({N},fill_gaussian(),0);
+	for(int j=0; j<i; j++){
+	  auto u=row(j); 
+	  v=v-inp(u,v)*u;
+	}
+	row(i).add(v,TYPE(1.0)/norm(v));
+      }
       move_to_device(_dev);
     }
 
@@ -112,12 +129,25 @@ namespace cnine{
       return Tensor<TYPE>(_dims,fill_identity(),_dev);
     }
 
+    static Tensor<TYPE> random_unitary(const Gdims& _dims, const int _dev=0){
+      return Tensor<TYPE>(_dims,fill_random_unitary(),_dev);
+    }
+
     static Tensor<TYPE> sequential(const Gdims& _dims, const int _dev=0){
       return Tensor<TYPE>(_dims,fill_sequential(),_dev);
     }
 
+    static Tensor<TYPE> randn(const Gdims& _dims, const int _dev=0){
+      return Tensor<TYPE>(_dims,fill_gaussian(),_dev);
+    }
+
     static Tensor<TYPE> gaussian(const Gdims& _dims, const int _dev=0){
       return Tensor<TYPE>(_dims,fill_gaussian(),_dev);
+    }
+
+    static Tensor<TYPE> zeros_like(const TensorView<TYPE>& x, const int _dev=-1){
+      if(_dev==-1) return Tensor<TYPE>(x.dims,fill_zero(),x.dev);
+      else return Tensor<TYPE>(x.dims,fill_zero(),_dev);
     }
 
 
@@ -158,7 +188,7 @@ namespace cnine{
       arr=x.arr;
       return *this;
     }
-    
+
 
   public: // ---- Conversions ---------------------------------------------------------------------------------
 
@@ -195,6 +225,46 @@ namespace cnine{
     }
 
     #endif
+
+
+  public: // ---- Eigen --------------------------------------------------------------------------------------
+
+
+#ifdef _WITH_EIGEN
+
+    Tensor(const Eigen::VectorXf& x):
+      Tensor(Gdims(x.size())){
+      int n=dims[0];
+      for(int i=0; i<n; i++) 
+	  set(i,x(i));
+    }
+
+    Tensor(const Eigen::VectorXd& x):
+      Tensor(Gdims(x.size())){
+      int n=dims[0];
+      for(int i=0; i<n; i++) 
+	  set(i,x(i));
+    }
+
+    Tensor(const Eigen::MatrixXf& x):
+      Tensor(Gdims(x.rows(),x.cols())){
+      int n=dims[0];
+      int m=dims[1];
+      for(int i=0; i<n; i++) 
+	for(int j=0; j<m; j++) 
+	  set(i,j,x(i,j));
+    }
+
+    Tensor(const Eigen::MatrixXd& x):
+      Tensor(Gdims(x.rows(),x.cols())){
+      int n=dims[0];
+      int m=dims[1];
+      for(int i=0; i<n; i++) 
+	for(int j=0; j<m; j++) 
+	  set(i,j,x(i,j));
+    }
+
+#endif 
 
 
   public: // ---- Views -------------------------------------------------------------------------------------
@@ -264,10 +334,30 @@ namespace cnine{
   };
 
 
+  // ---- Functions ----------------------------------------------------------------------------------------------
+
+
+  // ---- Elementwise operations 
+
+
   template<typename TYPE>
   inline Tensor<TYPE> operator+(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
     Tensor<TYPE> R(x);
     R.add(y);
+    return R;
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator-(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    Tensor<TYPE> R(x);
+    R.subtract(y);
+    return R;
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> operator*(const TYPE c, const TensorView<TYPE>& x){
+    Tensor<TYPE> R=Tensor<TYPE>::zeros_like(x);
+    R.add(x,c);
     return R;
   }
 
@@ -320,7 +410,17 @@ namespace cnine{
     return R;
   }
 
+
+  // ---- Other Operations 
   
+
+  template<typename TYPE>
+  inline Tensor<TYPE> diag(const TensorView<TYPE>& x){
+    CNINE_ASSRT(x.ndims()==1);
+    Tensor<TYPE> R=Tensor<TYPE>::zero({x.dims[0],x.dims[0]},x.dev);
+    R.diag()=x;
+    return R;
+  }
 
 }
 

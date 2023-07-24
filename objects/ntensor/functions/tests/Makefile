@@ -1,4 +1,6 @@
-ROOTDIR=../../..
+EIGENDIR=/usr/local/include
+
+ROOTDIR=../../../../
 include $(ROOTDIR)/common.txt
 
 INCLUDE= -I$(INCLUDEDIR) -I$(COMBIDIR) -I$(CONTAINERSDIR) -I$(MATHDIR) -I$(WRAPPERSDIR)  

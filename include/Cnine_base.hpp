@@ -204,6 +204,7 @@ namespace cnine{
   struct fill_stack: public fill_pattern{fill_stack(){}};
   struct fill_cat: public fill_pattern{fill_cat(){}};
   struct fill_cgaussian: public fill_pattern{fill_cgaussian(){}};
+  struct fill_random_unitary: public fill_pattern{fill_random_unitary(){}};
 
   struct fill_gaussian: public fill_pattern{
   public:
@@ -253,6 +254,7 @@ namespace cnine{
     static const fill_symm_bernoulli symm_bernoulli; //7
     static const fill_gaussian gaussian; //8
     static const fill_cgaussian cgaussian;
+    static const fill_random_unitary random_unitary;
     static const fill_stack stack;
     static const fill_cat cat;
   }

@@ -33,6 +33,10 @@
 extern cublasHandle_t cnine_cublas;
 #endif 
 
+#ifdef _WITH_EIGEN
+#include <Eigen/Dense>
+#endif
+
 
 namespace cnine{
 
@@ -171,6 +175,7 @@ namespace cnine{
 
   public: // ---- Conversions --------------------------------------------------------------------------------
 
+    
 
 
 
@@ -215,6 +220,35 @@ namespace cnine{
 
     #endif
 
+
+  public: // ---- Eigen --------------------------------------------------------------------------------------
+
+
+#ifdef _WITH_EIGEN
+
+    operator Eigen::MatrixXf() const{
+      CNINE_ASSRT(ndims()==2);
+      int n=dims[0];
+      int m=dims[1];
+      Eigen::MatrixXf A(dims[0],dims[1]);
+      for(int i=0; i<n; i++) 
+	for(int j=0; j<m; j++) 
+	  A(i,j)=(*this)(i,j);
+      return A;
+    }
+
+    operator Eigen::MatrixXd() const{
+      CNINE_ASSRT(ndims()==2);
+      int n=dims[0];
+      int m=dims[1];
+      Eigen::MatrixXd A(dims[0],dims[1]);
+      for(int i=0; i<n; i++) 
+	for(int j=0; j<m; j++) 
+	  A(i,j)=(*this)(i,j);
+      return A;
+    }
+
+#endif 
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
@@ -437,6 +471,18 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
     }
 
+    TensorView<TYPE> row(const int i){
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(i<dims[0]);
+      return TensorView<TYPE>(arr+strides[0]*i,{dims[1]},{strides[1]});
+    }
+
+    TensorView<TYPE> diag(){
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(dims[0]==dims[1]);
+      return TensorView<TYPE>(arr,{dims[0]},{strides[0]+strides[1]});
+    }
+
     TensorView<TYPE> tprod_view(const Gdims& dims1, const Gdims& dims2) const{
       int k=ndims();
       CNINE_ASSRT(dims1.size()==k);
@@ -497,6 +543,7 @@ namespace cnine{
     void add(const TensorView& x) const{
       CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CPUONLY();
       assert(asize()==x.asize());
       if(dev==0){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
@@ -515,9 +562,32 @@ namespace cnine{
       }
     }
 
+    void subtract(const TensorView& x) const{
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CPUONLY();
+      assert(asize()==x.asize());
+      if(dev==0){
+	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  for(int i=0; i<asize(); i++) ptr[i]-=xptr[i];
+	}else
+	  for_each([&](const Gindex& ix, TYPE& v){v-=x(ix);});
+      }
+      if(dev==1){
+	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	  const float alpha=-1.0; // todo
+	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
+	}else
+	  CNINE_UNIMPL();
+      }
+    }
+
     void add(const TensorView& x, const TYPE c){
       CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CPUONLY();
       assert(asize()==x.asize());
       if(dev==0){
 	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
@@ -679,6 +749,45 @@ namespace cnine{
       return t; 
     }
 
+    TYPE inp(const TensorView& y) const{
+      CNINE_CPUONLY();
+      CNINE_ASSRT(dims==y.dims);
+      TYPE t=0;
+      if(dev==0){
+	if(is_contiguous() && y.is_contiguous()){
+	  for(int i=0; i<asize(); i++)
+	    t+=arr[i]*y.arr[i];
+	  //t+=std::conj(arr[i])*y.arr[i];
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){
+	      t+=v*y(ix);});
+	  //t+=std::conj(v)*y(ix);});
+	}
+      }
+      return t;
+    }
+
+    TYPE norm2() const{
+      CNINE_CPUONLY();
+      TYPE t=0;
+      if(dev==0){
+	if(is_contiguous()){
+	  for(int i=0; i<asize(); i++)
+	    t+=arr[i]*arr[i];
+	  //t+=std::conj(arr[i])*arr[i];
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){
+	      t+=v*v;});
+	  //t+=std::conj(v)*v;});
+	}
+      }
+      return t;
+    }
+
+    TYPE norm() const{
+      return sqrt(norm2());
+    }
+
     TYPE diff2(const TensorView& x) const{
       CNINE_ASSRT(x.asize()==asize());
       TYPE t=0;
@@ -753,6 +862,24 @@ namespace cnine{
 
   };
 
+
+  // ---- Functions ----------------------------------------------------------------------------------------------
+
+  
+  template<typename TYPE>
+  TYPE inp(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    return x.inp(y);
+  }
+
+  template<typename TYPE>
+  TYPE norm2(const TensorView<TYPE>& x){
+    return x.norm2();
+  }
+
+  template<typename TYPE>
+  TYPE norm(const TensorView<TYPE>& x){
+    return x.norm();
+  }
 
 }
 

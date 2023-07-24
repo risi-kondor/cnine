@@ -2,6 +2,9 @@ include $(ROOTDIR)/config.txt
 
 INCLUDEDIR=$(ROOTDIR)/include
 COMBIDIR=$(ROOTDIR)/combinatorial
+CONTAINERSDIR=$(ROOTDIR)/containers 
+MATHDIR=$(ROOTDIR)/math
+WRAPPERSDIR=$(ROOTDIR)/wrappers
 CUDADIR=$(ROOTDIR)/cuda
 SCALARDIR=$(ROOTDIR)/objects/scalar
 MATRIXDIR=$(ROOTDIR)/objects/matrix
@@ -40,7 +43,7 @@ CFLAGS+=-DWITH_FAKE_GRAD
 MACROS=
 
 ifdef EIGENDIR
-MACROS+=-D_WITH_EIGEN
+CFLAGS+=-D_WITH_EIGEN
 endif 
 
 ifdef WITH_CUDA

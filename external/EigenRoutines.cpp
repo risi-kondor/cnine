@@ -24,6 +24,8 @@
 #include "Rtensor2_view.hpp"
 #include "RtensorObj.hpp"
 
+#include "TensorView.hpp"
+
 
 namespace cnine{
 
@@ -60,6 +62,7 @@ namespace cnine{
 
     return _x;
   }
+
 
 }
 
