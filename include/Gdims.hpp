@@ -302,6 +302,14 @@ namespace cnine{
       return R;
     }
 
+    Gdims operator+(const Gdims& y) const{
+      CNINE_ASSRT(y.size()==size());
+      Gdims R(*this);
+      for(int i=0; i<size(); i++)
+	R[i]+=y[i];
+      return R;
+    }
+      
   public:
 
     Gdims Mprod(const Gdims& y) const{

@@ -121,6 +121,10 @@ namespace cnine{
       return Tensor<TYPE>(_dims,fill_zero(),_dev);
     }
 
+    static Tensor<TYPE> ones(const Gdims& _dims, const int _dev=0){
+      return Tensor<TYPE>(_dims,fill_constant<TYPE>(1),_dev);
+    }
+
     static Tensor<TYPE> constant(const Gdims& _dims, const TYPE v, const int _dev=0){
       return Tensor<TYPE>(_dims,fill_constant<TYPE>(v),_dev);
     }
@@ -410,6 +414,19 @@ namespace cnine{
     return R;
   }
 
+
+  // ---- Direct sums 
+
+
+  template<typename TYPE>
+  inline Tensor<TYPE> oplus(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    CNINE_ASSRT(x.ndims()==y.ndims());
+    Tensor<TYPE> R=Tensor<TYPE>::zero(x.dims+y.dims,x.dev);
+    R.block(x.dims)=x;
+    R.block(y.dims,Gindex(x.dims))=y;
+    return R;
+  }
+  
 
   // ---- Other Operations 
   

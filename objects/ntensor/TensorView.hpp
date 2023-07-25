@@ -467,6 +467,10 @@ namespace cnine{
       return R;
     }
 
+    TensorView<TYPE> block(const Gdims& _dims) const{
+      return TensorView<TYPE>(arr,_dims,strides);
+    }
+
     TensorView<TYPE> block(const Gdims& _dims, const Gindex& offs) const{
       return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
     }
@@ -475,6 +479,12 @@ namespace cnine{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[0]);
       return TensorView<TYPE>(arr+strides[0]*i,{dims[1]},{strides[1]});
+    }
+
+    TensorView<TYPE> col(const int i){
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(i<dims[1]);
+      return TensorView<TYPE>(arr+strides[1]*i,{dims[0]},{strides[0]});
     }
 
     TensorView<TYPE> diag(){

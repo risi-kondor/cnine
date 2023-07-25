@@ -15,7 +15,7 @@
 #include "Cnine_base.cpp"
 #include "Tensor.hpp"
 #include "CnineSession.hpp"
-#include "SingularValueDecomposition.hpp"
+#include "BlockDiagonalize.hpp"
 
 using namespace cnine;
 
@@ -27,17 +27,20 @@ int main(int argc, char** argv){
   cout<<endl;
 
 
-  Tensor<double> A=Tensor<double>::randn({5,5});
+  //Tensor<double> A=Tensor<double>::randn({5,5});
+  
+  Tensor<double> A=oplus(Tensor<double>::random_unitary({3,3}),Tensor<double>::random_unitary({4,4}));
   cout<<A<<endl;
 
-  auto svd=SingularValueDecomposition(A);
-  //print(svd.S());
-  //print(svd.U());
-  //print(svd.V());
 
-  auto U=svd.U();
-  auto V=svd.V();
-  auto S=svd.S();
+  BlockDiagonalize blocked(A);
+  cout<<blocked<<endl;
 
-  print(U*diag(S)*cnine::transp(V));
+  //cout<<blocked.U<<endl;
+  //cout<<blocked.V<<endl;
+  //cout<<blocked.U*transp(blocked.V)<<endl;
+
+  
+
 }
+

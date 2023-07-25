@@ -25,7 +25,9 @@ namespace cnine{
   public:
 
     OBJ* obj=nullptr;
+
     std::function<OBJ*()> make_obj;
+    //std::function<OBJ()> make_objB;
 
     ~cachedf(){
       delete obj;
@@ -37,6 +39,10 @@ namespace cnine{
     cachedf(std::function<OBJ*()> _make_obj):
       make_obj(_make_obj){}
 
+    cachedf(std::function<OBJ()> _make_obj): //why does this not work?
+      make_obj([&](){return new OBJ(_make_obj());}){}
+      //make_obj([&](){return new OBJ();}){}
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
@@ -45,6 +51,44 @@ namespace cnine{
       if(!obj) obj=make_obj();
       CNINE_ASSRT(obj);
       return *obj;
+    }
+
+  };
+
+
+  template<typename OBJ> 
+  class cachedF{
+  public:
+
+    bool done=false;
+    OBJ obj; //=nullptr;
+
+    std::function<OBJ()> make_obj;
+
+    ~cachedF(){
+      //delete obj;
+    }
+
+    cachedF():
+      make_obj([](){return OBJ();}){}
+
+    cachedF(std::function<OBJ()> _make_obj):
+      make_obj(_make_obj){}
+
+    //cachedf(std::function<OBJ()> _make_obj): //why does this not work?
+    //make_obj([&](){return new OBJ(_make_obj());}){}
+      //make_obj([&](){return new OBJ();}){}
+
+
+  public: // ---- Access -------------------------------------------------------------------------------------
+
+
+    OBJ& operator()(){
+      if(!done){
+	obj=make_obj();
+	done=true;
+      }
+      return obj;
     }
 
   };
