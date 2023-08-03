@@ -12,15 +12,7 @@
  */
 
 #include "Cnine_base.cpp"
-
 #include "CnineSession.hpp"
-#include "Primes.hpp"
-#include "frational.hpp"
-
-namespace cnine{
-  Primes primes;
-}
-
 
 
 using namespace cnine;

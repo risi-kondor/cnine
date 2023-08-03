@@ -12,27 +12,7 @@
  */
 
 #include "Cnine_base.cpp"
-
 #include "CnineSession.hpp"
-#include "Primes.hpp"
-
-namespace cnine{
-  Primes primes;
-}
-
-#include "frational.hpp"
-#include "FFactorial.hpp"
-
-namespace cnine{
-  FFactorial ffactorial;
-}
-
-#include "DeltaFactor.hpp"
-
-namespace cnine{
-  DeltaFactor delta_factor;
-}
-
 
 
 using namespace cnine;

@@ -1,11 +1,11 @@
 ROOTDIR=../..
 include $(ROOTDIR)/common.txt
 
-INCLUDE= -I$(INCLUDEDIR) -I$(SCALARDIR) -I$(TENSORDIR) -I$(TENSORVIEWDIR) 
+INCLUDE= $(CNINE_INCLUDES) 
 
 TESTS=$(patsubst %.cpp,%,$(wildcard *.cpp))
 
-DEPS=$(TENSORDIR)/*.hpp $(INCLUDEDIR)/*.hpp $(SCALARDIR)/*.hpp  
+DEPS=$(INCLUDEDIR)/*.hpp 
 
 EXECS= 
 

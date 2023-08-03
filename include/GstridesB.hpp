@@ -259,7 +259,7 @@ namespace cnine{
     
 
     GstridesB insert(const int d, const int x) const{
-      GstridesB r(size()+1);
+      GstridesB r(size()+1,fill_raw());
       for(int i=0; i<d; i++) r[i]=(*this)[i];
       r[d]=x;
       for(int i=d; i<size(); i++) r[i+1]=(*this)[i];

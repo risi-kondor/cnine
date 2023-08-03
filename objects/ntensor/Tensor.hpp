@@ -48,6 +48,8 @@ namespace cnine{
     using TensorView<TYPE>::set;
     using TensorView<TYPE>::row;
     using TensorView<TYPE>::transp;
+    using TensorView<TYPE>::fuse01;
+    using TensorView<TYPE>::split0;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -152,6 +154,11 @@ namespace cnine{
     static Tensor<TYPE> zeros_like(const TensorView<TYPE>& x, const int _dev=-1){
       if(_dev==-1) return Tensor<TYPE>(x.dims,fill_zero(),x.dev);
       else return Tensor<TYPE>(x.dims,fill_zero(),_dev);
+    }
+
+    static Tensor<TYPE> identity_like(const TensorView<TYPE>& x, const int _dev=-1){
+      if(_dev==-1) return Tensor<TYPE>(x.dims,fill_identity(),x.dev);
+      else return Tensor<TYPE>(x.dims,fill_identity(),_dev);
     }
 
 
@@ -404,13 +411,44 @@ namespace cnine{
   }
 
 
-  // ---- Tensor Products 
+  // ---- Concatenation 
 
 
   template<typename TYPE>
-  inline Tensor<TYPE> tprod(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    Tensor<TYPE> R=Tensor<TYPE>::zero(tprod(x.dims,y.dims),x.dev);
-    R.add_tprod(x,y);
+  inline Tensor<TYPE> cat(const int d, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    CNINE_ASSRT(x.dims.size()==y.dims.size());
+    CNINE_ASSRT(d<x.dims.size());
+    Gdims dims=x.dims;
+    dims[d]+=y.dims[d];
+    Tensor<TYPE> R(dims);
+    R.block(x.dims)=x;
+    Gindex ix(x.dims.size(),fill_zero());
+    ix[d]=x.dims[d];
+    R.block(y.dims,ix)=y;
+    return R;
+  }
+
+  template<typename VEC, typename OBJ, typename TYPE>
+  inline Tensor<TYPE> cat(const int d, const VEC& vec, std::function<TensorView<TYPE>(const OBJ& x) > lambda){
+    int n=0;
+    Gdims dims;
+    for(auto& p:vec){
+      auto x=lambda(p);
+      if(n==0) dims=x.dims;
+      CNINE_ASSRT(d<x.dims.size());
+      n+=x.dims[d];
+    }
+    dims[d]=n;
+
+    int offs=0;
+    Tensor<TYPE> R(dims,fill_raw());
+    for(auto& p:vec){
+      auto x=lambda(p);
+      Gindex ix(x.dims.size(),fill_zero());
+      ix[d]=offs;
+      R.block(x.dims,ix)=x;
+      offs+=x.dims[d];
+    }      
     return R;
   }
 
@@ -427,6 +465,17 @@ namespace cnine{
     return R;
   }
   
+
+  // ---- Tensor Products 
+
+
+  template<typename TYPE>
+  inline Tensor<TYPE> tprod(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    Tensor<TYPE> R=Tensor<TYPE>::zero(tprod(x.dims,y.dims),x.dev);
+    R.add_tprod(x,y);
+    return R;
+  }
+
 
   // ---- Other Operations 
   

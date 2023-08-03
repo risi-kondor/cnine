@@ -68,6 +68,7 @@ namespace cnine{
       contains_some_permutation_of(s);
     }
 
+    /*
     bool contains_some_permutation_of(std::set<TYPE>& x) const{ // faulty!
       if(x.size()==0) return true;
       for(auto& p:children){
@@ -79,6 +80,7 @@ namespace cnine{
       }
       return false;
     }
+    */
 
     PrefixTree* branch(const TYPE& x) const{
       auto it=children.find(x);
@@ -100,14 +102,14 @@ namespace cnine{
 
     void for_each_maximal_path(const std::function<void(const vector<TYPE>&)> lambda) const{
       vector<TYPE> prefix;
-      for_each_maximal_paths(prefix,lambda);
+      for_each_maximal_path(prefix,lambda);
     }
 
     void for_each_maximal_path(vector<TYPE>& prefix, const std::function<void(const vector<TYPE>&)> lambda) const{
       if(children.size()==0) lambda(prefix);
       for(auto& p: children){
 	prefix.push_back(p.first);
-	p.second->for_each_maximal_paths(prefix,lambda);
+	p.second->for_each_maximal_path(prefix,lambda);
 	prefix.pop_back();
       }
     }

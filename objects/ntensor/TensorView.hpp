@@ -131,7 +131,7 @@ namespace cnine{
       CNINE_ASSRT(dims==x.dims);
       CNINE_ASSIGN_WARNING();
 
-      if(is_contiguous() && x.is_contiguous()){
+      if(is_regular() && x.is_regular()){
 	if(device()==0){
 	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
 	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
@@ -419,9 +419,9 @@ namespace cnine{
   public: // ---- Index changes ------------------------------------------------------------------------------
 
 
-    TensorView<TYPE> transp(){
-      return TensorView<TYPE>(arr,dims.transp(),strides.transp());
-    }
+    //TensorView<TYPE> transp(){
+    //return TensorView<TYPE>(arr,dims.transp(),strides.transp());
+    //}
 
     const TensorView<TYPE> transp() const{
       return TensorView<TYPE>(arr,dims.transp(),strides.transp());
@@ -475,19 +475,26 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
     }
 
-    TensorView<TYPE> row(const int i){
+    TensorView<TYPE> row(const int i) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[0]);
       return TensorView<TYPE>(arr+strides[0]*i,{dims[1]},{strides[1]});
     }
 
-    TensorView<TYPE> col(const int i){
+    TensorView<TYPE> rows(const int i, const int j) const{
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(i<dims[0]);
+      CNINE_ASSRT(j<=dims[0]);
+      return TensorView<TYPE>(arr+strides[0]*i,{j-i,dims[1]},{strides[0],strides[1]});
+    }
+
+    TensorView<TYPE> col(const int i) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[1]);
       return TensorView<TYPE>(arr+strides[1]*i,{dims[0]},{strides[0]});
     }
 
-    TensorView<TYPE> diag(){
+    TensorView<TYPE> diag() const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(dims[0]==dims[1]);
       return TensorView<TYPE>(arr,{dims[0]},{strides[0]+strides[1]});
@@ -556,7 +563,7 @@ namespace cnine{
       CNINE_CPUONLY();
       assert(asize()==x.asize());
       if(dev==0){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	if(is_regular() && x.is_regular() && strides==x.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
 	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i];
@@ -564,7 +571,7 @@ namespace cnine{
 	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
       }
       if(dev==1){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	if(is_regular() && x.is_regular() && strides==x.strides){
 	  const float alpha=1.0; // todo
 	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
 	}else
@@ -578,7 +585,7 @@ namespace cnine{
       CNINE_CPUONLY();
       assert(asize()==x.asize());
       if(dev==0){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	if(is_regular() && x.is_regular() && strides==x.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
 	  for(int i=0; i<asize(); i++) ptr[i]-=xptr[i];
@@ -600,7 +607,7 @@ namespace cnine{
       CNINE_CPUONLY();
       assert(asize()==x.asize());
       if(dev==0){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	if(is_regular() && x.is_regular() && strides==x.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
 	  for(int i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
@@ -609,7 +616,30 @@ namespace cnine{
 	}
       }
       if(dev==1){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  const TYPE alpha=c;
+	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
+	}else
+	  CNINE_UNIMPL();
+      }
+    }
+
+    void subtract(const TensorView& x, const TYPE c){
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CPUONLY();
+      assert(asize()==x.asize());
+      if(dev==0){
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
+	  for(int i=0; i<asize(); i++) ptr[i]-=c*xptr[i];
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){v-=c*x(ix);});
+	}
+      }
+      if(dev==1){
+	if(is_regular() && x.is_regular() && strides==x.strides){
 	  const TYPE alpha=c;
 	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
 	}else
@@ -623,7 +653,7 @@ namespace cnine{
       CNINE_DIMS_SAME(x);
       CNINE_DIMS_SAME(y);
       if(dev==0){
-	if(is_contiguous() && x.is_contiguous() && y.is_contiguous() && strides==x.strides&& strides==y.strides){
+	if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
 	  TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
@@ -716,16 +746,39 @@ namespace cnine{
 
     void add_tprod(const TensorView& x, const TensorView& y) const{
       reconcile_devices<TensorView<TYPE> >(*this,x,y,[&](const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-	  CNINE_NDIMS_IS_2(r);
-	  CNINE_NDIMS_IS_2(x);
-	  CNINE_NDIMS_IS_2(y);
-	  CNINE_ASSRT(r.dims[0]==x.dims[0]*y.dims[0]);
-	  CNINE_ASSRT(r.dims[1]==x.dims[1]*y.dims[1]);
+	  //CNINE_NDIMS_IS_2(r);
+	  //CNINE_NDIMS_IS_2(x);
+	  //CNINE_NDIMS_IS_2(y);
+	  CNINE_ASSRT(x.ndims()==y.ndims());
 
-	  for(int i=0; i<x.dims[0]; i++)
-	    for(int j=0; j<x.dims[1]; j++){
-	      block({y.dims[0],y.dims[1]},{i*y.dims[0],j*y.dims[1]}).add(y,x(i,j));
-	    }
+	  if(x.ndims()==1){
+	    CNINE_ASSRT(r.dims[0]==x.dims[0]*y.dims[0]);
+	      for(int i=0; i<x.dims[0]; i++)
+		block({y.dims[0]},{i*y.dims[0]}).add(y,x(i));
+	    return;
+	  }
+	  
+	  if(x.ndims()==2){
+	    CNINE_ASSRT(r.dims[0]==x.dims[0]*y.dims[0]);
+	    CNINE_ASSRT(r.dims[1]==x.dims[1]*y.dims[1]);
+	    for(int i=0; i<x.dims[0]; i++)
+	      for(int j=0; j<x.dims[1]; j++)
+		block({y.dims[0],y.dims[1]},{i*y.dims[0],j*y.dims[1]}).add(y,x(i,j));
+	    return;
+	  }
+
+	  if(x.ndims()==3){
+	    CNINE_ASSRT(r.dims[0]==x.dims[0]*y.dims[0]);
+	    CNINE_ASSRT(r.dims[1]==x.dims[1]*y.dims[1]);
+	    CNINE_ASSRT(r.dims[2]==x.dims[2]*y.dims[2]);
+	    for(int i=0; i<x.dims[0]; i++)
+	      for(int j=0; j<x.dims[1]; j++)
+		for(int k=0; k<x.dims[2]; k++)
+		  block(y.dims,{i*y.dims[0],j*y.dims[1],k*y.dims[2]}).add(y,x(i,j,k));
+	    return;
+	  }
+	    
+	  CNINE_UNIMPL();
 	});
     }
 
@@ -764,7 +817,7 @@ namespace cnine{
       CNINE_ASSRT(dims==y.dims);
       TYPE t=0;
       if(dev==0){
-	if(is_contiguous() && y.is_contiguous()){
+	if(is_regular() && y.is_regular()){
 	  for(int i=0; i<asize(); i++)
 	    t+=arr[i]*y.arr[i];
 	  //t+=std::conj(arr[i])*y.arr[i];
@@ -801,7 +854,7 @@ namespace cnine{
     TYPE diff2(const TensorView& x) const{
       CNINE_ASSRT(x.asize()==asize());
       TYPE t=0;
-      if(is_contiguous() && x.is_contiguous()){
+      if(is_regular() && x.is_regular()){
 	for(int i=0; i<asize(); i++){
 	  const TYPE a=x.arr[i]-arr[i];
 	  t+=a*std::conj(a);
@@ -813,6 +866,27 @@ namespace cnine{
 	  });
       }
       return t;
+    }
+
+
+  public: // ---- Index manipulations -----------------------------------------------------------------------
+
+
+    TensorView fuse01() const{
+      CNINE_ASSRT(ndims()>=2);
+      Gdims d=dims.remove(1); 
+      d[0]*=dims[1];
+      Gstrides s=strides.remove(0);
+      return TensorView(arr,d,s);
+    }
+
+    TensorView split0(const int a, const int b) const{
+      CNINE_ASSRT(ndims()>=1);
+      CNINE_ASSRT(dims[0]==a*b);
+      Gdims d=dims.insert(0,a); 
+      d[1]=b; 
+      GstridesB s=strides.insert(0,strides[0]*b);
+      return TensorView(arr,d,s);
     }
 
 

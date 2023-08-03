@@ -12,13 +12,10 @@
  */
 
 #include "Cnine_base.cpp"
-
 #include "CnineSession.hpp"
-#include "Primes.hpp"
 
 using namespace cnine;
 
-Primes primes;
 
 int main(int argc, char** argv){
   cnine_session session(4);
