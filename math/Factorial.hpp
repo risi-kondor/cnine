@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef _Factorial
-#define _Factorial 
+#ifndef _CnineFactorial
+#define _CnineFactorial 
 
 #include "Cnine_base.hpp"
 

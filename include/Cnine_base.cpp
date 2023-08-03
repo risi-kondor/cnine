@@ -11,6 +11,8 @@
  *
  */
 
+#ifndef _Cnine_base_cpp
+#define _Cnine_base_cpp
 
 #include "Cnine_base.hpp"
 #include "Primes.hpp"
@@ -96,3 +98,5 @@ namespace cnine{
 }
 
 #endif
+
+#endif 

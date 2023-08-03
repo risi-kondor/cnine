@@ -14,6 +14,7 @@
 
 #include "Cnine_base.cpp"
 #include "Tensor.hpp"
+#include "TensorFunctions.hpp"
 #include "CnineSession.hpp"
 #include "BlockDiagonalize.hpp"
 
