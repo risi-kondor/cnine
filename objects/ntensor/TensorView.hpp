@@ -903,12 +903,28 @@ namespace cnine{
       return oss.str();
     }
 
+    /*
+    template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,double>::value, U>::type>
+    float prnt_limit() const{
+      return (std::max(-min(),max()))/10e5;
+    }
+
+    template<typename U=TYPE, typename = typename std::enable_if<!std::is_same<U,double>::value, U>::type>
+    float prnt_limit() const{
+      return 0;
+    }
+    */
+
+    float prnt_limit() const{
+      return 0;
+    }
+
     string str(const string indent="") const{
       if(dev>0) return TensorView(*this,0).str(indent);
       ostringstream oss;
 
-      TYPE largest=std::max(-min(),max());
-      TYPE limit=largest/10e5;
+      //TYPE largest=std::max(-min(),max());
+      float limit=prnt_limit(); 
 
       if(ndims()==1){
 	oss<<indent<<"[ ";
