@@ -868,6 +868,15 @@ namespace cnine{
       return t;
     }
 
+    TYPE unitary_error() const{
+      CNINE_ASSRT(dims[0]==dims[1]);
+      TensorView A({dims[0],dims[0]},fill_zero());
+      A.add_mprod(*this,transp());
+      for(int i=0; i<dims[0]; i++)
+	A.inc(i,i,-1.0);
+      return A.norm();
+    }
+
 
   public: // ---- Index manipulations -----------------------------------------------------------------------
 
