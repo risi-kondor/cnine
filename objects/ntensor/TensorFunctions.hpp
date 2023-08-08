@@ -30,6 +30,16 @@ namespace cnine{
   }
 
   template<typename TYPE>
+  inline Tensor<TYPE> UnitVec(const int n, const int i, const int _dev=0){
+    Tensor<TYPE> R({n},fill_zero(),_dev);
+    R.set(i,1);
+    return R;
+  }
+
+
+
+
+  template<typename TYPE>
   inline Tensor<TYPE> Tensr(const initializer_list<TYPE>& list, const int _dev=0){
     Tensor<TYPE> T(Gdims(list.size()),_dev); 
     int i=0;
@@ -93,7 +103,7 @@ namespace cnine{
   template<typename TYPE>
   inline Tensor<TYPE> operator*(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
     Tensor<TYPE> R=Tensor<TYPE>::zero(x.dims.Mprod(y.dims),x.dev);
-    R.add_mprod(x,y);
+    if(R.asize()>0) R.add_mprod(x,y);
     return R;
   }
 
@@ -204,6 +214,24 @@ namespace cnine{
     return R;
   }
 
+  template<typename TYPE>
+  inline Tensor<TYPE> broadcast(const int d, const int n, const TensorView<TYPE>& x){
+    CNINE_ASSRT(d<x.dims.size()+1);
+    Gdims dims(x.dims);
+    dims.insert(d,n);
+    Tensor<TYPE> R=Tensor<TYPE>::raw(dims,x.dev);
+    for(int i=0; i<n; i++)
+      R.slice(d,i)=x;
+    return R;
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> sum(const int d, const TensorView<TYPE>& x){
+    auto dims=x.dims.remove(d);
+    Tensor<TYPE> R(dims,fill_zero());
+    R.add_sum(d,x);
+    return R;
+  }
 
 }
 

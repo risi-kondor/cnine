@@ -333,7 +333,7 @@ namespace cnine{
 
       if(ndims()==1 && y.ndims()==2){
 	Tensor R=zero({y.dims[1]},dev);
-	R.add_mvprod_T(y,*this);
+	R.add_mvprod(y.transp(),*this);
 	return R;
       }
 

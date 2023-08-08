@@ -156,6 +156,28 @@ namespace cnine{
       return R;
     }
 
+    Gindex operator+(const Gdims& y) const{
+      CNINE_ASSRT(y.size()==size());
+      Gindex R(*this);
+      for(int i=0; i<size(); i++)
+	R[i]+=y[i];
+      return R;
+    }
+      
+    bool operator==(const Gindex& x) const{
+      if(size()!=x.size()) return false;
+      for(int i=0; i<size(); i++)
+	if((*this)[i]!=x[i]) return false;
+      return true;
+    }
+
+    bool operator<=(const vector<int>& x) const{
+      if(size()!=x.size()) return false;
+      for(int i=0; i<size(); i++)
+	if((*this)[i]>x[i]) return false;
+      return true;
+    }
+
 
   public:
 

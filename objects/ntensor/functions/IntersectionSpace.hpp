@@ -34,9 +34,9 @@ namespace cnine{
       CNINE_ASSRT(Y.ndims()==2);
       CNINE_ASSRT(X.dims[1]==Y.dims[1]);
 
-      Tensor<TYPE> B=X*Y.transp();
-      //SingularValueDecomposition svd(B.transp()*B);
-      Tensor<TYPE> C=ComplementSpace(B*B.transp()-Identity<TYPE>(B.dims[0]))();
+      Tensor<TYPE> B=X*Y.transp(); // a*b
+      Tensor<TYPE> C=ComplementSpace(B*B.transp()-Identity<TYPE>(B.dims[0]))(); // c*a
+      //cout<<"DIMS:"<<C.dims<<X.dims<<endl;
       T=C.transp()*X;
     }
 

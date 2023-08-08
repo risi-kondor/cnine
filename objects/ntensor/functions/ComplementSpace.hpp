@@ -35,12 +35,9 @@ namespace cnine{
       const int n=A.dims[0];
       const int m=A.dims[1];
 
-      //cout<<A.str("complement:")<<endl;
-
       vector<TYPE> norms(m);
       for(int i=0; i<m; i++){
 	norms[i]=A.col(i).norm2();
-	//cout<<"norms["<<i<<"]="<<norms[i]<<endl;
       }
 
       M=Tensor<TYPE>({n,n},fill_zero());
@@ -51,7 +48,6 @@ namespace cnine{
 	col.set(i,1);
 
 	// Orthogonalize to columns of A
-	//cout<<col.str("col=")<<endl;
 	for(int j=0; j<m; j++)
 	  if(norms[j]>10e-6){
 	    col.subtract(A.col(j),inp(col,A.col(j))/norms[j]);
@@ -65,7 +61,6 @@ namespace cnine{
 	
 	// Normalize    
 	TYPE norm=col.norm();
-	//cout<<"norm="<<norm<<endl;
 	if(norm>threshold){
 	  M.col(ncols).add(col,1.0/norm);
 	  ncols++;
@@ -76,15 +71,15 @@ namespace cnine{
       //T=M.block({n,ncols},{0,0});
     }
       
-    operator TensorView<TYPE>(){
+    operator TensorView<TYPE>() const{
       return M.block({M.dims[0],ncols});
     }
 
-    TensorView<TYPE> operator()(){
+    TensorView<TYPE> operator()() const{
       return M.block({M.dims[0],ncols});
     }
 
-    TensorView<TYPE> padded(){
+    TensorView<TYPE> padded() const{
       return M;
     }
 

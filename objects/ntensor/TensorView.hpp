@@ -131,6 +131,8 @@ namespace cnine{
       CNINE_ASSRT(dims==x.dims);
       CNINE_ASSIGN_WARNING();
 
+      if(asize()==0) return const_cast<TensorView&>(*this); 
+
       if(is_regular() && x.is_regular()){
 	if(device()==0){
 	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
@@ -468,10 +470,12 @@ namespace cnine{
     }
 
     TensorView<TYPE> block(const Gdims& _dims) const{
+      CNINE_ASSRT(_dims<=dims);
       return TensorView<TYPE>(arr,_dims,strides);
     }
 
     TensorView<TYPE> block(const Gdims& _dims, const Gindex& offs) const{
+      CNINE_ASSRT(offs+_dims<=dims);
       return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
     }
 
@@ -542,7 +546,7 @@ namespace cnine{
 	if(is_contiguous())
 	  for(int i=0; i<asize(); i++) arr[i]*=c;
 	else
-	  for_each([&](const Gindex& ix, const TYPE& x){x*=c;});
+	  for_each([&](const Gindex& ix, TYPE& x){x*=c;});
       }
       if(dev==1){
 	if(is_contiguous()){
@@ -551,6 +555,10 @@ namespace cnine{
 	}else
 	  CNINE_UNIMPL();
       }
+    }
+
+    void normalize(){
+      inplace_times(1.0/norm());
     }
 
 
@@ -622,6 +630,12 @@ namespace cnine{
 	}else
 	  CNINE_UNIMPL();
       }
+    }
+
+    void add_sum(const int d, const TensorView& x){
+      CNINE_ASSRT(x.dims.size()>d);
+      for(int i=0; i<x.dims[d]; i++)
+	add(x.slice(d,i));
     }
 
     void subtract(const TensorView& x, const TYPE c){
@@ -812,6 +826,19 @@ namespace cnine{
       return t; 
     }
 
+    TYPE max_abs() const{
+      if(asize()==0) return 0;
+      TYPE t=arr[0];
+      if(is_contiguous()){
+	for(int i=0; i<asize(); i++)
+	  if(abs(arr[i])>t) t=abs(arr[i]);
+      }else{
+	for_each([&](const Gindex& ix, TYPE& v){
+	    if(abs(v)>t) t=abs(v);});
+      }
+      return t; 
+    }
+
     TYPE inp(const TensorView& y) const{
       CNINE_CPUONLY();
       CNINE_ASSRT(dims==y.dims);
@@ -898,6 +925,15 @@ namespace cnine{
       return TensorView(arr,d,s);
     }
 
+    TensorView split1(const int a, const int b) const{
+      CNINE_ASSRT(ndims()>=2);
+      CNINE_ASSRT(dims[1]==a*b);
+      Gdims d=dims.insert(1,a); 
+      d[2]=b; 
+      GstridesB s=strides.insert(1,strides[1]*b);
+      return TensorView(arr,d,s);
+    }
+
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
@@ -924,21 +960,18 @@ namespace cnine{
     }
     */
 
-    float prnt_limit() const{
-      return 0;
-    }
-
     string str(const string indent="") const{
       if(dev>0) return TensorView(*this,0).str(indent);
       ostringstream oss;
 
       //TYPE largest=std::max(-min(),max());
-      float limit=prnt_limit(); 
+      float limit=max_abs()/10e5;
 
       if(ndims()==1){
 	oss<<indent<<"[ ";
 	for(int i0=0; i0<dims[0]; i0++)
-	  oss<<(*this)(i0)<<" ";
+	  if(abs((*this)(i0))>limit) oss<<(*this)(i0)<<" ";
+	  else oss<<TYPE(0)<<" ";
 	oss<<"]"<<endl;
 	return oss.str();
       }

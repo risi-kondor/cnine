@@ -138,6 +138,7 @@ namespace cnine{
 
     int memsize(const Gdims& dims) const{
       CNINE_ASSRT(size()==dims.size());
+      if(dims.asize()==0) return 0;
       int t=0;
       for(int i=0; i<size(); i++)
 	t=std::max(t,(*this)[i]*dims[i]);
