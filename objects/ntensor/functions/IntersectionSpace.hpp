@@ -36,7 +36,6 @@ namespace cnine{
 
       Tensor<TYPE> B=X*Y.transp(); // a*b
       Tensor<TYPE> C=ComplementSpace(B*B.transp()-Identity<TYPE>(B.dims[0]))(); // c*a
-      //cout<<"DIMS:"<<C.dims<<X.dims<<endl;
       T=C.transp()*X;
     }
 
