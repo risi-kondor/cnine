@@ -33,7 +33,11 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
   template<typename TYPE>
-  class Tensor: public TensorView<TYPE>{
+  class Tensor: public TensorView<TYPE>
+#ifdef _WITH_CENGINE
+	      , public Cengine::Cobject
+#endif 
+{
   public:
 
     using TensorView<TYPE>::TensorView;

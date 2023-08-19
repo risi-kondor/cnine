@@ -48,9 +48,12 @@ mutex cnine::CoutLock::mx;
 
 
 #ifdef _WITH_CENGINE
-#include "RscalarM.hpp"
-#include "CscalarM.hpp"
-#include "CtensorM.hpp"
+//#include "RscalarM.hpp"
+//#include "CscalarM.hpp"
+//#include "CtensorM.hpp"
+
+//Cengine::Cengine* Cengine_engine;
+//Cengine::CengineSession cengine_session;
 
 /*
 int Cengine::ctensor_add_op::_batcher_id=0; 
@@ -62,6 +65,7 @@ int Cengine::ctensor_add_op::_batcher_id=0;
 
 */
 
+/*
 namespace cnine{
 
 
@@ -96,6 +100,7 @@ namespace cnine{
  template<> int ctensor_add_Mprod_op<2,3>::_rbatcher_id=0; 
 
 }
+*/
 
 #endif
 
