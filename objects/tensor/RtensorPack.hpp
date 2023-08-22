@@ -42,14 +42,11 @@ namespace cnine{
     int memsize=0;
     int tail=0;
     IntTensor dir;
-    //bool is_view=false;
 
 
     ~RtensorPack(){
-      //if(is_view) return;
       if(arr) delete[] arr;
       if(arrg) {CUDA_SAFE(cudaFree(arrg));}
-      //if(dirg) delete dirg;
     }
 
 
@@ -176,7 +173,6 @@ namespace cnine{
 	arrg=newarrg;
 	memsize=newsize;
       }
-      //dirg_refresh();
     }
 
 
@@ -203,15 +199,7 @@ namespace cnine{
 	CUDA_SAFE(cudaMemset(arrg+memsize,0,(n-memsize)*sizeof(float)));
 	memsize=n;
       }
-      //dirg_refresh();
     }
-
-
-    //void dirg_refresh() const{
-    //if(!dirg) return; 
-    //delete dirg;
-    //get_dirg_ptr();
-    //}
 
 
   public: // ---- Copying ------------------------------------------------------------------------------------

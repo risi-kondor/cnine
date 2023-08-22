@@ -104,7 +104,7 @@ namespace cnine{
     //}
 
     RtensorA():
-      RtensorA(Gdims({0})){}
+      RtensorA(Gdims({1})){}
 
 
   // ---- Constructors -----------------------------------------------------------------------------
@@ -696,60 +696,37 @@ namespace cnine{
       return true;
     }
 
-    RtensorA(const at::Tensor& T){
+    static RtensorA regular(const at::Tensor& T){
+      if(is_regular(T)) return T;
+      auto R=T.contiguous();
+      if(!is_regular(R)){
+	cout<<"Error: could not regularize ATen tensor."<<endl;
+	return RtensorA();
+      }
+      return R;
+    }
+
+    RtensorA(const at::Tensor& T):
+      RtensorA(Gdims(T),T.type().is_cuda()){
       CNINE_CONVERT_FROM_ATEN_WARNING();
 
-      //doesn't work
-      //AT_DISPATCH_ALL_TYPES(T.scalar_type(), "float",[&](){
-      //  cout<<"dioioa"<<endl;
-      //});
-
-      //if(typeid(T.scalar_type())!=at::ScalarType::Float){
-      //auto Td=T.to(torch::kFloat32);
-      //(*this)=RtensorA(Td);
-      //return;
-      //}
-
-      T.contiguous();
-      k=T.dim();
-      dims=Gdims(k,fill_raw());
-      for(int i=0; i<k ; i++){
-	dims[i]=T.size(i);
-      }
-      strides.resize(k);
-      strides[k-1]=1;
-      for(int i=k-2; i>=0; i--)
-	strides[i]=strides[i+1]*dims[i+1];
-      asize=strides[0]*dims[0];
-      cst=roundup(asize,32); 
-      memsize=cst; 
-      dev=T.type().is_cuda();
-
-      bool reg=true;
-      for(int i=0; i<k; i++)
-	if(T.stride(i)!=strides[i]){reg=false; break;}
-      if(!reg){
+      if(!is_regular(T)){
+	if(dev!=0) CNINE_ERROR("ATen tensor is on GPU and is not regular."); 
 	auto src=T.data<float>();
-	int _dev=dev;
-	dev=0;
-	arr=new float[memsize];
 	Gstrides sstrides(k,fill_raw());
 	for(int i=0; i<k; i++) sstrides[i]=T.stride(i);
 	for(int i=0; i<asize; i++)
 	  arr[i]=src[sstrides.offs(i,strides)];
-	to_device(_dev);
 	return;
       }
 
       if(dev==0){
-	arr=new float[memsize];
+	//arr=new float[memsize];
 	std::copy(T.data<float>(),T.data<float>()+asize,arr);
-	//std::copy(T.data<complex<float> >(),T.data<complex<float> >()+asize,arr);
-	//memmove((void*)(arr),(void*)(T.data<float>()),asize*sizeof(float));
       }
 
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	//CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
 
@@ -2764,3 +2741,29 @@ namespace std{
       }
     }
     */
+      //doesn't work
+      //AT_DISPATCH_ALL_TYPES(T.scalar_type(), "float",[&](){
+      //  cout<<"dioioa"<<endl;
+      //});
+
+      //if(typeid(T.scalar_type())!=at::ScalarType::Float){
+      //auto Td=T.to(torch::kFloat32);
+      //(*this)=RtensorA(Td);
+      //return;
+      //}
+
+     /*
+      k=T.dim();
+      dims=Gdims(k,fill_raw());
+      for(int i=0; i<k ; i++){
+	dims[i]=T.size(i);
+      }
+      strides.resize(k);
+      strides[k-1]=1;
+      for(int i=k-2; i>=0; i--)
+	strides[i]=strides[i+1]*dims[i+1];
+      asize=strides[0]*dims[0];
+      cst=roundup(asize,32); 
+      memsize=cst; 
+      dev=T.type().is_cuda();
+      */

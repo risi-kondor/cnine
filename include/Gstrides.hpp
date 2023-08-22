@@ -111,6 +111,27 @@ namespace cnine{
       return true;
     }
 
+    bool is_contiguous(const Gdims& dims) const{
+      CNINE_ASSRT(size()==dims.size());
+      if(is_regular(dims)) return true;
+
+      vector<int> v(*this);
+      int nz=0; 
+      for(int i=0; i<size(); i++) 
+	if(v[i]>0) nz++;
+
+      int t=1;
+      for(int i=0; i<nz; i++){
+	auto it=std::find(v.begin(),v.end(),t);
+	if(it==v.end()) return false;
+	int a=it-v.begin();
+	v[a]=0;
+	t*=dims[a];
+      }
+
+      return true;
+    }
+
     int memsize(const Gdims& dims) const{
       CNINE_ASSRT(size()==dims.size());
       int t=0;

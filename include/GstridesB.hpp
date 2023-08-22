@@ -116,7 +116,6 @@ namespace cnine{
 
     bool is_contiguous(const Gdims& dims) const{
       CNINE_ASSRT(size()==dims.size());
-
       if(is_regular(dims)) return true;
 
       vector<int> v(*this);

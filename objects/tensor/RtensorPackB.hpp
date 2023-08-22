@@ -50,62 +50,6 @@ namespace cnine{
       nc=dims(0).back();
     }
 
-    /*
-    RtensorPackB(const int _N, const Gdims& _dims, const cnine::fill_raw& dummy, const int _dev=0):
-      RtensorPack(_dims.size(),_dev){
-      int asize=_dims.asize();
-      reserve(_N*asize);
-      for(int i=0; i<_N; i++)
-	dir.push_back(i*asize,_dims);
-      tail=_N*asize;
-    }
-
-    RtensorPackB(const int _N, const Gdims& _dims, const cnine::fill_zero& dummy, const int _dev=0):
-      RtensorPack(_dims.size(),_dev){
-      int asize=_dims.asize();
-      reserve(_N*asize);
-      if(dev==0) std::fill(arr,arr+memsize,0);
-      if(dev==1){CUDA_SAFE(cudaMemset(arrg,0,memsize*sizeof(float)))};
-      for(int i=0; i<_N; i++)
-	dir.push_back(i*asize,_dims);
-      tail=_N*asize;
-    }
-
-    RtensorPackB(const int _N, const Gdims& _dims, const cnine::fill_gaussian& dummy, const int _dev=0):
-      RtensorPack(_dims.size(),0){
-      int asize=_dims.asize();
-      reserve(_N*asize);
-      normal_distribution<double> distr;
-      for(int i=0; i<_N*asize; i++) arr[i]=distr(rndGen);
-      for(int i=0; i<_N; i++){
-	dir.push_back(i*asize,_dims);
-      }
-      tail=_N*asize;
-      to_device(_dev);
-    }
-
-    RtensorPackB(const cnine::array_pool<int>& dimensions, const cnine::fill_zero& dummy, const int _dev=0){
-      dev=_dev;
-      dir=IntTensor(Gdims(0,dimensions(0).size()+1),cnine::fill_noalloc());
-
-      int reserve_size=0;
-      for(int i=0; i<dimensions.size(); i++){
-	vector<int> v=dimensions(i);
-	int t=1; for(int j=0; j<v.size(); j++) t*=v[j];
-	reserve_size+=t;
-      }
-      reserve(reserve_size);
-      if(dev==0) std::fill(arr,arr+reserve_size,0);
-      if(dev==1){CUDA_SAFE(cudaMemset(arrg,0,reserve_size*sizeof(float)))};
-
-      for(int i=0; i<dimensions.size(); i++){
-	vector<int> v=dimensions(i);
-	int t=1; for(int j=0; j<v.size(); j++) t*=v[j];
-	dir.push_back(tail,v);
-	tail+=t;
-      }
-    }
-    */
 
   public: // ---- Named constructors -------------------------------------------------------------------------
 
@@ -238,7 +182,6 @@ namespace cnine{
     RtensorPackB(const at::Tensor& T):
       RtensorPackB(rtensor(T)){
       assert(size()>0);
-      //nc=dim_of(0,0);
     }
     #endif 
 
