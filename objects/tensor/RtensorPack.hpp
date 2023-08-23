@@ -534,12 +534,19 @@ namespace cnine{
 
     
     float inp(const RtensorPack& y){
-      CNINE_CPUONLY();
-      if(y.dev>0) return inp(RtensorPack(y,0));
       CNINE_ASSRT(tail==y.tail);
-      float t=0;
-      CPUCODE(for(int i=0; i<tail; i++) t+=arr[i]*y.arr[i];)
-      return t;
+      if(dev==0){
+	if(y.dev>0) return inp(RtensorPack(y,0));
+	float t=0;
+	for(int i=0; i<tail; i++) t+=arr[i]*y.arr[i];
+	return t;
+      }
+      if(dev==1){
+	CNINE_ASSRT(y.dev==1);
+	float r;
+	CUBLAS_SAFE(cublasSdot(cnine_cublas,tail,arrg,1,y.arrg,1,&r));
+	return r;
+      }
     }
 
     float diff2(const RtensorPack& y){
