@@ -75,14 +75,13 @@ namespace cnine{
       CNINE_DIMS_VALID(dims);
       CNINE_DEVICE_VALID(dev);
       memsize=strides[0]*dims[0]; 
-      if(memsize==0) memsize=1;
 
       if(dev==0){
-	arr=new int[memsize];
+	arr=new int[std::max(memsize,1)];
       }
 
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
       }
 
     }
@@ -178,13 +177,12 @@ namespace cnine{
       IntTensor(x.dims,x.strides,x.dev){
       CNINE_COPY_WARNING();
       memsize=strides[0]*dims[0];
-      if(memsize==0) memsize=1;
       if(dev==0){
-	arr=new int[memsize];
+	arr=new int[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(int),cudaMemcpyDeviceToDevice));
       }
     }
@@ -192,13 +190,12 @@ namespace cnine{
     IntTensor(const IntTensor& x, const nowarn_flag& dummy): 
       IntTensor(x.dims,x.strides,x.dev){
       memsize=strides[0]*dims[0]; 
-      if(memsize==0) memsize=1;
       if(dev==0){
-	arr=new int[memsize];
+	arr=new int[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(int),cudaMemcpyDeviceToDevice));
       }
     }
@@ -209,18 +206,18 @@ namespace cnine{
       if(memsize==0) memsize=1;
       if(dev==0){
 	if(x.dev==0){
-	  arr=new int[memsize];
+	  arr=new int[std::max(memsize,1)];
 	  std::copy(x.arr,x.arr+memsize,arr);
 	}
 	if(x.dev==1){
 	  CNINE_REQUIRES_CUDA();
-	  arr=new int[memsize];
+	  arr=new int[std::max(memsize,1)];
 	  CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(int),cudaMemcpyDeviceToHost)); 
 	}
       }
       if(dev==1){
 	CNINE_REQUIRES_CUDA();
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	if(x.dev==0){
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(int),cudaMemcpyHostToDevice));
 	}
@@ -255,14 +252,13 @@ namespace cnine{
       strides=x.strides;
       dev=x.dev;
       memsize=strides[0]*dims[0]; 
-      if(memsize==0) memsize=1;
       is_view=false;
       if(dev==0){
-	arr=new int[memsize];
+	arr=new int[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(int),cudaMemcpyDeviceToDevice));
       }
       return *this;
@@ -295,7 +291,7 @@ namespace cnine{
 	if(dev==0) return *this;
 	assert(arrg);
  	if(arr) delete[] arr;
-	arr=new int[memsize];
+	arr=new int[std::max(memsize,1)];
 	CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(int),cudaMemcpyDeviceToHost));  
 	CUDA_SAFE(cudaFree(arrg));
 	dev=0;
@@ -306,7 +302,7 @@ namespace cnine{
 	if(dev==_dev) return *this;
 	assert(arr);
 	if(arrg) CUDA_SAFE(cudaFree(arrg));
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
 	dev=_dev;
 	return *this;
@@ -323,7 +319,7 @@ namespace cnine{
       if(arrg) return;
       assert(arr);
       assert(!is_view);
-      CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+      CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
       CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
     }
 
@@ -342,14 +338,14 @@ namespace cnine{
       if(memsize==0) memsize=1;
       int asize=strides[0]*dims[0];
       if(dev==0){
-	int* newarr=new int[memsize];
+	int* newarr=new int[std::max(memsize,1)];
 	std::copy(arr,arr+asize,newarr);
 	if(arr) delete[] arr;
 	arr=newarr;
       }
       if(dev==1){
 	int* newarrg=nullptr;
-	CUDA_SAFE(cudaMalloc((void **)&newarrg, memsize*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&newarrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(newarrg,arrg,asize*sizeof(int),cudaMemcpyDeviceToDevice));  
 	if(arrg) CUDA_SAFE(cudaFree(arrg));
 	arrg=newarrg;

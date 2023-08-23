@@ -151,11 +151,11 @@ namespace cnine{
   public: // ---- Memory management --------------------------------------------------------------------------
 
 
-    void reserve(const int n){
+    void reserve(int n){
       if(n<=memsize) return;
       int newsize=n;
       if(dev==0){
-	float* newarr=new float[newsize];
+	float* newarr=new float[std::max(newsize,1)];
 	if(arr){
 	  std::copy(arr,arr+memsize,newarr);
 	  delete[] arr;
@@ -165,7 +165,7 @@ namespace cnine{
       }
       if(dev==1){
 	float* newarrg=nullptr;
-	CUDA_SAFE(cudaMalloc((void **)&newarrg, newsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&newarrg, std::max(newsize,1)*sizeof(float)));
 	if(arrg){
 	  CUDA_SAFE(cudaMemcpy(newarrg,arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	  CUDA_SAFE(cudaFree(arrg));
@@ -176,10 +176,10 @@ namespace cnine{
     }
 
 
-    void reserve_zero(const int n){
+    void reserve_zero(int n){
       if(n<=memsize) return;
       if(dev==0){
-	float* newarr=new float[n];
+	float* newarr=new float[std::max(n,1)];
 	if(arr){
 	  std::copy(arr,arr+memsize,newarr);
 	  delete[] arr;
@@ -190,7 +190,7 @@ namespace cnine{
       }
       if(dev==1){
 	float* newarrg=nullptr;
-	CUDA_SAFE(cudaMalloc((void **)&newarrg, n*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&newarrg, std::max(n,1)*sizeof(float)));
 	if(arrg){
 	  CUDA_SAFE(cudaMemcpy(newarrg,arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	  CUDA_SAFE(cudaFree(arrg));
@@ -212,11 +212,11 @@ namespace cnine{
       tail=x.tail;
       memsize=tail;
       if(dev==0){
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
       }
     }
@@ -237,14 +237,15 @@ namespace cnine{
       dir=x.dir;
       tail=x.tail;
       memsize=tail;
+      if(memsize==0) memsize=1;
       if(arr) delete[] arr;
       if(arrg) {CUDA_SAFE(cudaFree(arrg));}
       if(dev==0){
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
       }
       return *this;
@@ -261,11 +262,11 @@ namespace cnine{
       memsize=x.asize;
       tail=memsize;
       if(x.dev==0){
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
       }
       //int m=x.dim(1);
@@ -310,13 +311,13 @@ namespace cnine{
       memsize=x.tail;
       if(dev==0){
 	//cout<<"Copying RtensorPack to host"<<endl;
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
 	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
       }
       if(dev==1){
 	//cout<<"Copying RtensorPack to device"<<endl;
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice)); 
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice)); 
       }
@@ -331,7 +332,7 @@ namespace cnine{
 	  //cout<<"Moving RtensorPack to host "<<tail<<endl;
 	  memsize=tail;
 	  delete[] arr;
-	  arr=new float[memsize];
+	  arr=new float[std::max(memsize,1)];
 	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
 	  CUDA_SAFE(cudaFree(arrg));
 	  arrg=nullptr;
@@ -344,7 +345,7 @@ namespace cnine{
 	  //cout<<"Moving RtensorPack to device "<<tail<<endl;
 	  memsize=tail;
 	  if(arrg) CUDA_SAFE(cudaFree(arrg));
-	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	  CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(float),cudaMemcpyHostToDevice));  
 	  delete[] arr;
 	  arr=nullptr;
