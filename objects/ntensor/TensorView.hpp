@@ -23,6 +23,10 @@
 #include "MemArr.hpp"
 #include "device_helpers.hpp"
 
+#include "Rtensor1_view.hpp"
+#include "Rtensor2_view.hpp"
+#include "Rtensor3_view.hpp"
+
 #ifdef _WITH_CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -133,7 +137,8 @@ namespace cnine{
 
       if(asize()==0) return const_cast<TensorView&>(*this); 
 
-      if(is_regular() && x.is_regular()){
+      //if(is_regular() && x.is_regular()){
+      if(strides==x.strides){
 	if(device()==0){
 	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
 	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
@@ -142,8 +147,30 @@ namespace cnine{
 	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyHostToDevice));
 	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
 	}      
-      }else{
+	return const_cast<TensorView&>(*this);
+      }
+
+      if(device()==0){
+	CNINE_ASSRT(x.device()==0);
 	for_each([&](const Gindex& ix, TYPE& v) {v=x(ix);});
+      }
+
+      if(device()==1){
+	CNINE_ASSRT(x.device()==1);
+	CNINE_ASSRT(typeid(TYPE)==typeid(float));
+	switch(ndims()){
+	case(1): 
+	  Rtensor1_view(*this).set(Rtensor1_view(x));
+	  break;
+	case(2): 
+	  Rtensor2_view(*this).set(Rtensor2_view(x));
+	  break;
+	case(3): 
+	  Rtensor3_view(*this).set(Rtensor3_view(x));
+	  break;
+	default:
+	  CNINE_UNIMPL();
+	}
       }
 
       return const_cast<TensorView&>(*this);
@@ -151,9 +178,6 @@ namespace cnine{
 
     TensorView* clone() const{
       return new TensorView(*this);
-      //auto r=new TensorView(MemArr<TYPE>(dims.total(),dev),dims,GstridesB(dims));
-      //(*r)=*this;
-      //return r;
     }
 
 
@@ -177,8 +201,21 @@ namespace cnine{
 
   public: // ---- Conversions --------------------------------------------------------------------------------
 
-    
 
+    operator Rtensor1_view() const{
+      CNINE_ASSRT(ndims()==1);
+      return Rtensor1_view(mem(),dims,strides,dev);
+    }
+
+    operator Rtensor2_view() const{
+      CNINE_ASSRT(ndims()==1);
+      return Rtensor2_view(mem(),dims,strides,dev);
+    }
+
+    operator Rtensor3_view() const{
+      CNINE_ASSRT(ndims()==1);
+      return Rtensor3_view(mem(),dims,strides,dev);
+    }
 
 
   public: // ---- ATen --------------------------------------------------------------------------------------

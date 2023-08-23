@@ -547,6 +547,7 @@ namespace cnine{
 	CUBLAS_SAFE(cublasSdot(cnine_cublas,tail,arrg,1,y.arrg,1,&r));
 	return r;
       }
+      return 0;
     }
 
     float diff2(const RtensorPack& y){
@@ -564,6 +565,10 @@ namespace cnine{
 
     string classname() const{
       return "RtensorPack";
+    }
+
+    string repr() const{
+      return "<RtensorPack[N="+to_string(size())+"]>";
     }
 
     string str(const string indent="") const{

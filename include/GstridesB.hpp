@@ -156,6 +156,13 @@ namespace cnine{
       return t;
     }
 
+    bool operator==(const GstridesB& x) const{
+      if(size()!=x.size()) return false;
+      for(int i=0; i<size(); i++)
+	if((*this)[i]!=x[i]) return false;
+      return true;
+    }
+
 
   public: // ---- Indexing -----------------------------------------------------------------------------------
 

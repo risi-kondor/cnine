@@ -75,7 +75,8 @@ namespace cnine{
       CNINE_DIMS_VALID(dims);
       CNINE_DEVICE_VALID(dev);
       memsize=strides[0]*dims[0]; 
-      
+      if(memsize==0) memsize=1;
+
       if(dev==0){
 	arr=new int[memsize];
       }
@@ -176,7 +177,8 @@ namespace cnine{
     IntTensor(const IntTensor& x): 
       IntTensor(x.dims,x.strides,x.dev){
       CNINE_COPY_WARNING();
-      memsize=strides[0]*dims[0]; 
+      memsize=strides[0]*dims[0];
+      if(memsize==0) memsize=1;
       if(dev==0){
 	arr=new int[memsize];
 	std::copy(x.arr,x.arr+memsize,arr);
@@ -190,6 +192,7 @@ namespace cnine{
     IntTensor(const IntTensor& x, const nowarn_flag& dummy): 
       IntTensor(x.dims,x.strides,x.dev){
       memsize=strides[0]*dims[0]; 
+      if(memsize==0) memsize=1;
       if(dev==0){
 	arr=new int[memsize];
 	std::copy(x.arr,x.arr+memsize,arr);
@@ -203,6 +206,7 @@ namespace cnine{
     IntTensor(const IntTensor& x, const int _dev): 
       IntTensor(x.dims,x.strides,_dev){
       memsize=strides[0]*dims[0]; 
+      if(memsize==0) memsize=1;
       if(dev==0){
 	if(x.dev==0){
 	  arr=new int[memsize];
@@ -251,6 +255,7 @@ namespace cnine{
       strides=x.strides;
       dev=x.dev;
       memsize=strides[0]*dims[0]; 
+      if(memsize==0) memsize=1;
       is_view=false;
       if(dev==0){
 	arr=new int[memsize];
@@ -334,6 +339,7 @@ namespace cnine{
       if(n<=capacity0()) return;
       assert(!is_view);
       memsize=n*strides[0];
+      if(memsize==0) memsize=1;
       int asize=strides[0]*dims[0];
       if(dev==0){
 	int* newarr=new int[memsize];
