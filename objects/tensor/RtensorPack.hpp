@@ -94,8 +94,14 @@ namespace cnine{
       to_device(_dev);
     }
 
-    RtensorPack(const cnine::array_pool<int>& dimensions, const cnine::fill_zero& dummy, const int _dev=0){
-      dev=_dev;
+    RtensorPack(const cnine::array_pool<int>& dimensions, const cnine::fill_zero& dummy, const int _dev=0):
+      dev(_dev){
+      if(dimensions.size()==0){
+	reserve(0);
+	dir=IntTensor(Gdims({0,0}));
+	return;
+      }
+
       dir=IntTensor(Gdims(0,dimensions(0).size()+1),cnine::fill_noalloc());
 
       int reserve_size=0;
@@ -152,7 +158,7 @@ namespace cnine{
 
 
     void reserve(int n){
-      if(n<=memsize) return;
+      if(n<=memsize && n>0) return;
       int newsize=n;
       if(dev==0){
 	float* newarr=new float[std::max(newsize,1)];

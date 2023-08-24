@@ -46,8 +46,8 @@ namespace cnine{
     template<typename FILLTYPE>
     RtensorPackB(const cnine::array_pool<int>& dims, const FILLTYPE& dummy, const int _dev=0):
       RtensorPack(dims,dummy,_dev){
-      CNINE_ASSRT(dims.size()>0);
-      nc=dims(0).back();
+      if(dims.size()>0) nc=dims(0).back();
+      else nc=0;
     }
 
 
