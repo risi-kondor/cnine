@@ -55,6 +55,10 @@ namespace cnine{
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
+    int getn(){
+      return n;
+    }
+
     void set(const int i, const float v){
       (*this)[i]=v;
     }

@@ -486,6 +486,12 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k)/*.set_offset(strides.chunk(0,k)(ix))*/);
     }
 
+    TensorView<TYPE> slices(const int d, const int i, const int j) const{
+      CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
+      CNINE_CHECK_RANGE(dims.check_in_range_d(d,j-1,string(__PRETTY_FUNCTION__)));
+      return TensorView<TYPE>(arr+strides[d]*i,dims.set(d,j-1),strides);
+    }
+
     TensorView<TYPE> unsqueeze(const int d) const{
       int s;
       if(d==0) s=strides.memsize(dims);
@@ -533,6 +539,13 @@ namespace cnine{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[1]);
       return TensorView<TYPE>(arr+strides[1]*i,{dims[0]},{strides[0]});
+    }
+
+    TensorView<TYPE> cols(const int i, const int j) const{
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(i<dims[1]);
+      CNINE_ASSRT(j<=dims[1]);
+      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],j-i},{strides[0],strides[1]});
     }
 
     TensorView<TYPE> diag() const{
@@ -715,6 +728,12 @@ namespace cnine{
       if(dev==1){
 	CNINE_UNIMPL();
       }
+    }
+
+    void add_broadcast(const int d, const TensorView& x){
+      CNINE_ASSRT(d<dims.size());
+      for(int i=0; i<dims[d]; i++)
+	slice(d)=x;
     }
 
 

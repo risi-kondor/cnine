@@ -94,6 +94,18 @@ namespace cnine{
       to_device(_dev);
     }
 
+    RtensorPack(const int _N, const Gdims& _dims, const cnine::fill_sequential& dummy, const int _dev=0):
+      RtensorPack(_dims.size(),0){
+      int asize=_dims.asize();
+      reserve(_N*asize);
+      for(int i=0; i<_N*asize; i++) arr[i]=i;
+      for(int i=0; i<_N; i++){
+	dir.push_back(i*asize,_dims);
+      }
+      tail=_N*asize;
+      to_device(_dev);
+    }
+
     RtensorPack(const cnine::array_pool<int>& dimensions, const cnine::fill_zero& dummy, const int _dev=0):
       dev(_dev){
       if(dimensions.size()==0){
@@ -550,7 +562,7 @@ namespace cnine{
       }
       if(dev==1){
 	CNINE_ASSRT(y.dev==1);
-	float r;
+	float r=0;
 	CUBLAS_SAFE(cublasSdot(cnine_cublas,tail,arrg,1,y.arrg,1,&r));
 	return r;
       }

@@ -255,6 +255,13 @@ namespace cnine{
       return R;
     }
 
+    Gdims replace(const int j, const int x) const{
+      Gdims R(*this);
+      assert(j<size());
+      R[j]=x;
+      return R;
+    }
+
     Gdims unsqueeze(const int d) const{
       return insert(d,1);
     }
