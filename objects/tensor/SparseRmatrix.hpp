@@ -203,6 +203,8 @@ namespace cnine{
 
 
     bool operator==(const SparseRmatrix& x) const{
+      if(n!=x.n || m!=x.m) return false;
+      if(lists.size()!=x.lists.size()) return false;
       for(auto p: lists){
 	auto it=x.lists.find(p.first);
 	if(it==x.lists.end()) return false;

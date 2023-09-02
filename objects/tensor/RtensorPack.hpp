@@ -544,7 +544,7 @@ namespace cnine{
       CNINE_DEVICE_SAME(g);
       CNINE_DEVICE_SAME(x);
       CNINE_ASSRT(x.tail==tail);
-      CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]=g.arr[i]; else arr[i]=g.arr[i]*alpha);
+      CPUCODE(for(int i=0; i<tail; i++) if(x.arr[i]>0) arr[i]+=g.arr[i]; else arr[i]+=g.arr[i]*alpha);
       GPUCODE(CUDA_STREAM(RtensorPack_add_ReLU_back_cu(*this,g,x,alpha,stream)));
     }
 
@@ -552,7 +552,7 @@ namespace cnine{
   public: // ---- Operations ---------------------------------------------------------------------------------
 
     
-    float inp(const RtensorPack& y){
+    float inp(const RtensorPack& y) const{
       CNINE_ASSRT(tail==y.tail);
       if(dev==0){
 	if(y.dev>0) return inp(RtensorPack(y,0));
@@ -569,7 +569,7 @@ namespace cnine{
       return 0;
     }
 
-    float diff2(const RtensorPack& y){
+    float diff2(const RtensorPack& y) const{
       CNINE_CPUONLY();
       if(y.dev>0) return diff2(RtensorPack(y,0));
       CNINE_ASSRT(tail==y.tail);

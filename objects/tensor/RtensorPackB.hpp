@@ -181,7 +181,6 @@ namespace cnine{
     #ifdef _WITH_ATEN
     RtensorPackB(const at::Tensor& T):
       RtensorPackB(rtensor(T)){
-      assert(size()>0);
     }
     #endif 
 

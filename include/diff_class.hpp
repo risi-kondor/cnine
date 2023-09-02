@@ -58,6 +58,12 @@ namespace cnine{
       else grad=new OBJ(x);
     }
 
+    template<typename OBJ2>
+    void add_to_grad(const OBJ2& x){
+      if(grad) grad->add(x);
+      else grad=new OBJ(x);
+    }
+
     void add_to_grad(const OBJ& x, const float c){
       if(!grad) grad=OBJ::new_zeros_like(x);
       grad->add(x,c);
