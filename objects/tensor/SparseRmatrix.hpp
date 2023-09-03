@@ -225,6 +225,13 @@ namespace cnine{
       return m;
     }
 
+    int size() const{
+      int t=0;
+      for(auto& p: lists)
+	t+=p.second->size();
+      return t;
+    }
+
     float operator()(const int i, const int j) const{
       auto r=conditional_rowp(i);
       if(r==nullptr) return 0;
