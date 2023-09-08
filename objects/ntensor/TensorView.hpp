@@ -157,18 +157,21 @@ namespace cnine{
 
       if(device()==1){
 	CNINE_ASSRT(x.device()==1);
-	CNINE_ASSRT(typeid(TYPE)==typeid(float));
-	switch(ndims()){
-	case(1): 
-	  Rtensor1_view(*this).set(Rtensor1_view(x));
-	  break;
-	case(2): 
-	  Rtensor2_view(*this).set(Rtensor2_view(x));
-	  break;
-	case(3): 
-	  Rtensor3_view(*this).set(Rtensor3_view(x));
-	  break;
-	default:
+	if constexpr(std::is_same<TYPE,float>::value){
+	  switch(ndims()){
+	  case(1): 
+	    Rtensor1_view(*this).set(Rtensor1_view(x));
+	    break;
+	  case(2): 
+	    Rtensor2_view(*this).set(Rtensor2_view(x));
+	    break;
+	  case(3): 
+	    Rtensor3_view(*this).set(Rtensor3_view(x));
+	    break;
+	  default:
+	    CNINE_UNIMPL();
+	  }
+	}else{
 	  CNINE_UNIMPL();
 	}
       }

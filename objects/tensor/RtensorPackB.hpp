@@ -271,6 +271,22 @@ namespace cnine{
   public: // ---- Operations ---------------------------------------------------------------------------------
 
 
+    rtensor inv_channel_norms() const{
+      rtensor R(Gdims(nc),0);//,fill_zero());
+      if(dev==0){
+	int n=tail/nc;
+	for(int i=0; i<nc; i++){
+	  float t=0;
+	  for(int j=0; j<n; j++){
+	    float u=arr[j*nc+i];
+	    t+=u*u;
+	  }
+	  R.set(i,1.0/sqrt(t));
+	}
+      }
+      return R;
+    }
+
     RtensorPackB scale_channels(const Rtensor1_view& y) const{
       RtensorPackB R=RtensorPackB::raw_like(*this);
       CNINE_DEVICE_SAME(y);

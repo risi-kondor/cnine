@@ -16,6 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include "IntTensor.hpp"
+#include "Tensor.hpp"
 
 
 namespace cnine{
@@ -58,6 +59,22 @@ namespace cnine{
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE))));
     }
 
+    array_pool(const Tensor<TYPE>& M):
+      dir(Gdims(M.dim(0),2)),
+      memsize(M.asize()),
+      tail(M.asize()),
+      dev(M.dev){
+      CNINE_ASSRT(M.is_regular());
+      if(dev==0){
+	arr=new TYPE[memsize]; 
+	std::copy(M.mem(),M.mem()+memsize,arr);
+      }
+      if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE)));
+	CUDA_SAFE(cudaMemcpy(arrg,M.mem(),memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+      }
+    }
+      
 
   public: // ---- Memory management --------------------------------------------------------------------------
 
