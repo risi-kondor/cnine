@@ -65,6 +65,12 @@ namespace cnine{
       tail(M.asize()),
       dev(M.dev){
       CNINE_ASSRT(M.is_regular());
+      int n0=M.dim(0);
+      int n1=M.dim(1);
+      for(int i=0; i<n0; i++){
+	dir.set(i,0,i*n1);
+	dir.set(i,1,n1);
+      }
       if(dev==0){
 	arr=new TYPE[memsize]; 
 	std::copy(M.mem(),M.mem()+memsize,arr);

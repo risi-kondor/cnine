@@ -70,6 +70,16 @@ namespace cnine{
       return R;
     }
 
+    static RtensorPackB zeros_like(const RtensorPackB& x, const int _nc){
+      RtensorPackB R(x.dir,_nc,x.dev);
+      int asize=x.tail*_nc/x.nc;
+      R.reserve(asize);
+      R.tail=asize;
+      if(x.dev==0) std::fill(R.arr,R.arr+R.tail,0);
+      if(x.dev==1) CUDA_SAFE(cudaMemset(R.arrg,0,R.tail*sizeof(float)));
+      return R;
+    }
+
     static RtensorPackB* new_zeros_like(const RtensorPackB& x){
       RtensorPackB*  R=new RtensorPackB(x.dir,x.nc,x.dev);
       R->reserve(x.tail);
