@@ -55,8 +55,19 @@ namespace cnine{
       tail(n*m),
       dev(_dev),
       dir(Gdims(n,2)){
+      for(int i=0; i<n; i++){
+	dir.set(i,0,i*m);
+	dir.set(i,1,m);
+      }
       CPUCODE(arr=new TYPE[n*m]);
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE))));
+    }
+
+    array_pool(const int n, const int m, const fill_sequential& dummy, const int _dev=0): 
+      array_pool(n,m){
+      for(int i=0; i<n*m; i++)
+	arr[i]=i;
+      to_device(_dev);
     }
 
     array_pool(const Tensor<TYPE>& M):
@@ -80,7 +91,41 @@ namespace cnine{
 	CUDA_SAFE(cudaMemcpy(arrg,M.mem(),memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
       }
     }
-      
+
+    static array_pool<TYPE> cat(const initializer_list<reference_wrapper<array_pool<TYPE> > >& list){
+      return cat(vector<reference_wrapper<array_pool<TYPE> > >(list));
+    }
+
+    static array_pool<TYPE> cat(const vector<reference_wrapper<array_pool<TYPE> > >& list){
+      int _dev=0; 
+      if(list.size()>0) _dev=list[0].get().dev;
+ 
+      int n=0; for(auto& p:list) n+=p.get().size();
+      array_pool<TYPE> R((n));
+      R.dev=_dev;
+      int s=0; for(auto& p:list) s+=p.get().tail;
+      R.reserve(s);
+
+      int a=0;
+      for(auto& _p:list){
+	array_pool<TYPE>& p=_p.get();
+	CNINE_ASSRT(p.dev==_dev);
+	for(int i=0; i<p.size(); i++){
+	  R.dir.set(a+i,0,R.tail+p.dir(i,0));
+	  R.dir.set(a+i,1,p.dir(i,1));
+	}
+	if(_dev==0){
+	  std::copy(p.arr,p.arr+p.tail,R.arr+R.tail);
+	}
+	if(_dev==1){
+	  CUDA_SAFE(cudaMemcpy(R.arrg+R.tail,p.arrg,p.tail*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+	}
+	a+=p.size();
+	R.tail+=p.tail;
+      }
+      return R;
+    }
+
 
   public: // ---- Memory management --------------------------------------------------------------------------
 
