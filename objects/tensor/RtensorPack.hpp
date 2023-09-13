@@ -556,6 +556,14 @@ namespace cnine{
       GPUCODE(const float alpha = 1.0; CUBLAS_SAFE(cublasSaxpy(cnine_cublas, tail, &alpha, x.arrg, 1, arrg, 1)));
     }
 
+    void add_subpack(const RtensorPack& x, const int offset){ // TODO dims checking
+      CNINE_ASSRT(x.dev==dev);
+      CNINE_ASSRT(offset<x.size());
+      int offs=x.dir(offset,0);
+      CNINE_ASSRT(offs+tail<=x.tail);
+      CPUCODE(cnine::stdadd(x.arr+offs,x.arr+offs+tail,arr));
+      GPUCODE(const float alpha = 1.0; CUBLAS_SAFE(cublasSaxpy(cnine_cublas, tail, &alpha, x.arrg+offs, 1, arrg, 1)));
+    }
 
     void add(const RtensorPack& x, const float c){
       assert(x.dev==dev);
