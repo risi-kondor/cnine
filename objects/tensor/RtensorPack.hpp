@@ -165,6 +165,38 @@ namespace cnine{
       return R.to_device(x.dev);
     }
 
+    static RtensorPack cat(const vector<reference_wrapper<RtensorPack> >& list){
+      int _dev=0;
+      if(list.size()>0) _dev=list[0].get().dev;
+      int t=0;
+      for(auto& p:list) t+=p.get().tail;
+
+      vector<reference_wrapper<IntTensor> > v; //(list.size());
+      for(auto& p:list)
+	v.push_back(p.get().dir);
+
+      RtensorPack R(IntTensor::cat(v),_dev);
+      int offs=0;
+      int a=0;
+      for(auto& _p:list){
+	auto& p=_p.get();
+	for(int i=0; i<p.size(); i++)
+	  R.dir.set(a+i,0,R.dir(a+i,0)+offs);
+	a+=p.size();
+	offs+=p.tail;
+      }
+
+      R.reserve(t);
+      for(auto& _p:list){
+	auto& p=_p.get();
+	CNINE_ASSRT(p.dev==_dev);
+	if(_dev==0) std::copy(p.arr,p.arr+p.tail,R.arr+R.tail);
+	if(_dev==1) CUDA_SAFE(cudaMemcpy(R.arrg+R.tail,p.arrg,p.tail*sizeof(float),cudaMemcpyDeviceToDevice));
+	R.tail+=p.tail;
+      }
+      return R;
+    }
+
 
   public: // ---- Memory management --------------------------------------------------------------------------
 

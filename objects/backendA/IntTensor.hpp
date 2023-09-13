@@ -385,6 +385,31 @@ namespace cnine{
       return R;
     }
 
+    static IntTensor cat(const vector<reference_wrapper<IntTensor> >& list){
+      CNINE_ASSRT(list.size()>0);
+      int _dev=0;
+      if(list.size()>0) _dev=list[0].get().dev;
+      int subsize=0;
+      if(list.size()>0) subsize=list[0].get().dims.asize()/list[0].get().dims[0]; // TODO
+      for(auto& p:list)
+	CNINE_ASSRT(p.get().dims.asize()/p.get().dims[0]==subsize);
+      int t=0;
+      for(auto& p:list) t+=p.get().dims[0];
+
+      Gdims D=list[0].get().dims;
+      D[0]=t;
+      IntTensor R(D);
+      int offs=0;
+      for(auto& _p:list){
+	auto& p=_p.get();
+	int asize=p.dims.asize();
+	if(_dev==0) std::copy(p.arr,p.arr+asize,R.arr+offs);
+	if(_dev==1) CUDA_SAFE(cudaMemcpy(R.arrg+offs,p.arrg,p,asize*sizeof(int),cudaMemcpyDeviceToDevice));  
+	offs+=asize;
+      }
+      return R;
+    }
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 

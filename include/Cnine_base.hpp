@@ -461,6 +461,15 @@ namespace cnine{
     return R;
   }
 
+  template<typename TYPE1, typename TYPE2>
+  inline std::vector<TYPE2> mapcar(const std::vector<TYPE1>& v, 
+    const std::function<TYPE2(const TYPE1&)> lambda){
+    std::vector<TYPE2> R;
+    for(auto& p: v)
+      R.push_back(lambda(p));
+    return R;
+  }
+
   template<typename TYPE>
   std::ostream& print(const TYPE& x){
     cout<<x.str()<<endl;

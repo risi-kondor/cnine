@@ -92,9 +92,9 @@ namespace cnine{
       }
     }
 
-    static array_pool<TYPE> cat(const initializer_list<reference_wrapper<array_pool<TYPE> > >& list){
-      return cat(vector<reference_wrapper<array_pool<TYPE> > >(list));
-    }
+    //static array_pool<TYPE> cat(const initializer_list<reference_wrapper<array_pool<TYPE> > >& list){
+    //return cat(vector<reference_wrapper<array_pool<TYPE> > >(list));
+    //}
 
     static array_pool<TYPE> cat(const vector<reference_wrapper<array_pool<TYPE> > >& list){
       int _dev=0; 
