@@ -109,7 +109,6 @@ namespace cnine{
 
     static RtensorPackB cat(const vector<reference_wrapper<RtensorPackB> >& list){
       int _nc=0; if(list.size()>0) _nc=list[0].get().get_nc();
-      //return RtensorPackB(RtensorPack::cat(list),_nc);
       return RtensorPackB(RtensorPack::cat
 	(mapcar<reference_wrapper<RtensorPackB>,reference_wrapper<RtensorPack> >
 	(list,[](const reference_wrapper<RtensorPackB>& x){

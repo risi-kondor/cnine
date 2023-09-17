@@ -41,6 +41,7 @@ namespace cnine{
   extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
   extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const float c, const cudaStream_t& stream);
   extern void Rtensor_sum0_into_cu(const Rtensor1_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
+  extern void Rtensor_sum0_into_cu(const Rtensor1_view& r, const Rtensor2_view& x, const float c, const cudaStream_t& stream);
   #endif 
 
   
@@ -352,7 +353,7 @@ namespace cnine{
 	}
       }
       if(dev==1){
-	CUDA_STREAM(Rtensor_sum0_into_cu(r,*this,stream));
+	CUDA_STREAM(Rtensor_sum0_into_cu(r,*this,1.0/n0,stream));
       }
     }
 

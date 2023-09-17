@@ -228,11 +228,25 @@ __global__ void Rtensor_sum0_into_kernel_0(float* rarr, const float* arr, const 
   rarr[threadIdx.x*rs0]+=t;
 }
 
+__global__ void Rtensor_sum0_into_kernel_0(float* rarr, const float* arr, const int rs0, const int s0, const int s1, const int n, const float c){
+  float t=0;
+  for(int i=0; i<n; i++)
+    t+=arr[i*s0+threadIdx.x*s1];
+  rarr[threadIdx.x*rs0]+=t*c;
+}
+
 __global__ void Rtensor_sum0_into_kernel_1(float* rarr, const float* arr, const int rs0, const int s0, const int s1, const int n){
   float t=0;
   for(int i=0; i<n; i++)
     t+=arr[i*s0+(blockIdx.x*1024+threadIdx.x)*s1];
   rarr[(blockIdx.x*1024+threadIdx.x)*rs0]+=t;
+}
+
+__global__ void Rtensor_sum0_into_kernel_1(float* rarr, const float* arr, const int rs0, const int s0, const int s1, const int n, const float c){
+  float t=0;
+  for(int i=0; i<n; i++)
+    t+=arr[i*s0+(blockIdx.x*1024+threadIdx.x)*s1];
+  rarr[(blockIdx.x*1024+threadIdx.x)*rs0]+=t*c;
 }
 
 
@@ -421,6 +435,17 @@ namespace cnine{
     }else{
       Rtensor_sum0_into_kernel_1<<<n/1024,1024,0,stream>>>(r.arr,x.arr,r.s0,x.s0,x.s1,x.n0);
       if(n%1024>0) Rtensor_sum0_into_kernel_0<<<1,n%1024,0,stream>>>(r.arr+(n-n%1024)*r.s0,x.arr+(n-n%1024)*x.s1,r.s0,x.s0,x.s1,x.n0);
+    }
+  }
+
+  void Rtensor_sum0_into_cu(const Rtensor1_view& r, const Rtensor2_view& x, const float c, const cudaStream_t& stream){
+    const int n=x.n1;
+    CNINE_ASSRT(r.n0==n);
+    if(n<=1024){
+      Rtensor_sum0_into_kernel_0<<<1,n,0,stream>>>(r.arr,x.arr,r.s0,x.s0,x.s1,x.n0,c);
+    }else{
+      Rtensor_sum0_into_kernel_1<<<n/1024,1024,0,stream>>>(r.arr,x.arr,r.s0,x.s0,x.s1,x.n0,c);
+      if(n%1024>0) Rtensor_sum0_into_kernel_0<<<1,n%1024,0,stream>>>(r.arr+(n-n%1024)*r.s0,x.arr+(n-n%1024)*x.s1,r.s0,x.s0,x.s1,x.n0,c);
     }
   }
 
