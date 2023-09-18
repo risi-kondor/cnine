@@ -15,9 +15,9 @@
 #define _DeltaFactor
 
 #include "Cnine_base.hpp"
-#include "object_bank.hpp"
-#include "frational.hpp"
-#include "FFactorial.hpp"
+#include "../containers/object_bank.hpp"
+#include "../math/frational.hpp"
+#include "../math/FFactorial.hpp"
 
 namespace cnine{
 

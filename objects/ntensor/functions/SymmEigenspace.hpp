@@ -14,7 +14,7 @@
 #ifndef _SymmEigenspace
 #define _SymmEigenspace
 
-#include "TensorFunctions.hpp"
+#include "../TensorFunctions.hpp"
 #include "ComplementSpace.hpp"
 
 

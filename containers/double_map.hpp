@@ -16,7 +16,7 @@
 #define _double_map
 
 #include "Cnine_base.hpp"
-#include "Gdims.hpp"
+//#include "Gdims.hpp"
 
 
 namespace cnine{

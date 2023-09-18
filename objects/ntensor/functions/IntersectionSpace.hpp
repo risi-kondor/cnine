@@ -14,7 +14,7 @@
 #ifndef _IntersectionSpace
 #define _IntersectionSpace
 
-#include "TensorFunctions.hpp"
+#include "../TensorFunctions.hpp"
 #include "ComplementSpace.hpp"
 //#include "SingularValueDecomposition.hpp"
 

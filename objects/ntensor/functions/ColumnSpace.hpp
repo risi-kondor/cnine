@@ -14,7 +14,7 @@
 #ifndef _ColumnSpace
 #define _ColumnSpace
 
-#include "Tensor.hpp"
+//#include "Tensor.hpp"
 
 
 namespace cnine{

@@ -17,7 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
-#include "BatchedTensorView.hpp"
+//#include "BatchedTensorView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>

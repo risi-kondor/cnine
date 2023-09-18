@@ -22,7 +22,7 @@
 
 #include "Ctensor1_view.hpp"
 #include "Rtensor2_view.hpp"
-#include "TensorView.hpp"
+//#include "TensorView.hpp"
 
 #ifdef _WITH_CUBLAS
 #include <cublas_v2.h>
@@ -84,6 +84,7 @@ namespace cnine{
       s1=_strides[b.back()];
     }
 
+    #ifdef _CnineTensorView
     Ctensor2_view(const TensorView<complex<float> >& x):
       arr(x.arr.ptr_as<float>()),
       arrc(x.arr.ptr_as<float>()+1),
@@ -94,7 +95,8 @@ namespace cnine{
       s0=x.strides[0];
       s1=x.strides[1];
     }
-    
+    #endif 
+
 
   public: // ---- Access ------------------------------------------------------------------------------------
 

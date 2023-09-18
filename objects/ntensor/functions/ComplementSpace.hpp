@@ -14,7 +14,7 @@
 #ifndef _ComplementSpace
 #define _ComplementSpace
 
-#include "Tensor.hpp"
+//#include "Tensor.hpp"
 #include "ColumnSpace.hpp"
 
 

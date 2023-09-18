@@ -14,7 +14,7 @@
 #ifndef _SymmEigendecomposition
 #define _SymmEigendecomposition
 
-#include "Tensor.hpp"
+//#include "Tensor.hpp"
 
 #ifdef _WITH_EIGEN
 #include <Eigen/Dense>
