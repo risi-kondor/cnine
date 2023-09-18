@@ -16,6 +16,8 @@
 #define _GivensSelectSlicesFn
 
 #include "RtensorView.hpp"
+#include "../../tensor_views/Itensor1_view.hpp"
+#include "../../tensor_views/Itensor2_view.hpp"
 
 
 namespace cnine{

@@ -4,6 +4,7 @@
 #include "../containers/quintuple_map.hpp"
 
 #include "../containers/associative_container.hpp"
+#include "../containers/indexed_map.hpp"
 #include "../containers/object_bank.hpp"
 
 #include "../wrappers/cachedf.hpp"

@@ -35,7 +35,7 @@ namespace cnine{
       CNINE_ASSRT(X.dims[1]==Y.dims[1]);
 
       Tensor<TYPE> B=X*Y.transp(); // a*b
-      Tensor<TYPE> C=ComplementSpace(B*B.transp()-Identity<TYPE>(B.dims[0]))(); // c*a
+      Tensor<TYPE> C=ComplementSpace<TYPE>(B*B.transp()-Identity<TYPE>(B.dims[0]))(); // c*a
       T=C.transp()*X;
     }
 

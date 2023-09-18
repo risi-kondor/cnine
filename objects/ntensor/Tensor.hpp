@@ -55,6 +55,10 @@ namespace cnine{
     using TensorView<TYPE>::fuse01;
     using TensorView<TYPE>::split0;
 
+    using TensorView<TYPE>::view1;
+    using TensorView<TYPE>::view2;
+    using TensorView<TYPE>::view3;
+
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
@@ -67,6 +71,14 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
       TensorView<TYPE>(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
+
+    Tensor(const Gdims& _dims, const fill_ones& dummy, const int _dev=0):
+      Tensor(_dims,_dev){
+      int N=dims.total();
+      for(int i=0; i<N; i++)
+	arr[i]=1;
+      move_to_device(_dev);
+    }
 
     Tensor(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
       Tensor(_dims,_dev){
@@ -229,6 +241,11 @@ namespace cnine{
 
   public: // ---- Conversions ---------------------------------------------------------------------------------
 
+
+  Tensor(const Rtensor1_view& x): // hack
+      Tensor({x.n0},fill_zero(),x.dev){
+      view1().add(x);
+    }
 
     // Doesn't work 
     //operator BatchedTensorView<TYPE>() const{

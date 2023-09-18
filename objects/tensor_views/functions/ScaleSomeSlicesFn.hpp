@@ -16,7 +16,7 @@
 #define _ScaleSelectSlicesFn
 
 #include "RtensorView.hpp"
-
+#include "../../tensor_views/Itensor1_view.hpp"
 
 namespace cnine{
 

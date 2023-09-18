@@ -27,6 +27,8 @@
 #include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
 
+#include "Itensor1_view.hpp"
+
 #ifdef _WITH_CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -211,14 +213,36 @@ namespace cnine{
     }
 
     operator Rtensor2_view() const{
-      CNINE_ASSRT(ndims()==1);
+      CNINE_ASSRT(ndims()==2);
       return Rtensor2_view(mem(),dims,strides,dev);
     }
 
     operator Rtensor3_view() const{
-      CNINE_ASSRT(ndims()==1);
+      CNINE_ASSRT(ndims()==3);
       return Rtensor3_view(mem(),dims,strides,dev);
     }
+
+    Rtensor1_view view1() const{ // temporary hack
+      CNINE_ASSRT(ndims()==1);
+      return Rtensor1_view(mem(),dims,strides,dev);
+    }
+
+    Rtensor2_view view2() const{ // temporary hack
+      CNINE_ASSRT(ndims()==2);
+      return Rtensor2_view(mem(),dims,strides,dev);
+    }
+
+    Rtensor3_view view3() const{ // temporary hack
+      CNINE_ASSRT(ndims()==3);
+      return Rtensor3_view(mem(),dims,strides,dev);
+    }
+
+
+    operator Itensor1_view() const{
+      CNINE_ASSRT(ndims()==1);
+      return Itensor1_view(mem(),dims,strides,dev);
+    }
+
 
 
   public: // ---- ATen --------------------------------------------------------------------------------------
@@ -303,6 +327,10 @@ namespace cnine{
       return dev;
     }
     
+    int get_device() const{
+      return dev;
+    }
+    
     bool is_regular() const{
       return strides.is_regular(dims);
     }
@@ -316,6 +344,10 @@ namespace cnine{
     }
 
     int dim(const int i) const{
+      return dims[i];
+    }
+
+    int get_dim(const int i) const{
       return dims[i];
     }
 
@@ -386,6 +418,27 @@ namespace cnine{
     }
 
 
+    TYPE get(const int i0) const{
+      return operator()(i0);
+    }
+
+    TYPE get(const int i0, const int i1) const{
+      return operator()(i0,i1);
+    }
+
+    TYPE get_value(const int i0) const{
+      return operator()(i0);
+    }
+
+    TYPE get_value(const int i0, const int i1) const{
+      return operator()(i0,i1);
+    }
+
+    TYPE get_value(const int i0, const int i1, const int i2) const{
+      return operator()(i0,i1,i2);
+    }
+
+
   public: // ---- Setters ------------------------------------------------------------------------------------
 
 
@@ -412,6 +465,15 @@ namespace cnine{
     void set(const int i0, const int i1, const int i2, const int i3, const TYPE x){
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1,i2,i3)]=x;
+    }
+
+
+    void set_value(const int i0, const TYPE x){
+      set(i0,x);
+    }
+
+    void set_value(const int i0, const int i1, const TYPE x){
+      set(i0,i1,x);
     }
 
 
@@ -524,6 +586,11 @@ namespace cnine{
     TensorView<TYPE> block(const Gdims& _dims, const Gindex& offs) const{
       CNINE_ASSRT(offs+_dims<=dims);
       return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
+    }
+
+    TensorView<TYPE> block2(const int i0, const int i1, int m0, int m1){
+      CNINE_ASSRT(ndims()==2);
+      return block({m0,m1},{i0,i1});
     }
 
     TensorView<TYPE> row(const int i) const{
@@ -639,6 +706,10 @@ namespace cnine{
 	}else
 	  CNINE_UNIMPL();
       }
+    }
+
+    void operator+=(const TensorView& x) const{
+      add(x);
     }
 
     void subtract(const TensorView& x) const{

@@ -34,7 +34,7 @@ namespace cnine{
       int n=X.dims[0];
       for(int i=0; i<n; i++)
 	X.inc(i,i,-lambda);
-      T=ComplementSpace(X)();
+      T=ComplementSpace<TYPE>(X)();
     }
 
     Tensor<TYPE> operator()() const{
