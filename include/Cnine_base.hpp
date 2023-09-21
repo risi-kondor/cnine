@@ -155,6 +155,15 @@ using namespace std;
 #define CNINE_CHECK_DEV3(x,y,z) if(x.dev!=y.dev || x.dev!=z.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
 
 
+// ---- Templates ---------------------------------------------------------------------------------------------
+
+
+#define IF_INT template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,int>::value, U>::type>
+#define IF_FLOAT template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
+#define IF_DOUBLE template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,double>::value, U>::type>
+
+
+
 // ---- other -------------------------------------------------------------------------------------------------
 
 

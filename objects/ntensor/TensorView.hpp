@@ -28,6 +28,8 @@
 #include "Rtensor3_view.hpp"
 
 #include "Itensor1_view.hpp"
+#include "Itensor2_view.hpp"
+#include "Itensor3_view.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -139,7 +141,6 @@ namespace cnine{
 
       if(asize()==0) return const_cast<TensorView&>(*this); 
 
-      //if(is_regular() && x.is_regular()){
       if(strides==x.strides){
 	if(device()==0){
 	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
@@ -207,42 +208,70 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
+    // deprecated 
+    template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
     operator Rtensor1_view() const{
       CNINE_ASSRT(ndims()==1);
       return Rtensor1_view(mem(),dims,strides,dev);
     }
 
+    // deprecated 
+    template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
     operator Rtensor2_view() const{
       CNINE_ASSRT(ndims()==2);
       return Rtensor2_view(mem(),dims,strides,dev);
     }
 
+    // deprecated 
+    template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
     operator Rtensor3_view() const{
       CNINE_ASSRT(ndims()==3);
       return Rtensor3_view(mem(),dims,strides,dev);
     }
 
-    Rtensor1_view view1() const{ // temporary hack
+    IF_FLOAT
+    Rtensor1_view view1() const{
       CNINE_ASSRT(ndims()==1);
       return Rtensor1_view(mem(),dims,strides,dev);
     }
 
-    Rtensor2_view view2() const{ // temporary hack
+    IF_FLOAT
+    Rtensor2_view view2() const{
       CNINE_ASSRT(ndims()==2);
       return Rtensor2_view(mem(),dims,strides,dev);
     }
-
-    Rtensor3_view view3() const{ // temporary hack
+  
+    IF_FLOAT
+    Rtensor3_view view3() const{
       CNINE_ASSRT(ndims()==3);
       return Rtensor3_view(mem(),dims,strides,dev);
     }
 
 
+    //deprecated 
+    IF_INT
     operator Itensor1_view() const{
       CNINE_ASSRT(ndims()==1);
       return Itensor1_view(mem(),dims,strides,dev);
     }
 
+    IF_INT
+    Itensor1_view view1() const{
+      CNINE_ASSRT(ndims()==1);
+      return Itensor1_view(mem(),dims,strides,dev);
+    }
+
+    IF_INT
+    Itensor2_view view2() const{
+      CNINE_ASSRT(ndims()==2);
+      return Itensor2_view(mem(),dims,strides,dev);
+    }
+  
+    IF_INT
+    Itensor3_view view3() const{
+      CNINE_ASSRT(ndims()==3);
+      return Itensor3_view(mem(),dims,strides,dev);
+    }
 
 
   public: // ---- ATen --------------------------------------------------------------------------------------
@@ -442,37 +471,37 @@ namespace cnine{
   public: // ---- Setters ------------------------------------------------------------------------------------
 
 
-    void set(const Gindex& ix, const TYPE x){
+    void set(const Gindex& ix, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(ix)]=x;
     }
 
-    void set(const int i0, const TYPE x){
+    void set(const int i0, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0)]=x;
     }
 
-    void set(const int i0, const int i1,  const TYPE x){
+    void set(const int i0, const int i1,  const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1)]=x;
     }
 
-    void set(const int i0, const int i1, const int i2, const TYPE x){
+    void set(const int i0, const int i1, const int i2, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1,i2)]=x;
     }
 
-    void set(const int i0, const int i1, const int i2, const int i3, const TYPE x){
+    void set(const int i0, const int i1, const int i2, const int i3, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1,i2,i3)]=x;
     }
 
 
-    void set_value(const int i0, const TYPE x){
+    void set_value(const int i0, const TYPE x) const{
       set(i0,x);
     }
 
-    void set_value(const int i0, const int i1, const TYPE x){
+    void set_value(const int i0, const int i1, const TYPE x) const{
       set(i0,i1,x);
     }
 
@@ -539,6 +568,14 @@ namespace cnine{
       CNINE_ASSRT(_dims.asize()==asize());
       CNINE_ASSRT(is_regular());
       return TensorView<TYPE>(arr,_dims,GstridesB(_dims));
+    }
+
+    TensorView<TYPE> inplace_reshape(const Gdims& _dims){
+      CNINE_ASSRT(_dims.asize()==asize());
+      CNINE_ASSRT(is_regular());
+      dims=_dims;
+      strides=GstridesB(_dims);
+      return *this;
     }
 
     TensorView<TYPE> slice(const int d, const int i) const{
@@ -1159,35 +1196,3 @@ namespace cnine{
 #endif
 
 
-    /*
-    TensorView(const TensorView<TYPE>& x, const nowarn_flag& dummy):
-      arr(x.arr),
-      dims(x.dims),
-      strides(x.strides),
-      dev(x.dev){
-    }
-    */
-
-    /*
-    TensorView(TensorView<TYPE>&& x):
-      arr(std::move(x.arr)),
-      dims(x.dims),
-      strides(x.strides),
-      dev(x.dev),
-      regular(x.regular){
-      CNINE_MOVE_WARNING();
-    }
-    */
-    /*
-    template<class S=TYPE, typename=typename std::enable_if<is_complex<S>::value, S>::type>
-    TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
-      TensorView(_dims,_dev){
-      int N=dims.total();
-      normal_distribution<double> distr;
-      for(int i=0; i<N; i++) 
-	arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
-      //move_to_device(_dev);
-    }
-    */
-    //template<class S=TYPE, typename std::enable_if<false,void>::is_complex<S> >* = nullptr>
-    //template<class S=TYPE, typename=typename std::enable_if<!is_complex<S>::value, S>::type>
