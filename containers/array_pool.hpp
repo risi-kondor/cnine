@@ -282,7 +282,7 @@ namespace cnine{
 	  //cout<<"Moving array_pool to host "<<tail<<endl;
 	  memsize=tail;
 	  delete[] arr;
-	  arr=new TYPE[std:;max(memsize,1)];
+	  arr=new TYPE[std::max(memsize,1)];
 	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
 	  CUDA_SAFE(cudaFree(arrg));
 	  arrg=nullptr;

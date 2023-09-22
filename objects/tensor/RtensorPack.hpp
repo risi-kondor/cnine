@@ -194,6 +194,7 @@ namespace cnine{
 	if(_dev==1) CUDA_SAFE(cudaMemcpy(R.arrg+R.tail,p.arrg,p.tail*sizeof(float),cudaMemcpyDeviceToDevice));
 	R.tail+=p.tail;
       }
+
       return R;
     }
 
@@ -558,7 +559,8 @@ namespace cnine{
 
     void add_subpack(const RtensorPack& x, const int offset){ // TODO dims checking
       CNINE_ASSRT(x.dev==dev);
-      CNINE_ASSRT(offset<x.size());
+      CNINE_ASSRT(offset<=x.size());
+      if(offset==x.size()) return;
       int offs=x.dir(offset,0);
       CNINE_ASSRT(offs+tail<=x.tail);
       CPUCODE(cnine::stdadd(x.arr+offs,x.arr+offs+tail,arr));

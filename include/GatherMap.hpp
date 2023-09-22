@@ -132,10 +132,10 @@ namespace cnine{
       n(_n), dev(_dev){
       memsize=3*n+2*edges;
       if(dev==0){
-	arr=new int[memsize];
+	arr=new int[std::max(memsize,1)];
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, (memsize)*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, (std::max(memsize,1))*sizeof(int)));
       }
     }
 
@@ -177,11 +177,11 @@ namespace cnine{
 	if(arrg) {CUDA_SAFE(cudaFree(arrg));}
       }
       if(dev==0){
-	arr=new int[memsize];
+	arr=new int[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, (memsize)*sizeof(int)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, (std::max(memsize,1))*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
       return *this;
@@ -218,7 +218,7 @@ namespace cnine{
 	  //cout<<"Moving GatherMap to host "<<endl;
 	  delete[] arr;
 	  arr=new int[memsize];
-	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(int),cudaMemcpyDeviceToHost));  
+	  CUDA_SAFE(cudaMemcpy(arr,arrg,std::max(memsize,1)*sizeof(int),cudaMemcpyDeviceToHost));  
 	  CUDA_SAFE(cudaFree(arrg));
 	  arrg=nullptr;
 	  dev=0;
@@ -229,7 +229,7 @@ namespace cnine{
 	if(dev==0){
 	  //cout<<"Moving GatherMap to device "<<memsize<<endl;
 	  if(arrg) CUDA_SAFE(cudaFree(arrg));
-	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(int)));
+	  CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
 	  delete[] arr;
 	  arr=nullptr;
