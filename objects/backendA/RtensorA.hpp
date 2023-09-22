@@ -629,7 +629,7 @@ namespace cnine{
       }
       if(dev==1){
 	float* newarrg=nullptr;
-	CUDA_SAFE(cudaMalloc((void **)&newarrg, std:;max(memsize,1)*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&newarrg, std::max(memsize,1)*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(newarrg,arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	CUDA_SAFE(cudaFree(arrg));
 	arrg=newarrg;

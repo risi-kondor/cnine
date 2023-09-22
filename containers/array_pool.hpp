@@ -146,7 +146,7 @@ namespace cnine{
 	TYPE* newarrg=nullptr;
 	CUDA_SAFE(cudaMalloc((void **)&newarrg, std::max(newsize,1)*sizeof(TYPE)));
 	if(arrg){
-	  CUDA_SAFE(cudaMemcpy(newarrg,arrg,std::max(memsize,1)*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+	  CUDA_SAFE(cudaMemcpy(newarrg,arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
 	  CUDA_SAFE(cudaFree(arrg));
 	}
 	arrg=newarrg;
@@ -267,7 +267,7 @@ namespace cnine{
       }
       if(dev==1){
 	cout<<"Copying RtensorPack to device"<<endl;
-	CUDA_SAFE(cudaMalloc((void **)&arrg, std:;max(memsize,1)*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice)); 
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice)); 
       }
