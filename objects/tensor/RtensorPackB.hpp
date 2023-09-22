@@ -148,11 +148,11 @@ namespace cnine{
       memsize=x.asize;
       tail=memsize;
       if(x.dev==0){
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice));  
       }
       dir=IntTensor({0,2},fill_noalloc());

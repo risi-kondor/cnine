@@ -59,8 +59,8 @@ namespace cnine{
 	dir.set(i,0,i*m);
 	dir.set(i,1,m);
       }
-      CPUCODE(arr=new TYPE[n*m]);
-      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE))));
+      CPUCODE(arr=new TYPE[std::max(n*m,1)]);
+      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE))));
     }
 
     array_pool(const int n, const int m, const fill_sequential& dummy, const int _dev=0): 
@@ -83,11 +83,11 @@ namespace cnine{
 	dir.set(i,1,n1);
       }
       if(dev==0){
-	arr=new TYPE[memsize]; 
+	arr=new TYPE[std::max(memsize,1)]; 
 	std::copy(M.mem(),M.mem()+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
 	CUDA_SAFE(cudaMemcpy(arrg,M.mem(),memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
       }
     }
@@ -134,7 +134,7 @@ namespace cnine{
       if(n<=memsize) return;
       int newsize=n;
       if(dev==0){
-	TYPE* newarr=new TYPE[newsize];
+	TYPE* newarr=new TYPE[std::max(newsize,1)];
 	if(arr){
 	  std::copy(arr,arr+memsize,newarr);
 	  delete[] arr;
@@ -144,9 +144,9 @@ namespace cnine{
       }
       if(dev==1){
 	TYPE* newarrg=nullptr;
-	CUDA_SAFE(cudaMalloc((void **)&newarrg, newsize*sizeof(TYPE)));
+	CUDA_SAFE(cudaMalloc((void **)&newarrg, std::max(newsize,1)*sizeof(TYPE)));
 	if(arrg){
-	  CUDA_SAFE(cudaMemcpy(newarrg,arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+	  CUDA_SAFE(cudaMemcpy(newarrg,arrg,std::max(memsize,1)*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
 	  CUDA_SAFE(cudaFree(arrg));
 	}
 	arrg=newarrg;
@@ -164,7 +164,7 @@ namespace cnine{
       tail=x.tail;
       memsize=tail;
       if(dev==0){
-	arr=new TYPE[memsize];
+	arr=new TYPE[std::max(memsize,1)];
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
@@ -204,11 +204,11 @@ namespace cnine{
       is_view=false;
 
       if(dev==0){
-	arr=new TYPE[memsize]; 
+	arr=new TYPE[std::max(memsize,1)]; 
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
       }
       return *this;
@@ -261,13 +261,13 @@ namespace cnine{
       memsize=x.tail;
       if(dev==0){
 	cout<<"Copying RtensorPack to host"<<endl;
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
 	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
       }
       if(dev==1){
 	cout<<"Copying RtensorPack to device"<<endl;
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std:;max(memsize,1)*sizeof(float)));
 	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice)); 
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice)); 
       }
@@ -282,7 +282,7 @@ namespace cnine{
 	  //cout<<"Moving array_pool to host "<<tail<<endl;
 	  memsize=tail;
 	  delete[] arr;
-	  arr=new TYPE[memsize];
+	  arr=new TYPE[std:;max(memsize,1)];
 	  CUDA_SAFE(cudaMemcpy(arr,arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
 	  CUDA_SAFE(cudaFree(arrg));
 	  arrg=nullptr;
@@ -295,7 +295,7 @@ namespace cnine{
 	  //cout<<"Moving array_pool to device "<<tail<<endl;
 	  memsize=tail;
 	  if(arrg) CUDA_SAFE(cudaFree(arrg));
-	  CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(TYPE)));
+	  CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
 	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice));  
 	  delete[] arr;
 	  arr=nullptr;

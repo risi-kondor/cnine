@@ -139,11 +139,11 @@ namespace cnine{
       memsize=cst; 
 
       if(dev==0){
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
       }
 
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
       }
 
     }
@@ -164,11 +164,11 @@ namespace cnine{
       memsize=cst; 
 
       if(dev==0){
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
       }
 
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
       }
 
     }
@@ -198,11 +198,11 @@ namespace cnine{
       memsize=cst; 
 
       if(dev==0){
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
       }
 
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
       }
 
     }
@@ -239,11 +239,11 @@ namespace cnine{
       k(_k), dims(_dims), strides(_strides), asize(_asize), memsize(_memsize), cst(_cst), dev(_dev){
 
       if(dev==0){
-        arr=new float[memsize];
+        arr=new float[std::max(memsize,1)];
       }
 
       if(dev==1){
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
       }
 
     }
@@ -622,14 +622,14 @@ namespace cnine{
       assert(!is_view);
       memsize=n*strides[0];
       if(dev==0){
-	float* newarr=new float[memsize];
+	float* newarr=new float[std::max(memsize,1)];
 	std::copy(arr,arr+asize,newarr);
 	delete[] arr;
 	arr=newarr;
       }
       if(dev==1){
 	float* newarrg=nullptr;
-	CUDA_SAFE(cudaMalloc((void **)&newarrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&newarrg, std:;max(memsize,1)*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(newarrg,arrg,asize*sizeof(float),cudaMemcpyDeviceToDevice));  
 	CUDA_SAFE(cudaFree(arrg));
 	arrg=newarrg;
@@ -805,7 +805,7 @@ namespace cnine{
       if(_dev==0){
 	if(dev==0) return *this;
  	delete[] arr;
-	arr=new float[memsize];
+	arr=new float[std::max(memsize,1)];
 	CUDA_SAFE(cudaMemcpy(arr,arrg,asize*sizeof(float),cudaMemcpyDeviceToHost));  
 	CUDA_SAFE(cudaFree(arrg));
 	const_cast<RtensorA*>(this)->arrg=nullptr;
@@ -816,7 +816,7 @@ namespace cnine{
       if(_dev>0){
 	if(dev==_dev) return *this;
 	if(arrg) CUDA_SAFE(cudaFree(arrg));
-	CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,arr,asize*sizeof(float),cudaMemcpyHostToDevice));  
 	delete[] arr;
 	const_cast<RtensorA*>(this)->arr=nullptr;
