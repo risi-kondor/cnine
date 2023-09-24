@@ -239,7 +239,7 @@ namespace cnine{
     }
 
 
-  public: // ---- Conversions ---------------------------------------------------------------------------------
+public: // ---- Conversions ---------------------------------------------------------------------------------
 
 
   Tensor(const Rtensor1_view& x): // hack
@@ -252,6 +252,11 @@ namespace cnine{
     //return TensorView(*this);
     //}
 
+  IF_FLOAT
+  Tensor(const RtensorA& x):
+    Tensor(x.dims,x.dev){
+    *this=x;
+  }
 
   public: // ---- Transport -----------------------------------------------------------------------------------
 

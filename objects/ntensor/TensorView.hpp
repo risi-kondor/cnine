@@ -274,6 +274,22 @@ namespace cnine{
     }
 
 
+
+    IF_FLOAT
+    TensorView& operator=(const RtensorA& x){
+      switch(x.dims.size()){
+      case 1:
+	view1().set(x.view1());
+      case 2:
+	view2().set(x.view3());
+      case 3:
+	view3().set(x.view3());
+      default:
+	CNINE_UNIMPL();
+      }
+    }
+
+
   public: // ---- ATen --------------------------------------------------------------------------------------
 
 

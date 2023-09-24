@@ -167,6 +167,7 @@ namespace cnine{
       return add(x);
     }
 
+    // deprecated 
     void add_matmul_AA(const Rtensor3_view& x, const Rtensor2_view& y){
       CNINE_CPUONLY();
       const int I=x.n2;
@@ -184,6 +185,28 @@ namespace cnine{
 	      t+=x(_b,a,i)*y(i,b);
 	    inc(_b,a,b,t);
 	}
+    }
+
+    // batchwise 
+    void add_mprod(const Rtensor2_view& x, const Rtensor3_view& y){
+      CNINE_ASSRT(n0==y.n0);
+      CNINE_ASSRT(n1==x.n0);
+      CNINE_ASSRT(n2==y.n2);
+      CNINE_ASSRT(x.n1==y.n1);
+      CNINE_ASSRT(dev==x.dev);
+      CNINE_ASSRT(dev==y.dev);
+      
+      if(dev==0){
+	for(int b=0; b<n0; b++)
+	  slice0(b).add_matmul_AA(x,y.slice0(b));
+      }
+      if(dev==1){
+	float alpha=1.0;
+	CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n2,n1,x.n1,
+	    &alpha,y.arr,y.s1,y.s0
+	    x.arr,x.s0,0,
+	    &alpha,arr,s1,s0,n0));
+      }
     }
 
 

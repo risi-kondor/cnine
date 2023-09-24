@@ -28,6 +28,7 @@ namespace cnine{
   class SymmEigendecomposition{
   public:
 
+    #ifdef _WITH_EIGEN
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> solver;
 
     SymmEigendecomposition(const TensorView<TYPE>& _A){
@@ -43,7 +44,23 @@ namespace cnine{
     Tensor<TYPE> lambda() const{
       return solver.eigenvalues();
     }
+    #else
 
+    SymmEigendecomposition(const TensorView<TYPE>& _A){
+      CNINE_UNIMPL();
+    }
+
+    Tensor<TYPE> U() const{
+      CNINE_UNIMPL();
+      return Tensor<TYPE>();
+    }
+
+    Tensor<TYPE> lambda() const{
+      CNINE_UNIMPL();
+      return Tensor<TYPE>();
+    }
+
+    #endif 
 
   };
 
