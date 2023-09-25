@@ -219,6 +219,9 @@ namespace cnine{
 	  }
       }
       if(dev==1){
+	CNINE_ASSRT(s1==0);
+	CNINE_ASSRT(x.s1==0);
+	CNINE_ASSRT(y.s1==0);
 	const float alpha=1.0;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
 	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
@@ -230,35 +233,55 @@ namespace cnine{
     }
 
     void add_matmul_AT(const Rtensor2_view& x, const Rtensor2_view& y){
-      CNINE_CPUONLY();
       const int I=x.n1;
       CNINE_ASSRT(x.n0==n0);
       CNINE_ASSRT(y.n0==n1);
       CNINE_ASSRT(y.n1==I);
 
-      for(int a=0; a<n0; a++)
-	for(int b=0; b<n1; b++){
-	  float t=0;
-	  for(int i=0; i<I; i++)
-	    t+=x(a,i)*y(b,i);
-	  inc(a,b,t);
-	}
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    float t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(a,i)*y(b,i);
+	    inc(a,b,t);
+	  }
+      }
+
+      if(dev==1){
+	CNINE_ASSRT(s1==0);
+	CNINE_ASSRT(x.s1==0);
+	CNINE_ASSRT(y.s1==0);
+	const float alpha=1.0;
+	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
+	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
+      }
     }
     
    void add_matmul_TA(const Rtensor2_view& x, const Rtensor2_view& y){
-      CNINE_CPUONLY();
       const int I=x.n0;
       CNINE_ASSRT(x.n1==n0);
       CNINE_ASSRT(y.n0==n1);
       CNINE_ASSRT(y.n1==I);
 
-      for(int a=0; a<n0; a++)
-	for(int b=0; b<n1; b++){
-	  float t=0;
-	  for(int i=0; i<I; i++)
-	    t+=x(i,a)*y(b,i);
-	  inc(a,b,t);
-	}
+      if(dev==0){
+	for(int a=0; a<n0; a++)
+	  for(int b=0; b<n1; b++){
+	    float t=0;
+	    for(int i=0; i<I; i++)
+	      t+=x(i,a)*y(b,i);
+	    inc(a,b,t);
+	  }
+      }
+
+      if(dev==1){
+	CNINE_ASSRT(s1==0);
+	CNINE_ASSRT(x.s1==0);
+	CNINE_ASSRT(y.s1==0);
+	const float alpha=1.0;
+	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n1,n0,y.n0,&alpha,
+	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
+      }
     }
 
 
@@ -470,10 +493,10 @@ namespace cnine{
     void add_broadcast0(const Rtensor1_view& x, const float alpha=1.0){
       CNINE_DEVICE_SAME(x);
       assert(x.n0==n1);
-      if(is_regular() && x.is_regular()){
+      if(x.s0==0 && s1==0){
 	if(dev==0){
 	  for(int i=0; i<n0; i++)
-	    stdadd(x.arr,x.arr+n1,arr+i*n1);
+	    stdadd(x.arr,x.arr+n1,arr+i*s0);
 	}
 	if(dev==1){
 	  float beta=1.0;
