@@ -161,6 +161,7 @@ using namespace std;
 #define IF_INT template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,int>::value, U>::type>
 #define IF_FLOAT template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
 #define IF_DOUBLE template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,double>::value, U>::type>
+#define IF_CFLOAT template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,complex<float> >::value, U>::type>
 
 
 

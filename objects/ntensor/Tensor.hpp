@@ -59,6 +59,8 @@ namespace cnine{
     using TensorView<TYPE>::view2;
     using TensorView<TYPE>::view3;
 
+    using TensorView<TYPE>::str;
+
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
@@ -240,12 +242,12 @@ namespace cnine{
 
 
 public: // ---- Conversions ---------------------------------------------------------------------------------
-
+  
 
   Tensor(const Rtensor1_view& x): // hack
-      Tensor({x.n0},fill_zero(),x.dev){
-      view1().add(x);
-    }
+    Tensor({x.n0},fill_zero(),x.dev){
+    view1().add(x);
+  }
 
     // Doesn't work 
     //operator BatchedTensorView<TYPE>() const{
@@ -255,7 +257,7 @@ public: // ---- Conversions ----------------------------------------------------
   IF_FLOAT
   Tensor(const RtensorA& x):
     Tensor(x.dims,x.dev){
-    *this=x;
+    TensorView<TYPE>::operator=(x);
   }
 
   public: // ---- Transport -----------------------------------------------------------------------------------

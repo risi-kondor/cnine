@@ -729,7 +729,6 @@ namespace cnine{
 	//CUDA_SAFE(cudaMalloc((void **)&arrg, memsize*sizeof(float)));
 	CUDA_SAFE(cudaMemcpy(arrg,T.data<float>(),asize*sizeof(float),cudaMemcpyDeviceToDevice));
       }
-
     }
 
 
