@@ -493,7 +493,7 @@ namespace cnine{
     void add_broadcast0(const Rtensor1_view& x, const float alpha=1.0){
       CNINE_DEVICE_SAME(x);
       assert(x.n0==n1);
-      if(x.s0==0 && s1==0){
+      if(x.s0==1 && s1==1){
 	if(dev==0){
 	  for(int i=0; i<n0; i++)
 	    stdadd(x.arr,x.arr+n1,arr+i*s0);
