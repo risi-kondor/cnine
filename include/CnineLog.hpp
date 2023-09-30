@@ -21,10 +21,34 @@
 
 namespace cnine{
 
+
+  class FnLogEntry{
+  public:
+
+    int n=0;
+    int t=0;
+    string name;
+
+    FnLogEntry(const string _name):
+      name(_name){}
+
+    void log(const int dt){
+      t+=dt;
+      n++;
+    }
+
+    string str() const{
+      return name+" n="+to_string(n)+" total_time="+to_string(t)+"ms";
+    }
+    
+  };
+
+
   class CnineLog{
   public:
 
     ofstream ofs;
+    map<string,FnLogEntry> call_log;
 
     chrono::time_point<chrono::system_clock> topen;
 
@@ -37,6 +61,13 @@ namespace cnine{
     }
 
     ~CnineLog(){
+
+      if(call_log.size()>0) cout<<"Logged functions:"<<endl;
+      for(auto& p: call_log){
+	cout<<"  "<<p.second.str()<<endl;
+	ofs<<p.second.str()<<endl;
+      }
+
       auto elapsed=chrono::duration<double>(chrono::system_clock::now()-topen).count();
       ofs<<endl<<"Cnine log closed after "<<to_string(elapsed)<<" seconds."<<endl;
       ofs<<"----------------------------------------------------------------------"<<endl<<endl;
@@ -72,6 +103,17 @@ namespace cnine{
     //}
 
     void operator()(){}
+
+    void log_call(const string name, const int t){
+      auto it=call_log.find(name);
+      if(it!=call_log.end()){
+	it->second.log(t);
+	return;
+      }
+      auto p=call_log.emplace(name,name);
+      p.first->second.log(t);
+    }
+    
 
   };
 
