@@ -22,6 +22,7 @@
 #include "IntTensor.hpp"
 #include "RtensorA.hpp"
 #include "CSRmatrix.hpp"
+#include "ftimer.hpp"
 
 
 namespace cnine{
@@ -120,6 +121,7 @@ namespace cnine{
 
 
     SparseRmatrix(const SparseRmatrix& x){
+      cnine::ftimer timer("SparseRmatrix::SparseRmatrix");
       CNINE_COPY_WARNING();
       n=x.n; 
       m=x.m;

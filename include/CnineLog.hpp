@@ -29,8 +29,11 @@ namespace cnine{
     int t=0;
     string name;
 
+    FnLogEntry(){}
+
     FnLogEntry(const string _name):
-      name(_name){}
+      name(_name){
+    }
 
     void log(const int dt){
       t+=dt;
@@ -110,8 +113,8 @@ namespace cnine{
 	it->second.log(t);
 	return;
       }
-      auto p=call_log.emplace(name,name);
-      p.first->second.log(t);
+      call_log.emplace(name,name);
+      call_log[name].log(t);
     }
     
 
