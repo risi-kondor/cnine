@@ -480,6 +480,9 @@ namespace cnine{
     return R;
   }
 
+  //template<typename TYPE>
+  //inline TYPE max(const initializer_list<pair<TYPE,TYPE> >& list)
+
   template<typename TYPE>
   std::ostream& print(const TYPE& x){
     cout<<x.str()<<endl;

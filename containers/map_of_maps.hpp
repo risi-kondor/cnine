@@ -16,6 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include <unordered_map>
+#include "Tensor.hpp"
 
 
 namespace cnine{
@@ -26,9 +27,25 @@ namespace cnine{
 
     mutable unordered_map<KEY1,std::unordered_map<KEY2,TYPE> > data;
 
+   
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
+
+    bool is_empty() const{
+      for(auto q:data)
+	if(q.second->size()>0)
+	  return false;
+      return true;
+    }
+
+    int size() const{
+      int t=0;
+      for(auto& p:data)
+	t+=p.second.size();
+      return t;
+    }
 
     int nfilled() const{
       int t=0;

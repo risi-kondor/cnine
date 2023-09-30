@@ -12,8 +12,8 @@
  */
 
 
-#ifndef _CnineFtimer
-#define _CnineFtimer
+#ifndef _CnineFlog
+#define _CnineFlog
 
 #include <fstream>
 #include <chrono>
@@ -21,6 +21,7 @@
 #include "CnineLog.hpp"
 
 extern cnine::CnineLog cnine::cnine_log;
+
 
 namespace cnine{
 
@@ -34,6 +35,23 @@ namespace cnine{
       name(_name), t0(chrono::system_clock::now()){}
 
     ~ftimer(){
+      auto elapsed=chrono::duration<double,std::milli>(chrono::system_clock::now()-t0).count();
+      cnine::cnine_log.log_call(name,elapsed);
+    }
+
+  };
+
+
+  class flog{
+  public:
+
+    string name;
+    chrono::time_point<chrono::system_clock> t0;
+
+    flog(const string _name):
+      name(_name), t0(chrono::system_clock::now()){}
+
+    ~flog(){
       auto elapsed=chrono::duration<double,std::milli>(chrono::system_clock::now()-t0).count();
       cnine::cnine_log.log_call(name,elapsed);
     }

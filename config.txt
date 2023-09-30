@@ -4,7 +4,7 @@
 # ---- CENGINE OPTIONS ----------------------------------
 
 
-CENGINE_ROOT=$(ROOTDIR)/../cengine/v2
+# CENGINE_ROOT=$(ROOTDIR)/../cengine/v2
 
 
 # ---- EIGEN OPTIONS ------------------------------------
