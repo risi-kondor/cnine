@@ -280,38 +280,52 @@ namespace cnine{
     TensorView& operator=(const RtensorA& x){
       CNINE_ASSRT(dims.size()==x.dims.size());
 
+      /*
       if(x.dims.size()==1){
 	view1().set(x.view1());
       }
-
       if(x.dims.size()==2){
 	view2().set(x.view2());
       }
-
       if(x.dims.size()==3){
 	view3().set(x.view3());
       }
-   
-      /*
+      */
+
       switch(x.dims.size()){
       case 1:
-	cout<<"c1"<<endl;
 	view1().set(x.view1());
 	break;
       case 2:
-	cout<<"c2"<<endl;
 	view2().set(x.view2());
 	break;
       case 3:
-	cout<<"c3"<<endl;
 	view3().set(x.view3());
 	break;
       default:
 	CNINE_UNIMPL();
       }
-      */
 
       return *this;
+    }
+
+    // TODO 
+    IF_FLOAT
+    RtensorA rtensor() const{
+      switch(dims.size()){
+      case 1:
+	return RtensorA(view1());
+	break;
+      case 2:
+	return RtensorA(view2());
+	break;
+      case 3:
+	return RtensorA(view3());
+	break;
+      default:
+	CNINE_UNIMPL();
+      }
+      return RtensorA();
     }
 
 

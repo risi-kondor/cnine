@@ -78,6 +78,16 @@ namespace cnine{
       data[i][j]=x;
     }
 
+    bool operator==(const map_of_maps<KEY1,KEY2,TYPE>& x) const{ 
+      for(auto& p:data)
+	for(auto q: p.second)
+	  if(x(p.first,q.first)!=q.second) return false;
+      for(auto& p:x.data)
+	for(auto q: p.second)
+	  if((*this)(p.first,q.first)!=q.second) return false;
+      return true;
+    }
+
 
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
