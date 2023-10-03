@@ -31,7 +31,7 @@ namespace cnine{
   public:
 
     TARGET* owner;
-    set<observer<TARGET>*> observers;
+    mutable set<observer<TARGET>*> observers;
 
     observable(TARGET* _owner):
       owner(_owner){}
@@ -45,12 +45,14 @@ namespace cnine{
   public: // -----------------------------------------
 
 
-    void attach_observer(observer<TARGET>* x){
+    observable(const observable& x)=delete;
+
+    void attach_observer(observer<TARGET>* x) const{
       if(observers.find(x)!=observers.end()) return;
       observers.insert(x);
     }
 
-    void detach_observer(observer<TARGET>* x){
+    void detach_observer(observer<TARGET>* x) const{
       if(observers.find(x)==observers.end()) return;
       //cout<<x->name<<" no longer observing "<<owner->name<<"."<<endl;
       observers.erase(x);
