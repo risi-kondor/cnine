@@ -12,8 +12,8 @@
  */
 
 
-#ifndef _op_object_bank
-#define _op_object_bank
+#ifndef _pindexed_object_bank
+#define _pindexed_object_bank
 
 #include "Cnine_base.hpp"
 #include "observable.hpp"
@@ -22,6 +22,65 @@
 namespace cnine{
 
 
+  template<typename KEY, typename OBJ>
+  class pindexed_object_bank: public unordered_map<KEY*,OBJ>{
+  public:
+
+    using unordered_map<KEY*,OBJ>::insert;
+    using unordered_map<KEY*,OBJ>::find;
+    using unordered_map<KEY*,OBJ>::erase;
+
+
+    std::function<OBJ(const KEY&)> make_obj;
+    observer<KEY> observer;
+    
+    ~pindexed_object_bank(){
+    }
+
+
+  public: // ---- Constructors --------------------------------------------------------------------------------
+
+
+    pindexed_object_bank():
+      make_obj([](const KEY& x){cout<<"empty object in bank"<<endl; return OBJ();}),
+      observer([this](KEY* p){erase(p);}){}
+
+    pindexed_object_bank(std::function<OBJ(const KEY&)> _make_obj):
+      make_obj(_make_obj),
+      observer([this](KEY* p){erase(p);}){}
+
+
+  public: // ---- Access -------------------------------------------------------------------------------------
+
+
+    OBJ operator()(KEY& key){
+      return (*this)(&key);
+    }
+
+    OBJ operator()(const KEY& key){
+      return (*this)(&const_cast<KEY&>(key));
+    }
+
+    OBJ& operator()(KEY* keyp){
+      auto it=find(keyp);
+      if(it!=unordered_map<KEY*,OBJ>::end()) 
+	return it->second;
+
+      //(*this)[keyp]=make_obj(*keyp);
+      observer.add(keyp);
+      auto p=insert({keyp,make_obj(*keyp)});
+      return p.first->second;
+      //return (*this)[keyp];
+    }
+
+  };
+
+
+
+}
+
+#endif 
+  /*
   template<typename KEY, typename OBJ>
   class shared_object_bank: public unordered_map<KEY*,shared_ptr<OBJ> >{
   public:
@@ -41,7 +100,7 @@ namespace cnine{
 
 
     shared_object_bank():
-      make_obj([](const KEY& x){return nullptr;}),
+      make_obj([](const KEY& x){cout<<"shared_obj_bank error"<<endl; return nullptr;}),
       observer([this](KEY* p){erase(p);}){}
 
     shared_object_bank(std::function<OBJ*(const KEY&)> _make_obj):
@@ -65,14 +124,11 @@ namespace cnine{
       if(it!=unordered_map<KEY*, shared_ptr<OBJ> >::end()) 
 	return it->second;
 
-      OBJ* new_obj=make_obj(*keyp);
-      (*this)[keyp]=shared_ptr<OBJ>(new_obj);
+      auto new_obj=shared_ptr<OBJ>(make_obj(*keyp));
+      (*this)[keyp]=new_obj;
       observer.add(keyp);
-      return shared_ptr<OBJ>(new_obj);
+      return new_obj;
     }
 
   };
-
-}
-
-#endif 
+  */
