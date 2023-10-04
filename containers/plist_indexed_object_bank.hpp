@@ -24,9 +24,19 @@ namespace cnine{
   template<typename PTR>
   class plist: public vector<PTR>{
   public:
+    
+    using vector<PTR>::size;
+
     plist(){}
     plist(const vector<PTR>& x):
       vector<PTR>(x){}
+
+    bool operator==(const plist& x) const{
+      if(size()!=x.size()) return false;
+      for(int i=0; i<size(); i++)
+	if((*this)[i]!=x[i]) return false;
+      return true;
+    }
   };
 
 
@@ -89,6 +99,7 @@ namespace cnine{
       auto it=find(key);
       if(it!=end()) 
 	return it->second;
+      //cout<<"not in cache"<<endl;
 
       for(auto p:key){
 	observers.add(p);
