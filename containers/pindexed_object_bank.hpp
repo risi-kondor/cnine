@@ -32,7 +32,7 @@ namespace cnine{
 
 
     std::function<OBJ(const KEY&)> make_obj;
-    observer<KEY> observer;
+    observer<KEY> observers;
     
     ~pindexed_object_bank(){
     }
@@ -43,11 +43,11 @@ namespace cnine{
 
     pindexed_object_bank():
       make_obj([](const KEY& x){cout<<"empty object in bank"<<endl; return OBJ();}),
-      observer([this](KEY* p){erase(p);}){}
+      observers([this](KEY* p){erase(p);}){}
 
     pindexed_object_bank(std::function<OBJ(const KEY&)> _make_obj):
       make_obj(_make_obj),
-      observer([this](KEY* p){erase(p);}){}
+      observers([this](KEY* p){erase(p);}){}
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ namespace cnine{
 	return it->second;
 
       //(*this)[keyp]=make_obj(*keyp);
-      observer.add(keyp);
+      observers.add(keyp);
       auto p=insert({keyp,make_obj(*keyp)});
       return p.first->second;
       //return (*this)[keyp];

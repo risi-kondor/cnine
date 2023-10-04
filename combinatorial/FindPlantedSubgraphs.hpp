@@ -30,8 +30,8 @@ namespace cnine{
   public:
 
     typedef sparse_graph<int,float,LABEL> Graph;
-    typedef labeled_tree<int> labeled_tree;
-    typedef labeled_forest<int> labeled_forest;
+    //typedef labeled_tree<int> labeled_tree;
+    //typedef labeled_forest<int> labeled_forest;
 
 
     const Graph& G;
@@ -39,7 +39,7 @@ namespace cnine{
     int n;
     vector<pair<int,int> > Htraversal;
     vector<int> assignment;
-    labeled_forest matches;
+    labeled_forest<int> matches;
 
 
   public:
@@ -47,13 +47,13 @@ namespace cnine{
 
     FindPlantedSubgraphs(const Graph& _G, const Graph& _H):
       G(_G), H(_H), n(_H.getn()){
-      labeled_tree S=H.greedy_spanning_tree();
+      labeled_tree<int> S=H.greedy_spanning_tree();
       Htraversal=S.indexed_depth_first_traversal();
       assignment=vector<int>(n,-1);
       /*cout<<"compute"<<endl;*/
 
       for(int i=0; i<G.getn(); i++){
-	labeled_tree* T=new labeled_tree(i);
+	labeled_tree<int>* T=new labeled_tree<int>(i);
 	matches.push_back(T);
 	if(!make_subtree(*T,0)){
 	  delete T;
@@ -94,7 +94,7 @@ namespace cnine{
   private:
 
 
-    bool make_subtree(labeled_tree& node, const int m){
+    bool make_subtree(labeled_tree<int>& node, const int m){
 
       CNINE_ASSRT(m<Htraversal.size());
       const int v=Htraversal[m].first;
@@ -134,7 +134,7 @@ namespace cnine{
       const int newparent=assignment[Htraversal[Htraversal[m+1].second].first];
       for(auto& w:G.neighbors(newparent)){
 	if(std::find(assignment.begin(),assignment.end(),w)!=assignment.end()) continue;
-	labeled_tree* T=new labeled_tree(w);
+	labeled_tree<int>* T=new labeled_tree<int>(w);
 	node.push_back(T);
 	if(!make_subtree(*T,m+1)){
 	  delete T;

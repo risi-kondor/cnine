@@ -44,7 +44,7 @@ namespace cnine{
     std::function<OBJ(const vector<KEY*>&)> make_obj;
 
     unordered_map<KEY*,vector<plist<KEY*> > > memberships;
-    observer<KEY> observer;
+    observer<KEY> observers;
   
     ~plist_indexed_object_bank(){
     }
@@ -55,11 +55,11 @@ namespace cnine{
 
     plist_indexed_object_bank():
       make_obj([](const vector<KEY*>& x){cout<<"empty object in bank"<<endl; return OBJ();}),
-      observer([this](KEY* p){erase_all_involving(p);}){}
+      observers([this](KEY* p){erase_all_involving(p);}){}
 
     plist_indexed_object_bank(std::function<OBJ(const vector<KEY*>&)> _make_obj):
       make_obj(_make_obj),
-      observer([this](KEY* p){erase_all_involving(p);}){}
+      observers([this](KEY* p){erase_all_involving(p);}){}
 
   
   public: // ---- Private ------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ namespace cnine{
 	return it->second;
 
       for(auto p:key){
-	observer.add(p);
+	observers.add(p);
 	memberships[p].push_back(key);
       }
       
