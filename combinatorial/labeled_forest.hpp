@@ -37,7 +37,6 @@ namespace cnine{
     }
 
     bool contains_rooted_path_consisting_of(const std::set<TYPE>& x) const{
-      int i=0;
       for(auto p:*this){
 	if(p->contains_rooted_path_consisting_of(x)) return true;
       }
