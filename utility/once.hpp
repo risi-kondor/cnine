@@ -54,6 +54,36 @@ namespace cnine{
   };
 
 
+  template<typename OBJ> 
+  class oncep{
+  public:
+
+    OBJ* obj=nullptr;
+
+    std::function<OBJ*()> make_obj;
+
+    ~oncep(){
+      delete obj;
+    }
+
+    oncep():
+      make_obj([](){return nullptr;}){}
+
+    oncep(std::function<OBJ*()> _make_obj):
+      make_obj(_make_obj){}
+
+
+  public: // ---- Access -------------------------------------------------------------------------------------
+
+
+    OBJ* operator()(){
+      if(!obj) obj=make_obj();
+      CNINE_ASSRT(obj);
+      return obj;
+    }
+
+  };
+
 
 
 }

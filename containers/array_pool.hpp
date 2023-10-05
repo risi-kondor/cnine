@@ -31,6 +31,7 @@ namespace cnine{
     int tail=0;
     int dev=0;
     bool is_view=false;
+    array_pool* gpu_clone=nullptr;
 
     IntTensor dir;
 
@@ -38,6 +39,7 @@ namespace cnine{
       if(is_view) return;
       if(arr) delete[] arr;
       if(arrg) {CUDA_SAFE(cudaFree(arrg));}
+      if(gpu_clone) delete gpu_clone;
     }
 
 
@@ -305,6 +307,16 @@ namespace cnine{
       }
       
       return *this;
+    }
+
+
+    pair<TYPE*,int*> gpu_arrs(const int dev){
+      CNINE_ASSRT(dev==0);
+      if(!gpu_clone){
+	gpu_clone=new array_pool<TYPE>(*this,dev);
+	gpu_clone->dir.move_to_device(dev);
+      }
+      return make_pair(gpu_clone->arrg,gpu_clone->dir.arrg);
     }
 
 
