@@ -206,7 +206,8 @@ namespace cnine{
       TensorView<TYPE>(x.arr,x.dims,x.strides){
       CNINE_MOVE_WARNING();
     }
-        
+
+  // TODO!!
     Tensor(TensorView<TYPE>&& x):
       TensorView<TYPE>(x.arr,x.dims,x.strides){
       CNINE_MOVE_WARNING();
@@ -336,6 +337,17 @@ public: // ---- Conversions ----------------------------------------------------
       CNINE_COPY_WARNING();
       view()=x;
     }
+
+  template<typename TYPE2>
+  Tensor(const TensorView<TYPE2>& x):
+    TensorView<TYPE>(MemArr<TYPE>(x.memsize(),_dev),x.dims,x.strides){
+    CNINE_CONVERT_WARNING();
+    CNINE_ASSRT(dev==0);
+    int N=memize();
+    for(int i=0; i<N; i++)
+      arr[i]=x.arr[i];
+  }
+
 
     //Tensor(TensorView<TYPE>&& x):
     //Tensor(x.dims,x.dev){
