@@ -75,6 +75,7 @@ namespace cnine{
       memsize(M.asize()),
       tail(M.asize()),
       dev(M.dev){
+      CNINE_ASSRT(M.ndims()==2);
       CNINE_ASSRT(M.is_regular());
       int n0=M.dim(0);
       int n1=M.dim(1);
@@ -261,15 +262,15 @@ namespace cnine{
       memsize=x.tail;
       if(dev==0){
 	cout<<"Copying RtensorPack to host"<<endl;
-	arr=new float[std::max(memsize,1)];
+	arr=new TYPE[std::max(memsize,1)];
 	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
-	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToHost));  
+	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
       }
       if(dev==1){
 	cout<<"Copying RtensorPack to device"<<endl;
-	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(float)));
-	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(float),cudaMemcpyHostToDevice)); 
-	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(float),cudaMemcpyDeviceToDevice)); 
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
+	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice)); 
+	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice)); 
       }
     }
 
@@ -328,6 +329,18 @@ namespace cnine{
       return dir(i,1);
     }
 
+    TYPE operator()(const int i, const int j) const{
+      CNINE_ASSRT(i<size());
+      CNINE_ASSRT(j<dir(i,1));
+      return arr[dir(i,0)+j];
+    }
+
+    void set(const int i, const int j, const TYPE v){
+      CNINE_ASSRT(i<size());
+      CNINE_ASSRT(j<dir(i,1));
+      arr[dir(i,0)+j]=v;
+    }
+
     vector<TYPE> operator()(const int i) const{
       CNINE_ASSRT(i<size());
       int addr=dir(i,0);
@@ -348,7 +361,7 @@ namespace cnine{
       tail+=len;
     }
 
-    void push_back(const set<TYPE>& v){
+    void push_back(const std::set<TYPE>& v){
       int len=v.size();
       if(tail+len>memsize)
 	reserve(std::max(2*memsize,tail+len));

@@ -376,7 +376,7 @@ namespace cnine{
     }
   
     /*
-  IF_FLOAT
+    IF_FLOAT
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
@@ -390,17 +390,27 @@ namespace cnine{
     }
     */
 
-  IF_CFLOAT
+    //IF_CFLOAT
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
       int k=ndims();
       vector<int64_t> v(k); 
       for(int i=0; i<k; i++) v[i]=dims[i];
-      at::Tensor R(at::zeros(v,torch::CPU(at::kComplexFloat))); 
-      //std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
-      std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
-      return R;
+
+      if constexpr(std::is_same<TYPE,float>::value){
+	at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<float>());
+      }
+
+      if constexpr(std::is_same<TYPE,complex<float> >::value){
+	at::Tensor R(at::zeros(v,torch::CPU(at::kComplexFloat))); 
+	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
+	return R;
+      }
+      
+      CNINE_UNIMPL();
+      return at::Tensor(at::zeros(v,torch::CPU(at::kFloat))); 
     }
 
     #endif
