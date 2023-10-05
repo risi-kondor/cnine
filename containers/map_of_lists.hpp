@@ -145,7 +145,7 @@ namespace cnine{
 
     void push_back(const KEY& x, const ITEM& y){
       auto it=find(x);
-      if(it==end()) data[x]=vector<ITEM>({y});
+      if(it==end()) (*this)[x]=vector<ITEM>({y});
       else it->second.push_back(y);
     }
 
