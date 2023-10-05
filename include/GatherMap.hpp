@@ -212,7 +212,6 @@ namespace cnine{
 
     GatherMap& to_device(const int _dev){
       if(dev==_dev) return *this;
-      cout<<"memsize="<<memsize<<endl;
 
       if(_dev==0){
 	if(dev==1){
@@ -228,7 +227,7 @@ namespace cnine{
 
       if(_dev>0){
 	if(dev==0){
-	  cout<<"Moving GatherMap to device "<<memsize<<endl;
+	  //cout<<"Moving GatherMap to device "<<memsize<<endl;
 	  if(arrg) CUDA_SAFE(cudaFree(arrg));
 	  CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
@@ -237,7 +236,6 @@ namespace cnine{
 	  dev=_dev;
 	}
       }
-      cout<<"dddd"<<endl;
       return *this;
     }
 
