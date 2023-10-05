@@ -212,6 +212,7 @@ namespace cnine{
 
     GatherMap& to_device(const int _dev){
       if(dev==_dev) return *this;
+      cout<<"memsize="<<memsize<<endl;
 
       if(_dev==0){
 	if(dev==1){
@@ -236,7 +237,7 @@ namespace cnine{
 	  dev=_dev;
 	}
       }
-      
+      cout<<"dddd"<<endl;
       return *this;
     }
 
