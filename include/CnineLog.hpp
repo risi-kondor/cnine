@@ -26,7 +26,7 @@ namespace cnine{
   public:
 
     int n=0;
-    int t=0;
+    double t=0;
     string name;
 
     FnLogEntry(){}
@@ -35,7 +35,7 @@ namespace cnine{
       name(_name){
     }
 
-    void log(const int dt){
+    void log(const double dt){
       t+=dt;
       n++;
     }
@@ -107,7 +107,7 @@ namespace cnine{
 
     void operator()(){}
 
-    void log_call(const string name, const int t){
+    void log_call(const string name, const double t){
       auto it=call_log.find(name);
       if(it!=call_log.end()){
 	it->second.log(t);

@@ -31,7 +31,6 @@ namespace cnine{
     typedef map_of_maps<KEY,KEY,TYPE> BASE;
 
     using BASE::data;
-    using BASE::operator==;
 
     int n=0;
 
@@ -205,6 +204,12 @@ namespace cnine{
 	  set(v[i],v[j],val);});
     }
 
+    bool operator==(const sparse_graph& x) const{
+      if(n!=x.n) return false;
+      //if(labeled && labels!=x.labels) return false;
+      return BASE::operator==(x);
+    }
+
 
   public: // ---- Lambdas ----------------------------------------------------------------------------------
 
@@ -280,7 +285,7 @@ namespace std{
   struct hash<cnine::sparse_graph<KEY,TYPE,LABEL> >{
   public:
     size_t operator()(const cnine::sparse_graph<KEY,TYPE,LABEL>& x) const{
-      return 1;
+      return hash<cnine::map_of_maps<KEY,KEY,TYPE> >()(x);
       //      if(x.is_labeled()) return (hash<cnine::SparseRmatrix>()(x)<<1)^hash<cnine::RtensorA>()(x.labels);
       //return hash<cnine::SparseRmatrix>()(x);
     }

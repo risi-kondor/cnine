@@ -70,24 +70,40 @@ namespace cnine{
       return it2->second;
     }
 
-    TYPE& operator()(const KEY1& i, const KEY2& j){
-      return data[i][j];
-    }
+    //TYPE& operator()(const KEY1& i, const KEY2& j){
+    //return data[i][j];
+    //}
 
     void set(const KEY1& i, const KEY2& j, const TYPE& x){
       data[i][j]=x;
     }
 
     bool operator==(const map_of_maps<KEY1,KEY2,TYPE>& x) const{ 
-      for(auto& p:data)
-	for(auto q: p.second)
-	  if(x(p.first,q.first)!=q.second) return false;
-      for(auto& p:x.data)
-	for(auto q: p.second)
-	  if((*this)(p.first,q.first)!=q.second) return false;
+      if(!subset_of(x)) return false;
+      if(!x.subset_of(*this)) return false;
+      return true;
+      //for(auto& p:data)
+      //for(auto q: p.second)
+      //if(x(p.first,q.first)!=q.second) return false;
+      //for(auto& p:x.data)
+      //for(auto q: p.second)
+      //if((*this)(p.first,q.first)!=q.second) return false;
       return true;
     }
 
+    bool subset_of(const map_of_maps<KEY1,KEY2,TYPE>& x) const{
+      for(auto& p:data){
+	auto it1=x.data.find(p.first);
+	if(it1==x.data.end()) return false;
+	for(auto& q: p.second){
+	  auto it2=it1->second.find(q.first);
+	  if(it2==it1->second.end()) return false;
+	  if(it2->second!=q.second) return false;
+	}
+      }
+      return true;
+    }
+      
 
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
@@ -99,12 +115,32 @@ namespace cnine{
     }
 
 
+
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
     
   };
 
+}
+
+
+namespace std{
+
+  template<typename KEY1, typename KEY2, typename TYPE>
+  struct hash<cnine::map_of_maps<KEY1,KEY2,TYPE> >{
+  public:
+    size_t operator()(const cnine::map_of_maps<KEY1,KEY2,TYPE>& x) const{
+      size_t t=1;
+      for(auto& p:x.data)
+	for(auto& q:p.second){
+	  t=(t^hash<KEY1>()(p.first))<<1;
+	  t=(t^hash<KEY2>()(q.first))<<1;
+	  t=(t^hash<TYPE>()(q.second))<<1;
+	}
+      return t;
+    }
+  };
 }
 
 #endif 
