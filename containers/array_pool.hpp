@@ -263,13 +263,13 @@ namespace cnine{
       tail=x.tail;
       memsize=x.tail;
       if(dev==0){
-	cout<<"Copying RtensorPack to host"<<endl;
+	//cout<<"Copying RtensorPack to host"<<endl;
 	arr=new TYPE[std::max(memsize,1)];
 	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
       }
       if(dev==1){
-	cout<<"Copying RtensorPack to device"<<endl;
+	//cout<<"Copying RtensorPack to device"<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
 	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice)); 
 	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice)); 
@@ -310,11 +310,11 @@ namespace cnine{
     }
 
 
-    pair<TYPE*,int*> gpu_arrs(const int dev){
+    pair<TYPE*,int*> gpu_arrs(const int _dev){
       CNINE_ASSRT(dev==0);
       if(!gpu_clone){
-	gpu_clone=new array_pool<TYPE>(*this,dev);
-	gpu_clone->dir.move_to_device(dev);
+	gpu_clone=new array_pool<TYPE>(*this,_dev);
+	gpu_clone->dir.move_to_device(_dev);
       }
       return make_pair(gpu_clone->arrg,gpu_clone->dir.arrg);
     }

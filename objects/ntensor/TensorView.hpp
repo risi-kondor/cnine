@@ -1152,12 +1152,18 @@ namespace cnine{
       if(is_regular() && x.is_regular()){
 	for(int i=0; i<asize(); i++){
 	  const TYPE a=x.arr[i]-arr[i];
-	  t+=a*std::conj(a);
+	  if constexpr(is_complex<TYPE>())
+	    t+=a*std::conj(a);
+	  else
+	    t+=a*a;
 	}
       }else{
 	for_each([&](const Gindex& ix, TYPE& v){
 	    const TYPE a=x(ix)-(*this)(ix);
-	    t+=a*std::conj(a);
+	    if constexpr(is_complex<TYPE>())
+	      t+=a*std::conj(a);
+	    else
+	      t+=a*a;
 	  });
       }
       return t;

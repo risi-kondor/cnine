@@ -45,6 +45,7 @@ namespace cnine{
     using TensorView<TYPE>::dims;
     using TensorView<TYPE>::strides;
     using TensorView<TYPE>::dev;
+    using TensorView<TYPE>::memsize;
 
     //using TensorView<TYPE>::operator=;
     using TensorView<TYPE>::ndims;
@@ -340,10 +341,10 @@ public: // ---- Conversions ----------------------------------------------------
 
   template<typename TYPE2>
   Tensor(const TensorView<TYPE2>& x):
-    TensorView<TYPE>(MemArr<TYPE>(x.memsize(),_dev),x.dims,x.strides){
+    TensorView<TYPE>(MemArr<TYPE>(x.memsize(),x.dev),x.dims,x.strides){
     CNINE_CONVERT_WARNING();
     CNINE_ASSRT(dev==0);
-    int N=memize();
+    int N=memsize();
     for(int i=0; i<N; i++)
       arr[i]=x.arr[i];
   }
