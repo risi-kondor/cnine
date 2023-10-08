@@ -17,6 +17,7 @@
 #include "Cnine_base.hpp"
 #include <unordered_map>
 #include "Tensor.hpp"
+#include "int_pool.hpp"
 
 
 namespace cnine{
@@ -28,6 +29,22 @@ namespace cnine{
     mutable unordered_map<KEY1,std::unordered_map<KEY2,TYPE> > data;
 
    
+
+
+  public: // ---- Conversions --------------------------------------------------------------------------------
+
+
+    int_pool as_int_pool{
+      int_pool r(data.size(),size());
+      for(auto& p: data){
+	int start=r.tail();
+	int i=0;
+	for(auto q:p)
+	  r.arr[start+(i++)]=q.first;
+	r.add_vec(i);
+      }
+      return r;
+    }
 
 
   public: // ---- Access -------------------------------------------------------------------------------------

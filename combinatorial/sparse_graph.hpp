@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include "map_of_maps.hpp"
 #include "labeled_tree.hpp"
+#include "int_tree.hpp"
 
 
 namespace cnine{
@@ -164,6 +165,25 @@ namespace cnine{
     }
 
 
+    int_pool as_int_pool() const{
+      int_pool R(n,2*nedges());
+      int* arr=R.arr;
+
+      int tail=n+2;
+      arr[1]=tail;
+
+      for(int i=0; i<n; i++){
+	auto it=data.find(i);
+	if(it!=data.end()
+	  for(auto p:*it)
+	    arr[tail++]=p.first;
+	arr[i+2]=tail;
+      }
+
+      return R;
+    }
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -239,6 +259,31 @@ namespace cnine{
       return r;
     }
 
+    int_tree spanning_tree_as_int_tree(int root=0) const{
+      int_tree r;
+      vector<bool> matched(n,false);
+
+      int m=0; for(auto& p: BASE::data[root]){m++;}
+      auto root_node=r.add_root(root,m);
+      matched[root]=true;
+ 
+      int i=0;
+      for(auto& p: BASE::data[root])
+	spanning_tree_as_int_tree(root_node,i++,p.first,matched);
+    }
+    
+    void spanning_tree_as_int_tree(const int_tree::node& parent, int i, int v, vector<bool>& matched){
+      matched[v]=true;
+      int m=0; for(auto& p: BASE::data[v])
+	if(!mathched[p.first]) m++;
+      auto node=parent.add_child(i,v,m);
+
+      int i=0;
+      for(auto& p: BASE::data[v])
+	if(!matched[p.first])
+	  spanning_tree_as_int_tree(node,i++,p.first,matched);
+    }
+
 
   private:
 
@@ -296,3 +341,54 @@ namespace std{
 
 
 #endif 
+    /*
+      int_pool pool=as_int_pool();
+
+      vector<int> addr(n,-1);
+      vector<int> kids_visited(n,0);
+      vector<int> parent(n);
+
+      compact_int_tree r;
+      //auto_vector<int> kids;
+      int tail=0;
+      int loc=0;
+      int nvisited=0;
+
+      while(nvisited<n){
+
+	if(addr[node]==-1){ //first time seeing this node
+	  assert(loc==tail);
+	  r.arr[loc]=node;
+	  addr[node]=loc;
+	  nvisited++;
+	  tail+=2;
+
+	  for(int i=0; i<pool.size_of(node); i++){
+	    int candidate=pool(node,i);
+	    if(addr[candidate]<0){
+	      r.arr[tail++]=candidate; // temporary
+	      addr[candidate]=0; //temporary
+	      parent[candidate]=node;
+	    }
+	  }
+	  r.arr[loc+1]=tail-loc-2; // number of kids
+	}
+
+	if(kids_visited[node]<R.arr[]){
+	  
+	}
+    */
+	/*
+	int total_children=pool.size_of(node);
+	for(;nchecked[node]<total_children; nchecked[node]++){ // find next child that is new
+	  if(addr[pool(node,nchecked[node])]==-1) break;
+	}
+
+	if(nchecked[node]<total_children){ // add child as new node
+	  r[loc]+nchildren[node]=tail;
+	  node=pool(node,nchecked[node]);
+	  nchildren[node]++;
+	  loc=tail;
+	}else{
+	}
+	*/
