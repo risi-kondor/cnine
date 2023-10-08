@@ -89,7 +89,7 @@ namespace cnine{
       return arr[i];
     }
 
-    void get(const int i){
+    int get(const int i) const{
       if(i>=_size) resize(i+1);
       return arr[i];
     }
@@ -106,11 +106,11 @@ namespace cnine{
     string str(){
       ostringstream oss;
       oss<<"[";
-      for(int i=0; i<size-1; i++)
+      for(int i=0; i<size()-1; i++)
 	oss<<arr[i]<<",";
       if(_size>0) oss<<arr[_size-1];
       oss<<"]";
-      return oss.str()
+      return oss.str();
     }
 
   };

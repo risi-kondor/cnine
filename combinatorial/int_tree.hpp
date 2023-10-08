@@ -30,7 +30,7 @@ namespace cnine{
       int_tree* owner;
       int ptr;
 
-      node(int_tree* _owner, const int ptr):
+      node(int_tree* _owner, const int _ptr):
 	owner(_owner), ptr(_ptr){}
 
 
@@ -67,7 +67,7 @@ namespace cnine{
     public: // ---- I/O --------------------------------------------------
 
       string print_recursively(){
-	ostringstram oss;
+	ostringstream oss;
 	oss<<"("<<label();
 	int n=nchildren();
 	if(n>0){
@@ -117,14 +117,13 @@ namespace cnine{
       return node_at(0);
     }
 
-    node add_node(const int parent; const int i, const int v, const int n){
+    node add_node(const int parent, const int i, const int v, const int n){
       CNINE_ASSRT(i<get(parent+1));
       CNINE_ASSRT(get(parent+i+3)==-1);
       int tail=_size;
-      set(parent+i+3)=tail;
+      set(parent+i+3,tail);
       resize(tail+n+3);
       
-      CNINE_ASSRT
       set(tail,v);
       set(tail+1,n);
       set(tail+2,parent);
@@ -138,7 +137,7 @@ namespace cnine{
       lambda(node_at(p));
       int m=get(p+1);
       for(int i=0; i<m; i++)
-	traverse(p+3+i);
+	lambda(node_at(p+3+i));
     }
 
 
@@ -151,11 +150,11 @@ namespace cnine{
       return r; 
     }
 
-    void depth_first_traversal(const int p, const vector<int>& r){
+    void depth_first_traversal(const int p, vector<int>& r) const{
       r.push_back(get(p));
       int m=get(p+1);
       for(int i=0; i<m; i++)
-	depth_first_traversal(p+3+i);
+	depth_first_traversal(p+3+i,r);
     }
 
     /*
@@ -182,7 +181,10 @@ namespace cnine{
     string str(){
       ostringstream oss;
       oss<<root().print_recursively();
-      return oss.str()
+      return oss.str();
     }
 
 }
+
+
+#endif 

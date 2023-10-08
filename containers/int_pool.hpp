@@ -75,13 +75,13 @@ namespace cnine{
       return arr[i+2]-arr[i+1];
     }
 
-    int operator(const int i, const int j) const{
+    int operator()(const int i, const int j) const{
       CNINE_ASSRT(i<n);
       CNINE_ASSRT(j<size_of(i));
       return arr[arr[i+1]+j];
     }
 
-    int& operator(const int i, const int j) const{
+    int& operator()(const int i, const int j){
       CNINE_ASSRT(i<n);
       CNINE_ASSRT(j<size_of(i));
       return arr[arr[i+1]+j];
@@ -90,6 +90,7 @@ namespace cnine{
     int add_vec(const int m){
       arr[last+2]=arr[last+1]+m;
       last++;
+      return arr[last+1];
     }
 
   };

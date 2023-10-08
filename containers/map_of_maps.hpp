@@ -34,7 +34,7 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    int_pool as_int_pool{
+    int_pool as_int_pool(){
       int_pool r(data.size(),size());
       for(auto& p: data){
 	int start=r.tail();

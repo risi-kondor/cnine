@@ -174,7 +174,7 @@ namespace cnine{
 
       for(int i=0; i<n; i++){
 	auto it=data.find(i);
-	if(it!=data.end()
+	if(it!=data.end())
 	  for(auto p:*it)
 	    arr[tail++]=p.first;
 	arr[i+2]=tail;
@@ -272,10 +272,10 @@ namespace cnine{
 	spanning_tree_as_int_tree(root_node,i++,p.first,matched);
     }
     
-    void spanning_tree_as_int_tree(const int_tree::node& parent, int i, int v, vector<bool>& matched){
+    void spanning_tree_as_int_tree(int_tree::node& parent, int i, int v, vector<bool>& matched){
       matched[v]=true;
       int m=0; for(auto& p: BASE::data[v])
-	if(!mathched[p.first]) m++;
+	if(!matched[p.first]) m++;
       auto node=parent.add_child(i,v,m);
 
       int i=0;
