@@ -96,7 +96,9 @@ namespace cnine{
       TensorView(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
 
     TensorView(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
-      TensorView(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
+      TensorView(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){
+      //cout<<_dims.total()<<endl;
+    }
 
     TensorView(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
       TensorView(_dims,0){
