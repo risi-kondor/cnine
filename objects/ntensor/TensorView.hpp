@@ -28,6 +28,7 @@
 #include "Rtensor3_view.hpp"
 #include "RtensorA.hpp"
 
+#include "Itensor2_view.hpp"
 #include "Ctensor2_view.hpp"
 
 #include "Itensor1_view.hpp"
@@ -59,6 +60,7 @@ namespace cnine{
   // this is the proposed solution to the multiply defined functions problem
   inline Rtensor2_view view2_of(const TensorView<float>& x);
   inline Ctensor2_view view2_of(const TensorView<complex<float> >& x);
+  inline Itensor2_view view2_of(const TensorView<int>& x);
 
 
   template<typename TYPE>
@@ -1330,6 +1332,10 @@ namespace cnine{
     return x.norm();
   }
 
+
+  inline Itensor2_view view2_of(const TensorView<int>& x){
+    return Itensor2_view(x.mem(),x.dims,x.strides,x.dev);
+  }
 
   inline Rtensor2_view view2_of(const TensorView<float>& x){
     return Rtensor2_view(x.mem(),x.dims,x.strides,x.dev);
