@@ -55,7 +55,7 @@ def main():
      '-DWITH_FAKE_GRAD'
      ]
 
- _cxx_compile_args=['-std=c++14',
+ _cxx_compile_args=['-std=c++17',
                    '-Wno-sign-compare',
                    '-Wno-deprecated-declarations',
                    '-Wno-unused-variable',
