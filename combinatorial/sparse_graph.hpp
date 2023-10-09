@@ -274,14 +274,15 @@ namespace cnine{
     
     void spanning_tree_as_int_tree(int_tree::node& parent, int i, int v, vector<bool>& matched){
       matched[v]=true;
-      int m=0; for(auto& p: BASE::data[v])
+      int m=0; 
+      for(auto& p: BASE::data[v])
 	if(!matched[p.first]) m++;
       auto node=parent.add_child(i,v,m);
 
-      int i=0;
+      int j=0;
       for(auto& p: BASE::data[v])
 	if(!matched[p.first])
-	  spanning_tree_as_int_tree(node,i++,p.first,matched);
+	  spanning_tree_as_int_tree(node,j++,p.first,matched);
     }
 
 

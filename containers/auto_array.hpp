@@ -56,12 +56,12 @@ namespace cnine{
   public: //---- Resizing -------------------------------------
 
 
-    void resize(const int n){
+    void resize(const int n) const{
       if(memsize<n) reserve(n);
       _size=n;
     }
 
-    void reserve(const int x){
+    void reserve(const int x) const{
       if(x<=memsize) return;
       int new_memsize=std::max(x,2*memsize);
       int* newarr=new TYPE[new_memsize];
@@ -76,7 +76,7 @@ namespace cnine{
 
 
     int size() const{
-      return _size();
+      return _size;
     }
 
     TYPE operator[](const int i) const{

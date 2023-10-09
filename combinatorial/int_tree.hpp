@@ -184,6 +184,8 @@ namespace cnine{
       return oss.str();
     }
 
+  };
+
 }
 
 
