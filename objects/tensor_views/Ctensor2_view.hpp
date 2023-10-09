@@ -84,7 +84,7 @@ namespace cnine{
       s1=_strides[b.back()];
     }
 
-    #ifdef _CnineTensorView
+    #ifdef _CnineTensorViewComplete
     Ctensor2_view(const TensorView<complex<float> >& x):
       arr(x.arr.ptr_as<float>()),
       arrc(x.arr.ptr_as<float>()+1),

@@ -46,7 +46,7 @@ namespace cnine{
     int_pool(const int_pool& x):
       n(x.n), last(x.last), memsize(x.memsize){
       arr=new int[memsize];
-      std::copy(x.arr,x.arr+memsize,memsize);
+      std::copy(x.arr,x.arr+memsize,arr);
     }
 
     int_pool(int_pool&& x):

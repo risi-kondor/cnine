@@ -29,9 +29,10 @@ int main(int argc, char** argv){
   Tensor<float> A=Tensor<float>::sequential({3,3});
   //Tensor<float> A=Tensor<float>::constant({3,3},2);
 
-  cout<<A<<endl;
-  cout<<prod(A,A)<<endl;
+  //cout<<A<<endl;
+  //cout<<prod(A,A)<<endl;
 
+  Rtensor2_view B=A.view2();
 
 
 }

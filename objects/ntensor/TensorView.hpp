@@ -28,6 +28,8 @@
 #include "Rtensor3_view.hpp"
 #include "RtensorA.hpp"
 
+#include "Ctensor2_view.hpp"
+
 #include "Itensor1_view.hpp"
 #include "Itensor2_view.hpp"
 #include "Itensor3_view.hpp"
@@ -48,6 +50,16 @@ extern cublasHandle_t cnine_cublas;
 
 
 namespace cnine{
+
+  template<typename TYPE>
+  class TensorView;
+
+  //inline float base_type_of(float& x){return }
+
+  // this is the proposed solution to the multiply defined functions problem
+  inline Rtensor2_view view2_of(const TensorView<float>& x);
+  inline Ctensor2_view view2_of(const TensorView<complex<float> >& x);
+
 
   template<typename TYPE>
   class TensorView{
@@ -236,18 +248,34 @@ namespace cnine{
       return Rtensor1_view(mem(),dims,strides,dev);
     }
 
+    /*
     IF_FLOAT
     Rtensor2_view view2() const{
       CNINE_ASSRT(ndims()==2);
       return Rtensor2_view(mem(),dims,strides,dev);
     }
-  
+
+    IF_CFLOAT
+    Rtensor2_view view2() const{
+      CNINE_ASSRT(ndims()==2);
+      return Rtensor2_view(mem(),dims,strides,dev);
+    }
+
+    */
+
+    auto view2() const -> decltype(view2_of(*this)){
+      CNINE_ASSRT(ndims()==2);
+      return view2_of(*this);
+    }
+
     IF_FLOAT
     Rtensor3_view view3() const{
       CNINE_ASSRT(ndims()==3);
       return Rtensor3_view(mem(),dims,strides,dev);
     }
 
+
+  
 
     //deprecated 
     IF_INT
@@ -1094,15 +1122,16 @@ namespace cnine{
       return t; 
     }
 
-    TYPE max_abs() const{
+    auto max_abs() const -> decltype(std::real(min())){
       if(asize()==0) return 0;
-      TYPE t=arr[0];
+      decltype(std::real(min())) t=std::real(arr[0]);
       if(is_contiguous()){
 	for(int i=0; i<asize(); i++)
 	  if(abs(arr[i])>t) t=abs(arr[i]);
       }else{
-	for_each([&](const Gindex& ix, TYPE& v){
-	    if(abs(v)>t) t=abs(v);});
+	CNINE_UNIMPL()
+	//for_each([&](const Gindex& ix, TYPE& v){
+	//  if(abs(v)>t) t=abs(v);});
       }
       return t; 
     }
@@ -1239,7 +1268,11 @@ namespace cnine{
       ostringstream oss;
 
       //TYPE largest=std::max(-min(),max());
-      float limit=max_abs()/10e5;
+      float limit;
+      if constexpr(std::is_same<TYPE,complex<float> >::value)
+	limit=std::real(max_abs())/10e5;
+      else 
+	limit=max_abs()/10e5;
 
       if(ndims()==1){
 	oss<<indent<<"[ ";
@@ -1297,7 +1330,19 @@ namespace cnine{
     return x.norm();
   }
 
+
+  inline Rtensor2_view view2_of(const TensorView<float>& x){
+    return Rtensor2_view(x.mem(),x.dims,x.strides,x.dev);
+  }
+
+  inline Ctensor2_view view2_of(const TensorView<complex<float> >& x){
+    return Ctensor2_view(x.arr.ptr_as<float>(),x.dims,x.strides,x.dev);
+  }
+
+
 }
+
+#define _CnineTensorViewComplete
 
 #endif
 
