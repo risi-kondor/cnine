@@ -1342,7 +1342,9 @@ namespace cnine{
   }
 
   inline Ctensor2_view view2_of(const TensorView<complex<float> >& x){
-    return Ctensor2_view(x.arr.ptr_as<float>(),x.dims,x.strides,x.dev);
+    CNINE_ASSRT(x.ndims()==2);
+    return Ctensor2_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
+      x.dims[0],x.dims[1],2*x.strides[0],2*x.strides[1],x.dev);
   }
 
 

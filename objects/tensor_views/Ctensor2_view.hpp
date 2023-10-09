@@ -92,8 +92,8 @@ namespace cnine{
       CNINE_ASSRT(x.ndims()==2);
       n0=x.dim(0);
       n1=x.dim(1);
-      s0=x.strides[0];
-      s1=x.strides[1];
+      s0=2*x.strides[0];
+      s1=2*x.strides[1];
     }
     #endif 
 
