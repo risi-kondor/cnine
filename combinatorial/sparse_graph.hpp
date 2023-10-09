@@ -270,6 +270,7 @@ namespace cnine{
       int i=0;
       for(auto& p: BASE::data[root])
 	spanning_tree_as_int_tree(root_node,i++,p.first,matched);
+      return r;
     }
     
     void spanning_tree_as_int_tree(int_tree::node& parent, int i, int v, vector<bool>& matched){
