@@ -36,6 +36,7 @@
 
 //std::default_random_engine rndGen;
 
+#include "GenericCop.hpp"
 #include "RtensorA_add_plus_cop.hpp"
 #include "CtensorA_add_plus_cop.hpp"
 

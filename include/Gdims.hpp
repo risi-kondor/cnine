@@ -27,14 +27,18 @@ namespace cnine{
   class Gdims: public vector<int>{
   public:
 
+    typedef vector<int> BASE;
+    typedef std::size_t size_t;
+
+
     Gdims(){}
 
     Gdims(const vector<int>& x){
-      for(auto p:x) if(p>=0) push_back(p);
+      for(auto p:x) if(p>=0) BASE::push_back(p);
     }
 
     Gdims(const initializer_list<int>& x){
-      for(auto p:x) if(p>=0) push_back(p);
+      for(auto p:x) if(p>=0) BASE::push_back(p);
     }
 
     Gdims(const int i0): 
@@ -168,13 +172,15 @@ namespace cnine{
       return (*this)[size()-1];
     }
 
-    int asize() const{
-      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
+    size_t asize() const{
+      size_t t=1; 
+      for(int i=0; i<size(); i++) t*=(*this)[i];
       return t;
     }
 
-    int total() const{
-      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
+    size_t total() const{
+      size_t t=1; 
+      for(int i=0; i<size(); i++) t*=(*this)[i];
       return t;
     }
 
@@ -186,26 +192,36 @@ namespace cnine{
 
     bool operator==(const Gdims& x) const{
       if(size()!=x.size()) return false;
-      for(int i=0; i<size(); i++)
+      for(size_t i=0; i<size(); i++)
 	if((*this)[i]!=x[i]) return false;
       return true;
     }
 
     bool operator<=(const Gdims& x) const{
       if(size()!=x.size()) return false;
-      for(int i=0; i<size(); i++)
+      for(size_t i=0; i<size(); i++)
 	if((*this)[i]>x[i]) return false;
       return true;
     }
 
 
-  public:
+  public: // in-place
 
+
+    Gdims& extend(const vector<int>& x){
+      for(auto p: x)
+	BASE::push_back(p);
+      return *this;
+    }
+
+
+  public: // operations 
 
     int combined(const int a, const int b) const{
       assert(a<=b);
       assert(b<=size());
-      int t=1; for(int i=a; i<b; i++) t*=(*this)[i];
+      int t=1; 
+      for(int i=a; i<b; i++) t*=(*this)[i];
       return t;
     }
 
@@ -401,7 +417,7 @@ namespace cnine{
     template<typename TYPE>
     vector<TYPE> to_vec() const{
       vector<TYPE> R(size());
-      for(int i=0; i<size(); i++)
+      for(size_t i=0; i<size(); i++)
 	R[i]=(*this)[i];
       return R;
     }

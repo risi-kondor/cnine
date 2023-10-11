@@ -39,6 +39,8 @@ namespace cnine{
   class BatchedTensorView: public TensorView<TYPE>{
   public:
 
+    typedef std::size_t size_t;
+
     typedef TensorView<TYPE> Tview;
     
     using Tview::Tview;

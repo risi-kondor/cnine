@@ -28,8 +28,9 @@
 #include "Rtensor3_view.hpp"
 #include "RtensorA.hpp"
 
-#include "Itensor2_view.hpp"
+#include "Ctensor1_view.hpp"
 #include "Ctensor2_view.hpp"
+#include "Ctensor3_view.hpp"
 
 #include "Itensor1_view.hpp"
 #include "Itensor2_view.hpp"
@@ -55,17 +56,26 @@ namespace cnine{
   template<typename TYPE>
   class TensorView;
 
-  //inline float base_type_of(float& x){return }
-
   // this is the proposed solution to the multiply defined functions problem
+  inline Itensor1_view view1_of(const TensorView<int>& x);
+  inline Rtensor1_view view1_of(const TensorView<float>& x);
+  inline Ctensor1_view view1_of(const TensorView<complex<float> >& x);
+
+  inline Itensor2_view view2_of(const TensorView<int>& x);
   inline Rtensor2_view view2_of(const TensorView<float>& x);
   inline Ctensor2_view view2_of(const TensorView<complex<float> >& x);
-  inline Itensor2_view view2_of(const TensorView<int>& x);
+
+  inline Itensor3_view view3_of(const TensorView<int>& x);
+  inline Rtensor3_view view3_of(const TensorView<float>& x);
+  inline Ctensor3_view view3_of(const TensorView<complex<float> >& x);
 
 
   template<typename TYPE>
   class TensorView{
   public:
+
+    typedef std::size_t size_t;
+
 
     MemArr<TYPE> arr;
     Gdims dims;
@@ -86,7 +96,62 @@ namespace cnine{
     }
 
 
-  public: // ---- Constructors for non-view child classes ---------------------------------------------------
+  public: // ---- Constructors for non-view derived classes --------------------------------------------------
+
+
+    TensorView(const Gdims& _dims, const int fcode, const int _dev):
+      arr(1), //TODO: eliminate this
+      dims(_dims),
+      strides(GstridesB(_dims)),
+      dev(_dev){
+      
+      size_t N=dims.total();
+
+      if(fcode==0){
+	arr=MemArr<TYPE>(N,fill_zero(),_dev);
+	return;
+      }
+
+      if(fcode==1){
+	arr=MemArr<TYPE>(N,_dev);
+	return;
+      }
+
+      if(fcode>1){
+	arr=MemArr<TYPE>(N,0);
+
+	switch(fcode){
+
+	  case(2): //ones 
+	    for(size_t i=0; i<N; i++)
+	      arr[i]=1.0;
+	  break;
+
+	  case(3): //sequential 
+	    for(size_t i=0; i<N; i++)
+	      arr[i]=i;
+	  break;
+
+	  case(4): //gaussian
+	    normal_distribution<double> distr;
+	    if constexpr(is_complex<TYPE>()){
+	      for(int i=0; i<N; i++) 
+		arr[i]=TYPE(distr(rndGen),distr(rndGen));
+	    }else{
+	      for(int i=0; i<N; i++) 
+		arr[i]=distr(rndGen);
+	    }
+	  break;
+
+ 	}
+
+	move_to_device(_dev);
+	return;
+      }
+
+      arr=MemArr<TYPE>(_dims.total(),_dev);
+    }
+
 
 
     TensorView(const Gdims& _dims, const int _dev=0): 
@@ -97,13 +162,12 @@ namespace cnine{
 
     TensorView(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
       TensorView(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){
-      //cout<<_dims.total()<<endl;
     }
 
     TensorView(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
       TensorView(_dims,0){
-      int N=dims.total();
-      for(int i=0; i<N; i++)
+      size_t N=dims.total();
+      for(size_t i=0; i<N; i++)
 	arr[i]=dummy.v;
       move_to_device(_dev);
     }
@@ -120,8 +184,8 @@ namespace cnine{
 
     TensorView(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       TensorView(_dims,0){
-      int N=dims.total();
-      for(int i=0; i<N; i++)
+      size_t N=dims.total();
+      for(size_t i=0; i<N; i++)
 	arr[i]=i;
       move_to_device(_dev);
     }
@@ -129,17 +193,18 @@ namespace cnine{
     TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       TensorView(_dims,0){
       int N=dims.total();
-      //if constexpr(is_complex<TYPE>()){
-      //normal_distribution<double> distr;
-      //for(int i=0; i<N; i++) 
-      //arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
-      //}else{
+      if constexpr(is_complex<TYPE>()){
+	normal_distribution<double> distr;
+	for(int i=0; i<N; i++) 
+	  arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
+      }else{
 	normal_distribution<double> distr;
 	for(int i=0; i<N; i++) 
 	  arr[i]=distr(rndGen)*dummy.c;
-	//}
+      }
       move_to_device(_dev);
     }
+
 
 
   public: // ---- Copying -----------------------------------------------------------------------------------
@@ -214,6 +279,8 @@ namespace cnine{
 
 
   private:
+
+
     void move_to_device(const int _dev) const{
       if(_dev==dev) return;
       TensorView t(*this,_dev);
@@ -229,28 +296,30 @@ namespace cnine{
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
     operator Rtensor1_view() const{
       CNINE_ASSRT(ndims()==1);
-      return Rtensor1_view(mem(),dims,strides,dev);
+      return Rtensor1_view(mem(),dims(0),strides(0),dev);
     }
 
     // deprecated 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
     operator Rtensor2_view() const{
       CNINE_ASSRT(ndims()==2);
-      return Rtensor2_view(mem(),dims,strides,dev);
+      return Rtensor2_view(mem(),dims(0),dims(1),strides(0),strides(1),dev);
     }
 
     // deprecated 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
     operator Rtensor3_view() const{
       CNINE_ASSRT(ndims()==3);
-      return Rtensor3_view(mem(),dims,strides,dev);
+      return Rtensor3_view(mem(),dims(0),dims(1),dims(2),strides(0),strides(1),strides(2),dev);
     }
 
+    /*
     IF_FLOAT
     Rtensor1_view view1() const{
       CNINE_ASSRT(ndims()==1);
       return Rtensor1_view(mem(),dims,strides,dev);
     }
+    */
 
     /*
     IF_FLOAT
@@ -265,18 +334,29 @@ namespace cnine{
       return Rtensor2_view(mem(),dims,strides,dev);
     }
 
+    IF_FLOAT
+    Rtensor3_view view3() const{
+      CNINE_ASSRT(ndims()==3);
+      return Rtensor3_view(mem(),dims,strides,dev);
+    }
+
     */
+
+    auto view1() const -> decltype(view1_of(*this)){
+      CNINE_ASSRT(ndims()==1);
+      return view1_of(*this);
+    }
 
     auto view2() const -> decltype(view2_of(*this)){
       CNINE_ASSRT(ndims()==2);
       return view2_of(*this);
     }
 
-    IF_FLOAT
-    Rtensor3_view view3() const{
-      CNINE_ASSRT(ndims()==3);
-      return Rtensor3_view(mem(),dims,strides,dev);
+    auto view3() const -> decltype(view3_of(*this)){
+      CNINE_ASSRT(ndims()==2);
+      return view3_of(*this);
     }
+
 
 
   
@@ -512,15 +592,15 @@ namespace cnine{
       return dims[i];
     }
 
-    int asize() const{
+    size_t asize() const{
       return dims.asize();
     }
 
-    int total() const{
+    size_t total() const{
       return dims.total();
     }
 
-    int memsize() const{
+    size_t memsize() const{
       return strides.memsize(dims);
     }
 
@@ -542,7 +622,7 @@ namespace cnine{
     //} 
 
     TYPE* mem() const{
-      return const_cast<TYPE*>(arr.get_arr())/*+strides.offset*/;
+      return const_cast<TYPE*>(arr.get_arr());
     }
 
     //TYPE& mem(const int i) const{
@@ -864,7 +944,7 @@ namespace cnine{
 	if(is_regular() && x.is_regular() && strides==x.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
-	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i];
+	  for(size_t i=0; i<asize(); i++) ptr[i]+=xptr[i];
 	}else
 	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
       }
@@ -890,7 +970,7 @@ namespace cnine{
 	if(is_regular() && x.is_regular() && strides==x.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
-	  for(int i=0; i<asize(); i++) ptr[i]-=xptr[i];
+	  for(size_t i=0; i<asize(); i++) ptr[i]-=xptr[i];
 	}else
 	  for_each([&](const Gindex& ix, TYPE& v){v-=x(ix);});
       }
@@ -912,7 +992,7 @@ namespace cnine{
 	if(is_regular() && x.is_regular() && strides==x.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
-	  for(int i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
+	  for(size_t i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
 	}else{
 	  for_each([&](const Gindex& ix, TYPE& v){v+=c*x(ix);});
 	}
@@ -941,7 +1021,7 @@ namespace cnine{
 	if(is_regular() && x.is_regular() && strides==x.strides){
 	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
 	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
-	  for(int i=0; i<asize(); i++) ptr[i]-=c*xptr[i];
+	  for(size_t i=0; i<asize(); i++) ptr[i]-=c*xptr[i];
 	}else{
 	  for_each([&](const Gindex& ix, TYPE& v){v-=c*x(ix);});
 	}
@@ -1104,7 +1184,7 @@ namespace cnine{
       if(asize()==0) return 0;
       TYPE t=arr[0];
       if(is_contiguous()){
-	for(int i=0; i<asize(); i++)
+	for(size_t i=0; i<asize(); i++)
 	  if(arr[i]>t) t=arr[i];
       }else{
 	for_each([&](const Gindex& ix, TYPE& v){
@@ -1117,7 +1197,7 @@ namespace cnine{
       if(asize()==0) return 0;
       TYPE t=arr[0];
       if(is_contiguous()){
-	for(int i=0; i<asize(); i++)
+	for(size_t i=0; i<asize(); i++)
 	  if(arr[i]<t) t=arr[i];
       }else{
 	for_each([&](const Gindex& ix, TYPE& v){
@@ -1146,7 +1226,7 @@ namespace cnine{
       TYPE t=0;
       if(dev==0){
 	if(is_regular() && y.is_regular()){
-	  for(int i=0; i<asize(); i++)
+	  for(size_t i=0; i<asize(); i++)
 	    t+=arr[i]*y.arr[i];
 	  //t+=std::conj(arr[i])*y.arr[i];
 	}else{
@@ -1163,7 +1243,7 @@ namespace cnine{
       TYPE t=0;
       if(dev==0){
 	if(is_contiguous()){
-	  for(int i=0; i<asize(); i++)
+	  for(size_t i=0; i<asize(); i++)
 	    t+=arr[i]*arr[i];
 	  //t+=std::conj(arr[i])*arr[i];
 	}else{
@@ -1183,7 +1263,7 @@ namespace cnine{
       CNINE_ASSRT(x.asize()==asize());
       TYPE t=0;
       if(is_regular() && x.is_regular()){
-	for(int i=0; i<asize(); i++){
+	for(size_t i=0; i<asize(); i++){
 	  const TYPE a=x.arr[i]-arr[i];
 	  if constexpr(is_complex<TYPE>())
 	    t+=a*std::conj(a);
@@ -1335,19 +1415,32 @@ namespace cnine{
   }
 
 
+  // ---- View converters ----------------------------------------------------
+
+
+  inline Itensor1_view view1_of(const TensorView<int>& x){
+    return Itensor1_view(x.mem(),x.dims(0),x.strides(0),x.dev);}
+  inline Rtensor1_view view1_of(const TensorView<float>& x){
+    return Rtensor1_view(x.mem(),x.dims(0),x.strides(0),x.dev);}
+  inline Ctensor1_view view1_of(const TensorView<complex<float> >& x){
+    return Ctensor1_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
+      x.dims[0],2*x.strides[0],x.dev);}
+
   inline Itensor2_view view2_of(const TensorView<int>& x){
-    return Itensor2_view(x.mem(),x.dims,x.strides,x.dev);
-  }
-
+    return Itensor2_view(x.mem(),x.dims(0),x.dims(1),x.strides(0),x.strides(1),x.dev);}
   inline Rtensor2_view view2_of(const TensorView<float>& x){
-    return Rtensor2_view(x.mem(),x.dims,x.strides,x.dev);
-  }
-
+    return Rtensor2_view(x.mem(),x.dims(0),x.dims(1),x.strides(0),x.strides(1),x.dev);}
   inline Ctensor2_view view2_of(const TensorView<complex<float> >& x){
-    CNINE_ASSRT(x.ndims()==2);
     return Ctensor2_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
-      x.dims[0],x.dims[1],2*x.strides[0],2*x.strides[1],x.dev);
-  }
+      x.dims[0],x.dims[1],2*x.strides[0],2*x.strides[1],x.dev);}
+
+  inline Itensor3_view view3_of(const TensorView<int>& x){
+    return Itensor3_view(x.mem(),x.dims(0),x.dims(1),x.dims(2),x.strides(0),x.strides(1),x.strides(2),x.dev);}
+  inline Rtensor3_view view3_of(const TensorView<float>& x){
+    return Rtensor3_view(x.mem(),x.dims(0),x.dims(1),x.dims(2),x.strides(0),x.strides(1),x.strides(2),x.dev);}
+  inline Ctensor3_view view3_of(const TensorView<complex<float> >& x){
+    return Ctensor3_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
+      x.dims[0],x.dims[1],x.dims[2],2*x.strides[0],2*x.strides[1],2*x.strides[0],x.dev);}
 
 
 }

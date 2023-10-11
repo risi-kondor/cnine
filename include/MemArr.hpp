@@ -36,24 +36,27 @@ namespace cnine{
   class MemArr{
   public:
 
+    typedef std::size_t size_t;
+
+
     std::shared_ptr<MemBlob<TYPE> > blob;
-    int offset=0;
+    size_t offset=0;
 
     MemArr(){
       cout<<"empty"<<endl;
       //CNINE_ERROR("MemArr must always be initialized to a new or existing blob of memory");
     }
 
-    MemArr(const int _memsize, const int _dev=0):
+    MemArr(const size_t _memsize, const int _dev=0):
       blob(new MemBlob<TYPE>(_memsize,_dev)){}
 
-    MemArr(const int _memsize, const fill_zero& dummy, const int _dev=0):
+    MemArr(const size_t _memsize, const fill_zero& dummy, const int _dev=0):
       MemArr(_memsize,_dev){
       if(device()==0) std::fill(blob->arr,blob->arr+_memsize,0);
       if(device()==1) CUDA_SAFE(cudaMemset(blob->arr,0,_memsize*sizeof(TYPE)));
     }
 
-    MemArr(const MemArr& x, const int i):
+    MemArr(const MemArr& x, const size_t i):
       MemArr(x){
       offset+=i;
     }
@@ -115,11 +118,11 @@ namespace cnine{
       return blob->arr+offset;
     } 
 
-    TYPE& operator[](const int i) const{
+    TYPE& operator[](const size_t i) const{
       return blob->arr[i+offset];
     }
 
-    TYPE& operator[](const int i){
+    TYPE& operator[](const size_t i){
       return blob->arr[i+offset];
     }
 
@@ -128,7 +131,7 @@ namespace cnine{
 
 
     // experimental
-    MemArr operator+(const int i) const{
+    MemArr operator+(const size_t i) const{
       return MemArr(*this, i);
     }
 

@@ -34,9 +34,11 @@ namespace cnine{
   class MemBlob{
   public:
 
+    typedef std::size_t size_t;
+
     TYPE* arr;
     int dev=0;
-    
+
     ~MemBlob(){
       BLOB_DEBUG("Delete blob.");
       if(dev==0 && arr) {delete[] arr;}
@@ -46,7 +48,7 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    MemBlob(int _memsize, const int _dev=0):
+    MemBlob(size_t _memsize, const int _dev=0):
       dev(_dev){
       if(_memsize<1) _memsize=1;
       BLOB_DEBUG("New blob of size "+to_string(_memsize)+".");
@@ -55,31 +57,8 @@ namespace cnine{
     }
 
 
-  public: // ---- Access ------------------------------------------------------------------------------
-
-
-    //int device() const{
-    //return dev;
-    //}
-
-
   };
 
 }
 
 #endif 
-
-
-    /*
-    MemBlob(const int _memsize, const fill_zero& dummy, const int _dev=0):
-      MemBlob(_memsize,_dev){
-      if(dev==0) std::fill(arr,arr+_memsize,0);
-      if(dev==1) CUDA_SAFE(cudaMemset(arrg,0,_memsize*sizeof(TYPE)));
-    }
-
-    MemBlob(const int _memsize, const fill_sequential& dummy, const int _dev=0):
-      MemBlob(_memsize,_dev){
-      CNINE_CPUONLY();
-      if(dev==0) {for(int i=0; i<memsize; i++) arr[i]=i;}
-    }
-    */

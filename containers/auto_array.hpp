@@ -23,9 +23,11 @@ namespace cnine{
   class auto_array{
   public:
 
+    typedef std::size_t size_t;
+
     mutable TYPE* arr;
-    mutable int memsize;
-    mutable int _size;
+    mutable size_t memsize;
+    mutable size_t _size;
 
     ~auto_array(){
       if(arr) delete[] arr;
@@ -50,20 +52,31 @@ namespace cnine{
   public: //---- Copying -------------------------------------
 
 
-    auto_array(const auto_array& x)=delete;
+    auto_array(const auto_array& x):
+      memsize(x.memsize),
+      _size(x._size){
+      arr=new int[memsize];
+    }
+
+    auto_array(auto_array&& x):
+      memsize(x.memsize),
+      _size(x._size){
+      arr=x.arr;
+      x.arr=nullptr;
+    }
 
 
   public: //---- Resizing -------------------------------------
 
 
-    void resize(const int n) const{
+    void resize(const size_t n) const{
       if(memsize<n) reserve(n);
       _size=n;
     }
 
-    void reserve(const int x) const{
+    void reserve(const size_t x) const{
       if(x<=memsize) return;
-      int new_memsize=std::max(x,2*memsize);
+      size_t new_memsize=std::max(x,2*memsize);
       int* newarr=new TYPE[new_memsize];
       std::copy(arr,arr+memsize,newarr);
       delete[] arr;
@@ -75,26 +88,26 @@ namespace cnine{
   public: //---- Access -------------------------------------
 
 
-    int size() const{
+    size_t size() const{
       return _size;
     }
 
-    TYPE operator[](const int i) const{
+    TYPE operator[](const size_t i) const{
       if(i>=_size) resize(i+1);
       return arr[i];
     }
 
-    TYPE& operator[](const int i){
+    TYPE& operator[](const size_t i){
       if(i>=_size) resize(i+1);
       return arr[i];
     }
 
-    int get(const int i) const{
+    int get(const size_t i) const{
       if(i>=_size) resize(i+1);
       return arr[i];
     }
 
-    void set(const int i, const TYPE& x){
+    void set(const size_t i, const TYPE& x){
       if(i>=_size) resize(i+1);
       arr[i]=x;
     }

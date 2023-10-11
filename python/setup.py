@@ -33,6 +33,7 @@ def main():
      cwd+'/../combinatorial',
      cwd+'/../containers',
      cwd+'/../math',
+     cwd+'/../utility',
      cwd+'/../wrappers',
      cwd+'/../include/cmaps',
      cwd+'/../objects/scalar',

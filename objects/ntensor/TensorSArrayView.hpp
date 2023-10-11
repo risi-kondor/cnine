@@ -40,7 +40,7 @@ namespace cnine{
     SparseTensor<int> offs;
     Gdims adims;
     Gdims ddims;
-    Gdims dstrides;
+    GstridesB dstrides;
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------

@@ -25,50 +25,53 @@ namespace cnine{
   class TensorPackDir;
 
 
-  class GstridesB: public vector<int>{
-  private:
-
-    //int offset=0; // deprecated
-
+  class GstridesB: public vector<std::size_t>{
   public:
-    //bool regular=false;
 
     friend class TensorPackDir;
+
+    typedef std::size_t size_t;
 
     GstridesB(){}
 
     GstridesB(const int k, const fill_raw& dummy): 
-      vector<int>(k){}
+      vector<size_t>(k){}
 
     GstridesB(const int k, const fill_zero& dummy): 
-      vector<int>(k,0){}
+      vector<size_t>(k,0){}
+
+    GstridesB(const initializer_list<size_t>& lst):
+      vector<size_t>(lst){}
 
     GstridesB(const initializer_list<int>& lst):
-      vector<int>(lst){}
+      vector<size_t>(lst.size()){
+      for(auto p:lst)
+	push_back(p);
+    }
 
-    GstridesB(const int i0): vector<int>(1){
+    GstridesB(const int i0): vector<size_t>(1){
       (*this)[0]=i0;
     }
 
-    GstridesB(const int i0, const int i1): vector<int>(2){
+    GstridesB(const int i0, const int i1): vector<size_t>(2){
       (*this)[0]=i0;
       (*this)[1]=i1;
     }
 
-    GstridesB(const int i0, const int i1, const int i2): vector<int>(3){
+    GstridesB(const int i0, const int i1, const int i2): vector<size_t>(3){
       (*this)[0]=i0;
       (*this)[1]=i1;
       (*this)[2]=i2;
     }
 
-    GstridesB(const int i0, const int i1, const int i2, const int i3): vector<int>(4){
+    GstridesB(const int i0, const int i1, const int i2, const int i3): vector<size_t>(4){
       (*this)[0]=i0;
       (*this)[1]=i1;
       (*this)[2]=i2;
       (*this)[3]=i3;
     }
 
-    GstridesB(const int i0, const int i1, const int i2, const int i3, const int i4): vector<int>(5){
+    GstridesB(const int i0, const int i1, const int i2, const int i3, const int i4): vector<size_t>(5){
       (*this)[0]=i0;
       (*this)[1]=i1;
       (*this)[2]=i2;
@@ -78,7 +81,7 @@ namespace cnine{
 
 
     GstridesB(const Gdims& dims, const int s0=1): 
-      vector<int>(dims.size()){
+      vector<size_t>(dims.size()){
       int k=dims.size();
       assert(k>0);
       (*this)[k-1]=s0;
@@ -88,24 +91,26 @@ namespace cnine{
     }
 
     GstridesB(const vector<int>& x):
-      vector<int>(x){
+      vector<size_t>(x.size()){
+      for(int i=0; i<x.size(); i++)
+	(*this)[i]=x[i];
     }
 
 
   public:
 
-    int operator()(const int i) const{
+    size_t operator()(const int i) const{
       if(i<0) return (*this)[size()+i];
       return (*this)[i];
     }
 
-    int back(const int i=0) const{
+    size_t back(const int i=0) const{
       return (*this)[size()-1-i];
     }
 
     bool is_regular(const Gdims& dims) const{
       CNINE_ASSRT(size()==dims.size());
-      int k=size();
+      size_t k=size();
       int t=1;
       for(int i=k-1; i>=0; i--){
 	if((*this)[i]!=t) return false;
@@ -118,12 +123,12 @@ namespace cnine{
       CNINE_ASSRT(size()==dims.size());
       if(is_regular(dims)) return true;
 
-      vector<int> v(*this);
+      vector<size_t> v(*this);
       int nz=0; 
       for(int i=0; i<size(); i++) 
 	if(v[i]>0) nz++;
 
-      int t=1;
+      size_t t=1;
       for(int i=0; i<nz; i++){
 	auto it=std::find(v.begin(),v.end(),t);
 	if(it==v.end()) return false;
@@ -135,10 +140,10 @@ namespace cnine{
       return true;
     }
 
-    int memsize(const Gdims& dims) const{
+    size_t memsize(const Gdims& dims) const{
       CNINE_ASSRT(size()==dims.size());
       if(dims.asize()==0) return 0;
-      int t=0;
+      size_t t=0;
       for(int i=0; i<size(); i++)
 	t=std::max(t,(*this)[i]*dims[i]);
       return t;
@@ -151,8 +156,9 @@ namespace cnine{
       return R;
     }
 
-    int total() const{
-      int t=1; for(int i=0; i<size(); i++) t*=(*this)[i];
+    size_t total() const{
+      size_t t=1; 
+      for(int i=0; i<size(); i++) t*=(*this)[i];
       return t;
     }
 
@@ -167,52 +173,52 @@ namespace cnine{
   public: // ---- Indexing -----------------------------------------------------------------------------------
 
 
-    int operator()(const vector<int>& ix) const{
+    size_t operator()(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()<=size());
-      int t=0; //offset;
+      size_t t=0; //offset;
       for(int i=0; i<ix.size(); i++)
 	t+=(*this)[i]*ix[i];
       return t;
     }
 
-    int offs(const vector<int>& ix) const{
+    size_t offs(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()<=size());
-      int t=0;
+      size_t t=0;
       for(int i=0; i<ix.size(); i++)
 	t+=(*this)[i]*ix[i];
       return t;
     }
 
-    int offs(const int i, const vector<int>& ix) const{
+    size_t offs(const int i, const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()<=size()-1);
-      int t=((*this)[0]);
+      size_t t=((*this)[0]);
       for(int i=0; i<ix.size(); i++)
 	t+=(*this)[i+1]*ix[i];
       return t;
     }
 
-    int offs(const int i0) const{
+    size_t offs(const int i0) const{
       return i0*(*this)[0];
     }
 
-    int offs(const int i0, const int i1) const{
+    size_t offs(const int i0, const int i1) const{
       return i0*(*this)[0]+i1*(*this)[1];
     }
 
-    int offs(const int i0, const int i1, const int i2) const{
+    size_t offs(const int i0, const int i1, const int i2) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2];
     }
 
-    int offs(const int i0, const int i1, const int i2, const int i3) const{
+    size_t offs(const int i0, const int i1, const int i2, const int i3) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];
     }
 
-    int offs(const int i0, const int i1, const int i2, const int i3, const int i4) const{
+    size_t offs(const int i0, const int i1, const int i2, const int i3, const int i4) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3]+i4*(*this)[4];
     }
 
-    int combine(const vector<int>& v) const{
-      int t=0;
+    size_t combine(const vector<int>& v) const{
+      size_t t=0;
       for(auto p:v){
 	assert(p<size());
 	t+=(*this)[p];
@@ -303,11 +309,11 @@ namespace cnine{
       return R;//.set_offset(offset);
     }
 
-    int offs(int j, const GstridesB& source) const{
+    size_t offs(int j, const GstridesB& source) const{
       assert(source.size()==size());
-      int t=0;
+      size_t t=0;
       for(int i=0; i<size(); i++){
-	int r=j/source[i];
+	size_t r=j/source[i];
 	t+=(*this)[i]*r;
 	j-=r*source[i];
       }

@@ -25,6 +25,9 @@ namespace cnine{
   class Gindex: public vector<int>{
   public:
 
+    typedef std::size_t size_t;
+
+
     Gindex(){}
 
     Gindex(const int k, const fill_zero& dummy): 
@@ -71,7 +74,7 @@ namespace cnine{
       (*this)[4]=i4;
     }
 
-    Gindex(int a, const Gdims& dims): 
+    Gindex(size_t a, const Gdims& dims): 
       vector<int>(dims.size()){
       for(int i=size()-1; i>=0; i--){
 	(*this)[i]=a%dims[i];
@@ -79,7 +82,7 @@ namespace cnine{
       }
     }
 
-    Gindex(int a, vector<int> strides): 
+    Gindex(size_t a, vector<int> strides): 
       vector<int>(strides.size()){
       for(int i=size()-1; i>=1; i--){
 	(*this)[i]=(a%strides[i-1])/strides[i];
@@ -95,7 +98,7 @@ namespace cnine{
       return size();
     }
 
-    int asize() const{
+    size_t asize() const{
       int t=1;
       for(int i=0; i<size(); i++)
 	t*=(*this)[i];
@@ -110,18 +113,18 @@ namespace cnine{
       (*this)[i]=x;
     }
 
-    int operator()(const vector<int>& strides) const{
+    size_t operator()(const vector<int>& strides) const{
       assert(strides.size()>=size());
-      int t=0; 
+      size_t t=0; 
       for(int i=0; i<size(); i++) 
 	t+=(*this)[i]*strides[i];
       return t;
     }
 
-    int operator()(const Gdims& dims) const{
+    size_t operator()(const Gdims& dims) const{
       assert(dims.size()>=size());
       int s=1;
-      int t=0; 
+      size_t t=0; 
       for(int i=size()-1; i>=0; i--){
 	t+=(*this)[i]*s;
 	s*=dims[i];
@@ -129,10 +132,10 @@ namespace cnine{
       return t;
     }
 
-    int to_int(const Gdims& dims) const{
+    size_t to_int(const Gdims& dims) const{
       assert(dims.size()>=size());
       int s=1;
-      int t=0; 
+      size_t t=0; 
       for(int i=size()-1; i>=0; i--){
 	t+=(*this)[i]*s;
 	s*=dims[i];

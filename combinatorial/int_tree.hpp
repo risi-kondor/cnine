@@ -86,13 +86,13 @@ namespace cnine{
   public: //---- Constructors --------------------------------
 
 
-    int_tree(){}
+    //int_tree(){}
 
 
   public: //---- Copying -------------------------------------
 
 
-    int_tree(const int_tree& x)=delete;
+    //int_tree(const int_tree& x)=delete;
 
 
   public: //---- Access -------------------------------------

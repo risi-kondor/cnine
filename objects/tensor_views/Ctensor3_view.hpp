@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "Gstrides.hpp"
+#include "GstridesB.hpp"
 
 #include "Ctensor2_view.hpp"
 #include "BasicCtensorProducts.hpp"
@@ -51,6 +52,17 @@ namespace cnine{
       arr(_arr), arrc(_arr+_coffs), n0(_n0), n1(_n1), n2(_n2), s0(_s0), s1(_s1), s2(_s2), dev(_dev){}
 
     Ctensor3_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
+      assert(_dims.size()==3);
+      n0=_dims[0];
+      n1=_dims[1];
+      n2=_dims[2];
+      s0=_strides[0];
+      s1=_strides[1];
+      s2=_strides[2];
+    }
+
+    Ctensor3_view(float* _arr,  const Gdims& _dims, const GstridesB& _strides, const int _coffs=1, const int _dev=0):
       arr(_arr), arrc(_arr+_coffs), dev(_dev){
       assert(_dims.size()==3);
       n0=_dims[0];

@@ -36,6 +36,8 @@ namespace cnine{
   class BatchedTensor: public BatchedTensorView<TYPE>{
   public:
 
+    typedef std::size_t size_t;
+
     typedef BatchedTensorView<TYPE> BTview;
     typedef TensorView<TYPE> Tview;
 
@@ -54,14 +56,6 @@ namespace cnine{
 
 
     BatchedTensor(){};
-
-    //BatchedTensor(const int _b, const Gdims& _dims, const int _dev=0):
-    //VTensor(_dims.prepend(_b),_dev){}
-
-    //template<typename FILLTYPE, typename = typename 
-    //     std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    //BatchedTensor(const int _b, const Gdims& _dims, const FILLTYPE& fill, const int _dev=0):
-    //VTensor(_dims.prepend(_b),_dev){}
 
 
   public: // ---- Lambda constructors -----------------------------------------------------------------------

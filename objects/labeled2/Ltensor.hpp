@@ -17,16 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "LtensorView.hpp"
-
-#ifdef _WITH_CUDA
-#include <cuda.h>
-#include <cuda_runtime.h>
-#endif 
-
-#ifdef _WITH_CUBLAS
-#include <cublas_v2.h>
-extern cublasHandle_t cnine_cublas;
-#endif 
+#include "LtensorGen.hpp"
 
 
 namespace cnine{
@@ -35,8 +26,10 @@ namespace cnine{
   class Ltensor: public LtensorView<TYPE>{
   public:
 
-    using LtensorView<TYPE>::LtensorView;
-    using LtensorView<TYPE>::arr;
+    typedef LtensorView<TYPE> BASE;
+
+    using BASE::BASE;
+
     using LtensorView<TYPE>::dims;
     using LtensorView<TYPE>::strides;
     using LtensorView<TYPE>::dev;
@@ -51,16 +44,46 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-  public: // ---- Constructors ------------------------------------------------------------------------------
+    Ltensor(): 
+      Ltensor({1},DimLabels(),0,0){}
+
+    Ltensor(const NewTensor& g):
+      Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
 
 
-    //Tensor():
-    //TensorView<TYPE>(MemArr<TYPE>(1),{1},{1}){}
+  public: // ---- Copying -----------------------------------------------------------------------------------
 
-    Ltensor(const Gdims& _dims, const int _dev=0): 
-      TensorView<TYPE>(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+
+    /*
+    Ltensor(const Ltensor<TYPE>& x):
+      BASE(x.dims,x.strides), labels(x.labels){
+      CNINE_COPY_WARNING();
+      view()=x.view();
+    }
+        
+    Ltensor(const Ltensor<TYPE>& x, const nowarn_flag& dummy):
+      BASE(x.dims,x.dev){
+      view()=x.view();
+    }
+        
+    Ltensor(Ltensor<TYPE>&& x):
+      TensorView<TYPE>(x.arr,x.dims,x.strides){
+      CNINE_MOVE_WARNING();
+      }
+    */
 
   };
 }
 
 #endif 
+
+
+    //template<typename FILLTYPE, typename = typename 
+    //std::enable_if<std::is_base_of<cnine::fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    //Ltensor(const Gdims& _dims, const DimLabels& _labels, const FILLTYPE& fill, const int _dev=0):
+    //BASE(_dims,_labels,fill,_dev){}
+
+    //Ltensor(const Gdims& _dims, const DimLabels& _labels, const int fcode, const int _dev){
+    //switch(fcode){
+    //default: 
+    //}

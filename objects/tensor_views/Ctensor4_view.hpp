@@ -60,6 +60,18 @@ namespace cnine{
       s2=_strides[2];
       s3=_strides[3];
     }
+    Ctensor4_view(float* _arr,  const Gdims& _dims, const GstridesB& _strides, const int _coffs=1, const int _dev=0):
+      arr(_arr), arrc(_arr+_coffs), dev(_dev){
+      assert(_dims.size()==4);
+      n0=_dims[0];
+      n1=_dims[1];
+      n2=_dims[2];
+      n3=_dims[3];
+      s0=_strides[0];
+      s1=_strides[1];
+      s2=_strides[2];
+      s3=_strides[3];
+    }
 
 
   public: // ---- Conversions -------------------------------------------------------------------------------

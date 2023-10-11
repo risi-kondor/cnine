@@ -27,7 +27,7 @@
 #include "RtensorA_accessor.hpp"
 
 #include "Cmaps.hpp"
-#include "GenericOp.hpp"
+//#include "GenericOp.hpp"
 #include "GenericCop.hpp"
 
 #include "RtensorA_add_cop.hpp"

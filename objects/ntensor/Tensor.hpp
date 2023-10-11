@@ -40,6 +40,8 @@ namespace cnine{
 {
   public:
 
+    typedef std::size_t size_t;
+
     using TensorView<TYPE>::TensorView;
     using TensorView<TYPE>::arr;
     using TensorView<TYPE>::dims;
@@ -77,7 +79,7 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_ones& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      int N=dims.total();
+      size_t N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=1;
       move_to_device(_dev);
@@ -85,7 +87,7 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      int N=dims.total();
+      size_t N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=dummy.v;
       move_to_device(_dev);
@@ -119,7 +121,7 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      int N=dims.total();
+      size_t N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=i;
       move_to_device(_dev);
@@ -127,7 +129,7 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      int N=dims.total();
+      size_t N=dims.total();
       normal_distribution<double> distr;
       for(int i=0; i<N; i++) 
 	arr[i]=distr(rndGen)*dummy.c;
@@ -333,18 +335,18 @@ public: // ---- Conversions ----------------------------------------------------
   public: // ---- Views -------------------------------------------------------------------------------------
 
 
-    Tensor(const TensorView<TYPE>& x):
-      Tensor(x.dims,x.dev){
-      CNINE_COPY_WARNING();
-      view()=x;
-    }
+  Tensor(const TensorView<TYPE>& x):
+    Tensor(x.dims,x.dev){
+    CNINE_COPY_WARNING();
+    view()=x;
+  }
 
   template<typename TYPE2>
   Tensor(const TensorView<TYPE2>& x):
     TensorView<TYPE>(MemArr<TYPE>(x.memsize(),x.dev),x.dims,x.strides){
     CNINE_CONVERT_WARNING();
     CNINE_ASSRT(dev==0);
-    int N=memsize();
+    size_t N=memsize();
     for(int i=0; i<N; i++)
       arr[i]=x.arr[i];
   }

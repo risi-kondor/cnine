@@ -35,6 +35,8 @@ namespace cnine{
   class TensorVirtual: public BASE{
   public:
 
+    typedef std::size_t size_t;
+
     using BASE::BASE;
     using BASE::arr;
     using BASE::dims;
@@ -59,7 +61,7 @@ namespace cnine{
 
     TensorVirtual(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       TensorVirtual(_dims,_dev){
-      int N=dims.total();
+      size_t N=dims.total();
       for(int i=0; i<N; i++)
 	arr[i]=i;
       move_to_device(_dev);
@@ -67,7 +69,7 @@ namespace cnine{
 
     TensorVirtual(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       TensorVirtual(_dims,_dev){
-      int N=dims.total();
+      size_t N=dims.total();
       normal_distribution<double> distr;
       for(int i=0; i<N; i++) 
 	arr[i]=distr(rndGen)*dummy.c;

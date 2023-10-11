@@ -15,7 +15,7 @@
 #ifndef _GenericCop
 #define _GenericCop
 
-#include "CtensorArrayA.hpp"
+//#include "CtensorArrayA.hpp"
 
 
 namespace cnine{

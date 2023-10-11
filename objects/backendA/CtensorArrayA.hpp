@@ -27,7 +27,7 @@
 #include "CtensorA_accessor.hpp"
 
 #include "Cmaps.hpp"
-#include "GenericOp.hpp"
+//#include "GenericOp.hpp"
 #include "GenericCop.hpp"
 
 #include "CtensorA_add_cop.hpp"
