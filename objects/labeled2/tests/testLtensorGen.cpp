@@ -23,11 +23,17 @@ int main(int argc, char** argv){
 
   cnine_session session;
 
-  //Ltensor<float> B;
+  
+  Ltensor<float> A(TensorSpec<float>().batch(2).dims({2,2}).sequential());
 
-  Ltensor<float> A(NewTensor().batch(2).dims({2,2}).sequential());
+  Ltensor<float> B=Ltensor<float>::gaussian().batch(2).dims({2,2});
+
+  auto C=Ltensor<float>::zero().batch(2).dims({2,2})();
+
 
   cout<<A<<endl;
+  cout<<B<<endl;
+  cout<<C<<endl;
 
   
 

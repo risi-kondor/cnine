@@ -353,7 +353,7 @@ namespace cnine{
     }
 
     auto view3() const -> decltype(view3_of(*this)){
-      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(ndims()==3);
       return view3_of(*this);
     }
 

@@ -59,9 +59,10 @@ namespace cnine{
       return dims.chunk(_batched,_narray);
     }
 
-    GstridesB(const GstridesB& x) const{
+    GstridesB gstrides(const GstridesB& x) const{
       return x.chunk(_batched,_narray);
     }
+
 
     Gdims ddims(const Gdims& dims) const{
       return dims.chunk(_narray+_batched);

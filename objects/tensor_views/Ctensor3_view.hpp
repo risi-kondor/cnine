@@ -322,7 +322,7 @@ namespace cnine{
 
 
   inline Ctensor3_view unsqueeze0(const Ctensor2_view& x){
-    return Ctensor3_view(x.arr,x.arrc,1,x.n0,x.n1,x.s1*x.n0,x.s1,x.s1,x.dev);
+    return Ctensor3_view(x.arr,x.arrc,1,x.n0,x.n1,x.s0*x.n0,x.s0,x.s1,x.dev);
   }
 
   inline Ctensor3_view unsqueeze1(const Ctensor2_view& x){

@@ -109,6 +109,16 @@ namespace cnine{
   };
 
 
+  /*
+  template<typename CLASS>
+  class New: public CLASS::SPEC{
+  public:
+    New(){}
+    operator CLASS(){
+      return CLASS(*this);
+    }
+  };
+  */
 
 
 
