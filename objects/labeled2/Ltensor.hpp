@@ -65,6 +65,30 @@ namespace cnine{
       return TensorSpec<TYPE>(dims,labels,dev);
     }
 
+
+  public: // ---- Copying -----------------------------------------------------------------------------------
+
+
+    Ltensor(const Ltensor& x):
+      BASE(x),
+      labels(x.labels){}
+
+    Ltensor& operator=(const Ltensor& x){
+      BASE::operator=(x);
+      labels=x.labels;
+    }
+    
+    Ltensor copy() const{
+      Ltensor R(dims,labels,0,dev);
+      R=*This;
+      return R;
+    }
+
+    Ltensor zeros_like() const{
+      return Ltensor(dims,labels,0,dev);
+    }
+
+
   public: // ---- Access ------------------------------------------------------------------------------------
 
 
