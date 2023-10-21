@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef _CnineFindPlantedSubgraphs
-#define _CnineFindPlantedSubgraphs
+#ifndef _CnineFindPlantedSubgraphs2
+#define _CnineFindPlantedSubgraphs2
 
 #include "Cnine_base.hpp"
 #include "sparse_graph.hpp"
@@ -26,7 +26,7 @@ namespace cnine{
 
 
   template<typename LABEL=int>
-  class FindPlantedSubgraphs{
+  class FindPlantedSubgraphs2{
   public:
 
     typedef int_pool Graph;
@@ -34,35 +34,51 @@ namespace cnine{
     //typedef labeled_forest<int> labeled_forest;
 
 
-    const Graph& G;
-    const Graph& H;
+    //const Graph& G;
+    //const Graph& H;
+    //const sparse_graph<int,float,LABEL>& H;
     int n;
     int nmatches=0;
-    vector<pair<int,int> > Htraversal;
-    vector<int> assignment;
+    //vector<pair<int,int> > Htraversal;
+    //vector<int> assignment;
     Tensor<int> matches;
 
     int level;
     //vector<int> matching;
     //vector<int> pseudo_iterators;
 
+
   public:
 
 
-    FindPlantedSubgraphs(const Graph& _G, const Graph& _H):
-      G(_G), 
-      H(_H), 
-      n(_H.getn()),
-      matches({1000,_H.getn()},fill_zero()){
-      
-      vector<int> Htraversal=H.depth_first_traversal();
-      vector<int> parent_of(n);
-      H.traverse([H&,parent_of&](const compact_int_tree::node& x){
-	  parent_of[x.label()]=H.node_at(x.parent()).label();});
-      vector<int> matching(n,-1);
-      vector<int> psuedo_iterators(n,0);
+    FindPlantedSubgraphs2(const sparse_graph<int,float,LABEL>& G, const sparse_graph<int,float,LABEL>& H):
+      FindPlantedSubgraphs2(G.as_int_pool(),H.as_int_pool()){}
 
-      for(int i=0; i<n; i++){
+
+    FindPlantedSubgraphs2(const Graph& G, Graph& H):
+      //G(_G), 
+      n(H.getn()),
+      matches({10,H.getn()},fill_zero()){
+      
+
+      sparse_graph<int,float,LABEL> Hsg(H);
+      int_tree Htree=Hsg.greedy_spanning_tree().as_int_tree();
+      //int_tree Htree=sparse_graph<int,float,LABEL>(H).spanning_tree_as_int_tree();
+      //int_tree Htree=int_tree::spanning_tree(H);
+      //cout<<Htree.auto_array<int>::str()<<endl;
+      //cout<<Htree<<endl;
+      vector<int> Htraversal=Htree.depth_first_traversal();
+      //for(int i=0; i<Htraversal.size(); i++) cout<<Htraversal[i]<<" "; cout<<endl;
+      vector<int> parent_of(n);
+      Htree.traverse([&](const int_tree::node& x){
+	  if(x.parent()>=0) 
+	    parent_of[x.label()]=Htree.node_at(x.parent()).label();
+	});
+      //for(int i=0; i<n; i++) cout<<parent_of[i]; cout<<endl;
+      vector<int> matching(n,-1);
+      vector<int> pseudo_iterators(n,0);
+
+      for(int i=0; i<G.getn(); i++){
 
 	int level=0;
 	int w=Htraversal[0];
@@ -97,7 +113,7 @@ namespace cnine{
 	  // of the matching corresponds to a neighbor of w 
 	  if(success){
 	    for(int j=0; j<m2; j++){
-	      int vdash=H(v,j);
+	      int vdash=G(v,j);
 	      int wdash=-1;
 	      for(int p=0; p<n; p++)
 		if(matching[p]==vdash){
@@ -121,8 +137,9 @@ namespace cnine{
 
 	  // if w has been successfully matched to v
 	  if(success){
+	    //cout<<"matched "<<w<<" to "<<v<<" at level "<<level<<endl;
 	    matching[w]=v;
-	    matched[level]=v;
+	    //matched[level]=v;
 	    if(level==n-1){
 	      add_match(matching);
 	      success=false;
@@ -137,23 +154,24 @@ namespace cnine{
 	    //int parent_node=Htree.node_at(hnode.parent());
 	    //int parentv=matching[parent_node.label()];
 	    int parentv=matching[parent_of[Htraversal[level+1]]];
-	    PTENS_ASSRT(parentv!=-1);
+	    CNINE_ASSRT(parentv!=-1);
 	    pseudo_iterators[level]=0;
 	    int m3=G.size_of(parentv);
-	    int newv=-1
-	      for(int j=0; j<m3; j++){
-		int candidate=G(parentv,j);
-		for(int p=0; p<n; p++)
-		  if(matching[p]==candidate){
-		    found=true;
-		    break;
-		  }
-		if(!found){
-		  newv=candidate;
-		  psuedo_iterators[level]=j+1;
+	    int newv=-1;
+	    for(int j=0; j<m3; j++){
+	      int candidate=G(parentv,j);
+	      bool found=false; 
+	      for(int p=0; p<n; p++)
+		if(matching[p]==candidate){
+		  found=true;
 		  break;
 		}
+	      if(!found){
+		newv=candidate;
+		pseudo_iterators[level]=j+1;
+		break;
 	      }
+	    }
 	    if(newv>=0){
 	      w=Htraversal[level+1];
 	      v=newv;
@@ -172,11 +190,12 @@ namespace cnine{
 	    while(level>=0){
 	      int neww=Htraversal[level+1];
 	      int parentv=matching[parent_of[neww]];
-	      PTENS_ASSRT(parentv!=-1);
+	      CNINE_ASSRT(parentv!=-1);
 	      int m3=G.size_of(parentv);
 	      int newv=-1;
 	      for(int j=pseudo_iterators[level]; j<m3; j++){
 		int candidate=G(parentv,j);
+		bool found=false;
 		for(int p=0; p<n; p++)
 		  if(matching[p]==candidate){
 		    found=true;
@@ -184,7 +203,7 @@ namespace cnine{
 		  }
 		if(!found){
 		  newv=candidate;
-		  psuedo_iterators[level]=j+1;
+		  pseudo_iterators[level]=j+1;
 		  break;
 		}
 	      }
@@ -194,21 +213,23 @@ namespace cnine{
 		level++;
 		break;
 	      }
-	      matching[Htraversal[level]]=-1
+	      matching[Htraversal[level]]=-1;
 	      level--;
 	    }
 	  }
 
 	}
+      }
+      matches.resize0(nmatches);
+    }
+      
+  private:
+    
+    void add_match(vector<int> matching){
+      CNINE_ASSRT(matching.size()==n);
+      std::sort(matching.begin(),matching.end());
 
-
-      private:
-
-	add_match(vector<int> matching){
-	  CNINE_ASSRT(matching.size()==n);
-	  std::sort(matching.begin(),matching.end());
-
-	  for(int i=0; i<nmatches; i++){
+      for(int i=0; i<nmatches; i++){
 	    bool is_same=true;
 	    for(int j=0; j<n; j++)
 	      if(matches(i,j)!=matching[j]){
@@ -216,14 +237,18 @@ namespace cnine{
 		break;
 	      }
 	    if(is_same) return;
-	  }
+      }
+      
+      if(nmatches>matches.dim(0)-1)
+	matches.resize0(std::max(5,2*(nmatches+1)));
 
-	  CNINE_ASSRT(nmatches<matches.dim(0)-1);
-	  for(int j=0; j<n; j++)
-	    matches.set(nmatches,j,matching[j]);
-	  nmatches++;
-	}
+      for(int j=0; j<n; j++)
+	matches.set(nmatches,j,matching[j]);
+      nmatches++;
+    }
 
-      };
+  };
+
+}
 
 #endif 

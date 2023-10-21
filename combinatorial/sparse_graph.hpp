@@ -19,6 +19,7 @@
 #include "map_of_maps.hpp"
 #include "labeled_tree.hpp"
 #include "int_tree.hpp"
+#include "int_pool.hpp"
 
 
 namespace cnine{
@@ -175,12 +176,21 @@ namespace cnine{
       for(int i=0; i<n; i++){
 	auto it=data.find(i);
 	if(it!=data.end())
-	  for(auto p:*it)
+	  for(auto p:it->second)
 	    arr[tail++]=p.first;
 	arr[i+2]=tail;
       }
 
       return R;
+    }
+
+    sparse_graph(const int_pool& x){
+      n=x.getn();
+      for(int i=0; i<n; i++){
+	int m=x.size_of(i);
+	for(int j=0; j<m; j++)
+	  set(i,x(i,j),1.0);
+      }
     }
 
 
@@ -197,6 +207,10 @@ namespace cnine{
 
     bool is_labeled() const{
       return labeled;
+    }
+
+    int nneighbors(const int i) const{
+      return data[i].size();
     }
 
     bool is_neighbor(const KEY& i, const KEY& j) const{
@@ -253,42 +267,12 @@ namespace cnine{
       matched[root]=true;
       for(auto& p: BASE::data[root]){
 	if(!p.second) continue;
+	if(matched[p.first]) continue;
 	matched[p.first]=true;
 	r.children.push_back(greedy_spanning_tree(p.first,matched));
       }
       return r;
     }
-
-    int_tree spanning_tree_as_int_tree(int root=0) const{
-      int_tree r;
-      vector<bool> matched(n,false);
-
-      int m=0; for(auto& p: BASE::data[root]){m++;}
-      auto root_node=r.add_root(root,m);
-      matched[root]=true;
- 
-      int i=0;
-      for(auto& p: BASE::data[root])
-	spanning_tree_as_int_tree(root_node,i++,p.first,matched);
-      return r;
-    }
-    
-    void spanning_tree_as_int_tree(int_tree::node& parent, int i, int v, vector<bool>& matched){
-      matched[v]=true;
-      int m=0; 
-      for(auto& p: BASE::data[v])
-	if(!matched[p.first]) m++;
-      auto node=parent.add_child(i,v,m);
-
-      int j=0;
-      for(auto& p: BASE::data[v])
-	if(!matched[p.first])
-	  spanning_tree_as_int_tree(node,j++,p.first,matched);
-    }
-
-
-  private:
-
 
     labeled_tree<KEY>* greedy_spanning_tree(const int v, vector<bool>& matched) const{
       labeled_tree<KEY>* r=new labeled_tree<KEY>(v);
@@ -300,6 +284,41 @@ namespace cnine{
       }
       return r;
     }
+
+
+    /*
+    int_tree spanning_tree_as_int_tree(int root=0) const{
+      int_tree r;
+      vector<bool> matched(n,false);
+
+      matched[root]=true;
+      int m=0; 
+      for(auto& p: BASE::data[root]){
+	m++;}
+      auto root_node=r.add_root(root,m);
+ 
+      int i=0;
+      for(auto& p: BASE::data[root])
+	spanning_tree_as_int_tree(root_node,i++,p.first,matched);
+      return r;
+    }
+    
+    void spanning_tree_as_int_tree(int_tree::node& parent, int i, int v, vector<bool>& matched) const{
+      matched[v]=true;
+      int m=0; 
+      for(auto& p: BASE::data[v])
+	if(!matched[p.first]) m++;
+      auto node=parent.add_child(i,v,m);
+
+      int j=0;
+      for(auto& p: BASE::data[v])
+	if(!matched[p.first])
+	  spanning_tree_as_int_tree(node,j++,p.first,matched);
+    }
+    */
+
+
+  private:
 
 
   public: // ---- I/O -----------------------------------------------------------------------------------------

@@ -52,6 +52,7 @@ namespace cnine{
     //using TensorView<TYPE>::operator=;
     using TensorView<TYPE>::ndims;
     using TensorView<TYPE>::dim;
+    using TensorView<TYPE>::is_regular;
     using TensorView<TYPE>::set;
     using TensorView<TYPE>::row;
     using TensorView<TYPE>::transp;
@@ -277,6 +278,24 @@ public: // ---- Conversions ----------------------------------------------------
       if(dev==_dev) return;
       const_cast<Tensor&>(*this)=Tensor(*this,_dev);
     }
+
+
+  public: // ---- Resizing ----------------------------------------------------------------------------------
+
+
+  void resize0(const int n){
+    CNINE_ASSRT(ndims()>0);
+    //if(n<=dim(0)) return;
+    CNINE_ASSRT(is_regular());
+    if(n>=dim(0)){
+      Tensor T(MemArr<TYPE>(n*strides[0],dev),dims,strides);
+      T.block(dims)=*this;
+      auto temp=arr;
+      arr=T.arr;
+      T.arr=temp;
+    }
+    dims[0]=n;
+  }
 
 
   public: // ---- ATen --------------------------------------------------------------------------------------

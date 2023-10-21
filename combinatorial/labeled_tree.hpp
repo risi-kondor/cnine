@@ -15,6 +15,7 @@
 #define _labeled_tree
 
 #include "Cnine_base.hpp"
+#include "int_tree.hpp"
 
 
 namespace cnine{
@@ -55,6 +56,30 @@ namespace cnine{
       label(std::move(x.label)),
       children(std::move(x.children)){
       x.children.clear();
+    }
+
+
+  public: // ---- Conversions --------------------------------------------------------------------------------
+
+
+    int_tree as_int_tree() const{
+      int_tree r;
+
+      int m=children.size();
+      auto root=r.add_root(label,m);
+      for(int i=0; i<m; i++){
+	auto child=root.add_child(i,children[i]->label,children[i]->children.size());
+	children[i]->as_int_tree(child,i);
+      }
+      return r;
+    }
+
+    void as_int_tree(int_tree::node& node, const int i) const{
+      int m=children.size();
+      for(int i=0; i<m; i++){
+	auto child=node.add_child(i,children[i]->label,children[i]->children.size());
+	children[i]->as_int_tree(child,i);
+      }
     }
 
 

@@ -34,6 +34,8 @@ namespace cnine{
 	owner(_owner), ptr(_ptr){}
 
 
+
+
     public: // ---- Access ------------------------------------------------
 
 
@@ -51,7 +53,7 @@ namespace cnine{
 	
       node child(const int i) const{
 	CNINE_ASSRT(i<nchildren());
-	return owner->node_at(ptr+i+3);
+	return owner->node_at((*owner)[ptr+i+3]);
       }
 
       node add_child(const int i, const int v, const int n){
@@ -63,8 +65,10 @@ namespace cnine{
 	for(int i=0; i<n; i++)
 	  lambda(child(i));
       }
+
       
     public: // ---- I/O --------------------------------------------------
+
 
       string print_recursively(){
 	ostringstream oss;
@@ -86,7 +90,40 @@ namespace cnine{
   public: //---- Constructors --------------------------------
 
 
-    //int_tree(){}
+    /*
+    static int_tree spanning_tree(const int_pool& G, const int root=0){
+      int_tree r;
+      vector<bool> matched(G.getn(),false);
+
+      int m=G.size_of(root);
+      auto root_node=r.add_root(root,m);
+      matched[root]=true;
+ 
+      for(int i=0; i<m; i++){
+	cout<<i<<endl;
+	spanning_tree(G,root_node,i,G(root,i),matched);
+      }
+      return r;
+    }
+
+    static void spanning_tree(const int_pool& G, int_tree::node& parent, int i, int v, vector<bool>& matched){
+      matched[v]=true;
+      cout<<"vertex "<<v<<"  is child "<<i<<" of "<<parent.label()<<endl;
+
+      int t=0;
+      int m=G.size_of(v);
+      for(int i=0; i<m; i++)
+	if(!matched[G(v,i)]) t++;
+      auto node=parent.add_child(i,v,t);
+
+      t=0;
+      for(int i=0; i<m; i++){
+	//cout<<" "<<i<<endl;
+	if(!matched[G(v,i)])
+	  spanning_tree(G,node,t++,G(v,i),matched);
+      }
+    }
+    */
 
 
   public: //---- Copying -------------------------------------
@@ -129,7 +166,7 @@ namespace cnine{
       set(tail+2,parent);
       for(int i=0; i<n; i++)
 	set(tail+i+3,-1);
-
+      
       return node_at(tail);
     }
 
@@ -137,7 +174,7 @@ namespace cnine{
       lambda(node_at(p));
       int m=get(p+1);
       for(int i=0; i<m; i++)
-	lambda(node_at(p+3+i));
+	traverse(lambda,get(p+3+i));
     }
 
 
@@ -154,7 +191,7 @@ namespace cnine{
       r.push_back(get(p));
       int m=get(p+1);
       for(int i=0; i<m; i++)
-	depth_first_traversal(p+3+i,r);
+	depth_first_traversal(get(p+3+i),r);
     }
 
     /*
@@ -183,6 +220,10 @@ namespace cnine{
       oss<<root().print_recursively();
       return oss.str();
     }
+
+    friend ostream& operator<<(ostream& stream, int_tree& x){
+      stream<<x.str(); return stream;}
+
 
   };
 

@@ -61,6 +61,10 @@ namespace cnine{
   public: // ---- Access ---------------------------------------------------
 
 
+    int getn() const{
+      return n;
+    }
+
     int tail() const{
       return arr[last+2];
     }
@@ -92,6 +96,30 @@ namespace cnine{
       last++;
       return arr[last+1];
     }
+
+
+  public: // ---- I/O -----------------------------------------------------------------------------------------
+
+
+    string classname() const{
+      return "int_pool";
+    }
+
+    string str(const string indent="") const{
+      ostringstream oss;
+      for(int i=0; i<n; i++){
+	oss<<indent<<i<<":(";
+	for(int j=0; j<size_of(i); j++)
+	  oss<<(*this)(i,j)<<",";
+	if(size_of(i)>0) oss<<"\b";
+	oss<<")"<<endl;
+      //if(is_labeled) oss<<labels.str(indent+"  ")<<endl;
+      }
+      return oss.str();
+    }
+
+    friend ostream& operator<<(ostream& stream, const int_pool& x){
+      stream<<x.str(); return stream;}
 
   };
 
