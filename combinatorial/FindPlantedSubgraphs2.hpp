@@ -24,6 +24,10 @@
 
 namespace cnine{
 
+#ifdef _WITH_CUDA
+  extern Tensor<int> FindPlantedSubgraphs_cu(const int_pool&, int_pool&, const cudaStream_t&);
+#endif 
+
 
   template<typename LABEL=int>
   class FindPlantedSubgraphs2{
@@ -51,15 +55,19 @@ namespace cnine{
   public:
 
 
-    FindPlantedSubgraphs2(const sparse_graph<int,float,LABEL>& G, const sparse_graph<int,float,LABEL>& H):
-      FindPlantedSubgraphs2(G.as_int_pool(),H.as_int_pool()){}
+    FindPlantedSubgraphs2(const sparse_graph<int,float,LABEL>& G, const sparse_graph<int,float,LABEL>& H, const int _dev=0):
+      FindPlantedSubgraphs2(G.as_int_pool(),H.as_int_pool(),_dev){}
 
 
-    FindPlantedSubgraphs2(const Graph& G, Graph& H):
+    FindPlantedSubgraphs2(const Graph& G, Graph& H, const int _dev=0):
       //G(_G), 
       n(H.getn()),
       matches({10,H.getn()},fill_zero()){
-      
+
+      if(_dev>0){
+	CUDA_STREAM(matches=FindPlantedSubgraphs_cu(G,H));
+	return;
+      }
 
       sparse_graph<int,float,LABEL> Hsg(H);
       int_tree Htree=Hsg.greedy_spanning_tree().as_int_tree();
@@ -222,6 +230,7 @@ namespace cnine{
       }
       matches.resize0(nmatches);
     }
+
       
   private:
     

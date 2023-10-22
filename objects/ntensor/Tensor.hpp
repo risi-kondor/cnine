@@ -146,6 +146,23 @@ namespace cnine{
     }
     */ 
 
+  Tensor(const initializer_list<initializer_list<TYPE> >& list, const int _dev=0){
+    int n0=list.size();
+    CNINE_ASSRT(n0>0);
+    int n1=list.begin()->size();
+    Tensor<TYPE> T(Gdims(n0,n1)); 
+    int i=0;
+    for(auto& p: list){
+      int j=0;
+      for(auto& q: p)
+	T.set(i,j++,q);
+      i++;
+    }
+    if(_dev>0) T.move_to_device(_dev);
+    (*this)=T;
+  }
+
+
   public: // ---- Named constructors ------------------------------------------------------------------------
 
 

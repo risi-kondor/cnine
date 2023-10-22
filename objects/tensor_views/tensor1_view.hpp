@@ -28,6 +28,7 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
+  template<typename TYPE>
   class tensor1_view;
 
   #ifdef _WITH_CUDA
@@ -39,10 +40,11 @@ namespace cnine{
   #endif 
 
 
+  template<typename TYPE>
   class tensor1_view{
   public:
 
-    float* arr;
+    TYPE* arr;
     int n0;
     int s0;
     int dev=0;
@@ -51,13 +53,13 @@ namespace cnine{
 
     tensor1_view(){}
 
-    tensor1_view(float* _arr): 
+    tensor1_view(TYPE* _arr): 
       arr(_arr){}
 
-    tensor1_view(float* _arr, const int _n0, const int _s0, const int _dev=0): 
+    tensor1_view(TYPE* _arr, const int _n0, const int _s0, const int _dev=0): 
       arr(_arr), n0(_n0), s0(_s0), dev(_dev){}
 
-    tensor1_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
+    tensor1_view(TYPE* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
       arr(_arr), dev(_dev){
       assert(_dims.size()==1);
       n0=_dims[0];
@@ -94,7 +96,7 @@ namespace cnine{
       return Gstrides(s0);
     }
 
-    virtual float operator()(const int i0) const{
+    virtual TYPE operator()(const int i0) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=n0) 
 	  throw std::out_of_range("cnine::tensor1_view: index "+Gindex({i0}).str()+" out of range of view size "+Gdims({n0}).str()));
       CPUCODE(return arr[s0*i0]);
@@ -102,23 +104,36 @@ namespace cnine{
       return 0;
     }
 
-    void set(const int i0, float x) const{
+    void set(const int i0, TYPE x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=n0) 
 	  throw std::out_of_range("cnine::tensor1_view: index "+Gindex({i0}).str()+" out of range of view size "+Gdims({n0}).str()));
       CPUCODE(arr[s0*i0]=x);
       GPUCODE(Rtensor_set_cu(arr+s0*i0,x));
     }
 
-    void inc(const int i0, float x) const{
+    void inc(const int i0, TYPE x) const{
       CNINE_CHECK_RANGE(if(i0<0 || i0>=n0) 
 	  throw std::out_of_range("cnine::tensor1_view: index "+Gindex({i0}).str()+" out of range of view size "+Gdims({n0}).str()));
       arr[s0*i0]+=x;
       GPUCODE(Rtensor_inc_cu(arr+s0*i0,x));
     }
 
-    float sum() const{
+    bool operator<(const tensor1_view& y) const{
+      CNINE_ASSRT(n0==y.n0);
+      for(int i=0; i<n0; i++){
+	if(*(arr+i*s0)<*(y.arr+i*y.s0)) return true;
+	if(*(arr+i*s0)>*(y.arr+i*y.s0)) return false;
+      }
+      return false;
+    }
+
+
+  public: // ---- Operations --------------------------------------------------------------------------------
+
+
+    TYPE sum() const{
       CNINE_CPUONLY();
-      float t=0;
+      TYPE t=0;
       for(int i=0; i<n0; i++)
 	t+=arr[i*s0];
       return t;
@@ -128,11 +143,7 @@ namespace cnine{
       return tensor1_view(arr+i0*s0,m0,s0,dev);
     }
 
-
-  public: // ---- Operations --------------------------------------------------------------------------------
-
-
-    void set(const float v){
+    void set(const TYPE v){
       CNINE_CPUONLY();
       for(int i=0; i<n0; i++)
 	arr[i*s0]=v;
@@ -143,7 +154,7 @@ namespace cnine{
       assert(x.n0==n0);
       if(is_regular() && x.is_regular()){
 	CPUCODE(std::copy(x.arr,x.arr+n0,arr));
-	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*sizeof(float),cudaMemcpyDeviceToDevice)));
+	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*sizeof(TYPE),cudaMemcpyDeviceToDevice)));
       }else{
 	CPUCODE(for(int i0=0; i0<n0; i0++) set(i0,x(i0)));
 	GPUCODE(CUDA_STREAM(Rtensor_copy_cu(*this,x,stream)));
@@ -154,7 +165,7 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
-    void add(const float v){
+    void add(const TYPE v){
       CNINE_CPUONLY();
       for(int i=0; i<n0; i++)
 	arr[i*s0]+=v;
@@ -164,11 +175,11 @@ namespace cnine{
       CNINE_DEVICE_SAME(x);
       assert(x.n0==n0);
       if(is_regular() && x.is_regular()){
-	CPUCODE(stdadd<float>(x.arr,x.arr+n0,arr));
-	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,1,arr,1)));
+	CPUCODE(stdadd<TYPE>(x.arr,x.arr+n0,arr));
+	GPUCODE(const TYPE alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,1,arr,1)));
       }else{
 	CPUCODE(for(int i0=0; i0<n0; i0++) set(i0,x(i0)));
-	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,x.s0,arr,s0)));
+	GPUCODE(const TYPE alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,x.s0,arr,s0)));
       }
     }
 
@@ -180,8 +191,8 @@ namespace cnine{
   public: // ---- Reductions --------------------------------------------------------------------------------
 
 
-    float reduce() const{
-      float t=0;
+    TYPE reduce() const{
+      TYPE t=0;
       CPUCODE(for(int i=0; i<n0; i++) t+=arr[i*s0]);
       GPUCODE(CUBLAS_SAFE(cublasSasum(cnine_cublas,n0,arr,s0,&t)));
       return t;
@@ -191,7 +202,7 @@ namespace cnine{
   public: // ---- Broadcasting ------------------------------------------------------------------------------
 
 
-    void broadcast(const float v){
+    void broadcast(const TYPE v){
       assert(is_regular());
       CNINE_CPUONLY();
       CPUCODE(std::fill_n(arr,n0,v));
@@ -201,8 +212,8 @@ namespace cnine{
   public: // ---- Conversions -------------------------------------------------------------------------------
 
     
-    Gtensor<float> gtensor() const{
-      Gtensor<float> R({n0},fill::raw);
+    Gtensor<TYPE> gtensor() const{
+      Gtensor<TYPE> R({n0},fill::raw);
       for(int i0=0; i0<n0; i0++)
 	R(i0)=(*this)(i0);
       return R;
@@ -228,12 +239,28 @@ namespace cnine{
   };
 
 
-  inline tensor1_view repeat0(const float x, const int n){
-    float* arr=new float[1];
+  template<typename TYPE>
+  inline tensor1_view<TYPE> repeat0(const TYPE x, const int n){
+    TYPE* arr=new TYPE[1];
     *arr=x;
     return tensor1_view(arr,n,0,0);
   }
 
+}
+
+
+namespace std{
+
+  template<typename TYPE>
+  struct hash<cnine::tensor1_view<TYPE> >{
+  public:
+    size_t operator()(const cnine::tensor1_view<TYPE>& x) const{
+      size_t t=hash<int>()(x.n0);
+      for(int i=0; i<x.n0; i++)
+	t=(t^hash<TYPE>()(*(x.arr+i*x.s0)))<<1;
+      return t;
+    }
+  };
 }
 
 
