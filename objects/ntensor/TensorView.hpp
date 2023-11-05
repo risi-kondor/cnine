@@ -58,7 +58,7 @@ namespace cnine{
   template<typename TYPE>
   class TensorView;
 
-  // this is the proposed solution to the multiply defined functions problem
+  // this is the multiply defined functions problem
   inline Itensor1_view view1_of(const TensorView<int>& x);
   inline Rtensor1_view view1_of(const TensorView<float>& x);
   inline Ctensor1_view view1_of(const TensorView<complex<float> >& x);

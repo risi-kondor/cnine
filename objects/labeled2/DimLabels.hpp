@@ -36,13 +36,7 @@ namespace cnine{
     }
 
 
-  public: // ---- Access ------------------------------------------------------------------------------------
-
-
-    DimLabels& set_batched(const bool x){
-      _batched=x;
-      return *this;
-    }
+  public: // ---- Batched -----------------------------------------------------------------------------------
 
 
     int nbatch(const Gdims& dims) const{
@@ -50,10 +44,14 @@ namespace cnine{
       else return 0;
     }
 
-    // deprecated 
-    Gdims adims(const Gdims& dims) const{
-      return dims.chunk(_batched,_narray);
+    DimLabels& set_batched(const bool x){
+      _batched=x;
+      return *this;
     }
+
+
+  public: // ---- Grid --------------------------------------------------------------------------------------
+
 
     Gdims gdims(const Gdims& dims) const{
       return dims.chunk(_batched,_narray);
@@ -63,9 +61,35 @@ namespace cnine{
       return x.chunk(_batched,_narray);
     }
 
+    DimLabels& set_ngrid(const int x){
+      _narray=x;
+      return *this;
+    }
 
-    Gdims ddims(const Gdims& dims) const{
-      return dims.chunk(_narray+_batched);
+
+  public: // ---- Cells --------------------------------------------------------------------------------------
+
+
+    Gdims cdims(const Gdims& x) const{
+      return x.chunk(_batched+_narray);
+    }
+
+    GstridesB cstrides(const GstridesB& x) const{
+      return x.chunk(_batched+_narray);
+    }
+
+
+  public: // ---- Batched cells ------------------------------------------------------------------------------
+
+
+    Gdims bcdims(const Gdims& x) const{
+      if(!_batched) return x.chunk(_narray);
+      return x.chunk(1+_narray).prepend(x[0]);
+    }
+
+    GstridesB bcstrides(const GstridesB& x) const{
+      if(!_batched) return x.chunk(_narray);
+      return x.chunk(1+_narray).prepend(x[0]);
     }
 
 
@@ -81,8 +105,8 @@ namespace cnine{
       
       oss<<"[";
       if(_batched) oss<<"nbatch="<<nbatch(dims)<<",";
-      if(_narray>0) oss<<"blocks="<<adims(dims)<<",";
-      oss<<"dims="<<ddims(dims)<<" ";
+      if(_narray>0) oss<<"blocks="<<gdims(dims)<<",";
+      oss<<"dims="<<cdims(dims)<<" ";
       oss<<"\b]";
       return oss.str();
     }
@@ -92,3 +116,13 @@ namespace cnine{
 }
 
 #endif
+    // deprecated 
+    //Gdims adims(const Gdims& dims) const{
+    //return dims.chunk(_batched,_narray);
+    //}
+
+    //Gdims ddims(const Gdims& x) const{
+    //if(!_batched) return x.chunk(_narray);
+    //return x.chunk(1+_narray);
+    //}
+
