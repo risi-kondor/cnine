@@ -34,6 +34,10 @@ namespace cnine{
 
     TensorSpecBase(){}
 
+    //TensorSpecBase(const int __fcode){
+    //_fcode=__fcode;
+    //}
+
     TensorSpecBase(const Gdims& dims, const DimLabels& labels, const int d){
       if(labels._batched) nbatch=dims[0];
       adims=dims.chunk(labels._batched,labels._narray);
@@ -48,13 +52,17 @@ namespace cnine{
     SPEC batch(const int b) {nbatch=b; return *this;}
     SPEC batches(const int b) {nbatch=b; return *this;}
 
-    SPEC blocks(const initializer_list<int>& v) {adims=Gdims(v); return *this;}
-    SPEC blocks(const vector<int>& v) {adims=Gdims(v); return *this;}
-    SPEC blocks(const Gdims& v) {adims=v; return *this;}
+    SPEC grid(const initializer_list<int>& v) {adims=Gdims(v); return *this;}
+    SPEC grid(const vector<int>& v) {adims=Gdims(v); return *this;}
+    SPEC grid(const Gdims& v) {adims=v; return *this;}
 
-    SPEC array(const initializer_list<int>& v) {adims=Gdims(v); return *this;}
-    SPEC array(const vector<int>& v) {adims=Gdims(v); return *this;}
-    SPEC array(const Gdims& v) {adims=v; return *this;}
+    //SPEC blocks(const initializer_list<int>& v) {adims=Gdims(v); return *this;}
+    //SPEC blocks(const vector<int>& v) {adims=Gdims(v); return *this;}
+    //SPEC blocks(const Gdims& v) {adims=v; return *this;}
+
+    //SPEC array(const initializer_list<int>& v) {adims=Gdims(v); return *this;}
+    //SPEC array(const vector<int>& v) {adims=Gdims(v); return *this;}
+    //SPEC array(const Gdims& v) {adims=v; return *this;}
 
     SPEC dims(const initializer_list<int>& v) {ddims=Gdims(v); return *this;}
     SPEC dims(const vector<int>& v) {ddims=Gdims(v); return *this;}
@@ -67,6 +75,7 @@ namespace cnine{
     SPEC ones() {_fcode=2; return *this;}
     SPEC sequential() {_fcode=3; return *this;}
     SPEC gaussian() {_fcode=4; return *this;}
+    SPEC fcode(const int x) {_fcode=x; return *this;}
 
     SPEC dev(const int i) {_dev=i; return *this;}
 
