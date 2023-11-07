@@ -25,7 +25,7 @@ namespace cnine{
   class TensorSpecBase{
   public:
 
-    Gdims adims;
+    mutable Gdims adims;
     Gdims ddims;
     int nbatch=0;
     int _fcode=0;

@@ -231,8 +231,12 @@ namespace cnine{
 
 
     GstridesB transp() const{
-      CNINE_ASSRT(size()==2);
-      return GstridesB((*this)[1],(*this)[0]); //.set_offset(offset);
+      int len=size();
+      CNINE_ASSRT(len>=2);
+      if(len==2) return GstridesB((*this)[1],(*this)[0]);
+      Gdims r(*this);
+      std::swap(r[len-2],r[len-1]);
+      return r;
     }
 
     GstridesB permute(const vector<int>& p) const{

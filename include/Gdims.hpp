@@ -304,8 +304,12 @@ namespace cnine{
     }
 
     Gdims transp() const{
-      assert(size()==2);
-      return Gdims((*this)[1],(*this)[0]);
+      int len=size();
+      assert(len>=2);
+      if(len==2) return Gdims((*this)[1],(*this)[0]);
+      Gdims r(*this);
+      std::swap(r[len-2],r[len-1]);
+      return r;
     }
 
     Gdims transpose() const{

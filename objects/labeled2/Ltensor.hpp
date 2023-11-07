@@ -27,6 +27,9 @@ namespace cnine{
   template<typename TYPE>
   class Ltensor;
 
+  inline Itensor2_view batch_grid_fused_view2_of(const Ltensor<int>& x);
+  inline Rtensor2_view batch_grid_fused_view2_of(const Ltensor<float>& x);
+  inline Ctensor2_view batch_grid_fused_view2_of(const Ltensor<complex<float> >& x);
   inline Itensor3_view batch_grid_fused_view3_of(const Ltensor<int>& x);
   inline Rtensor3_view batch_grid_fused_view3_of(const Ltensor<float>& x);
   inline Ctensor3_view batch_grid_fused_view3_of(const Ltensor<complex<float> >& x);
@@ -113,10 +116,9 @@ namespace cnine{
     //return batch_grid_fused_view1_of(*this);
     //}
 
-    //auto batch_grid_fused_view2() const -> decltype(batch_grid_fused_view2_of(*this)){
-    //CNINE_ASSRT(ndims()==2);
-    //return batch_grid_fused_view2_of(*this);
-    //}
+    auto batch_grid_fused_view2() const -> decltype(batch_grid_fused_view2_of(*this)){
+      return batch_grid_fused_view2_of(*this);
+    }
 
     auto bgfused_view3() const -> decltype(batch_grid_fused_view3_of(*this)){
       return batch_grid_fused_view3_of(*this);
@@ -171,8 +173,17 @@ namespace cnine{
       return labels._narray;
     }
 
+    int nbgdims() const{
+      return labels._batched+labels._narray;
+    }
+
     Gdims gdims() const{
       return labels.gdims(dims);
+    }
+
+    int total_bgdims() const{
+      if(nbgdims()==0) return 1;
+      return dims[0]*strides[0]/strides[nbgdims()-1];
     }
 
     GstridesB gstrides() const{
@@ -184,19 +195,37 @@ namespace cnine{
       return strides[nbgdims()-1];
     }
 
-
-  public: // ---- Batch & Grid  ------------------------------------------------------------------------------
-
-
-    int nbgdims() const{
-      return labels._batched+labels._narray;
+    Ltensor cell(const Gindex& ix) const{
+      CNINE_ASSRT(!is_batched());
+      CNINE_ASSRT(ix.size()==labels._narray);
+      if(is_batched()) 
+	return Ltensor(arr+gstrides().offs(ix),bcdims(),bcstrides(),labels.copy().set_ngrid(0));
+      else 
+	return Ltensor(arr+gstrides().offs(ix),cdims(),cstrides(),labels.copy().set_ngrid(0));
     }
 
-    int total_bgdims() const{
-      if(nbgdims()==0) return 1;
-      return dims[0]*strides[0]/strides[nbgdims()-1];
+    Ltensor cell(const int b, const Gindex& ix) const{
+      CNINE_ASSRT(is_batched());
+      CNINE_ASSRT(b<nbatch());
+      CNINE_ASSRT(ix.size()==labels._narray);
+      return Ltensor(arr+strides[0]*b+gstrides().offs(ix),cdims(),cstrides(),labels.copy().set_batched(false).set_ngrid(0));
     }
 
+    void for_each_cell(const std::function<void(const Gindex&, const Ltensor& x)>& lambda) const{
+      CNINE_ASSRT(!is_batched());
+      gdims().for_each_index([&](const vector<int>& ix){
+	  lambda(ix,cell(ix));
+	});
+    }
+    
+    void for_each_cell(const std::function<void(const int b, const Gindex&, const Ltensor& x)>& lambda) const{
+      CNINE_ASSRT(is_batched());
+      for(int b=0; b<nbatch(); b++)
+	gdims().for_each_index([&](const vector<int>& ix){
+	    lambda(b,ix,cell(b,ix));
+	});
+    }
+    
 
   public: // ---- Cells --------------------------------------------------------------------------------------
 
@@ -223,34 +252,6 @@ namespace cnine{
       return strides[nbgdims()+i];
     }
 
-    Ltensor cell(const Gindex& ix) const{
-      CNINE_ASSRT(!is_batched());
-      CNINE_ASSRT(ix.size()==labels._narray);
-      return Ltensor(arr+gstrides().offs(ix),cdims(),cstrides(),labels.copy().set_ngrid(0));
-    }
-
-    Ltensor cell(const int b, const Gindex& ix) const{
-      CNINE_ASSRT(is_batched());
-      CNINE_ASSRT(b<nbatch());
-      CNINE_ASSRT(ix.size()==labels._narray+1);
-      return Ltensor(arr+strides[0]*b+gstrides().offs(ix),cdims(),cstrides(),labels.copy().set_batched(false).set_ngrid(0));
-    }
-
-    void for_each_cell(const std::function<void(const Gindex&, const Ltensor& x)>& lambda) const{
-      CNINE_ASSRT(!is_batched());
-      gdims().for_each_index([&](const vector<int>& ix){
-	  lambda(ix,cell(ix));
-	});
-    }
-    
-    void for_each_cell(const std::function<void(const int b, const Gindex&, const Ltensor& x)>& lambda) const{
-      CNINE_ASSRT(is_batched());
-      for(int b=0; b<nbatch(); b++)
-	gdims().for_each_index([&](const vector<int>& ix){
-	    lambda(b,ix,cell(b,ix));
-	});
-    }
-    
 
   public: // ---- Batched cells ------------------------------------------------------------------------------
 
@@ -268,14 +269,6 @@ namespace cnine{
       return Ltensor(arr+gstrides().offs(ix),bcdims(),bcstrides(),labels.copy().set_ngrid(0));
     }
 
-    void for_each_batched_cell(const std::function<void(const Gindex&, const Ltensor& x)>& lambda) const{
-      gdims().for_each_index([&](const vector<int>& ix){
-	  lambda(ix,batched_cell(ix));
-	});
-    }
-    
-
-    
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
@@ -328,6 +321,26 @@ namespace cnine{
 
 
   // ---- View converters ----------------------------------------------------
+
+
+  inline Itensor2_view batch_grid_fused_view2_of(const Ltensor<int>& x){
+    CNINE_ASSRT(x.ttype()==Ltensor<int>::batch_grid_cell);
+    CNINE_ASSRT(x.ncdims()==1);
+    return Itensor2_view(x.mem(),x.total_bgdims(),x.cdim(0),x.min_gstride(),x.cstride(0),x.dev);
+  }
+
+  inline Rtensor2_view batch_grid_fused_view2_of(const Ltensor<float>& x){
+    CNINE_ASSRT(x.ttype()==Ltensor<float>::batch_grid_cell);
+    CNINE_ASSRT(x.ncdims()==1);
+    return Rtensor2_view(x.mem(),x.total_bgdims(),x.cdim(0),x.min_gstride(),x.cstride(0),x.dev);
+  }
+
+  inline Ctensor2_view batch_grid_fused_view2_of(const Ltensor<complex<float> >& x){
+    CNINE_ASSRT(x.ttype()==Ltensor<complex<float> >::batch_grid_cell);
+    CNINE_ASSRT(x.ncdims()==1);
+    return Ctensor2_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
+      x.total_bgdims(),x.cdim(0),2*x.min_gstride(),2*x.cstride(0),x.dev);
+  }
 
 
   inline Itensor3_view batch_grid_fused_view3_of(const Ltensor<int>& x){
