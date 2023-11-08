@@ -38,10 +38,6 @@ namespace cnine{
     //for(auto p:x) if(p>=0) push_back(p);
     //}
 
-    //GdimsPack(const initializer_list<int>& x){
-    //for(auto p:x) if(p>=0) push_back(p);
-    //}
-
     GdimsPack(const Gdims& i0): vector<Gdims>(1){
       (*this)[0]=i0;
     }
@@ -62,6 +58,12 @@ namespace cnine{
       (*this)[1]=i1;
       (*this)[2]=i2;
       (*this)[3]=i3;
+    }
+
+
+    GdimsPack(const initializer_list<initializer_list<int> >& x){
+      for(auto& p:x) 
+	push_back(Gdims(p));
     }
 
 
@@ -152,7 +154,7 @@ namespace cnine{
       for(int i=0; i<k; i++){
 	oss<<(*this)[i];
 	if(i<k-1) oss<<",";
-      }
+        }
       oss<<")";
       */
      return oss.str();

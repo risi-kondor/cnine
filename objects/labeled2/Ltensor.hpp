@@ -1,7 +1,7 @@
 /*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
- * Copyright (c) 2021, Imre Risi Kondor
+ * Copyright (c) 2023, Imre Risi Kondor
  *
  * This source code file is subject to the terms of the noncommercial 
  * license distributed with cnine in the file LICENSE.TXT. Commercial 
@@ -18,7 +18,7 @@
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
 #include "DimLabels.hpp"
-#include "TensorSpec.hpp"
+#include "LtensorSpec.hpp"
 
 
 namespace cnine{
@@ -68,20 +68,20 @@ namespace cnine{
       labels(_labels){}
 
 
-  public: // ---- TensorSpec --------------------------------------------------------------------------------
+  public: // ---- LtensorSpec --------------------------------------------------------------------------------
 
 
-    Ltensor(const TensorSpec<TYPE>& g):
+    Ltensor(const LtensorSpec<TYPE>& g):
       Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
 
-    static TensorSpec<TYPE> make() {return TensorSpec<TYPE>();}
-    static TensorSpec<TYPE> raw() {return TensorSpec<TYPE>().raw();}
-    static TensorSpec<TYPE> zero() {return TensorSpec<TYPE>().zero();}
-    static TensorSpec<TYPE> sequential() {return TensorSpec<TYPE>().sequential();}
-    static TensorSpec<TYPE> gaussian() {return TensorSpec<TYPE>().gaussian();}
+    static LtensorSpec<TYPE> make() {return LtensorSpec<TYPE>();}
+    static LtensorSpec<TYPE> raw() {return LtensorSpec<TYPE>().raw();}
+    static LtensorSpec<TYPE> zero() {return LtensorSpec<TYPE>().zero();}
+    static LtensorSpec<TYPE> sequential() {return LtensorSpec<TYPE>().sequential();}
+    static LtensorSpec<TYPE> gaussian() {return LtensorSpec<TYPE>().gaussian();}
     
-    TensorSpec<TYPE> spec() const{
-      return TensorSpec<TYPE>(dims,labels,dev);
+    LtensorSpec<TYPE> spec() const{
+      return LtensorSpec<TYPE>(dims,labels,dev);
     }
 
 

@@ -14,7 +14,7 @@
 
 #include "Cnine_base.cpp"
 #include "CnineSession.hpp"
-#include "Ltensor.hpp"
+#include "LtensorPack.hpp"
 
 using namespace cnine;
 
@@ -24,17 +24,11 @@ int main(int argc, char** argv){
   cnine_session session;
 
   
-  Ltensor<float> A(TensorSpec<float>().batch(2).dims({2,2}).sequential());
-
-  Ltensor<float> B=Ltensor<float>::gaussian().batch(2).dims({2,2});
-
-  auto C=Ltensor<float>::zero().batch(2).dims({2,2})();
-
-
-  cout<<A<<endl;
+  LtensorPack<float> B=LtensorPack<float>::gaussian().batch(2).dims({{1,1},{2,2},{3,3}});
   cout<<B<<endl;
-  cout<<C<<endl;
 
+  auto C=LtensorPack<float>::zero().batch(2).dims({{2,2}})();
+  cout<<C<<endl;
   
 
 }

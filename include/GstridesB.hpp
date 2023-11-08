@@ -234,7 +234,7 @@ namespace cnine{
       int len=size();
       CNINE_ASSRT(len>=2);
       if(len==2) return GstridesB((*this)[1],(*this)[0]);
-      Gdims r(*this);
+      GstridesB r(*this);
       std::swap(r[len-2],r[len-1]);
       return r;
     }

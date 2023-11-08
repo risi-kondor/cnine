@@ -116,13 +116,4 @@ namespace cnine{
 }
 
 #endif
-    // deprecated 
-    //Gdims adims(const Gdims& dims) const{
-    //return dims.chunk(_batched,_narray);
-    //}
-
-    //Gdims ddims(const Gdims& x) const{
-    //if(!_batched) return x.chunk(_narray);
-    //return x.chunk(1+_narray);
-    //}
 
