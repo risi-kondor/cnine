@@ -11,34 +11,30 @@
  *
  */
 
-#ifndef _CnineLtensorPackSpec
-#define _CnineLtensorPackSpec
+#ifndef _CnineLtensorApackSpec
+#define _CnineLtensorApackSpec
 
 #include "Cnine_base.hpp"
-#include "GdimsPack.hpp"
+#include "Gdims.hpp"
 #include "DimLabels.hpp"
 
 
 namespace cnine{
 
-  template<typename TYPE>
-  class LtensorPack;
-
-
-  template<typename SPEC>
-  class LtensorPackSpecBase{
+  template<typename KEY, typename SPEC>
+  class LtensorApackSpecBase{
   public:
 
     int nbatch=0;
     Gdims gdims;
-    GdimsPack ddims;
-    int _fcode=0;
+    map<KEY,Gdims> ddims;
+    int fcode=0;
     int _dev=0;
 
 
-    LtensorPackSpecBase(){}
+    LtensorApackSpecBase(){}
 
-    LtensorPackSpecBase(const int _nbatch, const Gdims& _gdims, const GdimsPack& _ddims, const int __dev=0):
+    LtensorApackSpecBase(const int _nbatch, const Gdims& _gdims, const map<KEY,Gdims>& _ddims, const int __dev=0):
       nbatch(_nbatch),
       gdims(_gdims),
       ddims(_ddims),
@@ -48,24 +44,22 @@ namespace cnine{
   public: // ---- Construction ------------------------------------------------------------------------------
 
 
-    SPEC batch(const int b) {nbatch=b; return *this;}
+    SPEC batch(const int b) {nbatch=b; return static_cast<SPEC&>(*this);}
 
-    SPEC grid(const initializer_list<int>& v) {gdims=Gdims(v); return *this;}
-    SPEC grid(const vector<int>& v) {gdims=Gdims(v); return *this;}
-    SPEC grid(const Gdims& v) {gdims=v; return *this;}
+    SPEC grid(const initializer_list<int>& v) {gdims=Gdims(v); return static_cast<SPEC&>(*this);}
+    SPEC grid(const vector<int>& v) {gdims=Gdims(v); return static_cast<SPEC&>(*this);}
+    SPEC grid(const Gdims& v) {gdims=v; return static_cast<SPEC&>(*this);}
 
-    SPEC dims(const initializer_list<initializer_list<int> >& v) {ddims=GdimsPack(v); return *this;}
-    SPEC dims(const vector<vector<int> >& v) {ddims=GdimsPack(v); return *this;}
-    SPEC dims(const GdimsPack& v) {ddims=v; return *this;}
+    SPEC dims(const map<KEY,Gdims>& v) {ddims=v; return static_cast<SPEC&>(*this);}
     
-    SPEC zero() {_fcode=0; return *this;}
-    SPEC raw() {_fcode=1; return *this;}
-    SPEC ones() {_fcode=2; return *this;}
-    SPEC sequential() {_fcode=3; return *this;}
-    SPEC gaussian() {_fcode=4; return *this;}
-    SPEC fcode(const int x) {_fcode=x; return *this;}
+    SPEC zero() {fcode=0; return static_cast<SPEC&>(*this);}
+    SPEC raw() {fcode=1; return static_cast<SPEC&>(*this);}
+    SPEC ones() {fcode=2; return static_cast<SPEC&>(*this);}
+    SPEC sequential() {fcode=3; return static_cast<SPEC&>(*this);}
+    SPEC gaussian() {fcode=4; return static_cast<SPEC&>(*this);}
+    SPEC fill(const int x) {fcode=x; return static_cast<SPEC&>(*this);}
 
-    SPEC dev(const int i) {_dev=i; return *this;}
+    SPEC dev(const int i) {_dev=i; return static_cast<SPEC&>(*this);}
 
 
   public: // ---- Access ------------------------------------------------------------------------------------
@@ -79,7 +73,7 @@ namespace cnine{
       return gdims;
     }
 
-    GdimsPack get_ddims() const{
+    map<KEY,Gdims> get_ddims() const{
       return ddims;
     }
 
@@ -91,7 +85,7 @@ namespace cnine{
     }
 
     int get_fcode() const{
-      return _fcode;
+      return fcode;
     }
 
     int get_dev() const{
@@ -113,31 +107,30 @@ namespace cnine{
       return oss.str();
     }
 
-    friend ostream& operator<<(ostream& stream, const LtensorPackSpecBase<SPEC>& x){
+    friend ostream& operator<<(ostream& stream, const LtensorApackSpecBase& x){
       stream<<x.str(); return stream;
     }
 
   };
 
 
-  template<typename TYPE>
-  class LtensorPackSpec: public LtensorPackSpecBase<LtensorPackSpec<TYPE>>{
+  template<typename KEY, typename TYPE>
+  class LtensorApack;
+  
+  template<typename KEY, typename TYPE>
+  class LtensorApackSpec: public LtensorApackSpecBase<KEY,LtensorApackSpec<KEY,TYPE> >{
   public:
-
-    typedef LtensorPackSpecBase<LtensorPackSpec<TYPE>> BASE;
-    using BASE::BASE;
-    LtensorPackSpec(){}
-    LtensorPackSpec(const BASE& x): BASE(x){}
-
-    LtensorPack<TYPE> operator()(){
-      return LtensorPack<TYPE>(*this);
-    }
     
+    typedef LtensorApackSpecBase<KEY,LtensorApackSpec<KEY,TYPE> > BASE;
+    using BASE::BASE;
+
+
+    LtensorApack<KEY,TYPE> operator()() const{
+      return LtensorApack<KEY,TYPE>(*this);
+    }
+
   };
 
 }
 
 #endif 
-
-
-

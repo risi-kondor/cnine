@@ -95,6 +95,7 @@ namespace cnine{
     Ltensor& operator=(const Ltensor& x){
       BASE::operator=(x);
       labels=x.labels;
+      return *this;
     }
     
     Ltensor copy() const{
@@ -270,6 +271,10 @@ namespace cnine{
     }
 
 
+  public: // ---- Operations --------------------------------------------------------------------------------
+
+
+
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
@@ -279,7 +284,13 @@ namespace cnine{
 
     string repr() const{
       ostringstream oss;
-      oss<<"Ltensor"<<labels.str(dims)<<"["<<dev<<"]";
+      //oss<<"Ltensor"<<labels.str(dims); //<<"["<<dev<<"]";
+      oss<<"Ltensor(";
+      if(is_batched()) oss<<"b="<<nbatch()<<",";
+      if(is_grid()) oss<<"grid="<<gdims()<<",";
+      oss<<"dim="<<cdims()<<",";
+      if(dev>0) oss<<"dev="<<dev<<",";
+      oss<<"\b)";
       return oss.str();
     }
 
@@ -360,6 +371,18 @@ namespace cnine{
     CNINE_ASSRT(x.ncdims()==2);
     return Ctensor3_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
       x.total_bgdims(),x.cdim(0),x.cdim(1),2*x.min_gstride(),2*x.cstride(0),2*x.cstride(1),x.dev);
+  }
+
+
+  inline Ltensor<complex<float> > operator*(const Ltensor<complex<float> >& x, Ltensor<complex<float> >& y){
+    Gdims d(x.dims);
+    d.set_back(y.dims.back());
+    Ltensor<complex<float> > r(d,x.labels,0,x.dev);
+    Ctensor2_view rv(r.arr.ptr_as<float>(),r.arr.ptr_as<float>()+1,r.total_bgdims()*r.cdim(0),r.cdim(1),2*r.cstride(0),2*r.cstride(1),r.dev);
+    Ctensor2_view xv(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,x.total_bgdims()*x.cdim(0),x.cdim(1),2*x.cstride(0),2*x.cstride(1),x.dev);
+    Ctensor2_view yv(y.arr.ptr_as<float>(),y.arr.ptr_as<float>()+1,y.cdim(0),y.cdim(1),2*y.cstride(0),2*y.cstride(1),y.dev);
+    rv.add_matmul_AA(xv,yv);
+    return r;
   }
 
 }

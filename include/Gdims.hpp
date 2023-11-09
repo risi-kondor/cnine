@@ -164,6 +164,10 @@ namespace cnine{
       (*this)[i]=x;
     }
 
+    void set_back(const int x){
+      (*this)[size()-1]=x;
+    }
+
     int first() const{
       return (*this)[0];
     }
