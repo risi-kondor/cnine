@@ -402,6 +402,12 @@ namespace cnine{
 	lambda((*this)(i));
     }
 
+    void for_each(const std::function<void(const int, const vector<TYPE>&)>& lambda) const{
+      int n=size();
+      for(int i=0; i<n; i++)
+	lambda(i,(*this)(i));
+    }
+
     vector<vector<TYPE> > as_vecs() const{
       vector<vector<TYPE> > R;
       forall([&](const vector<TYPE>& x){R.push_back(x);});
