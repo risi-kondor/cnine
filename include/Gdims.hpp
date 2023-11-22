@@ -103,6 +103,18 @@ namespace cnine{
       for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
     }
 
+    Gdims(const int b, const Gdims& d1, const Gdims& d2): 
+      vector<int>((b>0)+d1.size()+d2.size()){
+      if(b>0){
+	(*this)[0]=b;
+	for(int i=0; i<d1.size(); i++) (*this)[1+i]=d1[i];
+	for(int i=0; i<d2.size(); i++) (*this)[1+i+d1.size()]=d2[i];
+      }else{
+	for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
+	for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
+      }
+    }
+
     Gdims(const vector<vector<int> >& list){
       int n=0; 
       for(auto& p:list) n+=p.size();
@@ -166,6 +178,10 @@ namespace cnine{
 
     void set_back(const int x){
       (*this)[size()-1]=x;
+    }
+
+    void set_back(const int i, const int x){
+      (*this)[size()-1-i]=x;
     }
 
     int first() const{

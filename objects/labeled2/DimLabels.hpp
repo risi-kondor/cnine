@@ -27,6 +27,11 @@ namespace cnine{
     bool _batched=false;
     int _narray=0;
 
+    DimLabels(){}
+
+    DimLabels(const bool b, const int na):
+      _batched(b), _narray(na){}
+
 
   public: // ---- Copying -----------------------------------------------------------------------------------
 

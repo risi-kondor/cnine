@@ -59,12 +59,19 @@ namespace cnine{
     Ltensor(): 
       Ltensor({1},DimLabels(),0,0){}
 
-    Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides, const DimLabels& _labels):
-      BASE(_arr,_dims,_strides),
-      labels(_labels){}
+    Ltensor(const Gdims& _dims):
+      BASE(_dims,0,0){}
 
     Ltensor(const Gdims& _dims, const DimLabels& _labels, const int fcode, const int _dev=0):
       BASE(_dims,fcode,_dev), 
+      labels(_labels){}
+
+    Ltensor(const int _b, const Gdims& _gdims, const Gdims& _ddims, const int fcode, const int _dev=0):
+      BASE(Gdims(_b,_gdims,_ddims),fcode,_dev), 
+      labels(_b,_gdims.size()){}
+
+    Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides, const DimLabels& _labels):
+      BASE(_arr,_dims,_strides),
       labels(_labels){}
 
 
@@ -146,8 +153,8 @@ namespace cnine{
     }
 
     int nbatch() const{
-      CNINE_ASSRT(is_batched());
-      return dims[0];
+      if(is_batched()) return dims[0];
+      else return 0;
     }
 
     Ltensor batch(const int i) const{
@@ -274,6 +281,10 @@ namespace cnine{
   public: // ---- Operations --------------------------------------------------------------------------------
 
 
+    Ltensor<TYPE> operator*(const Ltensor<TYPE>& y) const{
+      return mult(*this,y);
+    }
+
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
@@ -374,7 +385,7 @@ namespace cnine{
   }
 
 
-  inline Ltensor<complex<float> > operator*(const Ltensor<complex<float> >& x, Ltensor<complex<float> >& y){
+  inline Ltensor<complex<float> > mult(const Ltensor<complex<float> >& x, Ltensor<complex<float> >& y){
     Gdims d(x.dims);
     d.set_back(y.dims.back());
     Ltensor<complex<float> > r(d,x.labels,0,x.dev);
@@ -384,6 +395,7 @@ namespace cnine{
     rv.add_matmul_AA(xv,yv);
     return r;
   }
+  
 
 }
 
