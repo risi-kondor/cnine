@@ -315,11 +315,9 @@ namespace cnine{
   };
 
   namespace deviceid{
-    //static device_id CPU(0);
-    //static device_id GPU0(1);
     static device CPU(0);
     static device GPU0(1);
-  }    
+  } 
 
   class DeviceSelector{
   public:
@@ -416,8 +414,8 @@ namespace cnine{
     operator TYPE(){return x;}
   };
 
-  template<typename TYPE>
-  _batched<TYPE> batch(const TYPE& x){return x;}
+  //template<typename TYPE>
+  //_batched<TYPE> batch(const TYPE& x){return x;}
     
 
   // ---- Helper functions -----------------------------------------------------------------------------------
