@@ -385,7 +385,7 @@ namespace cnine{
   }
 
 
-  inline Ltensor<complex<float> > mult(const Ltensor<complex<float> >& x, Ltensor<complex<float> >& y){
+  inline Ltensor<complex<float> > mult(const Ltensor<complex<float> >& x, const Ltensor<complex<float> >& y){
     Gdims d(x.dims);
     d.set_back(y.dims.back());
     Ltensor<complex<float> > r(d,x.labels,0,x.dev);

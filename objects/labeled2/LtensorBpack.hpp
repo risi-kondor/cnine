@@ -12,8 +12,8 @@
  */
 
 
-#ifndef _cnineLtensorApack
-#define _cnineLtensorApack
+#ifndef _cnineLtensorBpack
+#define _cnineLtensorBpack
 
 #include "Ltensor.hpp"
 #include "LtensorApackSpec.hpp"
@@ -22,87 +22,70 @@
 namespace cnine{
 
 
-  template<typename KEY, typename TYPE>
-  class LtensorApack{
+  template<typename KEY, typename TENSOR>
+  class LtensorBpack{
   public:
 
     int _nbatch=0;
     Gdims _gdims;
-    int _dev;
-    DimLabels _labels;
-    map<KEY,Ltensor<TYPE> > tensors;
+    int _dev=0;
+    //DimLabels _labels;
+    map<KEY,TENSOR> tensors;
 
-    LtensorApack(){}
+    LtensorBpack(){}
 
-    ~LtensorApack(){
+    ~LtensorBpack(){
     }
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    LtensorApack(const int __nbatch, const Gdims& __gdims,  const DimLabels& __labels, const int __dev=0):
+    LtensorBpack(const int __nbatch, const Gdims& __gdims,  const int __dev=0):
       _nbatch(__nbatch),
       _gdims(__gdims),
-      _dev(__dev),
-      _labels(__labels){}
+      _dev(__dev){}
+
+    //LtensorBpack(const int __nbatch, const Gdims& __gdims,  const DimLabels& __labels, const int __dev=0):
+      //_nbatch(__nbatch),
+      //_gdims(__gdims),
+      //_dev(__dev),
+      //_labels(__labels){}
 
     
-  public: // ---- LtensorApackSpec ---------------------------------------------------------------------------
-
-
-    LtensorApack(const LtensorApackSpec<KEY,TYPE>& x):
-      LtensorApack(x.get_nbatch(), x.get_gdims(), x.get_labels(), x.get_dev()){
-      int fcode=x.get_fcode();
-      for(auto& ddim: x.ddims)
-	tensors.emplace(ddim.first,Ltensor<TYPE>(x.gdims.cat(ddim.second).prepend(x.nbatch),_labels,fcode,_dev)); 
-    }
-
-    static LtensorApackSpec<KEY,TYPE> make() {return LtensorApackSpec<KEY,TYPE>();}
-    static LtensorApackSpec<KEY,TYPE> raw() {return LtensorApackSpec<KEY,TYPE>().raw();}
-    static LtensorApackSpec<KEY,TYPE> zero() {return LtensorApackSpec<KEY,TYPE>().zero();}
-    static LtensorApackSpec<KEY,TYPE> sequential() {return LtensorApackSpec<KEY,TYPE>().sequential();}
-    static LtensorApackSpec<KEY,TYPE> gaussian() {return LtensorApackSpec<KEY,TYPE>().gaussian();}
-    
-    //LtensorApackSpec<KEY,TYPE> spec() const{
-    //return LtensorApackSpec<KEY,TYPE>(dims,labels,dev);
-    //}
-
-
   public: // ---- Copying -----------------------------------------------------------------------------------
 
 
-    LtensorApack(const LtensorApack& x):
+    LtensorBpack(const LtensorBpack& x):
       _nbatch(x._nbatch),
       _gdims(x._gdims),
-      _dev(x._dev),
-      _labels(x._labels){
+      //_labels(x._labels),
+      _dev(x._dev){
       for(auto& p:x.tensors)
-	tensors[p.first]=Ltensor<TYPE>(p.second);
+	tensors[p.first]=TENSOR(p.second);
     }
     
-    LtensorApack(LtensorApack&& x):
+    LtensorBpack(LtensorBpack&& x):
       _nbatch(x._nbatch),
       _gdims(x._gdims),
       _dev(x._dev),
-      _labels(x._labels),
+      //_labels(x._labels),
       tensors(std::move(x.tensors)){
     }
       
-    LtensorApack& operator=(const LtensorApack& x){
+    LtensorBpack& operator=(const LtensorBpack& x){
       GELIB_ASSRT(_nbatch==x._nbatch);
       GELIB_ASSRT(_gdims==x._gdims);
-      GELIB_ASSRT(_labels==x._labels);
       _dev=x._dev;
       for(auto& p:tensors)
 	p.second=x.tensors[p.first];
       return *this;
     }
 
-    LtensorApack copy() const{
-      LtensorApack r(_nbatch,_gdims,_labels,_dev);
+    LtensorBpack copy() const{
+      LtensorBpack r(_nbatch,_gdims,_dev);
       for(auto& p:tensors)
-	r.tensors.emplace(p.first,p.second->copy());
+	r.tensors[p.first]=p.second->copy();
       return r;
     }
 
@@ -133,23 +116,18 @@ namespace cnine{
       return tensors.size();
     }
 
-    Ltensor<TYPE> operator[](const KEY& x) const{
+    TENSOR operator[](const KEY& x) const{
       CNINE_ASSRT(tensors.find(x)!=tensors.end());
-      return const_cast<LtensorApack&>(*this).tensors[x];
+      return const_cast<LtensorBpack&>(*this).tensors[x];
     }
 
-    Ltensor<TYPE>& operator[](const KEY& x){
-      CNINE_ASSRT(tensors.find(x)!=tensors.end());
-      return const_cast<LtensorApack&>(*this).tensors[x];
-    }
-
-    void for_each(const std::function<void(const KEY&, const Ltensor<TYPE>&)>& lambda) const{
+    void for_each(const std::function<void(const KEY&, const TENSOR&)>& lambda) const{
       for(auto p: tensors)
 	lambda(p.first,p.second);
     }
 
-    LtensorApack mapcar(const std::function<Ltensor<TYPE>(const KEY&, const Ltensor<TYPE>& )>& lambda){
-      LtensorApack r(_nbatch,_gdims,_labels,_dev);
+    LtensorBpack mapcar(const std::function<TENSOR(const KEY&, const TENSOR& )>& lambda){
+      LtensorBpack r(_nbatch,_gdims,_dev);
       for(auto p: tensors)
 	r.emplace(p.first,lambda(p.first,p.second));
       return r;
@@ -168,16 +146,16 @@ namespace cnine{
       return _nbatch;
     }
 
-    LtensorApack batch(const int b) const{
+    LtensorBpack batch(const int b) const{
       CNINE_ASSRT(is_batched());
       CNINE_ASSRT(b>=0 && b<_nbatch);
-      LtensorApack r(0,_gdims,_labels.copy().set_batched(false),_dev);
+      LtensorBpack r(0,_gdims,_dev);
       for(auto p:tensors)
 	r.tensors.emplace(p.first,p.second.batch(b));
       return r;
     }
 
-    void for_each_batch(const std::function<void(const int, const LtensorApack& x)>& lambda) const{
+    void for_each_batch(const std::function<void(const int, const LtensorBpack& x)>& lambda) const{
       int B=nbatch();
       for(int b=0; b<B; b++)
 	lambda(b,batch(b));
@@ -199,9 +177,9 @@ namespace cnine{
       return _gdims;
     }
 
-    LtensorApack cell(const Gindex& ix) const{
+    LtensorBpack cell(const Gindex& ix) const{
       CNINE_ASSRT(ix.size()==_gdims.size());
-      LtensorApack r(_nbatch,cnine::Gdims(),_labels.copy().set_ngrid(0),_dev);
+      LtensorBpack r(_nbatch,cnine::Gdims(),_dev);
       for(auto p:tensors)
 	r.tensors.emplace(p.first,p.second.cell(ix));
       return r;
@@ -211,7 +189,7 @@ namespace cnine{
   public: // ---- Cumulative operations ----------------------------------------------------------------------
 
 
-    void add(const LtensorApack& x){
+    void add(const LtensorBpack& x){
       CNINE_ASSRT(x.size()==size());
       for(auto p:tensors)
 	p.second.add(x.tensors[p.first]);
@@ -221,8 +199,8 @@ namespace cnine{
   public: // ---- Operations ---------------------------------------------------------------------------------
 
 
-    LtensorApack transp(){
-      LtensorApack r(_nbatch,_gdims,_labels,_dev);
+    LtensorBpack transp(){
+      LtensorBpack r(_nbatch,_gdims,_dev);
       for(auto p:tensors)
 	r.tensors.emplace(p.first,p.second.transp());
       return r;
@@ -233,12 +211,12 @@ namespace cnine{
 
 
     string classname() const{
-      return "LtensorApack";
+      return "LtensorBpack";
     }
 
     string repr() const{
       ostringstream oss;
-      oss<<"LtensorApack(";
+      oss<<"LtensorBpack(";
       if(is_batched()) oss<<"b="<<nbatch()<<",";
       if(is_grid()) oss<<"grid="<<gdims()<<",";
       if(_dev>0) oss<<"dev="<<_dev<<",";
@@ -249,7 +227,7 @@ namespace cnine{
 
     string to_string(const string indent="") const{
       ostringstream oss;
-      for_each([&](const KEY& key, const Ltensor<TYPE>& x){
+      for_each([&](const KEY& key, const TENSOR& x){
 	  oss<<indent<<"Tensor "<<key<<":"<<endl;
 	  oss<<x.str(indent)<<endl;
 	});
@@ -263,7 +241,7 @@ namespace cnine{
       return oss.str();
     }
 
-    friend ostream& operator<<(ostream& stream, const LtensorApack& x){
+    friend ostream& operator<<(ostream& stream, const LtensorBpack& x){
       stream<<x.str(); return stream;
     }
   };
