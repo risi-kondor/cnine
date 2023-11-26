@@ -19,9 +19,26 @@
 #include "TensorView.hpp"
 #include "DimLabels.hpp"
 #include "LtensorSpec.hpp"
+#include "NamedType.hpp"
 
 
 namespace cnine{
+
+
+  using BatchArgument=NamedType<int, struct BatchArgumentTag>;
+  using GridArgument=NamedType<Gdims, struct GridArgumentTag>;
+  using DimsArgument=NamedType<Gdims, struct DimsArgumentTag>;
+  using ChannelsArgument=NamedType<int, struct ChannelsArgumentTag>;
+  using FillArgument=NamedType<int, struct FillArgumentTag>;
+  using DeviceArgument=NamedType<int, struct DeviceArgumentTag>;
+
+  static const BatchArgument::argument batch;
+  static const GridArgument::argument grid;
+  static const DimsArgument::argument cdims;
+  static const ChannelsArgument::argument channels;
+  static const FillArgument::argument filltype;
+  static const DeviceArgument::argument device;
+
 
 
   template<typename TYPE>
@@ -49,6 +66,7 @@ namespace cnine{
     using BASE::dims;
     using BASE::strides;
     using BASE::dev;
+    using BASE::reset;
 
     DimLabels labels;
 
@@ -73,6 +91,48 @@ namespace cnine{
     Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides, const DimLabels& _labels):
       BASE(_arr,_dims,_strides),
       labels(_labels){}
+
+
+  public: // ---- Named parameter constructors ---------------------------------------------------------------
+
+
+    struct vparams{
+      int b=0;
+      Gdims gdims;
+      Gdims cdims;
+      int fcode=0;
+      int dev=0;
+    };      
+
+    template<typename... Args>
+    Ltensor(const Gdims& _cdims, const Args&... args){
+      vparams v;
+      v.cdims=_cdims;
+      unroller(v,args...);
+      reset(Ltensor(v.b,v.gdims,v.cdims,v.fcode,v.dev));
+    }
+
+    template<typename... Args>
+    void unroller(vparams& v, const cnine::BatchArgument& x, const Args&... args){
+      v.b=x.get(); unroller(v, args...);}
+
+    template<typename... Args>
+    void unroller(vparams& v, const cnine::GridArgument& x, const Args&... args){
+      v.gdims=x.get(); unroller(v, args...);}
+
+    template<typename... Args>
+    void unroller(vparams& v, const cnine::DimsArgument& x, const Args&... args){
+      v.cdims=x.get(); unroller(v, args...);}
+
+    template<typename... Args>
+    void unroller(vparams& v, const cnine::FillArgument& x, const Args&... args){
+      v.fcode=x.get(); unroller(v, args...);}
+
+    template<typename... Args>
+    void unroller(vparams& v, const cnine::DeviceArgument& x, const Args&... args){
+      v.dev=x.get(); unroller(v, args...);}
+
+    void unroller(vparams& v){}
 
 
   public: // ---- LtensorSpec --------------------------------------------------------------------------------
@@ -131,6 +191,13 @@ namespace cnine{
     auto bgfused_view3() const -> decltype(batch_grid_fused_view3_of(*this)){
       return batch_grid_fused_view3_of(*this);
     }
+
+
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+
+    Ltensor(const TensorView<TYPE>& x):
+      BASE(x){}
 
 
   public: // ---- Access ------------------------------------------------------------------------------------
@@ -281,6 +348,12 @@ namespace cnine{
   public: // ---- Operations --------------------------------------------------------------------------------
 
 
+    Ltensor<TYPE> operator*(const TYPE c) const{
+      Ltensor<TYPE> R=zeros_like();
+      R.add(*this,c);
+      return R;
+    }
+
     Ltensor<TYPE> operator*(const Ltensor<TYPE>& y) const{
       return mult(*this,y);
     }
@@ -392,6 +465,17 @@ namespace cnine{
     Ctensor2_view rv(r.arr.ptr_as<float>(),r.arr.ptr_as<float>()+1,r.total_bgdims()*r.cdim(0),r.cdim(1),2*r.cstride(0),2*r.cstride(1),r.dev);
     Ctensor2_view xv(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,x.total_bgdims()*x.cdim(0),x.cdim(1),2*x.cstride(0),2*x.cstride(1),x.dev);
     Ctensor2_view yv(y.arr.ptr_as<float>(),y.arr.ptr_as<float>()+1,y.cdim(0),y.cdim(1),2*y.cstride(0),2*y.cstride(1),y.dev);
+    rv.add_matmul_AA(xv,yv);
+    return r;
+  }
+  
+  inline Ltensor<float> mult(const Ltensor<float>& x, const Ltensor<float>& y){
+    Gdims d(x.dims);
+    d.set_back(y.dims.back());
+    Ltensor<float> r(d,x.labels,0,x.dev);
+    Rtensor2_view rv(r.arr.ptr(),r.total_bgdims()*r.cdim(0),r.cdim(1),r.cstride(0),r.cstride(1),r.dev);
+    Rtensor2_view xv(x.arr.ptr(),x.total_bgdims()*x.cdim(0),x.cdim(1),x.cstride(0),x.cstride(1),x.dev);
+    Rtensor2_view yv(y.arr.ptr(),y.cdim(0),y.cdim(1),y.cstride(0),y.cstride(1),y.dev);
     rv.add_matmul_AA(xv,yv);
     return r;
   }

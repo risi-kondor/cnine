@@ -266,6 +266,13 @@ namespace cnine{
       return const_cast<TensorView&>(*this);
     }
 
+    void reset(const TensorView& x){
+      arr=x.arr;
+      dims=x.dims;
+      strides=x.strides;
+      dev=x.dev;
+    }
+
     TensorView* clone() const{
       return new TensorView(*this);
     }
@@ -755,34 +762,34 @@ namespace cnine{
     TensorView<TYPE> row(const int i) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[0]);
-      return TensorView<TYPE>(arr+strides[0]*i,{dims[1]},{strides[1]},dev);
+      return TensorView<TYPE>(arr+strides[0]*i,{dims[1]},{strides[1]});
     }
 
     TensorView<TYPE> rows(const int i, const int j) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[0]);
       CNINE_ASSRT(j<=dims[0]);
-      return TensorView<TYPE>(arr+strides[0]*i,{j-i,dims[1]},{strides[0],strides[1]},dev);
+      return TensorView<TYPE>(arr+strides[0]*i,{j-i,dims[1]},{strides[0],strides[1]});
     }
 
     TensorView<TYPE> col(const int i) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[1]);
-      return TensorView<TYPE>(arr+strides[1]*i,{dims[0]},{strides[0]},dev);
+      return TensorView<TYPE>(arr+strides[1]*i,{dims[0]},{strides[0]});
     }
 
     TensorView<TYPE> cols(const int i, const int j) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[1]);
       CNINE_ASSRT(j<=dims[1]);
-      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],j-i},{strides[0],strides[1]},dev);
+      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],j-i},{strides[0],strides[1]});
     }
 
 
     tensor1_view<TYPE> rowv(const int i) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[0]);
-      return tensor1_view<TYPE>(arr.ptr()+strides[0]*i,dims[1],strides[1],dev);
+      return tensor1_view<TYPE>(arr.ptr()+strides[0]*i,dims[1],strides[1]);
     }
 
 
@@ -1188,6 +1195,11 @@ namespace cnine{
 	  CNINE_UNIMPL();
 	});
     }
+
+
+  public: // ---- Not in-place operations -------------------------------------------------------------------
+
+
 
 
   public: // ---- Scalar valued operations ------------------------------------------------------------------
