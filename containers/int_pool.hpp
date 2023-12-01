@@ -97,7 +97,7 @@ namespace cnine{
 
     void set(const int i, const int j, const int v){
       CNINE_ASSRT(i<n);
-      CNINE_ASSR`T(j<size_of(i));
+      CNINE_ASSRT(j<size_of(i));
       arr[arr[i+1]+j]=v;
     }
 
