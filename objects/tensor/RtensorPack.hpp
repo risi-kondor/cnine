@@ -496,6 +496,14 @@ namespace cnine{
     }
 
 
+    bool operator==(const RtensorPack& y) const{
+      if(!(dir==y.dir)) return false;
+      if(tail!=y.tail) return false;
+      for(int i=0; i<tail; i++)
+	if(arr[i]!=y.arr[i]) return false;
+      return true;
+    }
+
     //IntTensor* get_dirg_ptr(const int _dev=1) const{
     //if(!dirg) dirg=new IntTensor(dir,_dev);
     //return dirg;

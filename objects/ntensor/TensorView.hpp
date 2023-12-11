@@ -1360,6 +1360,12 @@ namespace cnine{
       return oss.str();
     }
 
+    string repr() const{
+      ostringstream oss;
+      oss<<"TensorView"<<dims<<" ["<<strides<<"]"<<endl;
+      return oss.str();
+    }
+
     /*
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,double>::value, U>::type>
     float prnt_limit() const{

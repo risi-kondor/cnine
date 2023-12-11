@@ -42,7 +42,7 @@ namespace cnine{
       arr(_arr), n0(_n0), s0(_s0){}
 
     Itensor1_view(int* _arr, const int _n0, const int _s0, const int _dev): 
-      arr(_arr), n0(_n0), dev(_dev){}
+      arr(_arr), n0(_n0), s0(_s0), dev(_dev){}
 
     Itensor1_view(int* _arr,  const Gdims& _dims, const Gstrides& _strides):
       arr(_arr){

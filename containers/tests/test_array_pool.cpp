@@ -29,4 +29,6 @@ int main(int argc, char** argv){
   auto B=array_pool<int>::cat({A0,A1});
   cout<<B<<endl;
 
+  cout<<A0.view_of(2)<<endl;
+
 }

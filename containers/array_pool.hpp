@@ -16,10 +16,19 @@
 
 #include "Cnine_base.hpp"
 #include "IntTensor.hpp"
+#include "Itensor1_view.hpp"
+#include "Rtensor1_view.hpp"
 #include "Tensor.hpp"
 
 
 namespace cnine{
+
+  template<typename TYPE>
+  class array_pool;
+
+  inline Itensor1_view view_of_part(const array_pool<int>&, const int);
+  inline Rtensor1_view view_of_part(const array_pool<float>&, const int);
+
 
   template<typename TYPE>
   class array_pool{
@@ -363,6 +372,10 @@ namespace cnine{
       return R;
     }
 
+    auto view_of(const int i) const -> decltype(view_of_part(*this,i) ){
+      return view_of_part(*this,i);
+    }
+    
     void push_back(const vector<TYPE>& v){
       int len=v.size();
       if(tail+len>memsize)
@@ -483,6 +496,18 @@ namespace cnine{
       stream<<v.str(); return stream;}
 
   };
+
+
+  inline Itensor1_view view_of_part(const array_pool<int>& x, const int i){
+      CNINE_ASSRT(i<x.size());
+      return Itensor1_view(x.arr+x.dir(i,0),x.dir(i,1),1,x.dev);
+  }
+
+  inline Rtensor1_view view_of_part(const array_pool<float>& x, const int i){
+      CNINE_ASSRT(i<x.size());
+      return Rtensor1_view(x.arr+x.dir(i,0),x.dir(i,1),1,x.dev);
+  }
+
 
 }
 

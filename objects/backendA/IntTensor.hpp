@@ -570,6 +570,14 @@ namespace cnine{
       arr[t]=x;
     }
 
+    bool operator==(const IntTensor& y) const{
+      if(dims!=y.dims) return false;
+      if(memsize!=y.memsize) return false;
+      for(int i=0; i<memsize; i++)
+	if(arr[i]!=y.arr[i]) return false;
+      return true;
+    }
+
 
   public: // ---- Rows ---------------------------------------------------------------------------------------
 
