@@ -1324,7 +1324,7 @@ namespace cnine{
       CNINE_ASSRT(ndims()>=2);
       Gdims d=dims.remove(1); 
       d[0]*=dims[1];
-      Gstrides s=strides.remove(0);
+      GstridesB s=strides.remove(0);
       return TensorView(arr,d,s);
     }
 
