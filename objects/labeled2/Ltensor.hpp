@@ -80,6 +80,9 @@ namespace cnine{
     Ltensor(const Gdims& _dims):
       BASE(_dims,0,0){}
 
+    Ltensor(const Gdims& _dims, const int fcode, const int _dev=0):
+      BASE(_dims,fcode,_dev){}
+
     Ltensor(const Gdims& _dims, const DimLabels& _labels, const int fcode, const int _dev=0):
       BASE(_dims,fcode,_dev), 
       labels(_labels){}

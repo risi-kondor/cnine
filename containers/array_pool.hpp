@@ -81,6 +81,15 @@ namespace cnine{
       to_device(_dev);
     }
 
+    array_pool(const int n, const int _total, const fill_reserve& dummy, const int _dev=0): 
+      memsize(_total),
+      tail(0),
+      dev(_dev),
+      dir(Gdims(n,2)){
+      CPUCODE(arr=new TYPE[std::max(memsize,1)]);
+      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE))));
+    }
+
     array_pool(const Tensor<TYPE>& M):
       dir(Gdims(M.dim(0),2)),
       memsize(M.asize()),
@@ -104,9 +113,9 @@ namespace cnine{
       }
     }
 
-    //static array_pool<TYPE> cat(const initializer_list<reference_wrapper<array_pool<TYPE> > >& list){
-    //return cat(vector<reference_wrapper<array_pool<TYPE> > >(list));
-    //}
+
+  public: // ---- Static constructors ------------------------------------------------------------------------
+
 
     static array_pool<TYPE> cat(const vector<reference_wrapper<array_pool<TYPE> > >& list){
       int _dev=0; 
@@ -266,27 +275,27 @@ namespace cnine{
   public: // ---- Transport ----------------------------------------------------------------------------------
 
 
-    array_pool(const array_pool<TYPE>& x, const int _dev): 
-      dir(x.dir){
-      dev=_dev;
-      tail=x.tail;
-      memsize=x.tail;
-      if(dev==0){
-	//cout<<"Copying RtensorPack to host"<<endl;
-	arr=new TYPE[std::max(memsize,1)];
-	if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
-	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
-      }
-      if(dev==1){
-	//cout<<"Copying RtensorPack to device"<<endl;
-	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
-	if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice)); 
-	if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice)); 
-      }
+  array_pool(const array_pool<TYPE>& x, const int _dev): 
+    dir(x.dir){
+    dev=_dev;
+    tail=x.tail;
+    memsize=x.tail;
+    if(dev==0){
+      //cout<<"Copying RtensorPack to host"<<endl;
+      arr=new TYPE[std::max(memsize,1)];
+      if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
+      if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
     }
+    if(dev==1){
+      //cout<<"Copying RtensorPack to device"<<endl;
+      CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
+      if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice)); 
+      if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice)); 
+    }
+  }
 
 
-    array_pool<TYPE>& to_device(const int _dev){
+  array_pool<TYPE>& to_device(const int _dev){
       if(dev==_dev) return *this;
 
       if(_dev==0){
@@ -332,12 +341,20 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    int get_dev() const{
+      return dev;
+    }
+
     int get_device() const{
       return dev;
     }
 
     int size() const{
       return dir.dim(0);
+    }
+
+    int total() const{ // this might not be the sum of the sizes if there are gaps
+      return tail;
     }
 
     int offset(const int i) const{
@@ -348,6 +365,12 @@ namespace cnine{
     int size_of(const int i) const{
       CNINE_ASSRT(i<size());
       return dir(i,1);
+    }
+
+    int max_size_of(const int i) const{
+      CNINE_ASSRT(i<size());
+      if(i<size()-1) return dir(i+1,0)-dir(i,0);
+      else return tail-dir(i,0);
     }
 
     TYPE operator()(const int i, const int j) const{
@@ -376,6 +399,13 @@ namespace cnine{
       return view_of_part(*this,i);
     }
     
+    void push_back(const int len){
+      if(tail+len>memsize)
+	reserve(std::max(2*memsize,tail+len));
+      dir.push_back(tail,len);
+      tail+=len;
+    }
+
     void push_back(const vector<TYPE>& v){
       int len=v.size();
       if(tail+len>memsize)
@@ -385,6 +415,19 @@ namespace cnine{
       dir.push_back(tail,len);
       tail+=len;
     }
+    
+    /*
+      void push_back(const TYPE x, const vector<TYPE>& v){
+      int len=v.size()+1;
+      if(tail+len>memsize)
+	reserve(std::max(2*memsize,tail+len));
+      arr[tail]=x;
+      for(int i=0; i<len-1; i++)
+	arr[tail+i+1]=v[i];
+      dir.push_back(tail,len);
+      tail+=len;
+    }
+    */
 
     void push_back(const std::set<TYPE>& v){
       int len=v.size();
@@ -401,6 +444,13 @@ namespace cnine{
 
     void push_back(const initializer_list<TYPE>& v){
       push_back(vector<TYPE>(v));
+    }
+
+    void push_back(const int i, const TYPE v){
+      CNINE_ASSRT(i<size());
+      CNINE_ASSRT(max_size_of(i)<size_of(i));
+      arr[dir(i,0)+dir(i,1)]=v;
+      dir.set(i,1,dir(i,1)+1);
     }
 
     void forall(const std::function<void(const vector<TYPE>&)>& lambda) const{
@@ -512,3 +562,6 @@ namespace cnine{
 }
 
 #endif
+    //static array_pool<TYPE> cat(const initializer_list<reference_wrapper<array_pool<TYPE> > >& list){
+    //return cat(vector<reference_wrapper<array_pool<TYPE> > >(list));
+    //}

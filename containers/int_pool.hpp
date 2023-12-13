@@ -61,7 +61,7 @@ namespace cnine{
   public: // ---- Access ---------------------------------------------------
 
 
-    int siz() const{
+    int size() const{
       return n;
     }
 

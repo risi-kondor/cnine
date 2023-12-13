@@ -210,6 +210,7 @@ namespace cnine{
   struct fill_sequential: public fill_pattern{fill_sequential(){}};
   struct fill_identity: public fill_pattern{fill_identity(){}};
   struct fill_uniform: public fill_pattern{fill_uniform(){}};
+  struct fill_reserve: public fill_pattern{fill_reserve(){}};
   struct fill_tensor: public fill_pattern{fill_tensor(){}};
   struct fill_stack: public fill_pattern{fill_stack(){}};
   struct fill_cat: public fill_pattern{fill_cat(){}};

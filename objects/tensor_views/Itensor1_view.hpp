@@ -125,6 +125,10 @@ namespace cnine{
       }
     }
 
+    void operator+=(const Itensor1_view& x) const{
+      add(x);
+    }
+
 
   public: // ---- Reductions --------------------------------------------------------------------------------
 

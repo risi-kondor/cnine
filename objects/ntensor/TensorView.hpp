@@ -22,6 +22,7 @@
 #include "Gindex.hpp"
 #include "MemArr.hpp"
 #include "device_helpers.hpp"
+//#include "GatherMapB.hpp"
 
 #include "Rtensor1_view.hpp"
 #include "Rtensor2_view.hpp"
@@ -1345,6 +1346,7 @@ namespace cnine{
       GstridesB s=strides.insert(1,strides[1]*b);
       return TensorView(arr,d,s);
     }
+
 
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
