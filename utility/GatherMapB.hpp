@@ -15,7 +15,6 @@
 #define _GatherMapB
 
 #include "Cnine_base.hpp"
-//#include "array_pool.hpp"
 #include "headed_lists.hpp"
 
 namespace cnine{
