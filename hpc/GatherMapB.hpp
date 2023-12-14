@@ -16,9 +16,10 @@
 
 #include "Cnine_base.hpp"
 #include "headed_lists.hpp"
+#include "FixedkGatherMap.hpp"
+
 
 namespace cnine{
-
 
 
   class GatherMapB{
@@ -26,13 +27,19 @@ namespace cnine{
 
     headed_lists<int> arr;
     shared_ptr<GatherMapB> _inv;
+
     int n=0; // why do we need this?
     int* arrg=nullptr; // unsafe!!
 
   public:
 
+    vector<shared_ptr<FixedkGatherMap> > fixedk_maps;
+
     int in_stride=1;
     int out_stride=1;
+
+
+  public:
 
     ~GatherMapB(){
       if(arrg) {CUDA_SAFE(cudaFree(arrg));}
@@ -153,17 +160,14 @@ namespace cnine{
     }
 
     int size_of(const int i) const{
-      //return arr.size_of(i)-1;
       return arr.size_of(i);
     }
 
     int target(const int i) const{
-      //return arr(i,0);
       return arr.head(i);
     }
 
     void set_target(const int i, const int x){
-      //arr.set(i,0,x);
       arr.set_head(i,x);
     }
 
@@ -236,10 +240,44 @@ namespace cnine{
 	  }
 	}
       }
-      //for(int i=0; i<r.arr.tail; i++) cout<<r.arr.arr[i]<<" "; cout<<endl;
-      //cout<<r.arr.dir<<endl;
       const_cast<GatherMapB&>(*this).arr=std::move(r.arr);
-      //cout<<arr.dir<<endl;
+      return *this;
+    }
+
+
+    const GatherMapB& grade(const int min_size=0) const{
+      map<int,vector<int> > lengths;
+      int N=size();
+      for(int i=0; i<N; i++)
+	lengths[size_of(i)].push_back(i);
+
+      int rem_size=0;
+      for(auto& p:lengths)
+	if(p.second.size()<min_size)
+	  rem_size+=(p.first+1)*p.second.size();
+
+      GatherMapB r(n);
+      r.arr.reserve(rem_size);
+
+      for(auto& p:lengths){
+	int K=p.first;
+	if(p.second.size()>=min_size){
+	  FixedkGatherMap* g=new FixedkGatherMap(p.second.size(),K);
+	  auto gv=g->view2();
+	  for(int j=0; j<p.second.size(); j++)
+	    gv.slice0(j)=arr.array_pool<int>::view_of(p.second[j]);
+	  const_cast<GatherMapB&>(*this).fixedk_maps.push_back(shared_ptr<FixedkGatherMap>(g));
+	}else{
+	  for(auto q:p.second){
+	    int i=r.push_back(K);
+	    r.set_target(i,target(q));
+	    for(int a=0; a<K; a++)
+	      r.set(i,a,(*this)(q,a));
+	  }
+	}
+      }
+
+      const_cast<GatherMapB&>(*this).arr=std::move(r.arr);
       return *this;
     }
 
