@@ -156,6 +156,7 @@ namespace cnine{
       return R;
     }
 
+    [[deprecated]]
     size_t total() const{
       size_t t=1; 
       for(int i=0; i<size(); i++) t*=(*this)[i];
@@ -208,6 +209,7 @@ namespace cnine{
     size_t offs(const int i0, const int i1, const int i2) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2];
     }
+
 
     size_t offs(const int i0, const int i1, const int i2, const int i3) const{
       return i0*(*this)[0]+i1*(*this)[1]+i2*(*this)[2]+i3*(*this)[3];

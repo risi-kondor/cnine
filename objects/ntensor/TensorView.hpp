@@ -248,13 +248,16 @@ namespace cnine{
 	if constexpr(std::is_same<TYPE,float>::value){
 	  switch(ndims()){
 	  case(1): 
-	    Rtensor1_view(*this).set(Rtensor1_view(x));
+	    view1().set(view1());
+	    //Rtensor1_view(*this).set(Rtensor1_view(x));
 	    break;
 	  case(2): 
-	    Rtensor2_view(*this).set(Rtensor2_view(x));
+	    //Rtensor2_view(*this).set(Rtensor2_view(x));
+	    view2().set(view2());
 	    break;
 	  case(3): 
-	    Rtensor3_view(*this).set(Rtensor3_view(x));
+	    //Rtensor3_view(*this).set(Rtensor3_view(x));
+	    view3().set(view3());
 	    break;
 	  default:
 	    CNINE_UNIMPL();
@@ -302,22 +305,22 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    // deprecated 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
+    [[deprecated]]
     operator Rtensor1_view() const{
       CNINE_ASSRT(ndims()==1);
       return Rtensor1_view(mem(),dims(0),strides(0),dev);
     }
 
-    // deprecated 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
+    [[deprecated]]
     operator Rtensor2_view() const{
       CNINE_ASSRT(ndims()==2);
       return Rtensor2_view(mem(),dims(0),dims(1),strides(0),strides(1),dev);
     }
 
-    // deprecated 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
+    [[deprecated]]
     operator Rtensor3_view() const{
       CNINE_ASSRT(ndims()==3);
       return Rtensor3_view(mem(),dims(0),dims(1),dims(2),strides(0),strides(1),strides(2),dev);
@@ -1002,6 +1005,10 @@ namespace cnine{
 	}else
 	  CNINE_UNIMPL();
       }
+    }
+
+    void operator-=(const TensorView& x) const{
+      add(x);
     }
 
     void add(const TensorView& x, const TYPE c){

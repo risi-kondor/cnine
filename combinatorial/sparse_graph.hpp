@@ -20,7 +20,6 @@
 #include "labeled_tree.hpp"
 #include "int_tree.hpp"
 #include "int_pool.hpp"
-#include "array_pool.hpp"
 
 
 namespace cnine{
@@ -184,26 +183,6 @@ namespace cnine{
 
       return R;
     }
-
-    /* unused 
-    array_pool<int> as_array_pool() const{
-      array_pool<int> R(n,2*nedges());
-      int* arr=R.arr;
-
-      int tail=n+2;
-      arr[1]=tail;
-
-      for(int i=0; i<n; i++){
-	auto it=data.find(i);
-	if(it!=data.end())
-	  for(auto p:it->second)
-	    arr[tail++]=p.first;
-	arr[i+2]=tail;
-      }
-
-      return R;
-    }
-    */ 
 
     sparse_graph(const int_pool& x){
       n=x.getn();
@@ -434,3 +413,23 @@ namespace std{
 	}else{
 	}
 	*/
+    /* unused 
+    array_pool<int> as_array_pool() const{
+      array_pool<int> R(n,2*nedges());
+      int* arr=R.arr;
+
+      int tail=n+2;
+      arr[1]=tail;
+
+      for(int i=0; i<n; i++){
+	auto it=data.find(i);
+	if(it!=data.end())
+	  for(auto p:it->second)
+	    arr[tail++]=p.first;
+	arr[i+2]=tail;
+      }
+
+      return R;
+    }
+    */ 
+

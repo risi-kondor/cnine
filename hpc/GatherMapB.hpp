@@ -15,7 +15,7 @@
 #define _GatherMapB
 
 #include "Cnine_base.hpp"
-#include "headed_lists.hpp"
+#include "hlists.hpp"
 #include "FixedkGatherMap.hpp"
 
 
@@ -25,7 +25,7 @@ namespace cnine{
   class GatherMapB{
   private:
 
-    headed_lists<int> arr;
+    hlists<int> arr;
     shared_ptr<GatherMapB> _inv;
 
     int n=0; // why do we need this?
@@ -74,7 +74,7 @@ namespace cnine{
 	i++;
       }
 
-      arr=headed_lists(heads,lengths);
+      arr=hlists(heads,lengths);
       for(int i=0; i<N; i++){
 	arr.push_back(mapping[targets[i]],sources[i]);
       }

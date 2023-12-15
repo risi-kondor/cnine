@@ -27,9 +27,11 @@ namespace cnine{
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const FixedkGatherMapB& g, const cudaStream_t& stream);
 #endif 
   
+  class GatherRows{
+  public:
 
   template<typename TYPE>
-  void gather_rows(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapB& g){
+  void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapB& g){
     CNINE_ASSRT(_r.ndims()==2);
     CNINE_ASSRT(_r.dim(0)%g.out_stride==0);
     CNINE_ASSRT(_x.ndims()==2);
@@ -37,7 +39,7 @@ namespace cnine{
 
     if(g.fixedk_maps.size()>0){
       for(auto& p: g.fixedk_maps)
-	gather_rows(_r,_x,*p);
+	(*this)(_r,_x,*p);
     }
     if(g.size()==0) return;
 
@@ -66,7 +68,7 @@ namespace cnine{
 
 
   template<typename TYPE>
-  void gather_rows(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const FixedkGatherMap& g){
+  void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const FixedkGatherMap& g){
     CNINE_ASSRT(_r.ndims()==2);
     CNINE_ASSRT(_r.dim(0)%g.out_stride==0);
     CNINE_ASSRT(_x.ndims()==2);
@@ -97,20 +99,22 @@ namespace cnine{
 
 
   template<typename TYPE>
-  Ltensor<TYPE> gather_rows(const TensorView<TYPE>& x, const GatherMapB& g){
+  Ltensor<TYPE> operator()(const TensorView<TYPE>& x, const GatherMapB& g){
     CNINE_ASSRT(x.ndims()==2);
     Ltensor<TYPE> r({g.getn(),x.dims(1)},0,x.dev);
-    gather_rows(r,x,g);
+    (*this)(r,x,g);
     return r;
   }
 
   template<typename TYPE>
-  Ltensor<TYPE> gather_rows(const TensorView<TYPE>& x, const FixedkGatherMap& g){
+  Ltensor<TYPE> operator()(const TensorView<TYPE>& x, const FixedkGatherMap& g){
     CNINE_ASSRT(x.ndims()==2);
     Ltensor<TYPE> r({g.getn(),x.dims(1)},0,x.dev);
-    gather_rows(r,x,g);
+    (*this)(r,x,g);
     return r;
   }
+
+  };
 
 }
 

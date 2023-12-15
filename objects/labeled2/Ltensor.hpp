@@ -141,6 +141,7 @@ namespace cnine{
   public: // ---- LtensorSpec --------------------------------------------------------------------------------
 
 
+    [[deprecated]]
     Ltensor(const LtensorSpec<TYPE>& g):
       Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
 
@@ -257,6 +258,10 @@ namespace cnine{
 
     Gdims gdims() const{
       return labels.gdims(dims);
+    }
+
+    Gdims gdim(const int i) const{
+      return labels.gdims(dims)[i];
     }
 
     int total_bgdims() const{

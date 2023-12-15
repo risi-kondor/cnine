@@ -22,7 +22,7 @@ int main(int argc, char** argv){
       A.set(i,j,distr(rndGen));
   cout<<A<<endl;
 
-  Ltensor<int> B=gather_rows(A,g);
+  Ltensor<int> B=GatherRows()(A,g);
   cout<<B<<endl;
 
   

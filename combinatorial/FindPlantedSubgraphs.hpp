@@ -30,9 +30,6 @@ namespace cnine{
   public:
 
     typedef sparse_graph<int,float,LABEL> Graph;
-    //typedef labeled_tree<int> labeled_tree;
-    //typedef labeled_forest<int> labeled_forest;
-
 
     const Graph& G;
     const Graph& H;
@@ -50,7 +47,6 @@ namespace cnine{
       labeled_tree<int> S=H.greedy_spanning_tree();
       Htraversal=S.indexed_depth_first_traversal();
       assignment=vector<int>(n,-1);
-      /*cout<<"compute"<<endl;*/
 
       for(int i=0; i<G.getn(); i++){
 	labeled_tree<int>* T=new labeled_tree<int>(i);
@@ -69,15 +65,6 @@ namespace cnine{
       return t;
     }
 
-    /*
-    operator cnine::array_pool<int>(){
-      cnine::array_pool<int> R;
-      for(auto p:matches)
-	p->for_each_maximal_path([&](const vector<int>& x){
-	    R.push_back(x);});
-      return R;
-    }
-    */
 
     operator cnine::Tensor<int>(){
       int N=nmatches();
@@ -99,7 +86,6 @@ namespace cnine{
       CNINE_ASSRT(m<Htraversal.size());
       const int v=Htraversal[m].first;
       const int w=node.label;
-      //cout<<string(2*m,' ')<<"trying "<<v<<" against "<<w<<" at level "<<m<<endl;
 
       if(G.is_labeled() && H.is_labeled() && (G.labels(w)!=H.labels(v))) return false;
 
@@ -110,13 +96,9 @@ namespace cnine{
 
 
       for(auto& p:const_cast<Graph&>(G).data[w]){
-	//cout<<string(2*m,' ')<<"("<<w<<","<<p.first<<")"<<endl;
 	auto it=std::find(assignment.begin(),assignment.end(),p.first);
 	if(it==assignment.end()) continue;
-	//cout<<string(2*m,' ')<<"H("<<v<<","<<it-assignment.begin()<<")="<<H(v,it-assignment.begin())<<endl;
-	//if(p.second!=H(v,Htraversal[it-assignment.begin()].first)){
 	if(p.second!=H(v,it-assignment.begin())){
-	  //cout<<string(2*m,' ')<<"failed prior matches."<<endl; 
 	  return false;
 	}
       }
