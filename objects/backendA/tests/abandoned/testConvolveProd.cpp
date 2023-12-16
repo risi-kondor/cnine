@@ -1,7 +1,7 @@
 #include "Cnine_base.cpp"
 #include "RtensorA.hpp"
 #include "CnineSession.hpp"
-#include "RtensorConvolve2dFn.hpp"
+//#include "RtensorConvolve2dFn.hpp"
 
 using namespace cnine;
 

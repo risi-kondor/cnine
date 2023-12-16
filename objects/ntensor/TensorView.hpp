@@ -56,26 +56,38 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
-  template<typename TYPE>
-  class TensorView;
+  template<typename TYPE> class TensorView;
+  template<typename TYPE> class Tensor;
+  template<typename TYPE> class TensorArrayView;
+  template<typename TYPE> class TensorSArrayView;
+  template<typename TYPE> class Ltensor;
+
 
   // this is the multiply defined functions problem
   inline Itensor1_view view1_of(const TensorView<int>& x);
   inline Rtensor1_view view1_of(const TensorView<float>& x);
+  inline Rtensor1_view view1_of(const TensorView<double>& x); // hack
   inline Ctensor1_view view1_of(const TensorView<complex<float> >& x);
 
   inline Itensor2_view view2_of(const TensorView<int>& x);
   inline Rtensor2_view view2_of(const TensorView<float>& x);
+  inline Rtensor2_view view2_of(const TensorView<double>& x); // hack
   inline Ctensor2_view view2_of(const TensorView<complex<float> >& x);
 
   inline Itensor3_view view3_of(const TensorView<int>& x);
   inline Rtensor3_view view3_of(const TensorView<float>& x);
+  inline Rtensor3_view view3_of(const TensorView<double>& x); //hack
   inline Ctensor3_view view3_of(const TensorView<complex<float> >& x);
 
 
   template<typename TYPE>
   class TensorView{
-  public:
+  private:
+
+    friend class Tensor<TYPE>;
+    friend class TensorArrayView<TYPE>;
+    friend class TensorSArrayView<TYPE>;
+    friend class Ltensor<TYPE>;
 
     typedef std::size_t size_t;
 
@@ -605,6 +617,14 @@ namespace cnine{
       return dims[i];
     }
 
+    Gdims get_dims() const{
+      return dims;
+    }
+
+    int stride(const int i) const{
+      return strides[i];
+    }
+
     size_t asize() const{
       return dims.asize();
     }
@@ -636,6 +656,11 @@ namespace cnine{
 
     TYPE* mem() const{
       return const_cast<TYPE*>(arr.get_arr());
+    }
+
+    template<typename TYPE2>
+    TYPE2* mem_as() const{
+      return const_cast<TYPE2*>(arr.template ptr_as<TYPE2>());
     }
 
     //TYPE& mem(const int i) const{
@@ -1459,28 +1484,33 @@ namespace cnine{
 
 
   inline Itensor1_view view1_of(const TensorView<int>& x){
-    return Itensor1_view(x.mem(),x.dims(0),x.strides(0),x.dev);}
+    return Itensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
   inline Rtensor1_view view1_of(const TensorView<float>& x){
-    return Rtensor1_view(x.mem(),x.dims(0),x.strides(0),x.dev);}
+    return Rtensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
+  inline Rtensor1_view view1_of(const TensorView<double>& x){// hack!!
+    return Rtensor1_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.stride(0),x.get_dev());}
   inline Ctensor1_view view1_of(const TensorView<complex<float> >& x){
-    return Ctensor1_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
-      x.dims[0],2*x.strides[0],x.dev);}
+    return Ctensor1_view(x.mem_as<float>(),x.mem_as<float>()+1,x.dim(0),2*x.stride(0),x.get_dev());}
 
   inline Itensor2_view view2_of(const TensorView<int>& x){
-    return Itensor2_view(x.mem(),x.dims(0),x.dims(1),x.strides(0),x.strides(1),x.dev);}
+    return Itensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
   inline Rtensor2_view view2_of(const TensorView<float>& x){
-    return Rtensor2_view(x.mem(),x.dims(0),x.dims(1),x.strides(0),x.strides(1),x.dev);}
+    return Rtensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
+  inline Rtensor2_view view2_of(const TensorView<double>& x){ // hack!!
+    return Rtensor2_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
   inline Ctensor2_view view2_of(const TensorView<complex<float> >& x){
-    return Ctensor2_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
-      x.dims[0],x.dims[1],2*x.strides[0],2*x.strides[1],x.dev);}
+    return Ctensor2_view(x.mem_as<float>(),x.mem_as<float>()+1,
+      x.dim(0),x.dim(1),2*x.stride(0),2*x.stride(1),x.get_dev());}
 
   inline Itensor3_view view3_of(const TensorView<int>& x){
-    return Itensor3_view(x.mem(),x.dims(0),x.dims(1),x.dims(2),x.strides(0),x.strides(1),x.strides(2),x.dev);}
+    return Itensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
   inline Rtensor3_view view3_of(const TensorView<float>& x){
-    return Rtensor3_view(x.mem(),x.dims(0),x.dims(1),x.dims(2),x.strides(0),x.strides(1),x.strides(2),x.dev);}
+    return Rtensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
+  inline Rtensor3_view view3_of(const TensorView<double>& x){
+    return Rtensor3_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
   inline Ctensor3_view view3_of(const TensorView<complex<float> >& x){
-    return Ctensor3_view(x.arr.ptr_as<float>(),x.arr.ptr_as<float>()+1,
-      x.dims[0],x.dims[1],x.dims[2],2*x.strides[0],2*x.strides[1],2*x.strides[0],x.dev);}
+    return Ctensor3_view(x.mem_as<float>(),x.mem_as<float>()+1,
+      x.dim(0),x.dim(1),x.dim(2),2*x.stride(0),2*x.stride(1),2*x.stride(2),x.get_dev());}
 
 
 }

@@ -96,7 +96,7 @@ namespace cnine{
     static vector<Gdims> convert(const initializer_list<TensorView<TYPE> >& list){
       vector<Gdims> R;
       for(auto& p:list)
-	R.push_back(p.dims);
+	R.push_back(p.get_dims());
       return R;
     }
 

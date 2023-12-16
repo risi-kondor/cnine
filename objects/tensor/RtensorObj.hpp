@@ -71,44 +71,44 @@ namespace cnine{
 
     static RtensorObj raw(const Gdims& _dims, const int nbd=-1, const int _dev=0){
       return RtensorObj(_dims,nbd,fill::raw,_dev);}
-    static RtensorObj raw(const Gdims& _dims, const int nbd, const device& _dev){
+    static RtensorObj raw(const Gdims& _dims, const int nbd, const struct device& _dev){
       return RtensorObj(_dims,nbd,fill::raw,_dev.id());}
-    static RtensorObj raw(const Gdims& _dims, const device& _dev){
+    static RtensorObj raw(const Gdims& _dims, const struct device& _dev){
       return RtensorObj(_dims,-1,fill::raw,_dev.id());}
 
     static RtensorObj zero(const Gdims& _dims, const int nbd=-1, const int _dev=0){
       return RtensorObj(_dims,nbd,fill::zero,_dev);}
-    static RtensorObj zero(const Gdims& _dims, const int nbd, const device& _dev){
+    static RtensorObj zero(const Gdims& _dims, const int nbd, const struct device& _dev){
       return RtensorObj(_dims,nbd,fill::zero,_dev.id());}
-    static RtensorObj zero(const Gdims& _dims, const device& _dev){
+    static RtensorObj zero(const Gdims& _dims, const struct device& _dev){
       return RtensorObj(_dims,-1,fill::zero,_dev.id());}
 
     static RtensorObj ones(const Gdims& _dims, const int nbd=-1, const int _dev=0){
       return RtensorObj(_dims,nbd,fill::ones,_dev);}
-    static RtensorObj ones(const Gdims& _dims, const int nbd, const device& _dev){
+    static RtensorObj ones(const Gdims& _dims, const int nbd, const struct device& _dev){
       return RtensorObj(_dims,nbd,fill::ones,_dev.id());}
-    static RtensorObj ones(const Gdims& _dims, const device& _dev){
+    static RtensorObj ones(const Gdims& _dims, const struct device& _dev){
       return RtensorObj(_dims,-1,fill::ones,_dev.id());}
 
     static RtensorObj identity(const Gdims& _dims, const int nbd=-1, const int _dev=0){
       return RtensorObj(_dims,nbd,fill::identity,_dev);}
-    static RtensorObj identity(const Gdims& _dims, const int nbd, const device& _dev){
+    static RtensorObj identity(const Gdims& _dims, const int nbd, const struct device& _dev){
       return RtensorObj(_dims,nbd,fill::identity,_dev.id());}
-    static RtensorObj identity(const Gdims& _dims, const device& _dev){
+    static RtensorObj identity(const Gdims& _dims, const struct device& _dev){
       return RtensorObj(_dims,-1,fill::identity,_dev.id());}
 
     static RtensorObj sequential(const Gdims& _dims, const int nbd=-1, const int _dev=0){
       return RtensorObj(_dims,nbd,fill::sequential,_dev);}
-    static RtensorObj sequential(const Gdims& _dims, const int nbd, const device& _dev){
+    static RtensorObj sequential(const Gdims& _dims, const int nbd, const struct device& _dev){
       return RtensorObj(_dims,nbd,fill::sequential,_dev.id());}
-    static RtensorObj sequential(const Gdims& _dims, const device& _dev){
+    static RtensorObj sequential(const Gdims& _dims, const struct device& _dev){
       return RtensorObj(_dims,-1,fill::sequential,_dev.id());}
 
     static RtensorObj gaussian(const Gdims& _dims, const int nbd=-1, const int _dev=0){
       return RtensorObj(_dims,nbd,fill::gaussian,_dev);}
-    static RtensorObj gaussian(const Gdims& _dims, const int nbd, const device& _dev){
+    static RtensorObj gaussian(const Gdims& _dims, const int nbd, const struct device& _dev){
       return RtensorObj(_dims,nbd,fill::gaussian,_dev.id());}
-    static RtensorObj gaussian(const Gdims& _dims, const device& _dev){
+    static RtensorObj gaussian(const Gdims& _dims, const struct device& _dev){
       return RtensorObj(_dims,-1,fill::gaussian,_dev.id());}
     
 
@@ -144,7 +144,7 @@ namespace cnine{
       #endif
     };
       
-    RtensorObj(const RtensorObj& x, const device& _dev):
+    RtensorObj(const RtensorObj& x, const struct device& _dev):
       CNINE_RTENSOR_IMPL(x,_dev.id()){
       #ifdef WITH_FAKE_GRAD
       if(x.grad) grad=new RtensorObj(x);
@@ -232,7 +232,7 @@ namespace cnine{
     //RtensorObj(const Conjugate<Transpose<RtensorObj> >& x):
     //RtensorObj(x.obj.obj.herm()){}
 
-    RtensorObj(const Gtensor<float>& x, const device& _dev=device(0)):
+    RtensorObj(const Gtensor<float>& x, const struct device& _dev):
       CNINE_RTENSOR_IMPL(x,_dev.id()){}
 
     as_shape_tmp<RtensorObj> as_shape(const Gdims& dims) const{

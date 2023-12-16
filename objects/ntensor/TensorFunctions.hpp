@@ -102,7 +102,7 @@ namespace cnine{
 
   template<typename TYPE>
   inline Tensor<TYPE> operator*(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    Tensor<TYPE> R=Tensor<TYPE>::zero(x.dims.Mprod(y.dims),x.dev);
+    Tensor<TYPE> R=Tensor<TYPE>::zero(x.get_dims().Mprod(y.get_dims()),x.get_dev());
     if(R.asize()>0) R.add_mprod(x,y);
     return R;
   }
@@ -142,15 +142,15 @@ namespace cnine{
 
   template<typename TYPE>
   inline Tensor<TYPE> cat(const int d, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    CNINE_ASSRT(x.dims.size()==y.dims.size());
-    CNINE_ASSRT(d<x.dims.size());
-    Gdims dims=x.dims;
-    dims[d]+=y.dims[d];
+    CNINE_ASSRT(x.ndims()==y.ndims());
+    CNINE_ASSRT(d<x.ndims());
+    Gdims dims=x.get_dims();
+    dims[d]+=y.dim(d);
     Tensor<TYPE> R(dims);
-    R.block(x.dims)=x;
-    Gindex ix(x.dims.size(),fill_zero());
-    ix[d]=x.dims[d];
-    R.block(y.dims,ix)=y;
+    R.block(x.get_dims())=x;
+    Gindex ix(x.ndims(),fill_zero());
+    ix[d]=x.dim(d);
+    R.block(y.get_dims(),ix)=y;
     return R;
   }
 
@@ -160,9 +160,9 @@ namespace cnine{
     Gdims dims;
     for(auto& p:vec){
       auto x=lambda(p);
-      if(n==0) dims=x.dims;
-      CNINE_ASSRT(d<x.dims.size());
-      n+=x.dims[d];
+      if(n==0) dims=x.get_dims();
+      CNINE_ASSRT(d<x.ndims());
+      n+=x.dim(d);
     }
     dims[d]=n;
 
@@ -170,10 +170,10 @@ namespace cnine{
     Tensor<TYPE> R(dims,fill_raw());
     for(auto& p:vec){
       auto x=lambda(p);
-      Gindex ix(x.dims.size(),fill_zero());
+      Gindex ix(x.ndims(),fill_zero());
       ix[d]=offs;
-      R.block(x.dims,ix)=x;
-      offs+=x.dims[d];
+      R.block(x.get_dims(),ix)=x;
+      offs+=x.dim(d);
     }      
     return R;
   }
@@ -185,9 +185,9 @@ namespace cnine{
   template<typename TYPE>
   inline Tensor<TYPE> oplus(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
     CNINE_ASSRT(x.ndims()==y.ndims());
-    Tensor<TYPE> R=Tensor<TYPE>::zero(x.dims+y.dims,x.dev);
-    R.block(x.dims)=x;
-    R.block(y.dims,Gindex(x.dims))=y;
+    Tensor<TYPE> R=Tensor<TYPE>::zero(x.get_dims()+y.get_dims(),x.dev);
+    R.block(x.get_dims())=x;
+    R.block(y.get_dims(),Gindex(x.get_dims()))=y;
     return R;
   }
   
@@ -197,7 +197,7 @@ namespace cnine{
 
   template<typename TYPE>
   inline Tensor<TYPE> tprod(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    Tensor<TYPE> R=Tensor<TYPE>::zero(tprod(x.dims,y.dims),x.dev);
+    Tensor<TYPE> R=Tensor<TYPE>::zero(tprod(x.get_dims(),y.get_dims()),x.dev);
     R.add_tprod(x,y);
     return R;
   }
@@ -209,15 +209,15 @@ namespace cnine{
   template<typename TYPE>
   inline Tensor<TYPE> diag(const TensorView<TYPE>& x){
     CNINE_ASSRT(x.ndims()==1);
-    Tensor<TYPE> R=Tensor<TYPE>::zero({x.dims[0],x.dims[0]},x.dev);
+    Tensor<TYPE> R=Tensor<TYPE>::zero({x.get_dims()[0],x.get_dims()[0]},x.dev);
     R.diag()=x;
     return R;
   }
 
   template<typename TYPE>
   inline Tensor<TYPE> broadcast(const int d, const int n, const TensorView<TYPE>& x){
-    CNINE_ASSRT(d<x.dims.size()+1);
-    Gdims dims(x.dims);
+    CNINE_ASSRT(d<x.ndims()+1);
+    Gdims dims(x.get_dims());
     dims.insert(d,n);
     Tensor<TYPE> R=Tensor<TYPE>::raw(dims,x.dev);
     for(int i=0; i<n; i++)
@@ -227,7 +227,7 @@ namespace cnine{
 
   template<typename TYPE>
   inline Tensor<TYPE> sum(const int d, const TensorView<TYPE>& x){
-    auto dims=x.dims.remove(d);
+    auto dims=x.get_dims().remove(d);
     Tensor<TYPE> R(dims,fill_zero());
     R.add_sum(d,x);
     return R;

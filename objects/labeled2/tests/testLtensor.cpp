@@ -24,15 +24,12 @@ int main(int argc, char** argv){
   cnine_session session;
 
   
-  Ltensor<float> A(LtensorSpec<float>().batch(2).dims({2,2}).sequential());
+  //Ltensor<float> A(LtensorSpec<float>().batch(2).dims({2,2}).sequential());
+  Ltensor<float> A(dims(2,2),batch=2,filltype=3);
 
-  Ltensor<float> B=Ltensor<float>::gaussian().batch(2).dims({2,2});
-
-  auto C=Ltensor<float>::zero().batch(2).dims({2,2})();
-
+  Ltensor<float> C(dims(2,2),batch=2,filltype=3);
 
   cout<<A<<endl;
-  cout<<B<<endl;
   cout<<C<<endl;
 
   

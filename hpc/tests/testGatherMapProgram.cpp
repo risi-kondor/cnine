@@ -1,7 +1,7 @@
 #include "Cnine_base.cpp"
 #include "CnineSession.hpp"
 #include "GatherMapProgram.hpp"
-#include "gather_rows.hpp"
+#include "GatherRows.hpp"
 #include "Ltensor.hpp"
 
 using namespace cnine;

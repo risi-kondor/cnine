@@ -826,11 +826,11 @@ namespace cnine{
       return *this;
     }
     
-    RtensorA& move_to(const device& _dev){
+    RtensorA& move_to(const struct device& _dev){
       return move_to_device(_dev.id());
     }
     
-    RtensorA to(const device& _dev) const{
+    RtensorA to(const struct device& _dev) const{
       return RtensorA(*this,_dev.id());
     }
 

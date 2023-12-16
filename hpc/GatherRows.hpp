@@ -50,7 +50,7 @@ namespace cnine{
     x.n0/=g.in_stride;
     x.n1*=g.in_stride;
     
-    if(_r.dev==0){
+    if(_r.get_dev()==0){
       CNINE_ASSRT(g.get_dev()==0);
       int N=g.size();
       for(int i=0; i<N; i++){
@@ -61,7 +61,7 @@ namespace cnine{
       }
     }
 
-    if(_r.dev==1){
+    if(_r.get_dev()==1){
       CUDA_STREAM(gatherRows_cu(r,x,g,stream));
     }
   }
@@ -81,7 +81,7 @@ namespace cnine{
     x.n0/=g.in_stride;
     x.n1*=g.in_stride;
     
-    if(_r.dev==0){
+    if(_r.get_dev()==0){
       CNINE_ASSRT(g.get_dev()==0);
       int N=g.getn();
       int K=g.getk();
@@ -92,7 +92,7 @@ namespace cnine{
       }
     }
 
-    if(_r.dev==1){
+    if(_r.get_dev()==1){
       CUDA_STREAM(gatherRows_cu(r,x,g,stream));
     }
   }
@@ -101,7 +101,7 @@ namespace cnine{
   template<typename TYPE>
   Ltensor<TYPE> operator()(const TensorView<TYPE>& x, const GatherMapB& g){
     CNINE_ASSRT(x.ndims()==2);
-    Ltensor<TYPE> r({g.getn(),x.dims(1)},0,x.dev);
+    Ltensor<TYPE> r({g.getn(),x.dim(1)},0,x.get_dev());
     (*this)(r,x,g);
     return r;
   }
@@ -109,7 +109,7 @@ namespace cnine{
   template<typename TYPE>
   Ltensor<TYPE> operator()(const TensorView<TYPE>& x, const FixedkGatherMap& g){
     CNINE_ASSRT(x.ndims()==2);
-    Ltensor<TYPE> r({g.getn(),x.dims(1)},0,x.dev);
+    Ltensor<TYPE> r({g.getn(),x.dim(1)},0,x.get_dev());
     (*this)(r,x,g);
     return r;
   }

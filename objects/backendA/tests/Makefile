@@ -1,7 +1,7 @@
 ROOTDIR=../../..
 include $(ROOTDIR)/common.txt
 
-INCLUDE= -I$(INCLUDEDIR) -I$(SCALARDIR) -I$(MATRIXDIR) -I$(TENSORDIR) -I$(TENSORVIEWDIR) -I$(TENSORVIEWDIR)/functions -I$(BACKENDADIR)
+INCLUDE= $(CNINE_INCLUDES) 
 
 TESTS=$(patsubst %.cpp,%,$(wildcard *.cpp))
 

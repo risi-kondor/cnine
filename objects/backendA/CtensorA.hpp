@@ -651,11 +651,11 @@ namespace cnine{
       return *this;
     }
     
-    CtensorA& move_to(const device& _dev){
+    CtensorA& move_to(const struct device& _dev){
       return move_to_device(_dev.id());
     }
     
-    CtensorA to(const device& _dev) const{
+    CtensorA to(const struct device& _dev) const{
       return CtensorA(*this,_dev.id());
     }
 

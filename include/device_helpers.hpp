@@ -19,32 +19,32 @@ namespace cnine{
 
   template<typename TYPE>
   inline void reconcile_devices(const TYPE& r, const TYPE& x, std::function<void(const TYPE&, const TYPE&)>& lambda){
-    if(r.dev==x.dev){
+    if(r.get_dev()==x.get_dev()){
       lambda(r,x);
     }else{
-      lambda(r,TYPE(x,r.dev));
+      lambda(r,TYPE(x,r.get_dev()));
     }
   }
 
   template<typename TYPE>
-  inline void reconcile_devices(TYPE& r, const TYPE& x, std::function<void(TYPE&, const TYPE&)>& lambda){
-    if(r.dev==x.dev){
+  inline void reconcile_get_devices(TYPE& r, const TYPE& x, std::function<void(TYPE&, const TYPE&)>& lambda){
+    if(r.get_dev()==x.get_dev()){
       lambda(r,x);
     }else{
-      lambda(r,TYPE(x,r.dev));
+      lambda(r,TYPE(x,r.get_dev()));
     }
   }
 
   template<typename TYPE>
   inline void reconcile_devices(const TYPE& r, const TYPE& x, const TYPE& y, std::function<void(const TYPE&, const TYPE&, const TYPE&)> lambda){
-    int dev=r.dev;
-    if(x.dev==dev){
-      if(y.dev==dev)
+    int dev=r.get_dev();
+    if(x.get_dev()==dev){
+      if(y.get_dev()==dev)
 	lambda(r,x,y);
       else
 	lambda(r,x,TYPE(y,dev));
     }else{
-      if(y.dev==dev)
+      if(y.get_dev()==dev)
 	lambda(r,TYPE(x,dev),y);
       else
 	lambda(r,TYPE(x,dev),TYPE(y,dev));
@@ -53,14 +53,14 @@ namespace cnine{
 
   template<typename TYPE>
   inline void reconcile_devices(TYPE& r, const TYPE& x, const TYPE& y, std::function<void(TYPE&, const TYPE&, const TYPE&)> lambda){
-    int dev=r.dev;
-    if(x.dev==dev){
-      if(y.dev==dev)
+    int dev=r.get_dev();
+    if(x.get_dev()==dev){
+      if(y.get_dev()==dev)
 	lambda(r,x,y);
       else
 	lambda(r,x,TYPE(y,dev));
     }else{
-      if(y.dev==dev)
+      if(y.get_dev()==dev)
 	lambda(r,TYPE(x,dev),y);
       else
 	lambda(r,TYPE(x,dev),TYPE(y,dev));

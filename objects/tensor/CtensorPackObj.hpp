@@ -32,7 +32,7 @@ namespace cnine{
   class CtensorPackObj{ //: public CtensorObj{
   public:
 
-    typedef cnine::device device;
+    //typedef cnine::device device;
     typedef cnine::fill_pattern fill_pattern;
     typedef cnine::CoutLock CoutLock;
 
@@ -107,13 +107,13 @@ namespace cnine{
     CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const pack_format& _format): 
       CtensorPackObj(_dims,fill,toint(_format),0){}
 
-    template<typename FILLTYPE, typename = typename 
-	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const device& _device): 
-      CtensorPackObj(_dims,fill,0,_device.id()){}
+    //template<typename FILLTYPE, typename = typename 
+    //	     std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
+    //CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const device& _device): 
+    //CtensorPackObj(_dims,fill,0,_device.id()){}
 
     template<typename FILLTYPE, typename = typename std::enable_if<std::is_base_of<fill_pattern, FILLTYPE>::value, FILLTYPE>::type>
-    CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const pack_format& _format, const device& _device): 
+    CtensorPackObj(const GdimsPack& _dims, const FILLTYPE fill, const pack_format& _format, const struct device& _device): 
       CtensorPackObj(_dims,fill,toint(_format),_device.id()){}
   
   

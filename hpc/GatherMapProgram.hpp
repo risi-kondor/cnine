@@ -16,7 +16,6 @@
 
 #include "Cnine_base.hpp"
 #include "GatherMapB.hpp"
-#include "headed_lists.hpp"
 
 namespace cnine{
 
@@ -159,11 +158,11 @@ namespace cnine{
   public: // ---- Programming --------------------------------------------------------------------------------
 
 
-    GatherMapVar input(){
+    GatherMapVar input(const int i=0){
       return GatherMapVar(vars[0].id);
     }
 
-    GatherMapVar output(){
+    GatherMapVar output(const int i=0){
       return GatherMapVar(vars[1].id);
     }
 

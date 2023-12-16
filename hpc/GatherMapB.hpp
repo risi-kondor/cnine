@@ -133,7 +133,7 @@ namespace cnine{
     }
 
     void make_arrg(){
-      int memsize=arr.memsize+arr.dir.memsize;
+      int memsize=arr.get_memsize()+arr.dir.memsize;
       CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
       CUDA_SAFE(cudaMemcpy(arrg, arr.dir.arr, arr.dir.memsize*sizeof(int),cudaMemcpyHostToDevice));  
       CUDA_SAFE(cudaMemcpy(arrg+arr.dir.memsize, arr.arr, arr.memsize*sizeof(TYPE),cudaMemcpyHostToDevice));  
@@ -144,7 +144,7 @@ namespace cnine{
 
 
     int get_dev() const{
-      return arr.dev;
+      return arr.get_dev();
     }
 
     int getn() const{

@@ -26,13 +26,18 @@ namespace cnine{
   template<typename TYPE>
   class array_pool;
 
+  template<typename TYPE>
+  class hlists;
+
   inline Itensor1_view view_of_part(const array_pool<int>&, const int);
   inline Rtensor1_view view_of_part(const array_pool<float>&, const int);
+  class TensorPackDir;
+  template<typename TYPE> class CSRmatrix;
 
 
   template<typename TYPE>
   class array_pool{
-  public:
+  private:
 
     TYPE* arr=nullptr;
     TYPE* arrg=nullptr;
@@ -42,7 +47,18 @@ namespace cnine{
     bool is_view=false;
     array_pool* gpu_clone=nullptr;
 
-    IntTensor dir;
+  public: 
+
+    IntTensor dir; // should become private 
+
+
+  public:
+
+    friend class hlists<TYPE>;
+    friend class TensorPackDir; // decomission this
+    friend class CSRmatrix<TYPE>;
+    friend Itensor1_view view_of_part(const array_pool<int>&, const int);
+    friend Rtensor1_view view_of_part(const array_pool<float>&, const int);
 
     ~array_pool(){
       if(is_view) return;
@@ -355,6 +371,15 @@ namespace cnine{
 
     int total() const{ // this might not be the sum of the sizes if there are gaps
       return tail;
+    }
+
+    // deprecated 
+    TYPE* get_arr() const{
+      return arr;
+    }
+
+    int get_memsize() const{
+      return memsize;
     }
 
     int offset(const int i) const{
