@@ -373,6 +373,10 @@ namespace cnine{
       return tail;
     }
 
+    int get_tail() const{
+      return tail;
+    }
+
     // deprecated 
     TYPE* get_arr() const{
       return arr;

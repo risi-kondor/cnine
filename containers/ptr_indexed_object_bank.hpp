@@ -66,11 +66,9 @@ namespace cnine{
       if(it!=unordered_map<KEY*,OBJ>::end()) 
 	return it->second;
 
-      //(*this)[keyp]=make_obj(*keyp);
       observers.add(keyp);
       auto p=insert({keyp,make_obj(*keyp)});
       return p.first->second;
-      //return (*this)[keyp];
     }
 
   };
@@ -80,6 +78,8 @@ namespace cnine{
 }
 
 #endif 
+
+
   /*
   template<typename KEY, typename OBJ>
   class shared_object_bank: public unordered_map<KEY*,shared_ptr<OBJ> >{

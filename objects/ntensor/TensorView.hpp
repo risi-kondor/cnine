@@ -318,21 +318,18 @@ namespace cnine{
 
 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
-    [[deprecated]]
     operator Rtensor1_view() const{
       CNINE_ASSRT(ndims()==1);
       return Rtensor1_view(mem(),dims(0),strides(0),dev);
     }
 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
-    [[deprecated]]
     operator Rtensor2_view() const{
       CNINE_ASSRT(ndims()==2);
       return Rtensor2_view(mem(),dims(0),dims(1),strides(0),strides(1),dev);
     }
 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,float>::value, U>::type>
-    [[deprecated]]
     operator Rtensor3_view() const{
       CNINE_ASSRT(ndims()==3);
       return Rtensor3_view(mem(),dims(0),dims(1),dims(2),strides(0),strides(1),strides(2),dev);

@@ -151,7 +151,7 @@ namespace cnine{
 
     sparse_graph(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==2);
-      CNINE_ASSRT(x.dims(0)==x.dims(1));
+      CNINE_ASSRT(x.dim(0)==x.dim(1));
       n=x.dim(0);
       for(int i=0; i<n; i++)
 	for(int j=0; j<=i; j++)
