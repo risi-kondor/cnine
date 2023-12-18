@@ -395,6 +395,10 @@ namespace cnine{
     return _bind0<TYPE>(obj);
   }
 
+  template<typename TYPE>
+  to_share(TYPE* x){
+    return shared_ptr<TYPE>(x);
+  }
 
   
 

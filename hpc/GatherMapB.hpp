@@ -80,10 +80,19 @@ namespace cnine{
       }
     }
     
-    
-    //GatherMapB(const int _n, const int _nedges, const int _dev=0):
-    //arr(n,_nedges,fill::_reserve(),_dev){
-    //}
+
+    GatherMapB(const map_of_lists2<int,int>& x, const int _out_stride=1, const int _in_stride=1):
+      in_stride(_in_stride),
+      out_stride(_out_stride){
+
+      int total=0;
+      for(auto& p:x)
+	total+=x.second.size();
+
+      arr.reserve(x.size()+total);
+      for(auto& p:x)
+	arr.push_back(p.first,p.second)
+    }
 
 
   public: // ---- Conversions --------------------------------------------------------------------------------
@@ -182,6 +191,14 @@ namespace cnine{
     int push_back(const int len){
       arr.push_back(len);
       return size()-1;
+    }
+
+    void push_back(const int t, const vector<int>& v){
+      arr.push_back(t,v);
+    }
+
+    void push_back(const int t, const vector<int>& v){
+      arr.push_back(t,v);
     }
 
     void for_each(std::function<void(const int i, const int j)> lambda) const{

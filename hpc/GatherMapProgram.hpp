@@ -16,130 +16,17 @@
 
 #include "Cnine_base.hpp"
 #include "GatherMapB.hpp"
+#include "GatherMapProgramHelpers.hpp"
+
 
 namespace cnine{
 
 
-  class GatherMapProgram;
-  inline int makeGatherMapVar(GatherMapProgram&, const Gdims&);
-  
-
-  class GatherMapVar{
-  public:
-
-    friend class GatherMapProgram;
-
-    const int id;
-
-    int roffset=0;
-    int coffset=0;
-
-    GatherMapVar(GatherMapProgram& prog, const Gdims& _dims):
-      id(makeGatherMapVar(prog,_dims)){}
-
-    GatherMapVar operator()(const int _roffset, const int _coffset){
-      return GatherMapVar(id,_roffset,_coffset);
-    }
-
-  private:
-
-    GatherMapVar(const int _id, const int _roffset=0, const int _coffset=0):
-      id(_id), roffset(_roffset), coffset(_coffset){};
-
-  };
-
-
-
-  
   class GatherMapProgram{
-  public:
+  public: 
 
-
-    class Variable{
-    public:
-
-      int id;
-      const Gdims dims;
-
-
-    public: // ---- Constructors --------------------------------------
-
-
-      Variable(const int _id, const Gdims& _dims): 
-	id(_id), dims(_dims){}
-
-
-    public: // ---- I/O -----------------------------------------------
-
-
-      string repr() const{
-	ostringstream oss;
-	if(id==0) oss<<"input";
-	if(id==1) oss<<"output";
-	if(id>1) oss<<"v"<<to_string(id);
-	return oss.str();
-      }
-
-      string str() const{
-	ostringstream oss;
-	if(id==0) oss<<"input";
-	if(id==1) oss<<"output";
-	if(id>1) oss<<"v"<<id;
-	oss<<dims;
-	return oss.str();
-      }
-
-      friend ostream& operator<<(ostream& stream, const Variable& v){
-	stream<<v.str(); return stream;}
-
-    };
-    
-
-    class Instruction{
-    public:
-
-      int in;
-      int in_roffset;
-      int in_coffset;
-      int out;
-      int out_roffset;
-      int out_coffset;
-      shared_ptr<const GatherMapB> map;
-
-
-    public: // ---- Constructors --------------------------------------
-
-
-      //Instruction(const int _out, const int _in, shared_ptr<const GatherMapB> _map):
-      //in(_in), out(_out), map(_map){}
-
-      Instruction(const GatherMapVar& _out, const GatherMapVar& _in, shared_ptr<const GatherMapB> _map):
-	in(_in.id), in_roffset(_in.roffset), in_coffset(_in.coffset), 
-	out(_out.id), out_roffset(_out.roffset), out_coffset(_out.coffset), 
-	map(_map){}
-
-
-    public: // ---- I/O -----------------------------------------------
-
-
-      string repr() const{
-	return str();
-      }
-
-      string str() const{
-	ostringstream oss;
-	oss<<"V"<<to_string(out);
-	if(out_roffset>0 || out_coffset>0) oss<<"["<<out_roffset<<","<<out_coffset<<"]";
-	oss<<"<-"<<"gather(V"<<to_string(in);
-	if(in_roffset>0 || in_coffset>0) oss<<"["<<in_roffset<<","<<in_coffset<<"]";
-	oss<<")";
-	return oss.str();
-      }
-
-      friend ostream& operator<<(ostream& stream, const Instruction& v){
-	stream<<v.str(); return stream;}
-
-    };
+    typedef GatherMapProgramVariable Variable;
+    typedef GatherMapProgramInstruction Instruction;
 
 
     vector<Variable> vars;
@@ -153,6 +40,26 @@ namespace cnine{
       vars.push_back(Variable(0,in_dims));
       vars.push_back(Variable(1,out_dims));
     }
+
+    GatherMapProgram(const Gdims& in_dims, const Gdims& out_dims, const GatherMapB& g){
+      vars.push_back(Variable(0,in_dims));
+      vars.push_back(Variable(1,out_dims));
+      instructions.push_back(Instruction(1,0,g));
+    }
+
+
+    GatherMapProgram(const GatherMapB* g){
+      vars.push_back(Variable(0));
+      vars.push_back(Variable(1));
+      instructions.push_back(Instruction(g,1,0));
+    }
+
+    GatherMapProgram(const GatherMapB& g){
+      vars.push_back(Variable(0));
+      vars.push_back(Variable(1));
+      instructions.push_back(Instruction(g,1,0));
+    }
+
 
 
   public: // ---- Programming --------------------------------------------------------------------------------
@@ -171,12 +78,24 @@ namespace cnine{
       return vars.size()-1;
     }
 
+
+    int add_map(const GatherMapB* map, const int out=1, const int in=0){
+      instructions.push_back(Instruction(map,out,in));
+    }
+
+    int add_map(const GatherMapB& map, const int out=1, const int in=0){
+      instructions.push_back(Instruction(map,out,in));
+    }
+
+
+    [[deprecated]]
     void gather(const GatherMapVar& out, const GatherMapVar& in, const GatherMapB* map){
       gather(out,in,shared_ptr<const GatherMapB>(map));
     }
 
+    [[deprecated]]
     void gather(const GatherMapVar& out, const GatherMapVar& in, shared_ptr<const GatherMapB> map){
-      instructions.push_back(Instruction(out,in,map));
+      instructions.push_back(Instruction(map,out,in));
     }
     
 

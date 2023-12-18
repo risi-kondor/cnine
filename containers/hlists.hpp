@@ -103,10 +103,22 @@ namespace cnine{
       return R;
     }
 
+
+  public: // ---- lambdas ------------------------------------------------------------------------------------
+
+
     void for_each(const std::function<void(const TYPE, const vector<TYPE>&)>& lambda) const{
       int n=size();
       for(int i=0; i<n; i++)
 	lambda(head(i),(*this)(i));
+    }
+
+    void for_each_of(const int i, std::function<void(const TYPE&)>& lambda) const{
+      CNINE_ASSRT(i<size());
+      int offs=dir(i,0)+1;
+      int n=dir(i,1)-1;
+      for(int j=0; j<n; j++)
+	lambda(arr[offs+j]);
     }
 
 
