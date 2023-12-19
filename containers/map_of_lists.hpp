@@ -20,6 +20,9 @@
 
 namespace cnine{
 
+
+  // old version to scrap
+  /*
   template<typename KEY, typename ITEM>
   class map_of_lists{
   public:
@@ -102,10 +105,11 @@ namespace cnine{
     }
 
   };
+  */
 
 
   template<typename KEY, typename ITEM>
-  class map_of_lists2: public unordered_map<KEY,std::vector<ITEM> >{
+  class map_of_lists: public unordered_map<KEY,std::vector<ITEM> >{
   public:
 
     
@@ -122,9 +126,9 @@ namespace cnine{
   public: // ---- Constructors -------------------------------------------------------------------------------
 
 
-    map_of_lists2(){}
+    map_of_lists(){}
 
-    map_of_lists2(const initializer_list<pair<KEY,initializer_list<ITEM> > >& list){
+    map_of_lists(const initializer_list<pair<KEY,initializer_list<ITEM> > >& list){
       for(auto& p:list){
 	KEY key=p.first;
 	for(auto& q:p.second)
@@ -188,7 +192,7 @@ namespace cnine{
       return oss.str();
     }
 
-    friend ostream& operator<<(ostream& stream, const map_of_lists2& x){
+    friend ostream& operator<<(ostream& stream, const map_of_lists& x){
       stream<<x.str(); return stream;
     }
 

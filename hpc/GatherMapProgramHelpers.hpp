@@ -98,11 +98,15 @@ namespace cnine{
   public:
 
     int in;
-    int in_roffset=0;
+    int in_cdivider=1;
     int in_coffset=0;
+    int in_ncols=0;
+
     int out;
+    int out_rdivider=0;
     int out_roffset=0;
-    int out_coffset=0;
+    int out_nrows=0;
+
     shared_ptr<const GatherMapB> map;
 
 

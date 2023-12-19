@@ -396,8 +396,8 @@ namespace cnine{
   }
 
   template<typename TYPE>
-  to_share(TYPE* x){
-    return shared_ptr<TYPE>(x);
+  std::shared_ptr<TYPE> to_share(TYPE* x){
+    return std::shared_ptr<TYPE>(x);
   }
 
   

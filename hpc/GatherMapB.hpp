@@ -35,8 +35,8 @@ namespace cnine{
 
     vector<shared_ptr<FixedkGatherMap> > fixedk_maps;
 
-    int in_stride=1;
-    int out_stride=1;
+    int in_columns=1;
+    int out_columns=1;
 
 
   public:
@@ -81,9 +81,9 @@ namespace cnine{
     }
     
 
-    GatherMapB(const map_of_lists2<int,int>& x, const int _out_stride=1, const int _in_stride=1):
-      in_stride(_in_stride),
-      out_stride(_out_stride){
+    GatherMapB(const map_of_lists2<int,int>& x, const int _out_columns=1, const int _in_columns=1):
+      in_columns(_in_columns),
+      out_columns(_out_columns){
 
       int total=0;
       for(auto& p:x)

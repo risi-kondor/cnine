@@ -33,9 +33,9 @@ namespace cnine{
   template<typename TYPE>
   void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapB& g){
     CNINE_ASSRT(_r.ndims()==2);
-    CNINE_ASSRT(_r.dim(0)%g.out_stride==0);
+    CNINE_ASSRT(_r.dim(0)%g.out_columns==0);
     CNINE_ASSRT(_x.ndims()==2);
-    CNINE_ASSRT(_x.dim(0)%g.in_stride==0);
+    CNINE_ASSRT(_x.dim(0)%g.in_columns==0);
 
     if(g.fixedk_maps.size()>0){
       for(auto& p: g.fixedk_maps)
@@ -44,11 +44,11 @@ namespace cnine{
     if(g.size()==0) return;
 
     auto r=_r.view2();
-    r.n0/=g.out_stride;
-    r.n1*=g.out_stride;
+    r.n0/=g.out_columns;
+    r.n1*=g.out_columns;
     auto x=_x.view2();
-    x.n0/=g.in_stride;
-    x.n1*=g.in_stride;
+    x.n0/=g.in_columns;
+    x.n1*=g.in_columns;
     
     if(_r.get_dev()==0){
       CNINE_ASSRT(g.get_dev()==0);
@@ -70,16 +70,16 @@ namespace cnine{
   template<typename TYPE>
   void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const FixedkGatherMap& g){
     CNINE_ASSRT(_r.ndims()==2);
-    CNINE_ASSRT(_r.dim(0)%g.out_stride==0);
+    CNINE_ASSRT(_r.dim(0)%g.out_columns==0);
     CNINE_ASSRT(_x.ndims()==2);
-    CNINE_ASSRT(_x.dim(0)%g.in_stride==0);
+    CNINE_ASSRT(_x.dim(0)%g.in_columns==0);
 
     auto r=_r.view2();
-    r.n0/=g.out_stride;
-    r.n1*=g.out_stride;
+    r.n0/=g.out_columns;
+    r.n1*=g.out_columns;
     auto x=_x.view2();
-    x.n0/=g.in_stride;
-    x.n1*=g.in_stride;
+    x.n0/=g.in_columns;
+    x.n1*=g.in_columns;
     
     if(_r.get_dev()==0){
       CNINE_ASSRT(g.get_dev()==0);
