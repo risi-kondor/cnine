@@ -260,16 +260,16 @@ namespace cnine{
 	if constexpr(std::is_same<TYPE,float>::value){
 	  switch(ndims()){
 	  case(1): 
-	    view1().set(view1());
+	    view1().set(x.view1());
 	    //Rtensor1_view(*this).set(Rtensor1_view(x));
 	    break;
 	  case(2): 
 	    //Rtensor2_view(*this).set(Rtensor2_view(x));
-	    view2().set(view2());
+	    view2().set(x.view2());
 	    break;
 	  case(3): 
 	    //Rtensor3_view(*this).set(Rtensor3_view(x));
-	    view3().set(view3());
+	    view3().set(x.view3());
 	    break;
 	  default:
 	    CNINE_UNIMPL();

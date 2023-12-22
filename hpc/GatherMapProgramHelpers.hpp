@@ -54,17 +54,32 @@ namespace cnine{
   public:
 
     int id;
-    const Gdims dims;
+    Gdims dims;
 
 
   public: // ---- Constructors --------------------------------------
 
 
+    GatherMapProgramVariable(){}
+
     GatherMapProgramVariable(const int _id): 
-      id(_id), dims({0,0}){{}
+      id(_id), dims({0,0}){}
 
     GatherMapProgramVariable(const int _id, const Gdims& _dims): 
       id(_id), dims(_dims){}
+
+
+  public: // ---- Copying -------------------------------------------
+
+
+    GatherMapProgramVariable(const GatherMapProgramVariable& x):
+      id(x.id), dims(x.dims){}
+
+    GatherMapProgramVariable& operator=(const GatherMapProgramVariable& x){
+      id=x.id;
+      dims=x.dims;
+      return *this;
+    }
 
 
   public: // ---- I/O -----------------------------------------------
@@ -98,27 +113,27 @@ namespace cnine{
   public:
 
     int in;
-    int in_cdivider=1;
-    int in_coffset=0;
-    int in_ncols=0;
+    //int in_cdivider=1;
+    //int in_coffset=0;
+    //int in_ncols=0;
 
     int out;
-    int out_rdivider=0;
-    int out_roffset=0;
-    int out_nrows=0;
+    //int out_rdivider=0;
+    //int out_roffset=0;
+    //int out_nrows=0;
 
     shared_ptr<const GatherMapB> map;
 
 
-  public: // ---- Constructors --------------------------------------
+  public: // ---- Constructors -------------------------------------------------------------------------------
 
 
     //Instruction(const int _out, const int _in, shared_ptr<const GatherMapB> _map):
     //in(_in), out(_out), map(_map){}
 
     GatherMapProgramInstruction(shared_ptr<const GatherMapB> _map, const GatherMapVar& _out, const GatherMapVar& _in):
-      in(_in.id), in_roffset(_in.roffset), in_coffset(_in.coffset), 
-      out(_out.id), out_roffset(_out.roffset), out_coffset(_out.coffset), 
+      in(_in.id), //in_roffset(_in.roffset), in_coffset(_in.coffset), 
+      out(_out.id), //out_roffset(_out.roffset), out_coffset(_out.coffset), 
       map(_map){}
 
     GatherMapProgramInstruction(const GatherMapB& _map, const int _out, const int _in):
@@ -128,20 +143,47 @@ namespace cnine{
       in(_in), out(_out), map(to_share(_map)){}
 
 
-  public: // ---- I/O -----------------------------------------------
+  public: // ---- Copying ------------------------------------------------------------------------------------
+
+
+    GatherMapProgramInstruction(){}
+
+    GatherMapProgramInstruction(const GatherMapProgramInstruction& x):
+      GatherMapProgramInstruction(x.map,x.out,x.in){}
+
+    GatherMapProgramInstruction& operator=(const GatherMapProgramInstruction& x){
+      map=x.map;
+      in=x.in;
+      out=x.out;
+      return *this;
+    }
+
+
+  public: // ---- Operations ---------------------------------------------------------------------------------
+
+
+    GatherMapProgramInstruction inv() const{
+      return GatherMapProgramInstruction(map->inv(),
+	[](const int x){if(x<2) return 1-x; else return x;}(in),
+	[](const int x){if(x<2) return 1-x; else return x;}(out));
+    }
+
+
+  public: // ---- I/O ----------------------------------------------------------------------------------------
 
 
     string repr() const{
       return str();
     }
 
-    string str() const{
+    string str(const string indent="") const{
       ostringstream oss;
-      oss<<"V"<<to_string(out);
-      if(out_roffset>0 || out_coffset>0) oss<<"["<<out_roffset<<","<<out_coffset<<"]";
+      oss<<indent<<"V"<<to_string(out);
+      //if(out_roffset>0 || out_coffset>0) oss<<"["<<out_roffset<<","<<out_coffset<<"]";
       oss<<"<-"<<"gather(V"<<to_string(in);
-      if(in_roffset>0 || in_coffset>0) oss<<"["<<in_roffset<<","<<in_coffset<<"]";
-      oss<<")";
+      //if(in_roffset>0 || in_coffset>0) oss<<"["<<in_roffset<<","<<in_coffset<<"]";
+      oss<<")"<<endl;
+      oss<<map->str(indent+"    ")<<endl;
       return oss.str();
     }
 

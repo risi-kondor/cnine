@@ -30,8 +30,8 @@ namespace cnine{
     using BASE::BASE;
     //using TensorView<int>::slice0;
 
-    int in_stride=1;
-    int out_stride=1;
+    int in_columns=1;
+    int out_columns=1;
 
 
   public:

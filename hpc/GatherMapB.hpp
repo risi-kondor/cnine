@@ -81,17 +81,17 @@ namespace cnine{
     }
     
 
-    GatherMapB(const map_of_lists2<int,int>& x, const int _out_columns=1, const int _in_columns=1):
+    GatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1):
       in_columns(_in_columns),
       out_columns(_out_columns){
 
       int total=0;
       for(auto& p:x)
-	total+=x.second.size();
+	total+=p.second.size();
 
       arr.reserve(x.size()+total);
       for(auto& p:x)
-	arr.push_back(p.first,p.second)
+	arr.push_back(p.first,p.second);
     }
 
 
@@ -191,10 +191,6 @@ namespace cnine{
     int push_back(const int len){
       arr.push_back(len);
       return size()-1;
-    }
-
-    void push_back(const int t, const vector<int>& v){
-      arr.push_back(t,v);
     }
 
     void push_back(const int t, const vector<int>& v){
@@ -315,7 +311,7 @@ namespace cnine{
       //cout<<arr.dir<<endl;
       ostringstream oss;
       for(int i=0; i<size(); i++){
-	oss<<target(i)<<"<-(";
+	oss<<indent<<target(i)<<"<-(";
 	for(int j=0; j<size_of(i); j++){
 	  oss<<(*this)(i,j)<<",";
 	}

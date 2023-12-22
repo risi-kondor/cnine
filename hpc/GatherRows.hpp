@@ -33,9 +33,9 @@ namespace cnine{
   template<typename TYPE>
   void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapB& g){
     CNINE_ASSRT(_r.ndims()==2);
-    CNINE_ASSRT(_r.dim(0)%g.out_columns==0);
+    CNINE_ASSRT(_r.dim(1)%g.out_columns==0);
     CNINE_ASSRT(_x.ndims()==2);
-    CNINE_ASSRT(_x.dim(0)%g.in_columns==0);
+    CNINE_ASSRT(_x.dim(1)%g.in_columns==0);
 
     if(g.fixedk_maps.size()>0){
       for(auto& p: g.fixedk_maps)
@@ -44,20 +44,24 @@ namespace cnine{
     if(g.size()==0) return;
 
     auto r=_r.view2();
-    r.n0/=g.out_columns;
-    r.n1*=g.out_columns;
+    r.n0*=g.out_columns;
+    r.n1/=g.out_columns;
+    r.s0/=g.out_columns;
     auto x=_x.view2();
-    x.n0/=g.in_columns;
-    x.n1*=g.in_columns;
+    x.n0*=g.in_columns;
+    x.n1/=g.in_columns;
+    x.s0/=g.in_columns;
     
     if(_r.get_dev()==0){
       CNINE_ASSRT(g.get_dev()==0);
       int N=g.size();
       for(int i=0; i<N; i++){
-	int targt=g.target(i);
+	auto targt=r.slice0(g.target(i));
+	targt.n0=x.n1; // hack
 	int M=g.size_of(i);
 	for(int j=0; j<M; j++)
-	  r.slice0(targt)+=x.slice0(g(i,j));
+	  targt+=x.slice0(g(i,j));
+	//auto r.slice0(targt)+=x.slice0(g(i,j));
       }
     }
 

@@ -113,6 +113,14 @@ namespace cnine{
 	lambda(head(i),(*this)(i));
     }
 
+    void for_each_of(const int i, std::function<void(const TYPE)> lambda) const{
+      CNINE_ASSRT(i<size());
+      int offs=dir(i,0)+1;
+      int n=dir(i,1)-1;
+      for(int j=0; j<n; j++)
+	lambda(arr[offs+j]);
+    }
+
     void for_each_of(const int i, std::function<void(const TYPE&)>& lambda) const{
       CNINE_ASSRT(i<size());
       int offs=dir(i,0)+1;

@@ -175,6 +175,12 @@ namespace cnine{
       return R;
     }
 
+   Ltensor copy(const int _dev) const{
+      Ltensor R(dims,labels,0,_dev);
+      R=*this;
+      return R;
+    }
+
     Ltensor zeros_like() const{
       return Ltensor(dims,labels,0,dev);
     }

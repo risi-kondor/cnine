@@ -17,6 +17,7 @@
 #include "Cnine_base.hpp"
 #include "GatherMapB.hpp"
 #include "GatherMapProgramHelpers.hpp"
+#include "GatherRows.hpp"
 
 
 namespace cnine{
@@ -36,15 +37,19 @@ namespace cnine{
   public: // ---- Constructors -------------------------------------------------------------------------------
 
 
-    GatherMapProgram(const Gdims& in_dims, const Gdims& out_dims){
+    GatherMapProgram():
+      GatherMapProgram(dims(1,1),dims(1,1)){
+    }
+
+    GatherMapProgram(const Gdims& out_dims, const Gdims& in_dims){
       vars.push_back(Variable(0,in_dims));
       vars.push_back(Variable(1,out_dims));
     }
 
-    GatherMapProgram(const Gdims& in_dims, const Gdims& out_dims, const GatherMapB& g){
+    GatherMapProgram(const Gdims& out_dims, const Gdims& in_dims, const GatherMapB& g){
       vars.push_back(Variable(0,in_dims));
       vars.push_back(Variable(1,out_dims));
-      instructions.push_back(Instruction(1,0,g));
+      instructions.push_back(Instruction(g,1,0));
     }
 
 
@@ -79,11 +84,11 @@ namespace cnine{
     }
 
 
-    int add_map(const GatherMapB* map, const int out=1, const int in=0){
+    void add_map(const GatherMapB* map, const int out=1, const int in=0){
       instructions.push_back(Instruction(map,out,in));
     }
 
-    int add_map(const GatherMapB& map, const int out=1, const int in=0){
+    void add_map(const GatherMapB& map, const int out=1, const int in=0){
       instructions.push_back(Instruction(map,out,in));
     }
 
@@ -98,16 +103,52 @@ namespace cnine{
       instructions.push_back(Instruction(map,out,in));
     }
     
+    GatherMapProgram inv() const{
+      GatherMapProgram R;
+
+      R.vars.resize(vars.size());
+      R.vars[0]=vars[1];
+      R.vars[1]=vars[0];
+      for(int i=2; i<vars.size(); i++)
+	R.vars[i]=vars[i];
+
+      int ninst=instructions.size();
+      R.instructions.resize(ninst);
+      for(int i=0; i<ninst; i++){
+	R.instructions[i]=instructions[ninst-1-i].inv();
+      }
+
+      return R;
+    }
+
 
   public: // ---- Execution ----------------------------------------------------------------------------------
 
 
     template<typename TYPE>
     void operator()(const TensorView<TYPE>& output, const TensorView<TYPE>& arg0){
+      PTENS_ASSRT(arg0.ndims()==2);
+      PTENS_ASSRT(output.ndims()==2);
+      int nc=arg0.dim(1);
+
+      vector<Ltensor<TYPE>*> v(vars.size());
+      v[0]=new Ltensor<TYPE>(arg0);
+      v[1]=new Ltensor<TYPE>(output);
+
+      for(int i=2; i<vars.size(); i++)
+	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],vars[i].dims[1]*nc));
+
+      for(auto& p:instructions){
+	cout<<"V"<<p.out<<":"<<v[p.out]->repr()<<" <- "<<"V"<<p.in<<":"<<v[p.in]->repr()<<endl;
+	GatherRows()(*v[p.out],*v[p.in],*p.map);
+      }
+
+      for(auto p:v)
+	delete p;
     }
 
 
-  public: // ---- I/O -----------------------------------------------
+  public: // ---- I/O ----------------------------------------------------------------------------------------
     
 
     string str(const string indent="") const{
