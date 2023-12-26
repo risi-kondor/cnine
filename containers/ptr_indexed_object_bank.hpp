@@ -43,11 +43,11 @@ namespace cnine{
 
     ptr_indexed_object_bank():
       make_obj([](const KEY& x){cout<<"empty object in bank"<<endl; return OBJ();}),
-      observers([this](KEY* p){erase(p);}){}
+      observers([this](KEY* p){cout<<"erasing "<<p<<endl; erase(p);}){}
 
     ptr_indexed_object_bank(std::function<OBJ(const KEY&)> _make_obj):
       make_obj(_make_obj),
-      observers([this](KEY* p){erase(p);}){}
+      observers([this](KEY* p){cout<<"erasing "<<p<<endl; erase(p);}){}
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
