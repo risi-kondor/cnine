@@ -61,6 +61,16 @@ namespace cnine{
       return (*this)(&const_cast<KEY&>(key));
     }
 
+    OBJ operator()(shared_ptr<KEY> keyp){
+      auto& keyp=*key;
+      return (*this)(&key);
+    }
+
+    OBJ operator()(shared_ptr<const KEY> keyp){
+      const auto& keyp=*key;
+      return (*this)(&const_cast<KEY&>(key));
+    }
+
     OBJ& operator()(KEY* keyp){
       cout<<keyp<<endl;
       auto it=find(keyp);
