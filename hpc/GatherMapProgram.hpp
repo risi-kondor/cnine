@@ -139,7 +139,7 @@ namespace cnine{
 	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],vars[i].dims[1]*nc));
 
       for(auto& p:instructions){
-	cout<<"V"<<p.out<<":"<<v[p.out]->repr()<<" <- "<<"V"<<p.in<<":"<<v[p.in]->repr()<<endl;
+	//cout<<"V"<<p.out<<":"<<v[p.out]->repr()<<" <- "<<"V"<<p.in<<":"<<v[p.in]->repr()<<endl;
 	GatherRows()(*v[p.out],*v[p.in],*p.map);
       }
 
