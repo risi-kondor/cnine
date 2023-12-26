@@ -62,10 +62,11 @@ namespace cnine{
     }
 
     OBJ& operator()(KEY* keyp){
+      cout<<keyp<<endl;
       auto it=find(keyp);
       if(it!=unordered_map<KEY*,OBJ>::end()) 
 	return it->second;
-
+      cout<<"make"<<endl;
       observers.add(keyp);
       auto p=insert({keyp,make_obj(*keyp)});
       return p.first->second;
