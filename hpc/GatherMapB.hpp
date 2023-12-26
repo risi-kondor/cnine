@@ -86,6 +86,8 @@ namespace cnine{
     GatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1):
       in_columns(_in_columns),
       out_columns(_out_columns){
+      cout<<"make GatherMapB"<<endl;
+      cnine::flog timer("GatherMapB::[from map of lists]");
 
       int total=0;
       for(auto& p:x)
