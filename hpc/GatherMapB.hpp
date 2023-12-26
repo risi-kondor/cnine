@@ -17,6 +17,7 @@
 #include "Cnine_base.hpp"
 #include "hlists.hpp"
 #include "FixedkGatherMap.hpp"
+#include "map_of_lists.hpp"
 
 
 namespace cnine{
@@ -24,6 +25,7 @@ namespace cnine{
 
   class GatherMapB{
   private:
+  public:
 
     hlists<int> arr;
     shared_ptr<GatherMapB> _inv;
@@ -132,20 +134,23 @@ namespace cnine{
     }
 
     GatherMapB& move_to_device(const int _dev){
+      cout<<8887<<endl;
       arr.to_device(_dev);
       return *this;
     }
 
-    int* get_arrg(const int _dev=1){
+    int* get_arrg(const int _dev=1) const{
       if(!arrg) make_arrg();
       return arrg;
     }
 
-    void make_arrg(){
-      int memsize=arr.get_memsize()+arr.dir.memsize;
+    void make_arrg() const{
+      //cout<<arr.dir.memsize<<"...."<<arr.get_memsize()<<endl;
+      //int memsize=arr.get_memsize()+arr.dir.memsize;
+      int memsize=arr.get_tail()+arr.size()*2;
       CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
-      CUDA_SAFE(cudaMemcpy(arrg, arr.dir.arr, arr.dir.memsize*sizeof(int),cudaMemcpyHostToDevice));  
-      CUDA_SAFE(cudaMemcpy(arrg+arr.dir.memsize, arr.arr, arr.memsize*sizeof(TYPE),cudaMemcpyHostToDevice));  
+      CUDA_SAFE(cudaMemcpy(arrg, arr.dir.arr, 2*arr.size()*sizeof(int),cudaMemcpyHostToDevice));  
+      CUDA_SAFE(cudaMemcpy(arrg+2*arr.size(), arr.arr, arr.get_tail()*sizeof(int),cudaMemcpyHostToDevice));  
     }
 
 

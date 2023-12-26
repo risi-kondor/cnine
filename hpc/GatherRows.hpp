@@ -19,12 +19,13 @@
 #include "FixedkGatherMap.hpp"
 #include "Ltensor.hpp"
 
+#include "PtensLoggedTimer.hpp"
 
 namespace cnine{
 
 #ifdef _WITH_CUDA
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream);
-  extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const FixedkGatherMapB& g, const cudaStream_t& stream);
+  extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const FixedkGatherMap& g, const cudaStream_t& stream);
 #endif 
   
   class GatherRows{
@@ -53,6 +54,7 @@ namespace cnine{
     x.s0/=g.in_columns;
     
     if(_r.get_dev()==0){
+      ptens::TimedFn timer("CPU","gather 1<-1",r);
       CNINE_ASSRT(g.get_dev()==0);
       int N=g.size();
       for(int i=0; i<N; i++){
@@ -66,6 +68,7 @@ namespace cnine{
     }
 
     if(_r.get_dev()==1){
+      ptens::TimedFn timer("GPU","gather 1<-1",r);
       CUDA_STREAM(gatherRows_cu(r,x,g,stream));
     }
   }

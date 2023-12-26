@@ -15,19 +15,19 @@
 
 # ---- CUDA OPTIONS ------------------------------------
 
-# WITH_CUDA=t
-# CUDA_HOME=/usr/local/cuda
+WITH_CUDA=t
+CUDA_HOME=/usr/local/cuda
 
-# WITH_CUBLAS=t
+WITH_CUBLAS=t
 
 NVCC=nvcc #/usr/local/cuda/bin/nvcc #/Developer/NVIDIA/CUDA-9.1/bin/nvcc
 
-NVCCFLAGS= -lcublas
+NVCCFLAGS= -lcublas # -rdc=true 
 
-#NVCCFLAGS= -rdc=true -ccbin clang++ -m64  -Xcompiler -arch -Xcompiler x86_64  \
+#NVCCFLAGS= -rdc=true  -m64  -Xcompiler -arch -Xcompiler x86_64  \
 #-gencode arch=compute_61,code=sm_61 -lcublas 
 
-
+#-ccbin clang++ 
 # ----- QT OPTIONS -----------------------------------
 
 ## Path to Qt installation

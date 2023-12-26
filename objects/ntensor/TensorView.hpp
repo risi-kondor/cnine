@@ -1316,6 +1316,8 @@ namespace cnine{
 
     TYPE diff2(const TensorView& x) const{
       CNINE_ASSRT(x.asize()==asize());
+      if(get_dev()==0 && x.get_dev()>0)
+	return diff2(TensorView(x,0));
       TYPE t=0;
       if(is_regular() && x.is_regular()){
 	for(size_t i=0; i<asize(); i++){

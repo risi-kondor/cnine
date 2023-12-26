@@ -93,15 +93,15 @@ namespace cnine{
     }
 
 
-    [[deprecated]]
-    void gather(const GatherMapVar& out, const GatherMapVar& in, const GatherMapB* map){
-      gather(out,in,shared_ptr<const GatherMapB>(map));
-    }
+    //[[deprecated]]
+    //void gather(const GatherMapVar& out, const GatherMapVar& in, const GatherMapB* map){
+    //gather(out,in,shared_ptr<const GatherMapB>(map));
+    //}
 
-    [[deprecated]]
-    void gather(const GatherMapVar& out, const GatherMapVar& in, shared_ptr<const GatherMapB> map){
-      instructions.push_back(Instruction(map,out,in));
-    }
+    //[[deprecated]]
+    //void gather(const GatherMapVar& out, const GatherMapVar& in, shared_ptr<const GatherMapB> map){
+    //instructions.push_back(Instruction(map,out,in));
+    //}
     
     GatherMapProgram inv() const{
       GatherMapProgram R;
@@ -127,16 +127,18 @@ namespace cnine{
 
     template<typename TYPE>
     void operator()(const TensorView<TYPE>& output, const TensorView<TYPE>& arg0){
-      PTENS_ASSRT(arg0.ndims()==2);
-      PTENS_ASSRT(output.ndims()==2);
+      CNINE_ASSRT(output.get_dev()==arg0.get_dev());
+      CNINE_ASSRT(arg0.ndims()==2);
+      CNINE_ASSRT(output.ndims()==2);
       int nc=arg0.dim(1);
+      int dev=output.get_dev();
 
       vector<Ltensor<TYPE>*> v(vars.size());
       v[0]=new Ltensor<TYPE>(arg0);
       v[1]=new Ltensor<TYPE>(output);
 
       for(int i=2; i<vars.size(); i++)
-	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],vars[i].dims[1]*nc));
+	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],vars[i].dims[1]*nc),0,dev);
 
       for(auto& p:instructions){
 	//cout<<"V"<<p.out<<":"<<v[p.out]->repr()<<" <- "<<"V"<<p.in<<":"<<v[p.in]->repr()<<endl;
