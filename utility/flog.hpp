@@ -20,10 +20,11 @@
 #include <ctime>
 #include "CnineLog.hpp"
 
-extern cnine::CnineLog cnine::cnine_log;
 
 
 namespace cnine{
+
+extern cnine::CnineLog cnine_log;
 
   class ftimer{
   public:

@@ -74,9 +74,9 @@ namespace cnine{
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
-    //dim3 blocks(1,1,1);
+    multi=1; // muti seems to make things worse!
     dim3 threads(multi,nwarps*32);
-    //cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
+    cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
     //cout<<g.arr.dir<<endl;
 
     gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>

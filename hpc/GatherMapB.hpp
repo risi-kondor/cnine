@@ -18,9 +18,11 @@
 #include "hlists.hpp"
 #include "FixedkGatherMap.hpp"
 #include "map_of_lists.hpp"
-
+#include "flog.hpp"
 
 namespace cnine{
+
+  extern CnineLog cnine_log;
 
 
   class GatherMapB{

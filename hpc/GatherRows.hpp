@@ -69,6 +69,9 @@ namespace cnine{
     }
 
     if(_r.get_dev()==1){
+      {      cnine::flog stimer("GatherRows:: sort");
+      g.sort();
+      }
       cnine::flog ptimer("GatherRows::operator()(G)");
       cout<<g.arr.get_tail()<<endl;
       ptens::TimedFn timer("GPU","gather 1<-1",r,x,((long long)g.n_ops())*x.n1);
