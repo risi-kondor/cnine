@@ -62,12 +62,12 @@ namespace cnine{
     }
 
     OBJ operator()(shared_ptr<KEY> keyp){
-      auto& keyp=*key;
+      auto& key=*keyp;
       return (*this)(&key);
     }
 
     OBJ operator()(shared_ptr<const KEY> keyp){
-      const auto& keyp=*key;
+      const auto& key=*keyp;
       return (*this)(&const_cast<KEY&>(key));
     }
 
