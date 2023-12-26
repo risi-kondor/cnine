@@ -171,6 +171,10 @@ namespace cnine{
       return arr.size();
     }
 
+    int n_ops() const{
+      return arr.get_tail()-arr.size();
+    }
+
     int offset(const int i) const{
       return arr.offset(i);
     }

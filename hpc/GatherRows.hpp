@@ -54,7 +54,8 @@ namespace cnine{
     x.s0/=g.in_columns;
     
     if(_r.get_dev()==0){
-      ptens::TimedFn timer("CPU","gather 1<-1",r);
+      ptens::TimedFn ptimer("CPU","gather 1<-1",r,x,((long long)g.n_ops())*x.n1);
+      cnine::flog timer("GatherRows::operator()");
       CNINE_ASSRT(g.get_dev()==0);
       int N=g.size();
       for(int i=0; i<N; i++){
@@ -68,7 +69,9 @@ namespace cnine{
     }
 
     if(_r.get_dev()==1){
-      ptens::TimedFn timer("GPU","gather 1<-1",r);
+      cnine::flog ptimer("GatherRows::operator()(G)");
+      cout<<g.arr.get_tail()<<endl;
+      ptens::TimedFn timer("GPU","gather 1<-1",r,x,((long long)g.n_ops())*x.n1);
       CUDA_STREAM(gatherRows_cu(r,x,g,stream));
     }
   }
