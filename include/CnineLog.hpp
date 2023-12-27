@@ -63,13 +63,21 @@ namespace cnine{
 
     }
 
+
     ~CnineLog(){
 
-      if(call_log.size()>0) cout<<"Logged functions:"<<endl;
+      if(call_log.size()>0){
+	cout<<"Logged functions:"<<endl;
+	ofs<<endl;
+      }
+
       for(auto& p: call_log){
 	cout<<"  "<<p.second.str()<<endl;
 	ofs<<p.second.str()<<endl;
       }
+
+      if(call_log.size()>0)
+	cout<<endl;
 
       auto elapsed=chrono::duration<double>(chrono::system_clock::now()-topen).count();
       ofs<<endl<<"Cnine log closed after "<<to_string(elapsed)<<" seconds."<<endl;

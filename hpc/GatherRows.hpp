@@ -18,8 +18,8 @@
 #include "GatherMapB.hpp"
 #include "FixedkGatherMap.hpp"
 #include "Ltensor.hpp"
+#include "logged_timer.hpp"
 
-#include "PtensLoggedTimer.hpp"
 
 namespace cnine{
 
@@ -54,8 +54,8 @@ namespace cnine{
     x.s0/=g.in_columns;
     
     if(_r.get_dev()==0){
-      ptens::TimedFn ptimer("CPU","gather 1<-1",r,x,((long long)g.n_ops())*x.n1);
-      cnine::flog timer("GatherRows::operator()");
+      fnlog timer("GatherRows::operator()");
+      logged_timer ptimer("GatherRows(CPU)",r,x,((long long)g.n_ops())*x.n1);
       CNINE_ASSRT(g.get_dev()==0);
       int N=g.size();
       for(int i=0; i<N; i++){
@@ -64,17 +64,13 @@ namespace cnine{
 	int M=g.size_of(i);
 	for(int j=0; j<M; j++)
 	  targt+=x.slice0(g(i,j));
-	//auto r.slice0(targt)+=x.slice0(g(i,j));
       }
     }
 
     if(_r.get_dev()==1){
-      {      cnine::flog stimer("GatherRows:: sort");
       g.sort();
-      }
-      cnine::flog ptimer("GatherRows::operator()(G)");
-      cout<<g.arr.get_tail()<<endl;
-      ptens::TimedFn timer("GPU","gather 1<-1",r,x,((long long)g.n_ops())*x.n1);
+      fnlog timer("GatherRows::operator()(G)");
+      logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
       CUDA_STREAM(gatherRows_cu(r,x,g,stream));
     }
   }

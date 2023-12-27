@@ -18,7 +18,7 @@
 #include "hlists.hpp"
 #include "FixedkGatherMap.hpp"
 #include "map_of_lists.hpp"
-#include "flog.hpp"
+#include "fnlog.hpp"
 
 namespace cnine{
 
@@ -31,8 +31,9 @@ namespace cnine{
 
     hlists<int> arr;
     shared_ptr<GatherMapB> _inv;
+    mutable bool sorted=false;
 
-    int n=0; // why do we need this?
+    int n=0;
     int* arrg=nullptr; // unsafe!!
 
   public:
@@ -59,6 +60,7 @@ namespace cnine{
       n(_n){}
 
     GatherMapB(const vector<int>& sources, const vector<int>& targets){
+      cnine::fnlog timer("GatherMapB::GatherMapB(const vector<int>& sources, const vector<int>& targets)");
       CNINE_ASSRT(sources.size()==targets.size());
 
       int N=sources.size();
@@ -88,8 +90,8 @@ namespace cnine{
     GatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1):
       in_columns(_in_columns),
       out_columns(_out_columns){
-      cout<<"make GatherMapB"<<endl;
-      cnine::flog timer("GatherMapB::[from map of lists]");
+      cnine::fnlog timer("GatherMapB::GatherMapB(const map_of_lists<int,int>& map)");
+      //cout<<"make GatherMapB"<<endl;
 
       int total=0;
       for(auto& p:x)
@@ -138,7 +140,6 @@ namespace cnine{
     }
 
     GatherMapB& move_to_device(const int _dev){
-      cout<<8887<<endl;
       arr.to_device(_dev);
       return *this;
     }
@@ -202,11 +203,13 @@ namespace cnine{
     }
 
     int push_back(const int len){
+      sorted=false;
       arr.push_back(len);
       return size()-1;
     }
 
     void push_back(const int t, const vector<int>& v){
+      sorted=false;
       arr.push_back(t,v);
     }
 
@@ -235,6 +238,7 @@ namespace cnine{
 
 
     void make_inv() const{
+      cnine::fnlog timer("GatherMapB::make_inv()");
       map<int,vector<int> > inv_map;
       int total=0;
       for_each([&](const int i, const int j){
@@ -250,6 +254,9 @@ namespace cnine{
 
     
     const GatherMapB& sort() const{
+      cnine::fnlog timer("GatherMapB::sort()");
+      if(sorted) return *this;
+
       map<int,vector<int> > lengths;
       int N=size();
       for(int i=0; i<N; i++)
@@ -267,11 +274,13 @@ namespace cnine{
 	}
       }
       const_cast<GatherMapB&>(*this).arr=std::move(r.arr);
+      sorted=true;
       return *this;
     }
 
 
     const GatherMapB& grade(const int min_size=0) const{
+      cnine::fnlog timer("GatherMapB::grade()");
       map<int,vector<int> > lengths;
       int N=size();
       for(int i=0; i<N; i++)
