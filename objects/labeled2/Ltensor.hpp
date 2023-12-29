@@ -209,6 +209,21 @@ namespace cnine{
     Ltensor(const TensorView<TYPE>& x):
       BASE(x){}
 
+#ifdef _WITH_ATEN
+    Ltensor<TYPE>(const at::Tensor& T):
+      BASE(T){}
+
+    Ltensor(TYPE* _arr, const int _dev, const Gdims& _dims, const GstridesB& _strides):
+      TensorView<TYPE>(new MemBlob<TYPE>(_arr,_dev),_dims,_strides){
+    }
+
+    // this is pretty dangerous 
+    static Ltensor view(const at::Tensor& T){
+      return Ltensor(T.data<TYPE>(),T.type().is_cuda(),Gdims(T),GstridesB(T));
+    }
+
+#endif 
+
 
   public: // ---- Access ------------------------------------------------------------------------------------
 
@@ -362,14 +377,32 @@ namespace cnine{
   public: // ---- Operations --------------------------------------------------------------------------------
 
 
-    Ltensor<TYPE> operator*(const TYPE c) const{
-      Ltensor<TYPE> R=zeros_like();
+    Ltensor operator*(const TYPE c) const{
+      Ltensor R=zeros_like();
       R.add(*this,c);
       return R;
     }
 
-    Ltensor<TYPE> operator*(const Ltensor<TYPE>& y) const{
+    Ltensor operator*(const Ltensor& y) const{
       return mult(*this,y);
+    }
+
+    Ltensor scale_columns(const Ltensor& y) const{
+      Ltensor R=zeros_like();
+      R.add_scale_columns(*this,y);
+      return R;
+    }
+
+    Ltensor sum(const int d) const{
+      Ltensor R(dims.remove(d),0,dev);
+      R.add_sum(d,*this);
+      return R;
+    }
+
+    Ltensor ReLU(const TYPE alpha=0.1) const{
+      Ltensor R=zeros_like();
+      R.add_ReLU(*this,alpha);
+      return R;
     }
 
 
@@ -471,6 +504,19 @@ namespace cnine{
       x.total_bgdims(),x.cdim(0),x.cdim(1),2*x.min_gstride(),2*x.cstride(0),2*x.cstride(1),x.dev);
   }
 
+  template<typename TYPE>
+  inline Ltensor<TYPE> operator*(const Ltensor<TYPE>& x, const Ltensor<TYPE>& y){
+    Ltensor<TYPE> R(x.get_dims().Mprod(y.get_dims()),0,x.get_dev());
+    R.add_mprod(x,y);
+    return R;
+  }
+
+  template<typename TYPE>
+  inline Ltensor<TYPE> operator*(const TensorView<TYPE>& x, const Ltensor<TYPE>& y){
+    Ltensor<TYPE> R(x.get_dims().Mprod(y.get_dims()),0,x.get_dev());
+    R.add_mprod(x,y);
+    return R;
+  }
 
   inline Ltensor<complex<float> > mult(const Ltensor<complex<float> >& x, const Ltensor<complex<float> >& y){
     Gdims d(x.dims);

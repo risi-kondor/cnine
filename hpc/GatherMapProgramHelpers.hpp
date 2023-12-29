@@ -25,6 +25,7 @@ namespace cnine{
 
   
   class GatherMapVar{
+  public:
 
     friend class GatherMapProgram;
     friend class GatherMapProgramVariable;

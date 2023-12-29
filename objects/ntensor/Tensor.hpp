@@ -37,7 +37,7 @@ namespace cnine{
 #ifdef _WITH_CENGINE
 	      , public Cengine::Cobject
 #endif 
-{
+  {
   public:
 
     typedef std::size_t size_t;
@@ -64,6 +64,12 @@ namespace cnine{
     using TensorView<TYPE>::view3;
 
     using TensorView<TYPE>::str;
+    
+    //bool save_data=false;
+
+    //~Tensor(){
+    //if(save_data) arr.blob.arr=nullptr; // this is a terrible hack
+    //}
 
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -315,17 +321,28 @@ public: // ---- Conversions ----------------------------------------------------
   }
 
 
-  public: // ---- ATen --------------------------------------------------------------------------------------
+public: // ---- ATen --------------------------------------------------------------------------------------
 
 
-    #ifdef _WITH_ATEN
-
+#ifdef _WITH_ATEN
     Tensor(const at::Tensor& T):
       Tensor(Gdims(T),T.type().is_cuda()){
       TensorView<TYPE>::operator=(T);
     }
+  
+    /*
+      Tensor(TYPE* _arr, const int _dev, const Gdims& _dims, const GstridesB& _strides):
+      TensorView<TYPE>(new MemBlob<TYPE>(_arr,_dev),_dims,_strides){
+      save_data=true;
+      }
+      
+      static Tensor view(at::Tensor& T){
+      Tensor R(T.data<TYPE>(),T.type().is_cuda(),Gdims(T),GstridesB(T));
+      return R;
+    }
+    */
 
-    #endif
+#endif
 
 
   public: // ---- Eigen --------------------------------------------------------------------------------------
@@ -379,12 +396,12 @@ public: // ---- Conversions ----------------------------------------------------
 
   template<typename TYPE2>
   Tensor(const TensorView<TYPE2>& x):
-    TensorView<TYPE>(MemArr<TYPE>(x.memsize(),x.dev),x.dims,x.strides){
+    TensorView<TYPE>(MemArr<TYPE>(x.memsize(),x.get_dev()),x.get_dims(),x.get_strides()){
     CNINE_CONVERT_WARNING();
     CNINE_ASSRT(dev==0);
     size_t N=memsize();
     for(int i=0; i<N; i++)
-      arr[i]=x.arr[i];
+      arr[i]=x.get_arr()[i];
   }
 
 

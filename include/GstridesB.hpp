@@ -97,6 +97,15 @@ namespace cnine{
     }
 
 
+#ifdef _WITH_ATEN
+    GstridesB(const at::Tensor& T):
+      GstridesB(T.dim(),fill_raw()){
+      for(int i=0; i<size() ; i++)
+	(*this)[i]=T.stride(i);
+    }
+#endif 
+
+
   public:
 
     size_t operator()(const int i) const{

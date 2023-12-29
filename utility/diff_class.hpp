@@ -27,7 +27,7 @@ namespace cnine{
 
 #ifdef WITH_FAKE_GRAD
 
-    OBJ* grad=nullptr;
+    mutable OBJ* grad=nullptr;
 
     diff_class(){}
 
@@ -71,6 +71,11 @@ namespace cnine{
 
     OBJ& get_grad(){
       if(!grad) grad=OBJ::new_zeros_like(static_cast<OBJ&>(*this));
+      return *grad;
+    }
+
+    const OBJ& get_grad() const{
+      if(!grad) grad=OBJ::new_zeros_like(static_cast<const OBJ&>(*this));
       return *grad;
     }
 

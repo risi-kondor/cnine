@@ -60,6 +60,7 @@ namespace cnine{
   template<typename TYPE> class Tensor;
   template<typename TYPE> class TensorArrayView;
   template<typename TYPE> class TensorSArrayView;
+  template<typename TYPE> class Tensor;
   template<typename TYPE> class Ltensor;
 
 
@@ -87,6 +88,7 @@ namespace cnine{
     friend class Tensor<TYPE>;
     friend class TensorArrayView<TYPE>;
     friend class TensorSArrayView<TYPE>;
+    friend class Tensor<TYPE>;
     friend class Ltensor<TYPE>;
 
     typedef std::size_t size_t;
@@ -303,7 +305,7 @@ namespace cnine{
     }
 
 
-  private:
+    //private:
 
 
     void move_to_device(const int _dev) const{
@@ -622,6 +624,10 @@ namespace cnine{
       return strides[i];
     }
 
+    GstridesB get_strides() const{
+      return strides;
+    }
+
     size_t asize() const{
       return dims.asize();
     }
@@ -639,9 +645,9 @@ namespace cnine{
     //return arr.get_arr();
     //} 
 
-    //const TYPE* get_arr() const{
-    //return arr.get_arr();
-    //} 
+    const TYPE* get_arr() const{
+      return arr.get_arr();
+    } 
 
     //TYPE* get_arro(){
     //return arr.get_arr()+strides.offset;
@@ -1106,8 +1112,33 @@ namespace cnine{
 
     void add_broadcast(const int d, const TensorView& x){
       CNINE_ASSRT(d<dims.size());
-      for(int i=0; i<dims[d]; i++)
-	slice(d)=x;
+      CNINE_CPUONLY();
+      if(dev==0)
+	for(int i=0; i<dims[d]; i++)
+	  slice(d)+=x;
+    }
+
+    void add_ReLU(const TensorView& x, const float alpha){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(x.get_dev()==get_dev());
+      int N=asize();
+      for(int i=0; i<N; i++) 
+	arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
+    }
+
+    void add_ReLU_back(const TensorView& g, const TensorView& x, const float alpha){
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      CNINE_CHECK_SIZE(dims.check_eq(g.dims));
+      assert(x.get_dev()==get_dev());
+      assert(g.get_dev()==get_dev());
+      int N=asize();
+      if(dev==0){
+	for(int i=0; i<N; i++) 
+	  arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*g.arr[i];
+      }
+      if(dev==1){
+	CNINE_UNIMPL();
+      }
     }
 
 
@@ -1225,6 +1256,32 @@ namespace cnine{
 	  CNINE_UNIMPL();
 	});
     }
+
+
+  public: // ---- Scaling -----------------------------------------------------------------------------------
+
+    
+    void add_scale_columns(const TensorView<TYPE>& x, const TensorView& y){
+      CNINE_DEVICE_SAME(x);
+      CNINE_DEVICE_SAME(y);
+      CNINE_ASSRT(x.ndims()==2);
+      CNINE_ASSRT(y.ndims()==1);
+      int n=dim(0);
+      int nc=dim(1);
+      CNINE_ASSRT(x.dim(0)==n);
+      CNINE_ASSRT(x.dim(1)==nc);
+      CNINE_ASSRT(y.dim(1)==nc);
+      if(dev==0){
+	for(int i=0; i<n; i++)
+	  for(int j=0; j<nc; j++)
+	    arr[i*nc+j]+=x.arr[i*nc+j]*y.arr[j];
+      }
+      if(dev==1){
+	CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,arrg,nc,y.get_arr(),1,get_arr(),nc));
+	//CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
+      }    
+    }
+
 
 
   public: // ---- Not in-place operations -------------------------------------------------------------------

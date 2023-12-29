@@ -48,6 +48,10 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
+    // just for taking views of ATen tensors 
+    MemBlob(TYPE* _arr, const int _dev=0):
+      arr(_arr), dev(_dev){}
+
     MemBlob(size_t _memsize, const int _dev=0):
       dev(_dev){
       if(_memsize<1) _memsize=1;

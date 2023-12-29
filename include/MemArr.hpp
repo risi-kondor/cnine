@@ -47,6 +47,10 @@ namespace cnine{
       //CNINE_ERROR("MemArr must always be initialized to a new or existing blob of memory");
     }
 
+    // just for taking views of ATen tensors 
+    MemArr(MemBlob<TYPE>* _blob):
+      blob(_blob){}
+
     MemArr(const size_t _memsize, const int _dev=0):
       blob(new MemBlob<TYPE>(_memsize,_dev)){}
 
