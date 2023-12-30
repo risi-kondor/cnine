@@ -49,6 +49,11 @@ namespace cnine{
       make_obj(_make_obj),
       observers([this](KEY* p){erase(p);}){}
 
+    //template<typename ARG0>
+    //ptr_indexed_object_bank(std::function<OBJ(const KEY&)> _make_obj):
+    //make_obj(_make_obj),
+    //observers([this](KEY* p){erase(p);}){}
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 

@@ -131,6 +131,12 @@ namespace cnine{
 	  lambda(p.first,q.first,q.second);
     }
 
+    //void for_each(const KEY1& x, const std::function<void(const KEY2&, const TYPE&)>& lambda) const{
+    //for(auto& p:data)
+    //for(auto& q:p.second)
+    //  lambda(p.first,q.first,q.second);
+    //}
+
 
 
   public: // ---- I/O ---------------------------------------------------------------------------------------

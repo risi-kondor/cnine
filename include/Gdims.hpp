@@ -172,16 +172,19 @@ namespace cnine{
       return (*this)[size()-1-i];
     }
 
-    void set(const int i, const int x){
+    Gdims& set(const int i, const int x){
       (*this)[i]=x;
+      return *this;
     }
 
-    void set_back(const int x){
+    Gdims& set_back(const int x){
       (*this)[size()-1]=x;
+      return *this;
     }
 
-    void set_back(const int i, const int x){
+    Gdims& set_back(const int i, const int x){
       (*this)[size()-1-i]=x;
+      return *this;
     }
 
     int first() const{

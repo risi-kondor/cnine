@@ -878,11 +878,11 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k)/*.set_offset(strides.chunk(0,k)(ix))*/);
     }
 
-    TensorView<TYPE> slices(const int d, const int i, const int j) const{
+    TensorView<TYPE> slices(const int d, const int i, const int j) const{ //changed
       CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
-      CNINE_CHECK_RANGE(dims.check_in_range_d(d,j-1,string(__PRETTY_FUNCTION__)));
+      CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+j,string(__PRETTY_FUNCTION__)));
       Gdims _dims(dims);
-      return TensorView<TYPE>(arr+strides[d]*i,_dims.set(d,j-1),strides);
+      return TensorView<TYPE>(arr+strides[d]*i,_dims.set(d,j),strides);
     }
 
     TensorView<TYPE> unsqueeze(const int d) const{

@@ -400,7 +400,10 @@ namespace cnine{
     return std::shared_ptr<TYPE>(x);
   }
 
-  
+  template<typename TYPE>
+  class selector: public std::vector<TYPE>{
+    TYPE operator()(const int i) const {return (*this)[i];}
+  };
 
   class Printable{
   public:
