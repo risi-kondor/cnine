@@ -383,6 +383,10 @@ namespace cnine{
       return R;
     }
 
+    Ltensor mprod(const Ltensor& y) const{
+      return mult(*this,y);
+    }
+
     Ltensor operator*(const Ltensor& y) const{
       return mult(*this,y);
     }
