@@ -185,6 +185,10 @@ namespace cnine{
       return Ltensor(dims,labels,0,dev);
     }
 
+    Ltensor gaussian_like() const{
+      return Ltensor(dims,labels,4,dev);
+    }
+
 
   public: // ---- Views -------------------------------------------------------------------------------------
 
@@ -406,6 +410,29 @@ namespace cnine{
     Ltensor ReLU(const TYPE alpha=0.1) const{
       Ltensor R=zeros_like();
       R.add_ReLU(*this,alpha);
+      return R;
+    }
+
+
+  public: // ---- Stacking ----------------------------------------------------------------------------------
+
+
+    template<typename OBJ>
+    static Ltensor stack(int d, const vector<reference_wrapper<OBJ> >& list){
+      CNINE_ASSRT(list.size()>0);
+      CNINE_ASSRT(d<list[0].get().ndims());
+      Gdims dims0=list[0].get().dims.remove(d);
+      int t=0;
+      for(int i=1; i<list.size(); i++){
+	t+=list[i].get().dim(d);
+	CNINE_ASSRT(list[i].get().dims.remove(d)==dims0);
+      }
+      Ltensor R(dims0.set(d,t),0,list[0].get().get_dev());
+      t=0;
+      for(int i=1; i<list.size(); i++){
+	R.slices(d,t,list[i].get().dim(d))+=list[i].get();
+	t+=list[i].get().dim(d);
+      }
       return R;
     }
 

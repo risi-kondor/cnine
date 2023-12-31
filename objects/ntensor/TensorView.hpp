@@ -470,7 +470,6 @@ namespace cnine{
 
     #ifdef _WITH_ATEN
 
-    // TODO complex<float> is baked in here
     TensorView(const at::Tensor& T):
       TensorView(Gdims(T),T.type().is_cuda()){
       operator=(T);
@@ -526,27 +525,33 @@ namespace cnine{
     }
     */
 
-    //IF_CFLOAT
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
       assert(dev==0);
       int k=ndims();
-      vector<int64_t> v(k); 
-      for(int i=0; i<k; i++) v[i]=dims[i];
+      //vector<int64_t> v(k); 
+      //for(int i=0; i<k; i++) v[i]=dims[i];
+
+      if constexpr(std::is_same<TYPE,int>::value){
+	at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kInt))); 
+	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<int>());
+	return R;
+      }
 
       if constexpr(std::is_same<TYPE,float>::value){
-	at::Tensor R(at::zeros(v,torch::CPU(at::kFloat))); 
+	at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kFloat))); 
 	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<float>());
+	return R;
       }
 
       if constexpr(std::is_same<TYPE,complex<float> >::value){
-	at::Tensor R(at::zeros(v,torch::CPU(at::kComplexFloat))); 
+	at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kComplexFloat))); 
 	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
 	return R;
       }
       
       CNINE_UNIMPL();
-      return at::Tensor(at::zeros(v,torch::CPU(at::kFloat))); 
+      return at::Tensor(at::zeros(dims.as_int64(),torch::CPU(at::kFloat))); 
     }
 
     #endif
@@ -880,7 +885,7 @@ namespace cnine{
 
     TensorView<TYPE> slices(const int d, const int i, const int j) const{ //changed
       CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
-      CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+j,string(__PRETTY_FUNCTION__)));
+      CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+j-1,string(__PRETTY_FUNCTION__)));
       Gdims _dims(dims);
       return TensorView<TYPE>(arr+strides[d]*i,_dims.set(d,j),strides);
     }
@@ -915,7 +920,12 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
     }
 
-    TensorView<TYPE> block2(const int i0, const int i1, int m0, int m1){
+    TensorView<TYPE> block(const int i0, const int i1, const int m0, const int m1) const{
+      CNINE_ASSRT(ndims()==2);
+      return block({m0,m1},{i0,i1});
+    }
+
+    TensorView<TYPE> block2(const int i0, const int i1, const int m0, const int m1) const{
       CNINE_ASSRT(ndims()==2);
       return block({m0,m1},{i0,i1});
     }
@@ -1133,7 +1143,7 @@ namespace cnine{
       assert(g.get_dev()==get_dev());
       int N=asize();
       if(dev==0){
-	for(int i=0; i<N; i++) 
+	for(int i=0; i<N; i++)
 	  arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*g.arr[i];
       }
       if(dev==1){
@@ -1270,7 +1280,7 @@ namespace cnine{
       int nc=dim(1);
       CNINE_ASSRT(x.dim(0)==n);
       CNINE_ASSRT(x.dim(1)==nc);
-      CNINE_ASSRT(y.dim(1)==nc);
+      CNINE_ASSRT(y.dim(0)==nc);
       if(dev==0){
 	for(int i=0; i<n; i++)
 	  for(int j=0; j<nc; j++)

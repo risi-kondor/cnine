@@ -155,6 +155,13 @@ namespace cnine{
 
     #endif 
 
+    vector<int64_t> as_int64() const{
+      vector<int64_t> v(size());
+      for(int i=0; i<size(); i++)
+	v[i]=(*this)[i];
+      return v;
+    }
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
