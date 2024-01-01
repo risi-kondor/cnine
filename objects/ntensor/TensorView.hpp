@@ -802,11 +802,10 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides[0]*i,{dims[1]},{strides[1]});
     }
 
-    TensorView<TYPE> rows(const int i, const int j) const{
+    TensorView<TYPE> rows(const int i, const int n) const{
       CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i<dims[0]);
-      CNINE_ASSRT(j<=dims[0]);
-      return TensorView<TYPE>(arr+strides[0]*i,{j-i,dims[1]},{strides[0],strides[1]});
+      CNINE_ASSRT(i+n<=dims[0]);
+      return TensorView<TYPE>(arr+strides[0]*i,{n,dims[1]},{strides[0],strides[1]});
     }
 
     TensorView<TYPE> col(const int i) const{
@@ -815,13 +814,11 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides[1]*i,{dims[0]},{strides[0]});
     }
 
-    TensorView<TYPE> cols(const int i, const int j) const{
+    TensorView<TYPE> cols(const int i, const int n) const{
       CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i<dims[1]);
-      CNINE_ASSRT(j<=dims[1]);
-      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],j-i},{strides[0],strides[1]});
+      CNINE_ASSRT(i+n<dims[1]);
+      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
     }
-
 
     tensor1_view<TYPE> rowv(const int i) const{
       CNINE_ASSRT(ndims()==2);
