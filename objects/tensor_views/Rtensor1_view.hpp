@@ -180,8 +180,21 @@ namespace cnine{
 	CPUCODE(stdadd<float>(x.arr,x.arr+n0,arr));
 	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,1,arr,1)));
       }else{
-	CPUCODE(for(int i0=0; i0<n0; i0++) set(i0,x(i0)));
+	CPUCODE(for(int i0=0; i0<n0; i0++) inc(i0,x(i0)));
 	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,x.s0,arr,s0)));
+      }
+    }
+
+    void add(const Rtensor1_view& x, const float c) const{
+      CNINE_DEVICE_SAME(x);
+      assert(x.n0==n0);
+      if(is_regular() && x.is_regular()){
+	CPUCODE(for(int i0=0; i0<n0; i0++) arr[i0]+=c*x.arr[i0];);
+	CPUCODE(stdadd<float>(x.arr,x.arr+n0,arr));
+	GPUCODE(CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&c,x.arr,1,arr,1)));
+      }else{
+	CPUCODE(for(int i0=0; i0<n0; i0++) inc(i0,c*x(i0)));
+	GPUCODE(CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&c,x.arr,x.s0,arr,s0)));
       }
     }
 

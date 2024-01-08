@@ -137,6 +137,12 @@ namespace cnine{
       return Rtensor2_view(arr+i0*s0+i1*s1,m0,m1,s0,s1,dev);
     }
 
+    Rtensor2_view cols(const int i1, int m1=-1) const{
+      CNINE_CPUONLY();
+      if(m1<0) m1=n1-i1;
+      return Rtensor2_view(arr+i1*s1,n0,m1,s0,s1,dev);
+    }
+
 
   public: // ---- Operations --------------------------------------------------------------------------------
 
@@ -399,7 +405,7 @@ namespace cnine{
 
     void reduce1_destructively_into(const Rtensor1_view& r) const{
       assert(r.n0==n0);
-      reduce0_destructively();
+      reduce1_destructively();
       r.add(slice1(0));
     }
 
@@ -523,6 +529,7 @@ namespace cnine{
     Rtensor2_view transp() const{
       return Rtensor2_view(arr,n1,n0,s1,s0,dev);
     }
+
     Rtensor1_view slice0(const int i) const{
       CNINE_CHECK_RANGE(if(i<0 || i>=n0) throw std::out_of_range("cnine::Rtensor2_view:slice0(int): index "+to_string(i)+" out of range of [0,"+to_string(n0-1)+"]"););
       return Rtensor1_view(arr+i*s0,n1,s1,dev);

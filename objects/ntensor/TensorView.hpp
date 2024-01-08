@@ -121,7 +121,7 @@ namespace cnine{
       dims(_dims),
       strides(GstridesB(_dims)),
       dev(_dev){
-      
+
       size_t N=dims.total();
 
       if(fcode==0){
@@ -816,7 +816,7 @@ namespace cnine{
 
     TensorView<TYPE> cols(const int i, const int n) const{
       CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i+n<dims[1]);
+      CNINE_ASSRT(i+n<=dims[1]);
       return TensorView<TYPE>(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
     }
 

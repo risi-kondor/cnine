@@ -81,6 +81,12 @@ namespace cnine{
       arr[dir(i,0)]=v;
     }
 
+    int& ref(const int i, const int j) const{
+      CNINE_ASSRT(i<size());
+      CNINE_ASSRT(j<dir(i,1)-1);
+      return arr[dir(i,0)+j+1];
+    }
+
     int operator()(const int i, const int j) const{
       CNINE_ASSRT(i<size());
       CNINE_ASSRT(j<dir(i,1)-1);

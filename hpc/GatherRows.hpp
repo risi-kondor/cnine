@@ -16,6 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include "GatherMapB.hpp"
+#include "WeightedGatherMapB.hpp"
 #include "FixedkGatherMap.hpp"
 #include "Ltensor.hpp"
 #include "logged_timer.hpp"
@@ -25,55 +26,96 @@ namespace cnine{
 
 #ifdef _WITH_CUDA
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream);
+  extern void gatherRowsw_cu(const Rtensor2_view& r, const Rtensor2_view& x, const WeightedGatherMapB& g, const cudaStream_t& stream);
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const FixedkGatherMap& g, const cudaStream_t& stream);
 #endif 
   
   class GatherRows{
   public:
 
-  template<typename TYPE>
-  void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapB& g){
-    CNINE_ASSRT(_r.ndims()==2);
-    CNINE_ASSRT(_r.dim(1)%g.out_columns==0);
-    CNINE_ASSRT(_x.ndims()==2);
-    CNINE_ASSRT(_x.dim(1)%g.in_columns==0);
+    template<typename TYPE>
+    void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapB& g){
+      CNINE_ASSRT(_r.ndims()==2);
+      CNINE_ASSRT(_r.dim(1)%g.out_columns==0);
+      CNINE_ASSRT(_x.ndims()==2);
+      CNINE_ASSRT(_x.dim(1)%g.in_columns==0);
 
-    if(g.fixedk_maps.size()>0){
-      for(auto& p: g.fixedk_maps)
-	(*this)(_r,_x,*p);
-    }
-    if(g.size()==0) return;
+      if(g.fixedk_maps.size()>0){
+	for(auto& p: g.fixedk_maps)
+	  (*this)(_r,_x,*p);
+      }
 
-    auto r=_r.view2();
-    r.n0*=g.out_columns;
-    r.n1/=g.out_columns;
-    r.s0/=g.out_columns;
-    auto x=_x.view2();
-    x.n0*=g.in_columns;
-    x.n1/=g.in_columns;
-    x.s0/=g.in_columns;
+      if(dynamic_cast<const WeightedGatherMapB*>(&g)) 
+	weighted(_r,_x,dynamic_cast<const WeightedGatherMapB&>(g));
+
+      if(g.size()==0) return;
+
+      auto r=_r.view2();
+      r.n0*=g.out_columns;
+      r.n1/=g.out_columns;
+      r.s0/=g.out_columns;
+      auto x=_x.view2();
+      x.n0*=g.in_columns;
+      x.n1/=g.in_columns;
+      x.s0/=g.in_columns;
+
     
-    if(_r.get_dev()==0){
-      fnlog timer("GatherRows::operator()");
-      logged_timer ptimer("GatherRows(CPU)",r,x,((long long)g.n_ops())*x.n1);
-      CNINE_ASSRT(g.get_dev()==0);
-      int N=g.size();
-      for(int i=0; i<N; i++){
-	auto targt=r.slice0(g.target(i));
-	targt.n0=x.n1; // hack
-	int M=g.size_of(i);
-	for(int j=0; j<M; j++)
-	  targt+=x.slice0(g(i,j));
+      if(_r.get_dev()==0){
+	fnlog timer("GatherRows::operator()");
+	logged_timer ptimer("GatherRows(CPU)",r,x,((long long)g.n_ops())*x.n1);
+	CNINE_ASSRT(g.get_dev()==0);
+	int N=g.size();
+	for(int i=0; i<N; i++){
+	  auto targt=r.slice0(g.target(i));
+	  targt.n0=x.n1; // hack
+	  int M=g.size_of(i);
+	  for(int j=0; j<M; j++)
+	    targt+=x.slice0(g(i,j));
+	}
+      }
+
+      if(_r.get_dev()==1){
+	g.sort();
+	fnlog timer("GatherRows::operator()(G)");
+	logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
+	CUDA_STREAM(gatherRows_cu(r,x,g,stream));
       }
     }
 
-    if(_r.get_dev()==1){
-      g.sort();
-      fnlog timer("GatherRows::operator()(G)");
-      logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
-      CUDA_STREAM(gatherRows_cu(r,x,g,stream));
+
+    template<typename TYPE>
+    void weighted(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const WeightedGatherMapB& g){
+      auto r=_r.view2();
+      r.n0*=g.out_columns;
+      r.n1/=g.out_columns;
+      r.s0/=g.out_columns;
+      auto x=_x.view2();
+      x.n0*=g.in_columns;
+      x.n1/=g.in_columns;
+      x.s0/=g.in_columns;
+
+      if(_r.get_dev()==0){
+	fnlog timer("GatherRows::weighted()");
+	logged_timer ptimer("GatherRows::weighted(CPU)",r,x,((long long)g.n_ops())*x.n1);
+	CNINE_ASSRT(g.get_dev()==0);
+	int N=g.size();
+	for(int i=0; i<N; i++){
+	  auto targt=r.slice0(g.target(i));
+	  targt.n0=x.n1; // hack
+	  int M=g.size_of(i);
+	  for(int j=0; j<M; j++)
+	    targt.add(x.slice0(g.src(i,j)),g.weight(i,j));
+	}
+      }
+
+      if(_r.get_dev()==1){
+	g.sort();
+	fnlog timer("GatherRows::weighted()(G)");
+	logged_timer ptimer("GatherRows::weighted(GPU)",r,x,((long long)g.n_ops())*x.n1);
+	CUDA_STREAM(gatherRowsw_cu(r,x,g,stream));
+      }
     }
-  }
+
 
 
   template<typename TYPE>

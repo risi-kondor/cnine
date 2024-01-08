@@ -56,6 +56,7 @@ namespace cnine{
 	  matches.pop_back();
 	}
       }
+
     }
 
     int nmatches() const{

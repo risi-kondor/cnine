@@ -11,56 +11,61 @@
  *
  */
 
-#ifndef _GatherMapB
-#define _GatherMapB
+#ifndef _WeightedGatherMapB
+#define _WeightedGatherMapB
 
 #include "Cnine_base.hpp"
 #include "hlists.hpp"
 #include "FixedkGatherMap.hpp"
 #include "map_of_lists.hpp"
 #include "fnlog.hpp"
+#include "GatherMapB.hpp"
 
 namespace cnine{
 
   extern CnineLog cnine_log;
 
 
-  class GatherMapB{
+  class WeightedGatherMapB: public GatherMapB{
   private:
   public:
 
-    hlists<int> arr;
-    shared_ptr<GatherMapB> _inv;
-    mutable bool sorted=false;
+    typedef GatherMapB BASE;
 
-    int n=0;
-    int* arrg=nullptr; // unsafe!!
+    using BASE::BASE;
+
+    //hlists<int> arr;
+    shared_ptr<WeightedGatherMapB> _inv;
+    //mutable bool sorted=false;
+
+    //int n=0;
+    //int* arrg=nullptr; // unsafe!!
 
   public:
 
     vector<shared_ptr<FixedkGatherMap> > fixedk_maps;
 
-    int in_columns=1;
-    int out_columns=1;
+    //int in_columns=1;
+    //int out_columns=1;
 
 
   public:
 
-    ~GatherMapB(){
-      if(arrg) {CUDA_SAFE(cudaFree(arrg));}
+    ~WeightedGatherMapB(){
+      //if(arrg) {CUDA_SAFE(cudaFree(arrg));}
     }
 
 
   public: // ---- Constructors -------------------------------------------------------------------------------
 
 
-    GatherMapB(){}
+    WeightedGatherMapB(){}
 
-    GatherMapB(const int _n): 
-      n(_n){}
+    WeightedGatherMapB(const int _n): 
+      BASE(_n){}
 
-    GatherMapB(const vector<int>& sources, const vector<int>& targets){
-      cnine::fnlog timer("GatherMapB::GatherMapB(const vector<int>& sources, const vector<int>& targets)");
+    WeightedGatherMapB(const vector<int>& sources, const vector<int>& targets, const vector<float>& weights){
+      cnine::fnlog timer("WeightedGatherMapB::WeightedGatherMapB(const vector<int>& sources, const vector<int>& targets)");
       CNINE_ASSRT(sources.size()==targets.size());
 
       int N=sources.size();
@@ -82,16 +87,16 @@ namespace cnine{
 
       arr=hlists(heads,lengths);
       for(int i=0; i<N; i++){
-	arr.push_back(mapping[targets[i]],sources[i]);
+	push_back(mapping[targets[i]],sources[i],weights[i]);
       }
     }
     
 
-    GatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1):
-      in_columns(_in_columns),
-      out_columns(_out_columns){
-      cnine::fnlog timer("GatherMapB::GatherMapB(const map_of_lists<int,int>& map)");
-      //cout<<"make GatherMapB"<<endl;
+    WeightedGatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1){
+      in_columns=_in_columns;
+      out_columns=_out_columns;
+      cnine::fnlog timer("WeightedGatherMapB::WeightedGatherMapB(const map_of_lists<int,int>& map)");
+      //cout<<"make WeightedGatherMapB"<<endl;
 
       int total=0;
       for(auto& p:x)
@@ -106,11 +111,11 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    //GatherMapB(const int _n, const array_pool<int>& _arr):
+    //WeightedGatherMapB(const int _n, const array_pool<int>& _arr):
     //arr(_arr), n(_n){
     //}
 
-    //GatherMapB(const int _n, array_pool<int>&& _arr):
+    //WeightedGatherMapB(const int _n, array_pool<int>&& _arr):
     //arr(std::move(_arr)),  n(_n){
     //}
 
@@ -118,8 +123,8 @@ namespace cnine{
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static GatherMapB random(const int _n, const int m, const float p){
-      GatherMapB r(_n);
+    static WeightedGatherMapB random(const int _n, const int m, const float p){
+      WeightedGatherMapB r(_n);
       uniform_real_distribution<double> distr(0,1);
       for(int i=0; i<_n; i++){
 	vector<int> v;
@@ -135,11 +140,11 @@ namespace cnine{
   public: // ---- Transport ----------------------------------------------------------------------------------
 
 
-    GatherMapB(const GatherMapB& x, const int _dev):
-      arr(x.arr,_dev), n(x.n){
-    }
+    //WeightedGatherMapB(const WeightedGatherMapB& x, const int _dev):
+    //arr(x.arr,_dev), BASE(x.n){
+    //}
 
-    GatherMapB& move_to_device(const int _dev){
+    WeightedGatherMapB& move_to_device(const int _dev){
       arr.to_device(_dev);
       return *this;
     }
@@ -162,52 +167,64 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
-    int get_dev() const{
-      return arr.get_dev();
-    }
+    //int get_dev() const{
+    //return arr.get_dev();
+    //}
 
-    int getn() const{
-      return n;
-    }
+    //int getn() const{
+    //return n;
+    //}
 
     int size() const{
       return arr.size();
     }
 
-    // need at least one virtual fn for class 
-    // to be polymorphic 
-    virtual int n_ops() const{
-      return arr.get_tail()-arr.size();
+    int n_ops() const{
+      return arr.get_tail()/2-arr.size();
     }
 
-    int offset(const int i) const{
-      return arr.offset(i);
-    }
+    //int offset(const int i) const{
+    //return arr.offset(i);
+    //}
 
     int size_of(const int i) const{
-      return arr.size_of(i);
+      return arr.size_of(i)/2;
     }
 
-    int target(const int i) const{
-      return arr.head(i);
+    //int target(const int i) const{
+    //return arr.head(i);
+    //}
+
+    //void set_target(const int i, const int x){
+    //arr.set_head(i,x);
+    //}
+
+    pair<int,float> operator()(const int i, const int j) const{
+      return make_pair(arr(i,2*j),reinterpret_cast<const float&>(arr.ref(i,2*j+1)));
+    }
+    
+    void set(const int i, const int j, const int x, const float& c){
+      arr.set(i,2*j,x);
+      arr.set(i,2*j+1,reinterpret_cast<const float&>(c));
     }
 
-    void set_target(const int i, const int x){
-      arr.set_head(i,x);
+    int src(const int i, const int j) const{
+      return arr(i,2*j);
     }
 
-    int operator()(const int i, const int j) const{
-      return arr(i,j);
-    }
-
-    void set(const int i, const int j, const int x){
-      arr.set(i,j,x);
+    float weight(const int i, const int j) const{
+      return reinterpret_cast<const float&>(arr.ref(i,2*j+1));
     }
 
     int push_back(const int len){
       sorted=false;
-      arr.push_back(len);
+      arr.push_back(2*len);
       return size()-1;
+    }
+
+    void push_back(const int i, const int s, const float& w){
+      arr.push_back(i,s);
+      arr.push_back(i,reinterpret_cast<const int&>(w));
     }
 
     void push_back(const int t, const vector<int>& v){
@@ -215,22 +232,22 @@ namespace cnine{
       arr.push_back(t,v);
     }
 
-    void for_each(std::function<void(const int i, const int j)> lambda) const{
+    void for_each(std::function<void(const int i, const int j, const float w)> lambda) const{
       int N=size();
       for(int i=0; i<N; i++){
 	int M=size_of(i);
 	int targt=target(i);
 	for(int j=0; j<M; j++)
-	  lambda(targt,(*this)(i,j));
+	  lambda(targt,src(i,j),weight(i,j));
       }
     }
 
-    shared_ptr<GatherMapB> inv_ptr() const{
+    shared_ptr<WeightedGatherMapB> inv_ptr() const{
       if(!_inv.get()) make_inv();
       return _inv;
     }
 
-    const GatherMapB& inv() const{
+    const WeightedGatherMapB& inv() const{
       if(!_inv.get()) make_inv();
       return *_inv;
     }
@@ -240,30 +257,32 @@ namespace cnine{
 
 
     void make_inv() const{
-      cnine::fnlog timer("GatherMapB::make_inv()");
+      cnine::fnlog timer("WeightedGatherMapB::make_inv()");
       map<int,vector<int> > inv_map;
       int total=0;
-      for_each([&](const int i, const int j){
+      for_each([&](const int i, const int j, const float v){
+	  //inv_map[j].push_back(make_pair(i,v));
 	  inv_map[j].push_back(i);
-	  total++;
+	  inv_map[j].push_back(reinterpret_cast<const int&>(v));
+	  total+=2;
 	});
-      GatherMapB* r=new GatherMapB(inv_map.rbegin()->first+1);
+      WeightedGatherMapB* r=new WeightedGatherMapB(inv_map.rbegin()->first+1);
       r->arr.reserve(size()+total);
       for(auto& p: inv_map)
 	r->arr.push_back(p.first,p.second);
-      const_cast<GatherMapB&>(*this)._inv.reset(r);
+      const_cast<WeightedGatherMapB&>(*this)._inv.reset(r);
     }
 
     
-    const GatherMapB& sort() const{
-      cnine::fnlog timer("GatherMapB::sort()");
+    const WeightedGatherMapB& sort() const{
+      cnine::fnlog timer("WeightedGatherMapB::sort()");
       if(sorted) return *this;
 
       map<int,vector<int> > lengths;
       int N=size();
       for(int i=0; i<N; i++)
 	lengths[-size_of(i)].push_back(i);
-      GatherMapB r(n);
+      WeightedGatherMapB r(n);
       r.arr.reserve(arr.tail);
       for(auto& p:lengths){
 	int K=-p.first;
@@ -271,18 +290,18 @@ namespace cnine{
 	  int i=r.push_back(K);
 	  r.set_target(i,target(q));
 	  for(int a=0; a<K; a++){
-	    r.set(i,a,(*this)(q,a));
+	    r.set(i,a,src(q,a),weight(q,a));
 	  }
 	}
       }
-      const_cast<GatherMapB&>(*this).arr=std::move(r.arr);
+      const_cast<WeightedGatherMapB&>(*this).arr=std::move(r.arr);
       sorted=true;
       return *this;
     }
 
-
-    const GatherMapB& grade(const int min_size=0) const{
-      cnine::fnlog timer("GatherMapB::grade()");
+    /*
+    const WeightedGatherMapB& grade(const int min_size=0) const{
+      cnine::fnlog timer("WeightedGatherMapB::grade()");
       map<int,vector<int> > lengths;
       int N=size();
       for(int i=0; i<N; i++)
@@ -293,7 +312,7 @@ namespace cnine{
 	if(p.second.size()<min_size)
 	  rem_size+=(p.first+1)*p.second.size();
 
-      GatherMapB r(n);
+      WeightedGatherMapB r(n);
       r.arr.reserve(rem_size);
 
       for(auto& p:lengths){
@@ -303,7 +322,7 @@ namespace cnine{
 	  auto gv=g->view2();
 	  for(int j=0; j<p.second.size(); j++)
 	    gv.slice0(j)=arr.array_pool<int>::view_of(p.second[j]);
-	  const_cast<GatherMapB&>(*this).fixedk_maps.push_back(shared_ptr<FixedkGatherMap>(g));
+	  const_cast<WeightedGatherMapB&>(*this).fixedk_maps.push_back(shared_ptr<FixedkGatherMap>(g));
 	}else{
 	  for(auto q:p.second){
 	    int i=r.push_back(K);
@@ -314,20 +333,20 @@ namespace cnine{
 	}
       }
 
-      const_cast<GatherMapB&>(*this).arr=std::move(r.arr);
+      const_cast<WeightedGatherMapB&>(*this).arr=std::move(r.arr);
       return *this;
     }
-
+    */
 
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
 
     string classname() const{
-      return "GatherMapB";
+      return "WeightedGatherMapB";
     }
 
     string repr() const{
-      return "GatherMapB";
+      return "WeightedGatherMapB";
     }
 
     string str(const string indent="") const{
@@ -337,7 +356,7 @@ namespace cnine{
       for(int i=0; i<size(); i++){
 	oss<<indent<<target(i)<<"<-(";
 	for(int j=0; j<size_of(i); j++){
-	  oss<<(*this)(i,j)<<",";
+	  oss<<"("<<src(i,j)<<","<<weight(i,j)<<"),";
 	}
 	if(size_of(i)>0) oss<<"\b";
 	oss<<")\n";
@@ -346,7 +365,7 @@ namespace cnine{
     }
 
 
-    friend ostream& operator<<(ostream& stream, const GatherMapB& v){
+    friend ostream& operator<<(ostream& stream, const WeightedGatherMapB& v){
       stream<<v.str(); return stream;}
 
   };
