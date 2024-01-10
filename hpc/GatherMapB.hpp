@@ -46,7 +46,7 @@ namespace cnine{
 
   public:
 
-    ~GatherMapB(){
+    virtual ~GatherMapB(){
       if(arrg) {CUDA_SAFE(cudaFree(arrg));}
     }
 
