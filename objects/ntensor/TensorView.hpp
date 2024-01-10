@@ -1284,7 +1284,7 @@ namespace cnine{
 	    arr[i*nc+j]+=x.arr[i*nc+j]*y.arr[j];
       }
       if(dev==1){
-	CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,arrg,nc,y.get_arr(),1,get_arr(),nc));
+	CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,get_arr(),nc,y.get_arr(),1,get_arr(),nc));
 	//CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
       }    
     }
