@@ -20,6 +20,7 @@
 #include "Cnine_base.hpp"
 #include "Rtensor2_view.hpp"
 #include "GatherMapB.hpp"
+#include "WeightedGatherMapB.hpp"
 
 
 __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, const int* ix, const int N, const int nc){
