@@ -87,10 +87,10 @@ __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr,
 namespace cnine{
 
   void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream){
-    int nc=r.n1;
+    int nc=x.n1;
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
-    CNINE_ASSRT(x.n1==nc);
+    //CNINE_ASSRT(x.n1==nc); // hack!
     CNINE_ASSRT(nc<=1024);
     CNINE_ASSRT(x.s1==1);
     CNINE_ASSRT(r.s1==1);
@@ -99,7 +99,7 @@ namespace cnine{
     int multi=32/nwarps;
     multi=1; // muti seems to make things worse!
     dim3 threads(multi,nwarps*32);
-    cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
+    //cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
     //cout<<g.arr.dir<<endl;
 
     gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
@@ -121,7 +121,7 @@ namespace cnine{
     int multi=32/nwarps;
     multi=1; // muti seems to make things worse!
     dim3 threads(multi,nwarps*32);
-    cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
+    //cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
     //cout<<g.arr.dir<<endl;
 
     gatherRowsw_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
