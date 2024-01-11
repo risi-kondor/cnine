@@ -65,7 +65,7 @@ namespace cnine{
       matches({10,H.getn()},fill_zero()){
 
       if(_dev>0){
-	CUDA_STREAM(matches=FindPlantedSubgraphs_cu(G,H));
+	CUDA_STREAM(matches=FindPlantedSubgraphs_cu(G,H,stream));
 	return;
       }
 
