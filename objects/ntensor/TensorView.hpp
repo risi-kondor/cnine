@@ -654,6 +654,10 @@ namespace cnine{
       return arr.get_arr();
     } 
 
+    TYPE* get_arr(){
+      return arr.get_arr();
+    } 
+
     //TYPE* get_arro(){
     //return arr.get_arr()+strides.offset;
     //} 

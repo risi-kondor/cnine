@@ -382,6 +382,10 @@ namespace cnine{
       return arr;
     }
 
+    TYPE* get_arrg() const{
+      return arrg;
+    }
+
     int get_memsize() const{
       return memsize;
     }

@@ -85,7 +85,7 @@ namespace cnine{
 	i++;
       }
 
-      arr=hlists(heads,lengths);
+      arr=hlists<int>(heads,lengths);
       for(int i=0; i<N; i++){
 	push_back(mapping[targets[i]],sources[i],weights[i]);
       }

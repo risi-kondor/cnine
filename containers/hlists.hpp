@@ -16,6 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include "array_pool.hpp"
+//#include <numeric> // for reduce
 
 namespace cnine{
 
@@ -36,7 +37,8 @@ namespace cnine{
 
 
     hlists(const vector<TYPE>& heads, const vector<int>& lengths):
-      BASE(lengths.size(),std::reduce(lengths.begin(),lengths.end())+lengths.size(),fill_reserve()){
+      BASE(lengths.size(),std::accumulate(lengths.begin(),lengths.end(),0)+lengths.size(),fill_reserve()){
+      //BASE(lengths.size(),std::reduce(lengths.begin(),lengths.end())+lengths.size(),fill_reserve()){
       int N=size();
       CNINE_ASSRT(heads.size()==N);
       for(int i=0; i<N; i++){
