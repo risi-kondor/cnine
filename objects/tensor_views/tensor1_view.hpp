@@ -243,7 +243,7 @@ namespace cnine{
   inline tensor1_view<TYPE> repeat0(const TYPE x, const int n){
     TYPE* arr=new TYPE[1];
     *arr=x;
-    return tensor1_view(arr,n,0,0);
+    return tensor1_view<TYPE>(arr,n,0,0);
   }
 
 }
