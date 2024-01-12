@@ -69,8 +69,9 @@ namespace cnine{
 	  auto targt=r.slice0(g.target(i));
 	  targt.n0=x.n1; // hack
 	  int M=g.size_of(i);
-	  for(int j=0; j<M; j++)
+	  for(int j=0; j<M; j++){
 	    targt+=x.slice0(g(i,j));
+	  }
 	}
       }
 

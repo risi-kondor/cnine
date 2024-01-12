@@ -142,6 +142,8 @@ namespace cnine{
 
       for(auto& p:instructions){
 	//cout<<"V"<<p.out<<":"<<v[p.out]->repr()<<" <- "<<"V"<<p.in<<":"<<v[p.in]->repr()<<endl;
+	CNINE_ASSRT(p.out<vars.size());
+	CNINE_ASSRT(p.in<vars.size());
 	GatherRows()(*v[p.out],*v[p.in],*p.map);
       }
 
