@@ -253,7 +253,8 @@ namespace cnine{
 	CNINE_ASSRT(x.s1==1);
 	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
-	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
+	//cout<<"AA"<<y.arr<<" "<<y.s0<<endl;
+	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,I,&alpha,
 	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
       }
     }
@@ -279,8 +280,9 @@ namespace cnine{
 	CNINE_ASSRT(x.s1==1);
 	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
-	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
-	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
+	//cout<<"AT"<<y.arr<<" "<<y.s0<<endl;
+	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,n1,n0,I,&alpha,
+	  y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
       }
     }
     
@@ -305,6 +307,7 @@ namespace cnine{
 	CNINE_ASSRT(x.s1==1);
 	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
+	//cout<<"TA"<<y.arr<<" "<<y.s0<<endl;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n1,n0,y.n0,&alpha,
 	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
       }

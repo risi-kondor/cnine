@@ -531,27 +531,38 @@ namespace cnine{
 
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
-      assert(dev==0);
+      //assert(dev==0);
       int k=ndims();
       //vector<int64_t> v(k); 
       //for(int i=0; i<k; i++) v[i]=dims[i];
 
       if constexpr(std::is_same<TYPE,int>::value){
-	at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kInt))); 
-	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<int>());
-	return R;
+	if(dev==0){
+	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kInt))); 
+	  std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<int>());
+	  return R;
+	}
       }
 
       if constexpr(std::is_same<TYPE,float>::value){
-	at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kFloat))); 
-	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<float>());
-	return R;
+	if(dev==0){
+	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kFloat))); 
+	  std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<float>());
+	  return R;
+	}
+	if(dev==1){
+	  at::Tensor R(at::zeros(dims.as_int64(),torch::CUDA(at::kFloat))); 
+	  CUDA_SAFE(cudaMemcpy(R.data<float>(),arr.ptr(),dims.total()*sizeof(float),cudaMemcpyDeviceToDevice));  
+	  return R;
+	}
       }
 
       if constexpr(std::is_same<TYPE,complex<float> >::value){
-	at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kComplexFloat))); 
-	std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
-	return R;
+	if(dev==0){
+	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kComplexFloat))); 
+	  std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
+	  return R;
+	}
       }
       
       CNINE_UNIMPL();
@@ -1018,9 +1029,10 @@ namespace cnine{
 	if(is_regular() && x.is_regular() && strides==x.strides){
 	  const float alpha=1.0; // todo
 	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
-	}else
+	}else{
 	  cout<<strides<<x.strides<<endl;
 	  CNINE_UNIMPL();
+	}
       }
     }
 
