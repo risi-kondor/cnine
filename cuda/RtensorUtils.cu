@@ -307,6 +307,24 @@ __global__ void GivensSomeSlices_kernel_bt(float* arr, const int s0, const int s
 
 
 // ----------------------------------------------------------------------------------------------------------
+
+
+__global__ void Rtensor_add_ReLU_kernel(float* rarr, const float* xarr, const float alpha){
+  float v=xarr[blockIdx.x*32+threadIdx.x];
+  if(v>0) rarr[blockIdx.x*32+threadIdx.x]=v;
+  else rarr[blockIdx.x*32+threadIdx.x]=alpha*v;
+}
+
+__global__ void Rtensor_add_ReLU_back_kernel(float* rarr, const float* garr, const float* xarr, const float alpha){
+  float v=garr[blockIdx.x*32+threadIdx.x];
+  if(xarr[blockIdx.x*32+threadIdx.x]>0) 
+    rarr[blockIdx.x*32+threadIdx.x]=v;
+  else 
+    rarr[blockIdx.x*32+threadIdx.x]=alpha*v;
+}
+
+
+// ----------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
 
@@ -513,6 +531,31 @@ namespace cnine{
     }
 
     CNINE_UNIMPL();
+  }
+
+
+
+  void Rtensor_add_ReLU_cu(Rtensor1_view& r, const Rtensor1_view& x, const float alpha, const cudaStream_t& stream){
+    CNINE_ASSRT(r.dev==1);
+    CNINE_ASSRT(x.dev==1);
+    CNINE_ASSRT(r.s0==1);
+    CNINE_ASSRT(x.s0==1);
+    CNINE_ASSRT(r.n1==x.n1);
+    if(r.n1>=32) Rtensor_add_ReLU_kernel<<<r.n1/32,32,0,stream>>>(r.arr,x.arr,alpha);
+    if(r.n1%32>0) RtensorPack_add_ReLU_kernel<<<1,r.n1%32,0,stream>>>(r.arr+(r.n1/32)*32,x.arr+(r.n1/32)*32,alpha);
+  }
+
+  void Rtensor_add_ReLU_back_cu(Rtensor1_view& r, const Rtensor1_view& g, const Rtensor1_view& x, const float alpha, const cudaStream_t& stream){
+    CNINE_ASSRT(r.dev==1);
+    CNINE_ASSRT(x.dev==1);
+    CNINE_ASSRT(g.dev==1);
+    CNINE_ASSRT(r.s0==1);
+    CNINE_ASSRT(x.s0==1);
+    CNINE_ASSRT(g.s0==1);
+    CNINE_ASSRT(r.n1==x.n1);
+    CNINE_ASSRT(g.n1==x.n1);
+    if(r.n1>=32) Rtensor_add_ReLU_back_kernel<<<r.n1/32,32,0,stream>>>(r.arr,g.arr,x.arr,alpha);
+    if(r.n1%32>0) RtensorPack_add_ReLU_back_kernel<<<1,r.n1%32,0,stream>>>(r.arr+(r.n1/32)*32,g.arr+(r.n1/32)*32,x.arr+(r.n1/32)*32,alpha);
   }
 
 

@@ -100,6 +100,12 @@ namespace cnine{
       return true;
     }
 
+    virtual bool is_transpose() const{
+      if(s1!=n0) return false;
+      if(s0!=1) return false;
+      return true;
+    }
+
     Gdims get_dims() const{
       return Gdims({n0,n1});
     }
@@ -209,6 +215,24 @@ namespace cnine{
       return add(x);
     }
 
+    void add_mprod(const Rtensor2_view& x, const Rtensor2_view& y){
+      if(is_regular()){
+	if(x.is_regular() && y.is_regular()){
+	  add_matmul_AA(x,y);
+	  return;
+	}
+	if(x.is_regular() && y.is_transpose()){
+	  add_matmul_AT(x,y.transp());
+	  return;
+	}
+	if(x.is_transpose() && y.is_regular()){
+	  add_matmul_TA(x.transp(),y);
+	  return;
+	}
+      }
+      CNINE_UNIMPL();
+    }
+
     void add_matmul_AA(const Rtensor2_view& x, const Rtensor2_view& y){
       const int I=x.n1;
       CNINE_ASSRT(x.n0==n0);
@@ -234,10 +258,6 @@ namespace cnine{
       }
     }
     
-    void add_mprod(const Rtensor2_view& x, const Rtensor2_view& y){
-      return add_matmul_AA(x,y);
-    }
-
     void add_matmul_AT(const Rtensor2_view& x, const Rtensor2_view& y){
       const int I=x.n1;
       CNINE_ASSRT(x.n0==n0);
@@ -267,15 +287,15 @@ namespace cnine{
    void add_matmul_TA(const Rtensor2_view& x, const Rtensor2_view& y){
       const int I=x.n0;
       CNINE_ASSRT(x.n1==n0);
-      CNINE_ASSRT(y.n0==n1);
-      CNINE_ASSRT(y.n1==I);
+      CNINE_ASSRT(y.n0==I);
+      CNINE_ASSRT(y.n1==n1);
 
       if(dev==0){
 	for(int a=0; a<n0; a++)
 	  for(int b=0; b<n1; b++){
 	    float t=0;
 	    for(int i=0; i<I; i++)
-	      t+=x(i,a)*y(b,i);
+	      t+=x(i,a)*y(i,b);
 	    inc(a,b,t);
 	  }
       }

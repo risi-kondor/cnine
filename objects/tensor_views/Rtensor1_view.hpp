@@ -28,6 +28,11 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
+#ifdef _WITH_CUDA
+  extern void Rtensor_add_ReLU_cu(Rtensor1_view& r, const Rtensor1_view& x, const float alpha, const cudaStream_t& stream);
+  extern void Rtensor_add_ReLU_back_cu(Rtensor1_view& r, const Rtensor1_view& g, const Rtensor1_view& x, const float alpha, const cudaStream_t& stream);
+#endif 
+
   class Rtensor1_view;
 
   #ifdef _WITH_CUDA
@@ -221,6 +226,35 @@ namespace cnine{
       assert(is_regular());
       CNINE_CPUONLY();
       CPUCODE(std::fill_n(arr,n0,v));
+    }
+
+
+  public: // ---- ReLU ---------------------------------------------------------------------------------------
+
+
+    void add_ReLU(const Rtensor1_view& x, const float alpha){
+      CNINE_ASSRT(n0==x.n0);
+      if(dev==0){
+	float a=1.0-alpha;
+	for(int i=0; i<n0; i++)
+	  arr[i*s0]+=((x.arr[i*x.s0]>0)*a+alpha)*x.arr[i*s0];
+      }
+      if(dev==1){
+	CUDA_STREAM(Rtensor_add_ReLU_cu(*this,x,alpha));
+      }
+    }
+
+    void add_ReLU_back(const Rtensor1_view& g, const Rtensor1_view& x, const float alpha){
+      CNINE_ASSRT(n0==g.n0);
+      CNINE_ASSRT(n0==x.n0);
+      if(dev==0){
+	float a=1.0-alpha;
+	for(int i=0; i<n0; i++)
+	  arr[i*s0]+=((x.arr[i*x.s0]>0)*a+alpha)*g.arr[i*g.s0];
+      }
+      if(dev==1){
+	CUDA_STREAM(Rtensor_add_ReLU_cu(*this,g,x,alpha));
+      }
     }
 
 

@@ -80,6 +80,8 @@ namespace cnine{
   inline Rtensor3_view view3_of(const TensorView<double>& x); //hack
   inline Ctensor3_view view3_of(const TensorView<complex<float> >& x);
 
+  inline Rtensor1_view flat_view_of(const TensorView<float>& x);
+
 
   template<typename TYPE>
   class TensorView{
@@ -381,7 +383,9 @@ namespace cnine{
       return view3_of(*this);
     }
 
-
+    auto flat_view() const -> decltype(view1_of(*this)){
+      return flat_view_of(*this);
+    }
 
   
 
@@ -1138,11 +1142,11 @@ namespace cnine{
 	  arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
       }
       if(dev==1){
-	CNINE_UNIMPL();
+	flat_view().add_ReLU(x.flat_view(),alpha);
       }
     }
 
-    void add_ReLU_back(const TensorView& g, const float alpha){
+    void add_ReLU_back(const TensorView& g, const TensorView& x, const float alpha){
       CNINE_CHECK_SIZE(dims.check_eq(g.dims));
       assert(g.get_dev()==get_dev());
       int N=asize();
@@ -1151,7 +1155,7 @@ namespace cnine{
 	  arr[i]+=((g.arr[i]>0)+alpha*(g.arr[i]<0))*g.arr[i];
       }
       if(dev==1){
-	CNINE_UNIMPL();
+	flat_view().add_ReLU_back(g.flat_view(),x.flat_view(),alpha);
       }
     }
 
@@ -1206,7 +1210,8 @@ namespace cnine{
 
 
     void add_mprod(const TensorView& x, const TensorView& y) const{
-      reconcile_devices<TensorView<TYPE> >(*this,x,y,[](const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+      reconcile_devices<TensorView<TYPE> >(*this,x,y,[]
+	(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
 	  CNINE_NDIMS_IS_2(r);
 	  CNINE_NDIMS_IS_2(x);
 	  CNINE_NDIMS_IS_2(y);
@@ -1214,6 +1219,9 @@ namespace cnine{
 	  CNINE_ASSRT(y.dims[1]==r.dims[1]);
 	  CNINE_ASSRT(x.dims[1]==y.dims[0]);
 
+	  r.view2().add_mprod(x.view2(),y.view2());
+
+	  /*
 	  if(r.dev==0){
 	    for(int i=0; i<r.dims[0]; i++)
 	      for(int j=0; j<r.dims[1]; j++){
@@ -1226,6 +1234,8 @@ namespace cnine{
 	  if(r.dev==1){
 	    CNINE_UNIMPL();
 	  }
+	  */
+
 	});
     }
 
@@ -1582,6 +1592,9 @@ namespace cnine{
     return Ctensor3_view(x.mem_as<float>(),x.mem_as<float>()+1,
       x.dim(0),x.dim(1),x.dim(2),2*x.stride(0),2*x.stride(1),2*x.stride(2),x.get_dev());}
 
+  inline Rtensor1_view flat_view_of(const TensorView<float>& x){
+    CNINE_ASSRT(x.is_contiguous());
+    return Rtensor1_view(x.mem(),x.asize(),1,x.get_dev());}
 
 }
 
