@@ -42,6 +42,8 @@ namespace cnine{
 
     int in_columns=1;
     int out_columns=1;
+    int in_columns_n=1;
+    int out_columns_n=1;
 
 
   public:
@@ -87,9 +89,12 @@ namespace cnine{
     }
     
 
-    GatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1):
+    GatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1,
+      const int _out_columns_n=1, const int _in_columns_n=1):
       in_columns(_in_columns),
-      out_columns(_out_columns){
+      out_columns(_out_columns),
+      in_columns_n(_in_columns_n),
+      out_columns_n(_out_columns_n){
       cnine::fnlog timer("GatherMapB::GatherMapB(const map_of_lists<int,int>& map)");
       //cout<<"make GatherMapB"<<endl;
 
@@ -248,9 +253,14 @@ namespace cnine{
 	  total++;
 	});
       GatherMapB* r=new GatherMapB(inv_map.rbegin()->first+1);
-      r->arr.reserve(size()+total);
+      r->arr.reserve(inv_map.size()+total);
       for(auto& p: inv_map)
 	r->arr.push_back(p.first,p.second);
+      r->in_columns=out_columns;
+      r->out_columns=in_columns;
+      r->in_columns_n=out_columns_n;
+      r->out_columns_n=in_columns_n;
+
       const_cast<GatherMapB&>(*this)._inv.reset(r);
     }
 

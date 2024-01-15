@@ -32,6 +32,7 @@ namespace cnine{
 
     vector<Variable> vars;
     vector<Instruction> instructions;
+    int is_inverse=false;
 
     
   public: // ---- Constructors -------------------------------------------------------------------------------
@@ -118,6 +119,7 @@ namespace cnine{
 	R.instructions[i]=instructions[ninst-1-i].inv();
       }
 
+      R.is_inverse=!is_inverse;
       return R;
     }
 
@@ -137,8 +139,11 @@ namespace cnine{
       v[0]=new Ltensor<TYPE>(arg0);
       v[1]=new Ltensor<TYPE>(output);
 
-      for(int i=2; i<vars.size(); i++)
-	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],vars[i].dims[1]*nc),0,dev);
+      for(int i=2; i<vars.size(); i++){
+	int ncols=nc*vars[i].dims[1];
+	if(is_inverse) ncols=output.dim(1)*vars[i].dims[1];
+	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],ncols),0,dev);
+      }
 
       for(auto& p:instructions){
 	//cout<<"V"<<p.out<<":"<<v[p.out]->repr()<<" <- "<<"V"<<p.in<<":"<<v[p.in]->repr()<<endl;

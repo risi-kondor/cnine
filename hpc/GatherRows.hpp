@@ -52,13 +52,13 @@ namespace cnine{
 
       auto r=_r.view2();
       r.n0*=g.out_columns;
-      r.n1/=g.out_columns;
+      r.n1=r.n1*g.out_columns_n/g.out_columns;
       r.s0/=g.out_columns;
       auto x=_x.view2();
       x.n0*=g.in_columns;
-      x.n1/=g.in_columns;
+      x.n1=x.n1*g.in_columns_n/g.in_columns;
       x.s0/=g.in_columns;
-
+      CNINE_ASSRT(r.n1==x.n1);
     
       if(_r.get_dev()==0){
 	fnlog timer("GatherRows::operator()");
@@ -67,7 +67,7 @@ namespace cnine{
 	int N=g.size();
 	for(int i=0; i<N; i++){
 	  auto targt=r.slice0(g.target(i));
-	  targt.n0=x.n1; // hack
+	  //targt.n0=x.n1; // hack // change in cu too 
 	  int M=g.size_of(i);
 	  for(int j=0; j<M; j++){
 	    targt+=x.slice0(g(i,j));

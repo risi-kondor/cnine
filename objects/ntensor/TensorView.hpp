@@ -1133,19 +1133,22 @@ namespace cnine{
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
       assert(x.get_dev()==get_dev());
       int N=asize();
-      for(int i=0; i<N; i++) 
-	arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
+      if(dev==0){
+	for(int i=0; i<N; i++) 
+	  arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
+      }
+      if(dev==1){
+	CNINE_UNIMPL();
+      }
     }
 
-    void add_ReLU_back(const TensorView& g, const TensorView& x, const float alpha){
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+    void add_ReLU_back(const TensorView& g, const float alpha){
       CNINE_CHECK_SIZE(dims.check_eq(g.dims));
-      assert(x.get_dev()==get_dev());
       assert(g.get_dev()==get_dev());
       int N=asize();
       if(dev==0){
 	for(int i=0; i<N; i++)
-	  arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*g.arr[i];
+	  arr[i]+=((g.arr[i]>0)+alpha*(g.arr[i]<0))*g.arr[i];
       }
       if(dev==1){
 	CNINE_UNIMPL();

@@ -164,7 +164,7 @@ namespace cnine{
 
 
     GatherMapProgramInstruction inv() const{
-      return GatherMapProgramInstruction(map->inv(),
+      return GatherMapProgramInstruction(map->inv(), // unnecessary copy here 
 	[](const int x){if(x<2) return 1-x; else return x;}(in),
 	[](const int x){if(x<2) return 1-x; else return x;}(out));
     }
