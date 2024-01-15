@@ -249,9 +249,9 @@ namespace cnine{
 	  }
       }
       if(dev==1){
-	CNINE_ASSRT(s1==0);
-	CNINE_ASSRT(x.s1==0);
-	CNINE_ASSRT(y.s1==0);
+	CNINE_ASSRT(s1==1);
+	CNINE_ASSRT(x.s1==1);
+	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
 	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
@@ -275,9 +275,9 @@ namespace cnine{
       }
 
       if(dev==1){
-	CNINE_ASSRT(s1==0);
-	CNINE_ASSRT(x.s1==0);
-	CNINE_ASSRT(y.s1==0);
+	CNINE_ASSRT(s1==1);
+	CNINE_ASSRT(x.s1==1);
+	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,n1,n0,y.n0,&alpha,
 	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
@@ -301,9 +301,9 @@ namespace cnine{
       }
 
       if(dev==1){
-	CNINE_ASSRT(s1==0);
-	CNINE_ASSRT(x.s1==0);
-	CNINE_ASSRT(y.s1==0);
+	CNINE_ASSRT(s1==1);
+	CNINE_ASSRT(x.s1==1);
+	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n1,n0,y.n0,&alpha,
 	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));

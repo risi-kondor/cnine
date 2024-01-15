@@ -1002,10 +1002,9 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    void add(const TensorView& x) const{
+    void add(const TensorView& x){
       CNINE_DEVICE_SAME(x);
       CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      CNINE_CPUONLY();
       assert(asize()==x.asize());
       if(dev==0){
 	if(is_regular() && x.is_regular() && strides==x.strides){
@@ -1018,13 +1017,14 @@ namespace cnine{
       if(dev==1){
 	if(is_regular() && x.is_regular() && strides==x.strides){
 	  const float alpha=1.0; // todo
-	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
+	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
 	}else
+	  cout<<strides<<x.strides<<endl;
 	  CNINE_UNIMPL();
       }
     }
 
-    void operator+=(const TensorView& x) const{
+    void operator+=(const TensorView& x){
       add(x);
     }
 

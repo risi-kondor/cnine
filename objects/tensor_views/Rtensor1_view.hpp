@@ -28,6 +28,8 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
+  class Rtensor1_view;
+
 #ifdef _WITH_CUDA
   extern void Rtensor_add_ReLU_cu(Rtensor1_view& r, const Rtensor1_view& x, const float alpha, const cudaStream_t& stream);
   extern void Rtensor_add_ReLU_back_cu(Rtensor1_view& r, const Rtensor1_view& g, const Rtensor1_view& x, const float alpha, const cudaStream_t& stream);
@@ -240,7 +242,7 @@ namespace cnine{
 	  arr[i*s0]+=((x.arr[i*x.s0]>0)*a+alpha)*x.arr[i*s0];
       }
       if(dev==1){
-	CUDA_STREAM(Rtensor_add_ReLU_cu(*this,x,alpha));
+	CUDA_STREAM(Rtensor_add_ReLU_cu(*this,x,alpha,stream));
       }
     }
 
@@ -253,7 +255,7 @@ namespace cnine{
 	  arr[i*s0]+=((x.arr[i*x.s0]>0)*a+alpha)*g.arr[i*g.s0];
       }
       if(dev==1){
-	CUDA_STREAM(Rtensor_add_ReLU_cu(*this,g,x,alpha));
+	CUDA_STREAM(Rtensor_add_ReLU_back_cu(*this,g,x,alpha,stream));
       }
     }
 

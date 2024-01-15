@@ -540,9 +540,9 @@ namespace cnine{
     CNINE_ASSRT(x.dev==1);
     CNINE_ASSRT(r.s0==1);
     CNINE_ASSRT(x.s0==1);
-    CNINE_ASSRT(r.n1==x.n1);
-    if(r.n1>=32) Rtensor_add_ReLU_kernel<<<r.n1/32,32,0,stream>>>(r.arr,x.arr,alpha);
-    if(r.n1%32>0) RtensorPack_add_ReLU_kernel<<<1,r.n1%32,0,stream>>>(r.arr+(r.n1/32)*32,x.arr+(r.n1/32)*32,alpha);
+    CNINE_ASSRT(r.n0==x.n0);
+    if(r.n0>=32) Rtensor_add_ReLU_kernel<<<r.n0/32,32,0,stream>>>(r.arr,x.arr,alpha);
+    if(r.n0%32>0) Rtensor_add_ReLU_kernel<<<1,r.n0%32,0,stream>>>(r.arr+(r.n0/32)*32,x.arr+(r.n0/32)*32,alpha);
   }
 
   void Rtensor_add_ReLU_back_cu(Rtensor1_view& r, const Rtensor1_view& g, const Rtensor1_view& x, const float alpha, const cudaStream_t& stream){
@@ -552,10 +552,10 @@ namespace cnine{
     CNINE_ASSRT(r.s0==1);
     CNINE_ASSRT(x.s0==1);
     CNINE_ASSRT(g.s0==1);
-    CNINE_ASSRT(r.n1==x.n1);
-    CNINE_ASSRT(g.n1==x.n1);
-    if(r.n1>=32) Rtensor_add_ReLU_back_kernel<<<r.n1/32,32,0,stream>>>(r.arr,g.arr,x.arr,alpha);
-    if(r.n1%32>0) RtensorPack_add_ReLU_back_kernel<<<1,r.n1%32,0,stream>>>(r.arr+(r.n1/32)*32,g.arr+(r.n1/32)*32,x.arr+(r.n1/32)*32,alpha);
+    CNINE_ASSRT(r.n0==x.n0);
+    CNINE_ASSRT(g.n0==x.n0);
+    if(r.n0>=32) Rtensor_add_ReLU_back_kernel<<<r.n0/32,32,0,stream>>>(r.arr,g.arr,x.arr,alpha);
+    if(r.n0%32>0) Rtensor_add_ReLU_back_kernel<<<1,r.n0%32,0,stream>>>(r.arr+(r.n0/32)*32,g.arr+(r.n0/32)*32,x.arr+(r.n0/32)*32,alpha);
   }
 
 
