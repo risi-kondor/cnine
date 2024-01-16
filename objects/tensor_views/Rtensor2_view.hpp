@@ -65,7 +65,7 @@ namespace cnine{
 
     Rtensor2_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
       arr(_arr), dev(_dev){
-      assert(_dims.size()==2);
+      CNINE_ASSRT(_dims.size()==2);
       n0=_dims[0];
       n1=_dims[1];
       s0=_strides[0];
@@ -75,11 +75,11 @@ namespace cnine{
     Rtensor2_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
       const GindexSet& a, const GindexSet& b, const int _dev=0):
       arr(_arr), dev(_dev){
-      assert(_strides.is_regular(_dims));
-      assert(a.is_contiguous());
-      assert(b.is_contiguous());
-      assert(a.is_disjoint(b));
-      assert(a.covers(_dims.size(),b));
+      CNINE_ASSRT(_strides.is_regular(_dims));
+      CNINE_ASSRT(a.is_contiguous());
+      CNINE_ASSRT(b.is_contiguous());
+      CNINE_ASSRT(a.is_disjoint(b));
+      CNINE_ASSRT(a.covers(_dims.size(),b));
       n0=_dims.unite(a);
       n1=_dims.unite(b);
       s0=_strides[a.back()];
@@ -162,8 +162,8 @@ namespace cnine{
 
     void set(const Rtensor2_view& x) const{
       CNINE_DEVICE_SAME(x);
-      assert(x.n0==n0);
-      assert(x.n1==n1);
+      CNINE_ASSRT(x.n0==n0);
+      CNINE_ASSRT(x.n1==n1);
       if(is_regular() && x.is_regular()){
 	CPUCODE(std::copy(x.arr,x.arr+n0*n1,arr));
 	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*n1*sizeof(float),cudaMemcpyDeviceToDevice)));
@@ -358,7 +358,7 @@ namespace cnine{
     /*
     void sum0_into(const Rtensor1_view& r){
       CNINE_CPUONLY();
-      assert(r.n0==n1);
+      CNINE_ASSRT(r.n0==n1);
       for(int i=0; i<n1; i++){
 	float t=0; for(int j=0; j<n0; j++) t+=arr[s0*j+s1*i];
 	r.inc(i,t);
@@ -368,7 +368,7 @@ namespace cnine{
 
     void sum1_into(const Rtensor1_view& r){
       CNINE_CPUONLY();
-      assert(r.n0==n0);
+      CNINE_ASSRT(r.n0==n0);
       for(int i=0; i<n0; i++){
 	float t=0; for(int j=0; j<n1; j++) t+=arr[s0*i+s1*j];
 	r.inc(i,t);
@@ -380,7 +380,7 @@ namespace cnine{
 
 
     void sum0_into(const Rtensor1_view& r) const{
-      assert(r.n0==n1);
+      CNINE_ASSRT(r.n0==n1);
       if(dev==0){
 	for(int j=0; j<n1; j++){
 	  float t=0; 
@@ -395,7 +395,7 @@ namespace cnine{
     }
 
     void avg0_into(const Rtensor1_view& r) const{
-      assert(r.n0==n1);
+      CNINE_ASSRT(r.n0==n1);
       if(dev==0){
 	for(int j=0; j<n1; j++){
 	  float t=0; 
@@ -411,7 +411,7 @@ namespace cnine{
 
     void sum1_into(const Rtensor1_view& r) const{
       CNINE_CPUONLY();
-      assert(r.n0==n1);
+      CNINE_ASSRT(r.n0==n1);
       for(int i=0; i<n0; i++){
 	float t=0; 
 	for(int j=0; j<n1; j++)
@@ -421,13 +421,13 @@ namespace cnine{
     }
 
     void reduce0_destructively_into(const Rtensor1_view& r) const{
-      assert(r.n0==n1);
+      CNINE_ASSRT(r.n0==n1);
       reduce0_destructively();
       r.add(slice0(0));
     }
 
     void reduce1_destructively_into(const Rtensor1_view& r) const{
-      assert(r.n0==n0);
+      CNINE_ASSRT(r.n0==n0);
       reduce1_destructively();
       r.add(slice1(0));
     }
@@ -472,7 +472,7 @@ namespace cnine{
 
     void broadcast0(const Rtensor1_view& x){
       CNINE_DEVICE_SAME(x);
-      assert(x.n0==n1);
+      CNINE_ASSRT(x.n0==n1);
       if(is_regular() && x.is_regular()){
 	if(dev==0){
 	  std::copy(x.arr,x.arr+n1,arr);
@@ -497,7 +497,7 @@ namespace cnine{
 
     void broadcast1(const Rtensor1_view& x){
       CNINE_DEVICE_SAME(x);
-      assert(x.n0==n0);
+      CNINE_ASSRT(x.n0==n0);
       if(dev==0){
 	for(int i0=0; i0<n0; i0++){
 	  float t=x(i0);
@@ -521,7 +521,7 @@ namespace cnine{
 
     void add_broadcast0(const Rtensor1_view& x, const float alpha=1.0){
       CNINE_DEVICE_SAME(x);
-      assert(x.n0==n1);
+      CNINE_ASSRT(x.n0==n1);
       if(x.s0==1 && s1==1){
 	if(dev==0){
 	  for(int i=0; i<n0; i++)
@@ -545,7 +545,7 @@ namespace cnine{
 
 
     Rtensor1_view diag() const{
-      assert(n0==n1);
+      CNINE_ASSRT(n0==n1);
       return Rtensor1_view(arr,n0,s0+s1,dev);
     }
 
@@ -613,7 +613,7 @@ namespace cnine{
 
 
   inline Rtensor2_view split0(const Rtensor1_view& x, const int i, const int j){
-    assert(i*j==x.n0);
+    CNINE_ASSRT(i*j==x.n0);
     return Rtensor2_view(x.arr,i,j,x.s0*j,x.s0,x.dev);
   }
 
@@ -629,8 +629,8 @@ namespace cnine{
   inline void add_matmul_Ax_to(const Rtensor1_view& r, const Rtensor2_view& A, const Rtensor1_view& x){
     int dev=r.dev;
     CNINE_CPUONLY();
-    assert(A.n0==r.n0);
-    assert(A.n1==x.n0);
+    CNINE_ASSRT(A.n0==r.n0);
+    CNINE_ASSRT(A.n1==x.n0);
     for(int i0=0; i0<r.n0; i0++){
       float t=0;
       for(int i1=0; i1<x.n0; i1++)

@@ -69,7 +69,7 @@ namespace cnine{
 
     Rtensor1_view(float* _arr,  const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
       arr(_arr), dev(_dev){
-      assert(_dims.size()==1);
+      CNINE_ASSRT(_dims.size()==1);
       n0=_dims[0];
       s0=_strides[0];
     }
@@ -77,9 +77,9 @@ namespace cnine{
     Rtensor1_view(float* _arr, const Gdims& _dims, const Gstrides& _strides, 
       const GindexSet& a):
       arr(_arr){
-      assert(_strides.is_regular(_dims));
-      assert(a.is_contiguous());
-      assert(a.covers(_dims.size()));
+      CNINE_ASSRT(_strides.is_regular(_dims));
+      CNINE_ASSRT(a.is_contiguous());
+      CNINE_ASSRT(a.covers(_dims.size()));
       n0=_dims.unite(a);
       s0=_strides[a.back()];
     }
@@ -89,9 +89,9 @@ namespace cnine{
 
 
     Rtensor1_view& operator=(const Rtensor1_view& x){
-      assert(dev==0);
-      assert(x.dev==0);
-      assert(n0==x.n0);
+      CNINE_ASSRT(dev==0);
+      CNINE_ASSRT(x.dev==0);
+      CNINE_ASSRT(n0==x.n0);
       for(int i=0; i<n0; i++) 
 	arr[i*s0]=x(i);
 	//arr[i*s0]=x.arr[i*x.s0];
@@ -160,7 +160,7 @@ namespace cnine{
 
     void set(const Rtensor1_view& x) const{
       CNINE_DEVICE_SAME(x);
-      assert(x.n0==n0);
+      CNINE_ASSRT(x.n0==n0);
       if(is_regular() && x.is_regular()){
 	CPUCODE(std::copy(x.arr,x.arr+n0,arr));
 	GPUCODE(CUDA_SAFE(cudaMemcpy(arr,x.arr,n0*sizeof(float),cudaMemcpyDeviceToDevice)));
@@ -182,7 +182,7 @@ namespace cnine{
     
     void add(const Rtensor1_view& x) const{
       CNINE_DEVICE_SAME(x);
-      assert(x.n0==n0);
+      CNINE_ASSRT(x.n0==n0);
       if(is_regular() && x.is_regular()){
 	CPUCODE(stdadd<float>(x.arr,x.arr+n0,arr));
 	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&alpha,x.arr,1,arr,1)));
@@ -194,7 +194,7 @@ namespace cnine{
 
     void add(const Rtensor1_view& x, const float c) const{
       CNINE_DEVICE_SAME(x);
-      assert(x.n0==n0);
+      CNINE_ASSRT(x.n0==n0);
       if(is_regular() && x.is_regular()){
 	CPUCODE(for(int i0=0; i0<n0; i0++) arr[i0]+=c*x.arr[i0];);
 	CPUCODE(stdadd<float>(x.arr,x.arr+n0,arr));
@@ -225,7 +225,7 @@ namespace cnine{
 
 
     void broadcast(const float v){
-      assert(is_regular());
+      CNINE_ASSRT(is_regular());
       CNINE_CPUONLY();
       CPUCODE(std::fill_n(arr,n0,v));
     }
