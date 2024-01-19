@@ -99,6 +99,7 @@ namespace cnine{
     multi=1; // muti seems to make things worse!
     dim3 threads(multi,nwarps*32);
     //cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
+    if(g.size()==0) return;
 
     gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
       (r.arr,r.s0,x.arr,x.s0,g.get_arrg(1),g.size(),nc);
