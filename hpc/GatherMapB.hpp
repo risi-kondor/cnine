@@ -252,7 +252,9 @@ namespace cnine{
 	  inv_map[j].push_back(i);
 	  total++;
 	});
-      GatherMapB* r=new GatherMapB(inv_map.rbegin()->first+1);
+      GatherMapB* r;
+      if(inv_map.size()==0) r=new GatherMapB(0); 
+      else r=new GatherMapB(inv_map.rbegin()->first+1);
       r->arr.reserve(inv_map.size()+total);
       for(auto& p: inv_map)
 	r->arr.push_back(p.first,p.second);
