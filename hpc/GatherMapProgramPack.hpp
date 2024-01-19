@@ -15,14 +15,37 @@
 #define _GatherMapProgramPack
 
 #include "Cnine_base.hpp"
+#include "object_pack.hpp"
 #include "GatherMapProgram.hpp"
 
 
 namespace cnine{
 
 
-  class GatherMapProgramPack: vector<GatherMapProgram>{
+  class GatherMapProgramPack: public object_pack<GatherMapProgram>{
+  public:
+    
+    
 
-  }
+  public: // ---- Execution ----------------------------------------------------------------------------------
+
+
+    template<typename PACK>
+    void operator()(const PACK& output, const PACK& arg0){
+      const int N=size();
+      CNINE_ASSRT(output.size()==N);
+      CNINE_ASSRT(arg0.size()==N);
+
+      for(int i=0;  i<N; i++)
+	(*this)[i](output.obj[i],arg0.obj[i]);
+    }
+
+
+
+
+  };
 
 }
+
+
+#endif 

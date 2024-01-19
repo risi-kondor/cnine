@@ -90,7 +90,6 @@ namespace cnine{
     int nc=x.n1;
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
-    //CNINE_ASSRT(x.n1==nc); // hack!
     CNINE_ASSRT(nc<=1024);
     CNINE_ASSRT(x.s1==1);
     CNINE_ASSRT(r.s1==1);
@@ -100,7 +99,6 @@ namespace cnine{
     multi=1; // muti seems to make things worse!
     dim3 threads(multi,nwarps*32);
     //cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
-    //cout<<g.arr.dir<<endl;
 
     gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
       (r.arr,r.s0,x.arr,x.s0,g.get_arrg(1),g.size(),nc);

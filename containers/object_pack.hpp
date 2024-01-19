@@ -27,6 +27,17 @@ namespace cnine{
     vector<OBJ> obj;
 
 
+  public: // ---- Constructors -------------------------------------------------------------------------------
+
+
+    object_pack(){}
+
+    object_pack(const initializer_list<OBJ>& list){
+      for(auto& p:list)
+	obj.push_back(p);
+    }
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -34,9 +45,13 @@ namespace cnine{
       return obj.size();
     }
 
+    OBJ& operator[](const int i){
+      CNINE_ASSRT(i<obj.size());
+      return obj[i];
+    }
+
     const OBJ& operator[](const int i) const{
       CNINE_ASSRT(i<obj.size());
-      CNINE_ASSRT(obj[i].get()!=nullptr);
       return obj[i];
     }
 
@@ -63,20 +78,23 @@ namespace cnine{
   public: // ---- I/O -----------------------------------------------------------------------------------------
 
 
-    static string classname() const{
+    static string classname(){
       return "object_pack<"+OBJ::classname()+">";
+    }
+
+    string repr() const{
     }
 
     string str(const string indent="") const{
       ostringstream oss;
       for(int i=0; i<obj.size(); i++){
 	oss<<"Object "<<i<<":\n";
-	oss<<(*this).str(indent+"  ");
+	oss<<(*this)[i].str(indent+"  ");
       }
       return oss.str();
     }
 
-    friend ostream& operator<<(ostream& stream, const object_pack_s& x){
+    friend ostream& operator<<(ostream& stream, const object_pack& x){
       stream<<x.str(); return stream;}
 
 

@@ -27,6 +27,15 @@ namespace cnine{
     vector<shared_ptr<OBJ> > obj;
 
 
+  public: // ---- Constructors -------------------------------------------------------------------------------
+
+
+    object_pack_s(){}
+
+    object_pack_s(const vector<shared_ptr<OBJ> >& x): 
+      obj(x){}
+
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -40,12 +49,18 @@ namespace cnine{
       return *obj[i];
     }
 
+    OBJ& operator[](const int i){
+      CNINE_ASSRT(i<obj.size());
+      CNINE_ASSRT(obj[i].get()!=nullptr);
+      return *obj[i];
+    }
+
 
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
 
     template<typename OTHER>
-    void zip(const OTHER& x, const std::function<void(const OBJ&, const OBJ&)>& fn){
+    void zip(const OTHER& x, const std::function<void(OBJ&, const OBJ&)>& fn){
       CNINE_ASSRT(obj.size()==x.size());
       for(int i=0; i<obj.size(); i++)
 	fn((*this)[i],x[i]);
@@ -63,8 +78,11 @@ namespace cnine{
   public: // ---- I/O -----------------------------------------------------------------------------------------
 
 
-    static string classname() const{
+    static string classname(){
       return "object_pack_s<"+OBJ::classname()+">";
+    }
+
+    string repr() const{
     }
 
     string str(const string indent="") const{

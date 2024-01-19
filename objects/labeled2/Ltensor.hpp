@@ -456,6 +456,13 @@ namespace cnine{
       return R;
     }
 
+    template<typename OBJ>
+    static Ltensor stack(int d, const initializer_list<OBJ>& list){
+      vector<Ltensor<TYPE> > x;
+      for(auto& p:list) x.push_back(p);
+      return stack(0,x);
+    }
+
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 

@@ -168,6 +168,16 @@ namespace cnine{
 
   };
 
+
+  class MultiGatherRows{
+  public:
+    
+    template<typename PACK>
+    void operator()(PACK& _r, const PACK& _x, const GatherMapB& g){
+    }    
+
+  };
+
 }
 
 #endif 
