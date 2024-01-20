@@ -162,7 +162,7 @@ namespace cnine{
 
     void reserve(const int n){
       if(n<=memsize) return;
-      int newsize=n;
+      int newsize=std::max(n,1);
       if(dev==0){
 	float* newarr=new float[newsize];
 	if(arr){

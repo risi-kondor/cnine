@@ -188,6 +188,7 @@ namespace cnine{
       CNINE_DEVICE_SAME(x);
       CNINE_ASSRT(x.n0==n0);
       CNINE_ASSRT(x.n1==n1);
+      if(x.n0*x.n1==0) return;
       if(is_regular() && x.is_regular()){
 	CPUCODE(stdadd<float>(x.arr,x.arr+n0*s0,arr));
 	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0*n1,&alpha,x.arr,1,arr,1)));
@@ -202,6 +203,7 @@ namespace cnine{
       CNINE_CPUONLY();
       CNINE_ASSRT(x.n0==n0);
       CNINE_ASSRT(x.n1==n1);
+      if(x.n0*x.n1==0) return;
       if(is_regular() && x.is_regular()){
  	CPUCODE(stdadd<float>(x.arr,x.arr+n0*s0,arr,c));
 	GPUCODE(CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0*n1,&c,x.arr,1,arr,1)));

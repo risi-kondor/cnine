@@ -534,7 +534,7 @@ namespace cnine{
 
     RtensorA& operator=(const RtensorA& x){
       k=x.k; dims=x.dims; strides=x.strides; dev=x.dev;
-      memsize=x.memsize; cst=x.cst;
+      memsize=std::max(x.memsize,1); cst=x.cst;
       CNINE_ASSIGN_WARNING();
 
       if(is_view){
@@ -709,6 +709,7 @@ namespace cnine{
     RtensorA(const at::Tensor& T):
       RtensorA(Gdims(T),T.type().is_cuda()){
       CNINE_CONVERT_FROM_ATEN_WARNING();
+      if(asize==0) return;
 
       if(!is_regular(T)){
 	if(dev!=0) CNINE_ERROR("ATen tensor is on GPU and is not regular."); 
