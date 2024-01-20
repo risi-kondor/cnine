@@ -695,7 +695,7 @@ namespace cnine{
     TYPE* arr;
 
     ArrayOnDevice(const int _n){
-      CUDA_SAFE(cudaMalloc((void **)&arr, std::max(_n*sizeof(TYPE),1)));
+      CUDA_SAFE(cudaMalloc((void **)&arr, std::max(_n*sizeof(TYPE),(unsigned long) 1)));
     }
 
     ~ArrayOnDevice(){
