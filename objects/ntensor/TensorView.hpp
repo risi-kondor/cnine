@@ -901,7 +901,7 @@ namespace cnine{
     }
 
     TensorView<TYPE> slices(const int d, const int i, const int j) const{ //changed
-      CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
+      //CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
       CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+j-1,string(__PRETTY_FUNCTION__)));
       Gdims _dims(dims);
       return TensorView<TYPE>(arr+strides[d]*i,_dims.set(d,j),strides);
