@@ -138,6 +138,7 @@ namespace cnine{
 
       if(fcode>1){
 	arr=MemArr<TYPE>(N,0);
+	dev=0;
 
 	switch(fcode){
 
@@ -245,7 +246,7 @@ namespace cnine{
       if(strides==x.strides){
 	if(device()==0){
 	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
+	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost));
 	}
 	if(device()==1){
 	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyHostToDevice));
