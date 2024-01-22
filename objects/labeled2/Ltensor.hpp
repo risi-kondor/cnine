@@ -599,6 +599,29 @@ namespace cnine{
   }
   
 
+
 }
+
+
+namespace std{
+
+  template<typename TYPE>
+  struct hash<cnine::Ltensor<TYPE> >{
+  public:
+    size_t operator()(const cnine::Ltensor<TYPE>& x) const{
+      size_t t=hash<cnine::Gdims>()(x.dims);
+      if(x.is_regular()){
+	int N=x.asize();
+	for(int i=0; i<N; i++)
+	  t=(t^hash<TYPE>()(x.arr[i]))<<1;
+      }else{
+	x.for_each([&t](const cnine::Gindex& ix, const TYPE v){
+	    t=(t^hash<TYPE>()(v))<<1;});
+      }
+      return t;
+    }
+  };
+}
+
 
 #endif 

@@ -89,7 +89,7 @@ namespace cnine{
       ostringstream oss;
       for(int i=0; i<obj.size(); i++){
 	oss<<"Object "<<i<<":\n";
-	oss<<(*this).str(indent+"  ");
+	oss<<(*this)[i].str(indent+"  ");
       }
       return oss.str();
     }

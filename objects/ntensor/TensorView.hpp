@@ -695,6 +695,28 @@ namespace cnine{
     //return *(const_cast<TYPE*>(arr.get_arr())+strides.offset);
     //}
 
+    bool operator==(const TensorView<TYPE>& x) const{
+      if(get_dev()!=(0)){
+	auto a=TensorView<TYPE>(*this,0);
+	return a==x;
+      }
+      if(x.get_dev()!=0){
+	auto a=TensorView<TYPE>(x,0);
+	return (*this)==a;
+      }
+      if(dims!=x.dims) return false;
+      if(is_regular() && x.is_regular()){
+	int N=asize();
+	for(int i=0; i<N; i++)
+	  if(arr[i]!=x.arr[i]) return false;
+      }else{
+	CNINE_UNIMPL();
+	//for_each([&x](const Gindex& ix, const TYPE v){
+	//  if(x(ix)!=v) return false;});
+      }
+      return true;
+    }
+
 
   public: // ---- Getters ------------------------------------------------------------------------------------
 
