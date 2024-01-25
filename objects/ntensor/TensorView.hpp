@@ -1053,8 +1053,14 @@ namespace cnine{
 	  const float alpha=1.0; // todo
 	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
 	}else{
-	  cout<<strides<<x.strides<<endl;
-	  CNINE_UNIMPL();
+	  if(ndims()<=3){
+	    if(ndims()==1) view1().add(x.view1());
+	    if(ndims()==2) view2().add(x.view2());
+	    if(ndims()==3) view3().add(x.view3());
+	  }else{
+	    cout<<strides<<x.strides<<endl;
+	    CNINE_UNIMPL();
+	  }
 	}
       }
     }
