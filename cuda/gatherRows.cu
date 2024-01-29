@@ -142,6 +142,7 @@ namespace cnine{
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
+    multi=1; // muti seems to make things worse!
     dim3 threads(multi,nwarps*32);
 
     gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>> // changed

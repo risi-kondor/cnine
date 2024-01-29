@@ -142,7 +142,7 @@ namespace cnine{
       for(int i=2; i<vars.size(); i++){
 	int ncols=nc*vars[i].dims[1];
 	if(is_inverse) ncols=output.dim(1)*vars[i].dims[1];
-	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],ncols),0,dev);
+	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],ncols),2,dev); // changed!
       }
 
       for(auto& p:instructions){
@@ -152,7 +152,7 @@ namespace cnine{
 	GatherRows()(*v[p.out],*v[p.in],*p.map);
       }
 
-      for(auto p:v)
+      for(auto p:v) // changed!
 	delete p;
     }
 
