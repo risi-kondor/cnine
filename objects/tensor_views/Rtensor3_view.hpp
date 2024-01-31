@@ -202,10 +202,20 @@ namespace cnine{
       }
       if(dev==1){
 	float alpha=1.0;
-	CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n2,n1,x.n1,
-	    &alpha,y.arr,y.s1,y.s0,
-	    x.arr,x.s0,0,
-	    &alpha,arr,s1,s0,n0));
+	//cout<<"  "<<n2<<" "<<n1<<" "<<x.n1<<" "<<y.s1<<" "<<x.s1<<" "<<x.s0<<endl;
+	if(x.is_regular()){
+	  CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n2,n1,x.n1, //was x.n1
+	      &alpha,y.arr,y.s1,y.s0,
+	      x.arr,x.s0,0,
+	      &alpha,arr,s1,s0,n0));
+	}else{
+	  if(x.is_transpose()){
+	    CUBLAS_SAFE(cublasSgemmStridedBatched(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,n2,n1,x.n1, //was x.n1
+		&alpha,y.arr,y.s1,y.s0,
+		x.arr,x.s1,0,
+		&alpha,arr,s1,s0,n0));
+	  }
+	}
       }
     }
 

@@ -240,6 +240,8 @@ namespace cnine{
       CNINE_ASSRT(x.n0==n0);
       CNINE_ASSRT(y.n1==n1);
       CNINE_ASSRT(y.n0==I);
+      CNINE_ASSRT(x.dev==dev);
+      CNINE_ASSRT(y.dev==dev);
 
       if(dev==0){
 	for(int a=0; a<n0; a++)
@@ -255,7 +257,6 @@ namespace cnine{
 	CNINE_ASSRT(x.s1==1);
 	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
-	//cout<<"AA"<<y.arr<<" "<<y.s0<<endl;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_N,n1,n0,I,&alpha,
 	    y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
       }
@@ -282,7 +283,6 @@ namespace cnine{
 	CNINE_ASSRT(x.s1==1);
 	CNINE_ASSRT(y.s1==1);
 	const float alpha=1.0;
-	//cout<<"AT"<<y.arr<<" "<<y.s0<<endl;
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_T,CUBLAS_OP_N,n1,n0,I,&alpha,
 	  y.arr,y.s0,x.arr,x.s0,&alpha,arr,s0));
       }
