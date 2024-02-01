@@ -267,6 +267,8 @@ namespace cnine{
       CNINE_ASSRT(x.n0==n0);
       CNINE_ASSRT(y.n0==n1);
       CNINE_ASSRT(y.n1==I);
+      CNINE_ASSRT(x.dev==dev);
+      CNINE_ASSRT(y.dev==dev);
 
       if(dev==0){
 	for(int a=0; a<n0; a++)
@@ -293,6 +295,8 @@ namespace cnine{
       CNINE_ASSRT(x.n1==n0);
       CNINE_ASSRT(y.n0==I);
       CNINE_ASSRT(y.n1==n1);
+      CNINE_ASSRT(x.dev==dev);
+      CNINE_ASSRT(y.dev==dev);
 
       if(dev==0){
 	for(int a=0; a<n0; a++)
