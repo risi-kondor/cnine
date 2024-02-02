@@ -125,7 +125,7 @@ namespace cnine{
 
     gatherRowsw_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
       (r.arr,r.s0,x.arr,x.s0,g.get_arrg(1),g.size(),nc);
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
   }
 
 

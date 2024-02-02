@@ -17,12 +17,13 @@
 #include "Cnine_base.hpp"
 #include "object_pack.hpp"
 #include "GatherMapProgram.hpp"
+#include "MultiLoop.hpp"
 
 
 namespace cnine{
 
 
-  class GatherMapProgramPack: public object_pack<GatherMapProgram>{
+  class GatherMapProgramPack: public object_pack_s<GatherMapProgram>{
   public:
     
     
@@ -30,16 +31,56 @@ namespace cnine{
   public: // ---- Execution ----------------------------------------------------------------------------------
 
 
-    template<typename PACK>
-    void operator()(const PACK& output, const PACK& arg0){
-      const int N=size();
-      CNINE_ASSRT(output.size()==N);
-      CNINE_ASSRT(arg0.size()==N);
+    template<typename TYPE>
+    void operator()(const Ltensor<TYPE>& output, const Ltensor<TYPE>& arg0){
 
-      for(int i=0;  i<N; i++)
-	(*this)[i](output.obj[i],arg0.obj[i]);
+      int N=size();
+      CNINE_ASSRT(N>0);
+      CNINE_ASSRT(output.get_dev()==arg0.get_dev());
+      CNINE_ASSRT(arg0.ndims()==2);
+      CNINE_ASSRT(output.ndims()==2);
+      int nc=arg0.dim(1);
+      int dev=output.get_dev();
+
+      GatherMapProgram& first=*obj[0];
+      vector<Ltensor<TYPE>*> v(first.vars.size());
+      v[0]=new Ltensor<TYPE>(arg0);
+      v[1]=new Ltensor<TYPE>(output);
+
+      int Nvars=first.vars.size();
+      Ltensor<int> offsets({Nvars,N+1},0);
+      for(int i=0; i<Nvars; i++){
+	int t=0;
+	for(int j=0; j<N; j++){
+	  offsets.set(i,j,t); 
+	  t+=obj[j]->vars[i].dims[0];
+	}
+	offsets.set(i,N,t);
+      }
+
+      for(int i=2; i<first.vars.size(); i++){
+	int ncols=nc*first.vars[i].dims[1];
+	if(first.is_inverse) ncols=output.dim(1)*first.vars[i].dims[1];
+	v[i]=new Ltensor<TYPE>(Gdims(offsets(i,N),ncols),0,dev);
+      }
+
+      MultiLoop(N,[&](const int j){
+	  for(auto& p:obj[j]->instructions){
+	    CNINE_ASSRT(p.out<v.size());
+	    CNINE_ASSRT(p.in<v.size());
+	    int ooffs=offsets(p.out,j);
+	    int orows=offsets(p.out,j+1)-offsets(p.out,j);
+	    Ltensor<TYPE> out=v[p.out]->rows(ooffs,orows);
+	    int ioffs=offsets(p.in,j);
+	    int irows=offsets(p.in,j+1)-offsets(p.in,j);
+	    Ltensor<TYPE> in=v[p.in]->rows(ioffs,irows);
+	    GatherRows()(out,in,*p.map);
+	  }
+	});
+      
+      for(auto p:v)
+	delete p;
     }
-
 
 
 

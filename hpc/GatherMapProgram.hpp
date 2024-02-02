@@ -42,6 +42,11 @@ namespace cnine{
       GatherMapProgram(dims(1,1),dims(1,1)){
     }
 
+    GatherMapProgram(const int  out_rows, const int in_rows){
+      vars.push_back(Variable(0,Gdims(in_rows,0)));
+      vars.push_back(Variable(1,Gdims(out_rows,0)));
+    }
+
     GatherMapProgram(const Gdims& out_dims, const Gdims& in_dims){
       vars.push_back(Variable(0,in_dims));
       vars.push_back(Variable(1,out_dims));
@@ -57,6 +62,12 @@ namespace cnine{
     GatherMapProgram(const GatherMapB* g){
       vars.push_back(Variable(0));
       vars.push_back(Variable(1));
+      instructions.push_back(Instruction(g,1,0));
+    }
+
+    GatherMapProgram(int out_rows, int in_rows, const GatherMapB* g){
+      vars.push_back(Variable(0,Gdims(in_rows,1)));
+      vars.push_back(Variable(1,Gdims(out_rows,1)));
       instructions.push_back(Instruction(g,1,0));
     }
 
