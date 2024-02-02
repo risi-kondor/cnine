@@ -21,6 +21,7 @@
 #include "Rtensor2_view.hpp"
 #include "GatherMapB.hpp"
 #include "WeightedGatherMapB.hpp"
+#include "minivec.hpp"
 
 
 __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, const int* ix, const int N, const int nc){
@@ -45,14 +46,14 @@ __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr,
 
 
 __global__ void gatherRowsMulti_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, 
-  const int* sizes, const int** maps, const int* out_offsets, const int* in_offsets, const int nc){
+  const int* sizes, int** maps, const int* out_offsets, const int* in_offsets, const int nc){
   extern __shared__ unsigned char _shared[]; 
   int b=blockIdx.x;
   int N=sizes[b];
   int i=blockIdx.y*blockDim.x+threadIdx.x;
   if(i>=N) return;
 
-  int* ix=maps[b];
+  const int* ix=maps[b];
   rarr+=out_offsets[b]*rs0;
   xarr+=in_offsets[b]*rs0;
 
@@ -190,19 +191,19 @@ namespace cnine{
 
     int max_size=0;
     Ltensor<int> sizes({N},0);
-    Ltensor<int*> map_pointers({N},0);
+    minivec<int*> map_pointers({N},0);
     for(int i=0; i<N; i++){
       int s=maps[i]->size();
       sizes.set(i,s);
       if(s>max_size) max_size=s;
-      map_pointers.set(i,maps[i]->get_arrg());
+      map_pointers[i]=maps[i]->get_arrg();
     }
     if(max_size==0) return;
     sizes.move_to_device(1);
     map_pointers.move_to_device(1);
 
-    Ltensor<int> out_offsets_g(out_offsets,1);
-    Ltensor<int> in_offsets_g(in_offsets,1);
+    Ltensor<int> out_offsets_g=out_offsets.copy(1);
+    Ltensor<int> in_offsets_g=in_offsets.copy(1);
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
@@ -211,7 +212,7 @@ namespace cnine{
     dim3 blocks(N,(max_size-1)/multi+1);
 
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
-      (r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.get_arr(),
+      (r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
 	out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
     //cudaDeviceSynchronize();
   }

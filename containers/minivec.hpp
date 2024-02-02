@@ -90,13 +90,13 @@ namespace cnine{
     
     minivec& move_to_device(const int _dev){
       if(_dev==0 && dev==1){
-	TYPE* t;
+	TYPE* t=nullptr;
 	CUDA_SAFE(cudaMemcpy(t,arr,_size*sizeof(TYPE),cudaMemcpyDeviceToHost));
 	CUDA_SAFE(cudaFree(arr));
 	arr=t;
       }
       if(_dev==1 && dev==0){
-	TYPE* t;
+	TYPE* t=nullptr;
 	CUDA_SAFE(cudaMemcpy(t,arr,_size*sizeof(TYPE),cudaMemcpyHostToDevice));
 	delete[] arr;
 	arr=t;
