@@ -70,10 +70,10 @@ namespace cnine{
 	    CNINE_ASSRT(p.in<v.size());
 	    int ooffs=offsets(p.out,j);
 	    int orows=offsets(p.out,j+1)-offsets(p.out,j);
-	    Ltensor<TYPE> out=v[p.out]->rows(ooffs,orows);
+	    Ltensor<TYPE> out(v[p.out]->rows(ooffs,orows));
 	    int ioffs=offsets(p.in,j);
 	    int irows=offsets(p.in,j+1)-offsets(p.in,j);
-	    Ltensor<TYPE> in=v[p.in]->rows(ioffs,irows);
+	    Ltensor<TYPE> in(v[p.in]->rows(ioffs,irows));
 	    GatherRows()(out,in,*p.map);
 	  }
 	});
