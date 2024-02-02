@@ -28,7 +28,7 @@ namespace cnine{
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream);
   extern void gatherRowsw_cu(const Rtensor2_view& r, const Rtensor2_view& x, const WeightedGatherMapB& g, const cudaStream_t& stream);
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const FixedkGatherMap& g, const cudaStream_t& stream);
-  extern void gatherRowsMulti_cu(const Rtensor2_view& r, const Rtensor2_view& x, vector<shared_ptr<const GatherMapB> >& maps, 
+  extern void gatherRowsMulti_cu(const Rtensor2_view& r, const Rtensor2_view& x, const vector<shared_ptr<const GatherMapB> >& maps, 
     const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,const cudaStream_t& stream);
 #endif 
   

@@ -178,7 +178,7 @@ namespace cnine{
 
 
   void gatherRowsMulti_cu(const Rtensor2_view& r, const Rtensor2_view& x, 
-    vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,
+    const vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,
     const cudaStream_t& stream){
 
     int N=maps.size();
@@ -191,7 +191,7 @@ namespace cnine{
 
     int max_size=0;
     Ltensor<int> sizes({N},0);
-    minivec<int*> map_pointers({N},0);
+    minivec<int*> map_pointers(N);
     for(int i=0; i<N; i++){
       int s=maps[i]->size();
       sizes.set(i,s);
@@ -214,7 +214,6 @@ namespace cnine{
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
       (r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
 	out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
-    //cudaDeviceSynchronize();
   }
 
 

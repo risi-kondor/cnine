@@ -39,16 +39,16 @@ namespace cnine{
   public: //---- Constructors -------------------------------------
 
 
-    minivec(const int n, const int _dev=0){
-      _size=std::max(1,n);
+    minivec(const int n, const int _dev=0):
+      _size(n), dev(_dev){
       if(_dev==0)
-	arr=new TYPE[_size];
+	arr=new TYPE[std::max(_size,(size_t)1)];
       else 
-	CUDA_SAFE(cudaMalloc((void **)&arr,_size*sizeof(TYPE)));
+	CUDA_SAFE(cudaMalloc((void **)&arr,std::max(_size,(size_t)1)*sizeof(TYPE)));
     }
 
     minivec(const int n, const TYPE v, const int _dev):
-      minivec(n){
+      minivec(n,dev){
       std::fill(arr,arr+n,v);
       move_to_device(_dev);
     }
@@ -97,10 +97,12 @@ namespace cnine{
       }
       if(_dev==1 && dev==0){
 	TYPE* t=nullptr;
+	CUDA_SAFE(cudaMalloc((void **)&t,_size*sizeof(TYPE)));
 	CUDA_SAFE(cudaMemcpy(t,arr,_size*sizeof(TYPE),cudaMemcpyHostToDevice));
 	delete[] arr;
 	arr=t;
       }
+      dev=_dev;
       return *this;
     }
 
