@@ -44,6 +44,33 @@ __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr,
 }
 
 
+__global__ void gatherRowsMulti_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, 
+  const int* sizes, const int** maps, const int* out_offsets, const int* in_offsets, const int nc){
+  extern __shared__ unsigned char _shared[]; 
+  int b=blockIdx.x;
+  int N=sizes[b];
+  int i=blockIdx.y*blockDim.x+threadIdx.x;
+  if(i>=N) return;
+
+  int* ix=maps[b];
+  rarr+=out_offsets[b]*rs0;
+  xarr+=in_offsets[b]*rs0;
+
+  int t=threadIdx.y;
+  if(t>=nc) return;
+
+  const int* row=ix+2*N+ix[2*i];
+  int n=ix[2*i+1]-1;
+  int target=row[0];
+
+  float a=0;
+  for(int j=0; j<n; j++)
+    a+=xarr[row[j+1]*xs0+t];
+  rarr[target*rs0+t]+=a;
+
+}
+
+
 __global__ void gatherRowsw_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, const int* ix, const int N, const int nc){
   extern __shared__ unsigned char _shared[]; 
   
@@ -66,7 +93,6 @@ __global__ void gatherRowsw_kernel(float* rarr, const int rs0, const float* xarr
 
 
 __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, const int* g, const int N, const int K, const int nc){
-
   int i=blockIdx.x*blockDim.x+threadIdx.x;
   if(i>=N) return;
 
@@ -148,6 +174,48 @@ namespace cnine{
     gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>> // changed
       (r.arr,r.s0,x.arr,x.s0,g.arr.ptr(),g.size(),g.getk(),nc);
   }
+
+
+  void gatherRowsMulti_cu(const Rtensor2_view& r, const Rtensor2_view& x, 
+    vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,
+    const cudaStream_t& stream){
+
+    int N=maps.size();
+    int nc=x.n1;
+    CNINE_ASSRT(r.dev==1);
+    CNINE_ASSRT(x.dev==1);
+    CNINE_ASSRT(nc<=1024);
+    CNINE_ASSRT(x.s1==1);
+    CNINE_ASSRT(r.s1==1);
+
+    int max_size=0;
+    Ltensor<int> sizes({N},0);
+    Ltensor<int*> map_pointers({N},0);
+    for(int i=0; i<N; i++){
+      int s=maps[i]->size();
+      sizes.set(i,s);
+      if(s>max_size) max_size=s;
+      map_pointers.set(i,maps[i]->get_arrg());
+    }
+    if(max_size==0) return;
+    sizes.move_to_device(1);
+    map_pointers.move_to_device(1);
+
+    Ltensor<int> out_offsets_g(out_offsets,1);
+    Ltensor<int> in_offsets_g(in_offsets,1);
+
+    int nwarps=roundup(nc,32)/32;
+    int multi=32/nwarps;
+    multi=1;
+    dim3 threads(multi,nwarps*32);
+    dim3 blocks(N,(max_size-1)/multi+1);
+
+    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
+      (r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.get_arr(),
+	out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
+    //cudaDeviceSynchronize();
+  }
+
 
 }
 

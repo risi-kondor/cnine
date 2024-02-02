@@ -64,6 +64,7 @@ namespace cnine{
 	v[i]=new Ltensor<TYPE>(Gdims(offsets(i,N),ncols),0,dev);
       }
 
+      if(dev==0){
       MultiLoop(N,[&](const int j){
 	  for(auto& p:obj[j]->instructions){
 	    CNINE_ASSRT(p.out<v.size());
@@ -77,7 +78,21 @@ namespace cnine{
 	    GatherRows()(out,in,*p.map);
 	  }
 	});
-      
+      }
+
+      if(dev==1){
+	int Ninstr=first.instructions.size();
+	for(int i=0; i<Ninstr; i++){
+	  auto& instr=first.instructions[i];
+	  vector<shared_ptr<const GatherMapB> > maps;
+	  for(int j=0; j<N; j++)
+	    maps.push_back(obj[j]->instructions[i].map);
+	  GatherRowsMulti()(*v[instr.out],*v[instr.in],maps,
+	    Ltensor<int>(offsets.row(instr.out))*instr.map->out_columns,
+	    Ltensor<int>(offsets.row(instr.in))*instr.map->in_columns);
+	}
+      }
+
       for(auto p:v)
 	delete p;
     }

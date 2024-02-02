@@ -28,6 +28,8 @@ namespace cnine{
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream);
   extern void gatherRowsw_cu(const Rtensor2_view& r, const Rtensor2_view& x, const WeightedGatherMapB& g, const cudaStream_t& stream);
   extern void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const FixedkGatherMap& g, const cudaStream_t& stream);
+  extern void gatherRowsMulti_cu(const Rtensor2_view& r, const Rtensor2_view& x, vector<shared_ptr<const GatherMapB> >& maps, 
+    const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,const cudaStream_t& stream);
 #endif 
   
   class GatherRows{
@@ -166,6 +168,39 @@ namespace cnine{
     return r;
   }
 
+  };
+
+
+  class GatherRowsMulti{
+  public:
+
+    template<typename TYPE>
+    void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, 
+      const vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets){
+      CNINE_ASSRT(maps.size()>0);
+      const GatherMapB& g=*maps[0];
+      CNINE_ASSRT(_r.ndims()==2);
+      CNINE_ASSRT(_r.dim(1)%g.out_columns==0);
+      CNINE_ASSRT(_x.ndims()==2);
+      CNINE_ASSRT(_x.dim(1)%g.in_columns==0);
+      CNINE_ASSRT(_r.get_dev()==1);
+
+      auto r=_r.view2();
+      r.n0*=g.out_columns;
+      r.n1=r.n1*g.out_columns_n/g.out_columns;
+      r.s0/=g.out_columns;
+      auto x=_x.view2();
+      x.n0*=g.in_columns;
+      x.n1=x.n1*g.in_columns_n/g.in_columns;
+      x.s0/=g.in_columns;
+      CNINE_ASSRT(r.n1==x.n1);
+    
+      //g.sort();
+      fnlog timer("GatherRowsMulti::operator()(G)");
+      //logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
+      CUDA_STREAM(gatherRowsMulti_cu(r,x,maps,out_offsets,in_offsets,stream));
+
+    }
   };
 
 
