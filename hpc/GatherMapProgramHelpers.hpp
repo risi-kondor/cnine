@@ -137,6 +137,9 @@ namespace cnine{
       out(_out.id), //out_roffset(_out.roffset), out_coffset(_out.coffset), 
       map(_map){}
 
+    GatherMapProgramInstruction(const shared_ptr<GatherMapB>& _map, const int _out, const int _in):
+      in(_in), out(_out), map(_map){}
+
     GatherMapProgramInstruction(const GatherMapB& _map, const int _out, const int _in):
       in(_in), out(_out), map(new GatherMapB(_map)){}
 
@@ -164,7 +167,7 @@ namespace cnine{
 
 
     GatherMapProgramInstruction inv() const{
-      return GatherMapProgramInstruction(map->inv(), // unnecessary copy here 
+      return GatherMapProgramInstruction(map->inv_ptr(), // unnecessary copy here 
 	[](const int x){if(x<2) return 1-x; else return x;}(in),
 	[](const int x){if(x<2) return 1-x; else return x;}(out));
     }

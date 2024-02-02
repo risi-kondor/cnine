@@ -155,6 +155,7 @@ namespace cnine{
     }
 
     void make_arrg() const{
+      cnine::fnlog timer("GatherMapB::make_arrg()");
       //cout<<arr.dir.memsize<<"...."<<arr.get_memsize()<<endl;
       //int memsize=arr.get_memsize()+arr.dir.memsize;
       int memsize=arr.get_tail()+arr.size()*2;
