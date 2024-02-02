@@ -62,7 +62,7 @@ namespace cnine{
     
       if(_r.get_dev()==0){
 	fnlog timer("GatherRows::operator()");
-	logged_timer ptimer("GatherRows(CPU)",r,x,((long long)g.n_ops())*x.n1);
+	//logged_timer ptimer("GatherRows(CPU)",r,x,((long long)g.n_ops())*x.n1);
 	CNINE_ASSRT(g.get_dev()==0);
 	int N=g.size();
 	for(int i=0; i<N; i++){
@@ -78,7 +78,7 @@ namespace cnine{
       if(_r.get_dev()==1){
 	g.sort();
 	fnlog timer("GatherRows::operator()(G)");
-	logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
+	//logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
 	CUDA_STREAM(gatherRows_cu(r,x,g,stream));
       }
     }
@@ -97,7 +97,7 @@ namespace cnine{
 
       if(_r.get_dev()==0){
 	fnlog timer("GatherRows::weighted()");
-	logged_timer ptimer("GatherRows::weighted(CPU)",r,x,((long long)g.n_ops())*x.n1);
+	//logged_timer ptimer("GatherRows::weighted(CPU)",r,x,((long long)g.n_ops())*x.n1);
 	CNINE_ASSRT(g.get_dev()==0);
 	int N=g.size();
 	for(int i=0; i<N; i++){
@@ -112,7 +112,7 @@ namespace cnine{
       if(_r.get_dev()==1){
 	g.sort();
 	fnlog timer("GatherRows::weighted()(G)");
-	logged_timer ptimer("GatherRows::weighted(GPU)",r,x,((long long)g.n_ops())*x.n1);
+	//logged_timer ptimer("GatherRows::weighted(GPU)",r,x,((long long)g.n_ops())*x.n1);
 	CUDA_STREAM(gatherRowsw_cu(r,x,g,stream));
       }
     }
