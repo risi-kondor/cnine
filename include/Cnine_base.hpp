@@ -646,15 +646,17 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 
 #ifdef _WITH_CUDA
 #define CUDA_STREAM(cmd)({\
-      cudaStream_t stream;\
-      CUDA_SAFE(cudaStreamCreate(&stream));\
+      cudaStream_t stream=NULL;\
       cmd;						\
-      CUDA_SAFE(cudaStreamSynchronize(stream));\
-      CUDA_SAFE(cudaStreamDestroy(stream));\
       })
 #else
 #define CUDA_STREAM(cmd) CNINE_NOCUDA_ERROR
 #endif
+
+      //CUDA_SAFE(cudaStreamCreate(&stream));		\
+      //CUDA_SAFE(cudaStreamSynchronize(stream));\
+      //CUDA_SAFE(cudaStreamDestroy(stream));\
+
 
 #ifdef _WITH_CUDA
 class cu_stream{
