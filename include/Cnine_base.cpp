@@ -20,6 +20,7 @@
 #include "FFactorial.hpp"
 #include "DeltaFactor.hpp"
 #include "CnineLog.hpp"
+#include "CnineCallStack.hpp"
 
 #ifdef _WITH_CENGINE
 #include "Cengine_base.cpp"
@@ -39,6 +40,7 @@ namespace cnine{
   DeltaFactor delta_factor;
 
   CnineLog cnine_log;
+  CallStack call_stack;
 
 }
 

@@ -123,6 +123,7 @@ namespace cnine{
       dims(_dims),
       strides(GstridesB(_dims)),
       dev(_dev){
+      FNTRACE();
 
       size_t N=dims.total();
 

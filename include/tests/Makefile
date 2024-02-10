@@ -18,6 +18,7 @@ INCLUDE+=-I$(CUDA_HOME)/include
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
 endif 
 
+CFLAGS+=-DCNINE_FUNCTION_TRACING
 
 # -------------------------------------------------------------------------------------------------------------
 

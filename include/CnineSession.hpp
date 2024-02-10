@@ -31,6 +31,7 @@ extern cublasHandle_t cnine_cublas;
 #endif
 
 extern cnine::CnineLog cnine_log;
+//extern cnine::CallStack call_stack;
 
 
 namespace cnine{

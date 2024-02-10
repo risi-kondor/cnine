@@ -56,6 +56,7 @@ namespace cnine{
       dev(_dev){
       if(_memsize<1) _memsize=1;
       BLOB_DEBUG("New blob of size "+to_string(_memsize)+".");
+      cout<<call_stack.str("  ")<<endl<<endl;
       CPUCODE(arr=new TYPE[_memsize];);
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE))););
     }
