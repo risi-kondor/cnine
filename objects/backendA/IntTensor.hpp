@@ -81,6 +81,7 @@ namespace cnine{
       }
 
       if(dev==1){
+	cout<<1221212<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
       }
 
@@ -182,6 +183,7 @@ namespace cnine{
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
+	cout<<1321232<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(int),cudaMemcpyDeviceToDevice));
       }
@@ -195,6 +197,7 @@ namespace cnine{
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
+	cout<<1321232<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(int),cudaMemcpyDeviceToDevice));
       }
@@ -217,6 +220,7 @@ namespace cnine{
       }
       if(dev==1){
 	CNINE_REQUIRES_CUDA();
+	cout<<1321232<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	if(x.dev==0){
 	  CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(int),cudaMemcpyHostToDevice));
@@ -258,6 +262,7 @@ namespace cnine{
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
+	cout<<1321232<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(int),cudaMemcpyDeviceToDevice));
       }
@@ -302,6 +307,7 @@ namespace cnine{
 	if(dev==_dev) return *this;
 	assert(arr);
 	if(arrg) CUDA_SAFE(cudaFree(arrg));
+	cout<<1321232<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
 	dev=_dev;
@@ -319,6 +325,7 @@ namespace cnine{
       if(arrg) return;
       assert(arr);
       assert(!is_view);
+      cout<<1321232<<endl;
       CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
       CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));  
     }
@@ -345,6 +352,7 @@ namespace cnine{
       }
       if(dev==1){
 	int* newarrg=nullptr;
+	cout<<1321232<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&newarrg, std::max(memsize,1)*sizeof(int)));
 	CUDA_SAFE(cudaMemcpy(newarrg,arrg,asize*sizeof(int),cudaMemcpyDeviceToDevice));  
 	if(arrg) CUDA_SAFE(cudaFree(arrg));

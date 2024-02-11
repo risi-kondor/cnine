@@ -180,6 +180,7 @@ namespace cnine{
   void gatherRowsMulti_cu(const Rtensor2_view& r, const Rtensor2_view& x, 
     const vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,
     const cudaStream_t& stream){
+    FNTRACE();
 
     int N=maps.size();
     int nc=x.n1;

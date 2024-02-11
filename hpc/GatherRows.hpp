@@ -177,6 +177,7 @@ namespace cnine{
     template<typename TYPE>
     void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, 
       const vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets){
+      FNTRACE();
       CNINE_ASSRT(maps.size()>0);
       const GatherMapB& g=*maps[0];
       CNINE_ASSRT(_r.ndims()==2);

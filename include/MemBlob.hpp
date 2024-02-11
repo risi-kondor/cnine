@@ -16,6 +16,8 @@
 #define _CnineMemBlob
 
 #include "Cnine_base.hpp"
+#include "CnineCallStack.hpp"
+
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -29,6 +31,8 @@ extern cublasHandle_t cnine_cublas;
 
 
 namespace cnine{
+
+  extern CallStack call_stack;
 
   template<typename TYPE>
   class MemBlob{
@@ -55,8 +59,8 @@ namespace cnine{
     MemBlob(size_t _memsize, const int _dev=0):
       dev(_dev){
       if(_memsize<1) _memsize=1;
-      BLOB_DEBUG("New blob of size "+to_string(_memsize)+".");
-      cout<<call_stack.str("  ")<<endl<<endl;
+      BLOB_DEBUG("New blob of size "+to_string(_memsize)+" on device "+to_string(_dev)+".");
+      //cout<<call_stack.str("  ")<<endl<<endl;
       CPUCODE(arr=new TYPE[_memsize];);
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE))););
     }

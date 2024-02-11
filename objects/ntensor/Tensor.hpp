@@ -241,6 +241,7 @@ namespace cnine{
     }
         
     Tensor& operator=(const Tensor& x){
+      FNTRACE();
       CNINE_ASSIGN_WARNING();
       arr=MemArr<TYPE>(x.dims.total(),x.dev);
       dims=x.dims;
@@ -310,6 +311,7 @@ public: // ---- Conversions ----------------------------------------------------
     CNINE_ASSRT(ndims()>0);
     //if(n<=dim(0)) return;
     CNINE_ASSRT(is_regular());
+    FNTRACE();
     if(n>=dim(0)){
       Tensor T(MemArr<TYPE>(n*strides[0],dev),dims,strides);
       T.block(dims)=*this;
