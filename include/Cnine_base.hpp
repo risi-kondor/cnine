@@ -181,8 +181,8 @@ using namespace std;
 #define CNINE_CHECK_BATCH2(x,y) if(x.n0!=y.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 #define CNINE_CHECK_BATCH3(x,y,z) if(x.n0!=y.n0 || x.n0!=z.n0) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": batch dimension mismatch.");
 
-#define BLOB_DEBUG(str) {CoutLock lk; cerr<<str<<endl;}
-//#define BLOB_DEBUG(str)
+//#define BLOB_DEBUG(str) {CoutLock lk; cerr<<str<<endl;}
+#define BLOB_DEBUG(str)
 
 
 // ---- tracing ----------------------------------------------------------------------------------------------
