@@ -87,6 +87,7 @@ namespace cnine{
 	dir.set(i,1,m);
       }
       CPUCODE(arr=new TYPE[std::max(n*m,1)]);
+      //cout<<12233331122<<endl;
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE))));
     }
 
@@ -103,6 +104,7 @@ namespace cnine{
       dev(_dev),
       dir(Gdims(n,2)){
       CPUCODE(arr=new TYPE[std::max(memsize,1)]);
+      //cout<<12233331122<<endl;
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE))));
     }
 
@@ -125,6 +127,7 @@ namespace cnine{
       }
       if(dev==1){
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
+	//cout<<12233331122<<endl;
 	CUDA_SAFE(cudaMemcpy(arrg,M.mem(),memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
       }
     }
@@ -245,6 +248,7 @@ namespace cnine{
 	std::copy(x.arr,x.arr+memsize,arr);
       }
       if(dev==1){
+	//cout<<12233331122<<endl;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
 	CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
       }
@@ -304,6 +308,7 @@ namespace cnine{
     }
     if(dev==1){
       //cout<<"Copying RtensorPack to device"<<endl;
+      //cout<<12233331122<<endl;
       CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
       if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice)); 
       if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice)); 
@@ -332,6 +337,7 @@ namespace cnine{
 	  //cout<<"Moving array_pool to device "<<tail<<endl;
 	  memsize=tail;
 	  if(arrg) CUDA_SAFE(cudaFree(arrg));
+	  //cout<<12233331122<j<endl;
 	  CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
 	  CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice));  
 	  delete[] arr;

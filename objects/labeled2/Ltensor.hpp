@@ -190,22 +190,26 @@ namespace cnine{
     }
     
     Ltensor copy() const{
+      FNTRACE();
       Ltensor R(dims,labels,0,dev);
       R=*this;
       return R;
     }
 
    Ltensor copy(const int _dev) const{
+      FNTRACE();
       Ltensor R(dims,labels,0,_dev);
       R=*this;
       return R;
     }
 
     Ltensor zeros_like() const{
+      FNTRACE();
       return Ltensor(dims,labels,0,dev);
     }
 
     Ltensor gaussian_like() const{
+      FNTRACE();
       return Ltensor(dims,labels,4,dev);
     }
 

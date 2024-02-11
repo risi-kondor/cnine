@@ -159,6 +159,7 @@ namespace cnine{
       //cout<<arr.dir.memsize<<"...."<<arr.get_memsize()<<endl;
       //int memsize=arr.get_memsize()+arr.dir.memsize;
       int memsize=arr.get_tail()+arr.size()*2;
+      //cout<<"GatherMapB::make_arrg()"<<endl;
       CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
       CUDA_SAFE(cudaMemcpy(arrg, arr.dir.arr, 2*arr.size()*sizeof(int),cudaMemcpyHostToDevice));  
       CUDA_SAFE(cudaMemcpy(arrg+2*arr.size(), arr.arr, arr.get_tail()*sizeof(int),cudaMemcpyHostToDevice));  
