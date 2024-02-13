@@ -21,6 +21,7 @@
 #include "DeltaFactor.hpp"
 #include "CnineLog.hpp"
 #include "CnineCallStack.hpp"
+#include "GPUbuffer.hpp"
 
 #ifdef _WITH_CENGINE
 #include "Cengine_base.cpp"
@@ -41,6 +42,7 @@ namespace cnine{
 
   CnineLog cnine_log;
   CallStack call_stack;
+  GPUbuffer<int>  GatherRowsMulti_buf;
 
 }
 

@@ -181,8 +181,10 @@ namespace cnine{
     const vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,
     const cudaStream_t& stream){
     FNTRACE();
+    auto& buffer=GatherRowsMulti_buf;
 
     int N=maps.size();
+    buffer.reset(3*N);
     int nc=x.n1;
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
@@ -200,11 +202,15 @@ namespace cnine{
       map_pointers[i]=maps[i]->get_arrg();
     }
     if(max_size==0) return;
-    sizes.move_to_device(1);
+    //sizes.move_to_device(1);
     map_pointers.move_to_device(1);
 
-    Ltensor<int> out_offsets_g=out_offsets.copy(1);
-    Ltensor<int> in_offsets_g=in_offsets.copy(1);
+    //Ltensor<int> out_offsets_g=out_offsets.copy(1);
+    //Ltensor<int> in_offsets_g=in_offsets.copy(1);
+
+    buffer.push(0,sizes);
+    buffer.push(N,out_offsets);
+    buffer.push(2*N,in_offsets);
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
@@ -212,9 +218,11 @@ namespace cnine{
     dim3 threads(multi,nwarps*32);
     dim3 blocks(N,(max_size-1)/multi+1);
 
+    //    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
+    //(r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
+    //out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
-      (r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
-	out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
+      (r.arr,r.s0,x.arr,x.s0,buffer(0),map_pointers.arr,buffer(N),buffer(2*N),nc);
   }
 
 
