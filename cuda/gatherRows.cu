@@ -22,6 +22,7 @@
 #include "GatherMapB.hpp"
 #include "WeightedGatherMapB.hpp"
 #include "minivec.hpp"
+#include "GPUbuffer.hpp"
 
 
 __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, const int* ix, const int N, const int nc){
@@ -113,6 +114,9 @@ __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr,
 
 namespace cnine{
 
+  extern GPUbuffer<int>  GatherRowsMulti_buf;
+
+
   void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream){
     int nc=x.n1;
     CNINE_ASSRT(r.dev==1);
@@ -184,7 +188,7 @@ namespace cnine{
     auto& buffer=GatherRowsMulti_buf;
 
     int N=maps.size();
-    buffer.reset(3*N);
+    buffer.reset(3*N+2);
     int nc=x.n1;
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
@@ -210,7 +214,7 @@ namespace cnine{
 
     buffer.push(0,sizes);
     buffer.push(N,out_offsets);
-    buffer.push(2*N,in_offsets);
+    buffer.push(2*N+1,in_offsets);
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
@@ -221,8 +225,9 @@ namespace cnine{
     //    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
     //(r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
     //out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
+
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
-      (r.arr,r.s0,x.arr,x.s0,buffer(0),map_pointers.arr,buffer(N),buffer(2*N),nc);
+      (r.arr,r.s0,x.arr,x.s0,buffer(0),map_pointers.arr,buffer(N),buffer(2*N+1),nc);
   }
 
 

@@ -64,7 +64,7 @@ namespace cnine{
     void push(const int i, const TENSOR& x){
       CNINE_ASSRT(x.get_dev()==0);
       CNINE_ASSRT(i+x.asize()<=_size);
-      CUDA_SAFE(cudaMemcpy(arr,x.mem(),x.asize()*sizeof(TYPE),cudaMemcpyHostToDevice));
+      CUDA_SAFE(cudaMemcpy(arr+i,x.mem(),x.asize()*sizeof(TYPE),cudaMemcpyHostToDevice));
     }
 
   };
