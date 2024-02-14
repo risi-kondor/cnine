@@ -226,6 +226,8 @@ namespace cnine{
     //(r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
     //out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
 
+    cudaDeviceSynchronize();
+
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
       (r.arr,r.s0,x.arr,x.s0,buffer(0),map_pointers.arr,buffer(N),buffer(2*N+1),nc);
   }
