@@ -90,7 +90,7 @@ namespace cnine{
     
     minivec& move_to_device(const int _dev){
       if(_dev==0 && dev==1){
-	TYPE* t=nullptr;
+	TYPE* t=new TYPE[std::max(_size,(size_t)1)];
 	CUDA_SAFE(cudaMemcpy(t,arr,_size*sizeof(TYPE),cudaMemcpyDeviceToHost));
 	CUDA_SAFE(cudaFree(arr));
 	arr=t;
