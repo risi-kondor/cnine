@@ -114,7 +114,8 @@ __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr,
 
 namespace cnine{
 
-  extern GPUbuffer<int>  GatherRowsMulti_buf;
+  extern GPUbuffer<int>  GatherRowsMulti_ibuf;
+  extern GPUbuffer<int*>  GatherRowsMulti_ipbuf;
 
 
   void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream){
@@ -185,10 +186,8 @@ namespace cnine{
     const vector<shared_ptr<const GatherMapB> >& maps, const Ltensor<int>& out_offsets, const Ltensor<int>& in_offsets,
     const cudaStream_t& stream){
     FNTRACE();
-    auto& buffer=GatherRowsMulti_buf;
 
     int N=maps.size();
-    buffer.reset(3*N+2);
     int nc=x.n1;
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
@@ -196,25 +195,27 @@ namespace cnine{
     CNINE_ASSRT(x.s1==1);
     CNINE_ASSRT(r.s1==1);
 
+    auto& int_buf=GatherRowsMulti_ibuf;
+    auto& intp_buf=GatherRowsMulti_ipbuf;
+
+    int_buf.reset(3*N+2);
+    intp_buf.reset(N);
+
     int max_size=0;
     Ltensor<int> sizes({N},0);
-    minivec<int*> map_pointers(N);
+    Ltensor<int*> map_pointers(N);
     for(int i=0; i<N; i++){
       int s=maps[i]->size();
       sizes.set(i,s);
       if(s>max_size) max_size=s;
-      map_pointers[i]=maps[i]->get_arrg();
+      map_pointers.set(i,maps[i]->get_arrg());
     }
     if(max_size==0) return;
-    //sizes.move_to_device(1);
-    map_pointers.move_to_device(1);
 
-    //Ltensor<int> out_offsets_g=out_offsets.copy(1);
-    //Ltensor<int> in_offsets_g=in_offsets.copy(1);
-
-    buffer.push(0,sizes);
-    buffer.push(N,out_offsets);
-    buffer.push(2*N+1,in_offsets);
+    int_buf.push(0,sizes,stream);
+    int_buffer.push(N,out_offsets,stream);
+    int_buf.push(2*N+1,in_offsets,stream);
+    intp_buffer.push(0,map_pointers,stream);
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
@@ -222,17 +223,28 @@ namespace cnine{
     dim3 threads(multi,nwarps*32);
     dim3 blocks(N,(max_size-1)/multi+1);
 
-    //    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
-    //(r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
-    //out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
-
-    cudaDeviceSynchronize();
-
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
-      (r.arr,r.s0,x.arr,x.s0,buffer(0),map_pointers.arr,buffer(N),buffer(2*N+1),nc);
+      (r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N+1),nc);
+
+    //      (r.arr,r.s0,x.arr,x.s0,buffer(0),map_pointers.arr,buffer(N),buffer(2*N+1),nc);
+
   }
 
 
 }
 
 #endif 
+
+
+    //    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
+    //(r.arr,r.s0,x.arr,x.s0,sizes.get_arr(),map_pointers.arr,
+    //out_offsets_g.get_arr(),in_offsets_g.get_arr(),nc);
+
+    //cudaDeviceSynchronize();
+
+    //sizes.move_to_device(1);
+    //map_pointers.move_to_device(1);
+
+    //Ltensor<int> out_offsets_g=out_offsets.copy(1);
+    //Ltensor<int> in_offsets_g=in_offsets.copy(1);
+

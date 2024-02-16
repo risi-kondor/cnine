@@ -49,6 +49,7 @@ namespace cnine{
       if(arr) CUDA_SAFE(cudaFree(arr));
       _size=std::max(1,n);
       CUDA_SAFE(cudaMalloc((void **)&arr,_size*sizeof(TYPE)));
+      CUDA_SAFE(cudaDeviceSynchronize());
     }
 
 
@@ -66,6 +67,15 @@ namespace cnine{
       CNINE_ASSRT(i+x.asize()<=_size);
       CUDA_SAFE(cudaMemcpy(arr+i,x.mem(),x.asize()*sizeof(TYPE),cudaMemcpyHostToDevice));
     }
+
+#ifdef _WITH_CUDA
+    template<typename TENSOR>
+    void push(const int i, const TENSOR& x, const cudaStream_t& stream){
+      CNINE_ASSRT(x.get_dev()==0);
+      CNINE_ASSRT(i+x.asize()<=_size);
+      CUDA_SAFE(cudaMemcpyAsync(arr+i,x.mem(),x.asize()*sizeof(TYPE),cudaMemcpyHostToDevice,stream));
+    }
+#endif 
 
   };
 

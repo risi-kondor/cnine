@@ -665,7 +665,6 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 #else
 #define CUDA_STREAM(cmd) CNINE_NOCUDA_ERROR
 #endif
-      //      cudaStream_t stream=NULL;			
 
 
 

@@ -237,13 +237,13 @@ namespace cnine{
     Ltensor(const TensorView<TYPE>& x):
       BASE(x){}
 
-#ifdef _WITH_ATEN
-    Ltensor<TYPE>(const at::Tensor& T):
-      BASE(T){}
-
     Ltensor(TYPE* _arr, const int _dev, const Gdims& _dims, const GstridesB& _strides):
       TensorView<TYPE>(new MemBlob<TYPE>(_arr,_dev),_dims,_strides){
     }
+
+#ifdef _WITH_ATEN
+    Ltensor<TYPE>(const at::Tensor& T):
+      BASE(T){}
 
     // this is pretty dangerous 
     static Ltensor view(const at::Tensor& T){
@@ -539,6 +539,22 @@ namespace cnine{
 
     friend ostream& operator<<(ostream& stream, const Ltensor<TYPE>& x){
       stream<<x.str(); return stream;
+    }
+
+  };
+
+
+  template<typename TYPE>
+  class LtensorView: public Ltensor<TYPE>{
+  public:
+    
+    typedef Ltensor<TYPE> BASE;
+
+    LtensorView(TYPE* _arr, const int _dev, const Gdims& _dims):
+      BASE(_arr,_dev,_dims,GstridesB(_dims){}
+
+    ~LtensorView(){
+      BASE::arr.blob->arr=nullptr;
     }
 
   };

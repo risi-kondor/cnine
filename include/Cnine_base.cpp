@@ -42,7 +42,10 @@ namespace cnine{
 
   CnineLog cnine_log;
   CallStack call_stack;
-  GPUbuffer<int>  GatherRowsMulti_buf;
+
+  GPUbuffer<int>  GatherRowsMulti_ibuf;
+  GPUbuffer<int*>  GatherRowsMulti_ipbuf;
+  GPUbuffer<float>  GatherRowsMulti_fbuf;
 
 }
 
