@@ -61,13 +61,13 @@ namespace cnine{
       }
 
       LtensorView<TYPE>* view_from_buffer=nullptr; 
-      if(dev==1 && first.var.size()==3){
-	int ncols=nc*first.vars[i].dims[1];
-	if(first.is_inverse) ncols=output.dim(1)*first.vars[i].dims[1];
+      if(dev==1 && first.vars.size()==3){
+	int ncols=nc*first.vars[2].dims[1];
+	if(first.is_inverse) ncols=output.dim(1)*first.vars[2].dims[1];
 	auto& buf=GatherRowsMulti_fbuf;
-	buf.reset(offsets(i,N)*ncols);
-	view_from_buffer=new LtensorView<TYPE>(buf.arr,buf.dev,Gdims(offsets(i,N),ncols));
-	view_from_buffer.set_zero();
+	buf.reset(offsets(2,N)*ncols);
+	view_from_buffer=new LtensorView<TYPE>(buf.arr,buf.dev,Gdims(offsets(2,N),ncols));
+	view_from_buffer->set_zero();
       }
 
       for(int i=2; i<first.vars.size(); i++){

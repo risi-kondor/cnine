@@ -69,6 +69,13 @@ namespace cnine{
     }
 
 #ifdef _WITH_CUDA
+    template<typename MINIVEC>
+    void push_minivec(const int i, const MINIVEC& x, const cudaStream_t& stream){
+      CNINE_ASSRT(x.dev==0);
+      CNINE_ASSRT(i+x._size<=_size);
+      CUDA_SAFE(cudaMemcpyAsync(arr+i,x.arr,x._size*sizeof(TYPE),cudaMemcpyHostToDevice,stream));
+    }
+
     template<typename TENSOR>
     void push(const int i, const TENSOR& x, const cudaStream_t& stream){
       CNINE_ASSRT(x.get_dev()==0);
