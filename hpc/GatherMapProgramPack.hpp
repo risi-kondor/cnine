@@ -67,6 +67,7 @@ namespace cnine{
 	auto& buf=GatherRowsMulti_fbuf;
 	buf.reset(offsets(i,N)*ncols);
 	view_from_buffer=new LtensorView<TYPE>(buf.arr,buf.dev,Gdims(offsets(i,N),ncols));
+	view_from_buffer.set_zero();
       }
 
       for(int i=2; i<first.vars.size(); i++){
