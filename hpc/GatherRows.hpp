@@ -196,7 +196,7 @@ namespace cnine{
       x.s0/=g.in_columns;
       CNINE_ASSRT(r.n1==x.n1);
     
-      CUDA_SAFE(cudaDeviceSynchronize());
+      //CUDA_SAFE(cudaDeviceSynchronize());
 
       //g.sort();
       fnlog timer("GatherRowsMulti::operator()(G)");

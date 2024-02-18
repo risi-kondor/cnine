@@ -228,7 +228,7 @@ namespace cnine{
     dim3 threads(multi,nwarps*32);
     dim3 blocks(N,(max_size-1)/multi+1);
 
-    CUDA_SAFE(cudaDeviceSynchronize());
+    //CUDA_SAFE(cudaDeviceSynchronize());
 
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
       (r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N+1),nc);
