@@ -68,6 +68,7 @@ namespace cnine{
 	buf.reset(offsets(2,N)*ncols);
 	view_from_buffer=new LtensorView<TYPE>(buf.arr,buf.dev,Gdims(offsets(2,N),ncols));
 	view_from_buffer->set_zero();
+	CUDA_SAFE(cudaDeviceSynchronize());
       }
 
       for(int i=2; i<first.vars.size(); i++){
