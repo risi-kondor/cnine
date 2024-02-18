@@ -22,6 +22,7 @@
 #include "CnineLog.hpp"
 #include "CnineCallStack.hpp"
 #include "GPUbuffer.hpp"
+#include "AsyncGPUbuffer.hpp"
 
 #ifdef _WITH_CENGINE
 #include "Cengine_base.cpp"
@@ -43,8 +44,8 @@ namespace cnine{
   CnineLog cnine_log;
   CallStack call_stack;
 
-  GPUbuffer<int>  GatherRowsMulti_ibuf;
-  GPUbuffer<int*>  GatherRowsMulti_ipbuf;
+  AsyncGPUbuffer<int>  GatherRowsMulti_ibuf;
+  AsyncGPUbuffer<int*>  GatherRowsMulti_ipbuf;
   GPUbuffer<float>  GatherRowsMulti_fbuf;
 
 }

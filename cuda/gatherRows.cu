@@ -220,7 +220,10 @@ namespace cnine{
     int_buf.push(0,sizes);
     int_buf.push(N,out_offsets);
     int_buf.push(2*N+1,in_offsets);
+    int_buf.sync(stream);
+
     intp_buf.push_minivec(0,map_pointers);
+    intp_buf.sync(stream);
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
@@ -228,7 +231,7 @@ namespace cnine{
     dim3 threads(multi,nwarps*32);
     dim3 blocks(N,(max_size-1)/multi+1);
 
-    CUDA_SAFE(cudaDeviceSynchronize());
+    //CUDA_SAFE(cudaDeviceSynchronize());
 
     gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
       (r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N+1),nc);
