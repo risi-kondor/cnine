@@ -196,6 +196,8 @@ namespace cnine{
       x.s0/=g.in_columns;
       CNINE_ASSRT(r.n1==x.n1);
     
+      CUDA_SAFE(cudaDeviceSynchronize());
+
       //g.sort();
       fnlog timer("GatherRowsMulti::operator()(G)");
       //logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);

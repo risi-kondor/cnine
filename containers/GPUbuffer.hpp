@@ -42,6 +42,7 @@ namespace cnine{
     GPUbuffer(const int n, const int _dev=1){
       _size=std::max(1,n);
       CUDA_SAFE(cudaMalloc((void **)&arr,_size*sizeof(TYPE)));
+      CUDA_SAFE(cudaDeviceSynchronize());
     }
 
     void reset(const int n, const int _dev=1){
