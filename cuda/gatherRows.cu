@@ -212,10 +212,15 @@ namespace cnine{
     }
     if(max_size==0) return;
 
-    int_buf.push(0,sizes,stream);
-    int_buf.push(N,out_offsets,stream);
-    int_buf.push(2*N+1,in_offsets,stream);
-    intp_buf.push_minivec(0,map_pointers,stream);
+    //int_buf.push(0,sizes,stream);
+    //int_buf.push(N,out_offsets,stream);
+    //int_buf.push(2*N+1,in_offsets,stream);
+    //intp_buf.push_minivec(0,map_pointers,stream);
+
+    int_buf.push(0,sizes);
+    int_buf.push(N,out_offsets);
+    int_buf.push(2*N+1,in_offsets);
+    intp_buf.push_minivec(0,map_pointers);
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;
