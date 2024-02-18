@@ -203,7 +203,7 @@ namespace cnine{
 
     int max_size=0;
     Ltensor<int> sizes({N},0);
-    Ltensor<int*> map_pointers(N);
+    minivec<int*> map_pointers(N);
     for(int i=0; i<N; i++){
       int s=maps[i]->size();
       sizes.set(i,s);
@@ -213,9 +213,9 @@ namespace cnine{
     if(max_size==0) return;
 
     int_buf.push(0,sizes,stream);
-    int_buffer.push(N,out_offsets,stream);
+    int_buf.push(N,out_offsets,stream);
     int_buf.push(2*N+1,in_offsets,stream);
-    intp_buffer.push(0,map_pointers,stream);
+    intp_buf.push_minivec(0,map_pointers,stream);
 
     int nwarps=roundup(nc,32)/32;
     int multi=32/nwarps;

@@ -551,7 +551,7 @@ namespace cnine{
     typedef Ltensor<TYPE> BASE;
 
     LtensorView(TYPE* _arr, const int _dev, const Gdims& _dims):
-      BASE(_arr,_dev,_dims,GstridesB(_dims){}
+      BASE(_arr,_dev,_dims,GstridesB(_dims)){}
 
     ~LtensorView(){
       BASE::arr.blob->arr=nullptr;
