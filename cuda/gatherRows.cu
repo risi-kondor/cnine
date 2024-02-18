@@ -22,7 +22,7 @@
 #include "GatherMapB.hpp"
 #include "WeightedGatherMapB.hpp"
 #include "minivec.hpp"
-#include "GPUbuffer.hpp"
+#include "AsyncGPUbuffer.hpp"
 
 
 __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr, const int xs0, const int* ix, const int N, const int nc){
@@ -114,8 +114,8 @@ __global__ void gatherRows_kernel(float* rarr, const int rs0, const float* xarr,
 
 namespace cnine{
 
-  extern GPUbuffer<int>  GatherRowsMulti_ibuf;
-  extern GPUbuffer<int*>  GatherRowsMulti_ipbuf;
+  extern AsyncGPUbuffer<int>  GatherRowsMulti_ibuf;
+  extern AsyncGPUbuffer<int*>  GatherRowsMulti_ipbuf;
 
 
   void gatherRows_cu(const Rtensor2_view& r, const Rtensor2_view& x, const GatherMapB& g, const cudaStream_t& stream){
