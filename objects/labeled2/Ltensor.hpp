@@ -222,6 +222,11 @@ namespace cnine{
       return Ltensor(dims,labels,4,dev);
     }
 
+    Ltensor like(TYPE* _arr) const{
+      FNTRACE();
+      return Ltensor(_arr,dims,dev);
+    }
+
 
   public: // ---- Views -------------------------------------------------------------------------------------
 
