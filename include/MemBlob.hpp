@@ -42,8 +42,10 @@ namespace cnine{
 
     TYPE* arr;
     int dev=0;
+    bool is_view=false;
 
     ~MemBlob(){
+      if(is_view) return;
       BLOB_DEBUG("Delete blob.");
       if(dev==0 && arr) {delete[] arr;}
       if(dev==1 && arr) {CUDA_SAFE(cudaFree(arr));}
@@ -55,6 +57,11 @@ namespace cnine{
     // just for taking views of ATen tensors 
     MemBlob(TYPE* _arr, const int _dev=0):
       arr(_arr), dev(_dev){}
+
+    MemBlob(int _dev, TYPE* _arr):
+      arr(_arr), 
+      dev(_dev),
+      is_view(true){}
 
     MemBlob(size_t _memsize, const int _dev=0):
       dev(_dev){

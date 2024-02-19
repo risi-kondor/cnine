@@ -83,6 +83,9 @@ namespace cnine{
     Ltensor(const Gdims& _dims, const int fcode, const int _dev=0):
       BASE(_dims,fcode,_dev){}
 
+    //Ltensor(const Gdims& _dims, const int _dev, TYPE* _arr):
+    //BASE(_dims,fcode,_dev){}
+
     Ltensor(const Gdims& _dims, const DimLabels& _labels, const int fcode, const int _dev=0):
       BASE(_dims,fcode,_dev), 
       labels(_labels){}
@@ -94,6 +97,12 @@ namespace cnine{
     Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides, const DimLabels& _labels):
       BASE(_arr,_dims,_strides),
       labels(_labels){}
+
+    Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims):
+      BASE(_arr,_dims,GstridesB(_dims)){}
+
+    Ltensor(TYPE* _arr, const Gdims& _dims, const int _dev=0):
+      Ltensor(MemArr<TYPE>(_arr,_dev),_dims){}
 
 
   public: // ---- Named parameter constructors ---------------------------------------------------------------

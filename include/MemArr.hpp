@@ -65,7 +65,10 @@ namespace cnine{
       offset+=i;
     }
 
-    //MemArr(const int _memsize, const fill_sequential& dummy, const int _dev=0):
+    MemArr(TYPE* _arr, const int _dev=0):
+      blob(new MemBlob<TYPE>(_dev,_arr)){}
+      
+   //MemArr(const int _memsize, const fill_sequential& dummy, const int _dev=0):
     //MemArr(_memsize,_dev){
     //CNINE_ASSRT(_dev==0);
     //for(int i=0; i<_memsize; i++)
