@@ -22,7 +22,7 @@ namespace cnine{
   class MemoryManager{
   public:
 
-    virtual ~MemoryManager()=0;
+    virtual ~MemoryManager(){};
     virtual void* malloc(const int n) const=0;
     virtual void free(void* p) const=0;
     virtual void clear() const=0;
