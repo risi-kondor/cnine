@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "MemBlob.hpp"
+#include "MemoryManager.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -42,14 +43,10 @@ namespace cnine{
     std::shared_ptr<MemBlob<TYPE> > blob;
     size_t offset=0;
 
+
     MemArr(){
       cout<<"empty"<<endl;
-      //CNINE_ERROR("MemArr must always be initialized to a new or existing blob of memory");
     }
-
-    // just for taking views of ATen tensors 
-    MemArr(MemBlob<TYPE>* _blob):
-      blob(_blob){}
 
     MemArr(const size_t _memsize, const int _dev=0):
       blob(new MemBlob<TYPE>(_memsize,_dev)){}
@@ -60,38 +57,28 @@ namespace cnine{
       if(device()==1) CUDA_SAFE(cudaMemset(blob->arr,0,_memsize*sizeof(TYPE)));
     }
 
+    MemArr(const MemoryManager& manager, const size_t _memsize, const int _dev=0):
+      blob(new MemBlob<TYPE>(manager,_memsize,_dev)){}
+
     MemArr(const MemArr& x, const size_t i):
       MemArr(x){
       offset+=i;
     }
 
+
+  public: // ---- Views --------------------------------------------------------------------------------------
+
+
+    // just for taking views of ATen tensors 
+    MemArr(MemBlob<TYPE>* _blob):
+      blob(_blob){}
+
+    // just for taking views of ATen tensors 
     MemArr(TYPE* _arr, const int _dev=0):
       blob(new MemBlob<TYPE>(_dev,_arr)){}
       
-   //MemArr(const int _memsize, const fill_sequential& dummy, const int _dev=0):
-    //MemArr(_memsize,_dev){
-    //CNINE_ASSRT(_dev==0);
-    //for(int i=0; i<_memsize; i++)
-    //blob->arr[i]=i;
-    //}
 
-
-    // ---- Transport ----------------------------------------------------------------------------------------
-
-    /*
-    void move_to_device(const int _dev){
-      if(_dev==blob->dev) return;
-      MemBlob<TYPE> newblob(new MemBlob<TYPE>(_memsize,_dev));
-      if(_dev==0){
-	if(device()==1) CUDA_SAFE(cudaMemcpy(newblob->arr,blob->arr,memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost)); 
-      }
-      if(_dev==1){
-	if(device()==0) CUDA_SAFE(cudaMemcpy(newblob->arr,blob->arr,memsize()*sizeof(float),cudaMemcpyHostToDevice));
-      }      
-    }
-    */
-
-    // ---- Copying ------------------------------------------------------------------------------------------
+  public: // ---- Copying ------------------------------------------------------------------------------------
 
 
     MemArr& operator=(const MemArr& x){
@@ -101,7 +88,7 @@ namespace cnine{
     }
 
 
-    // ---- Access -------------------------------------------------------------------------------------------
+  public: // ---- Access -------------------------------------------------------------------------------------
 
 
     int device() const{

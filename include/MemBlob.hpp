@@ -17,7 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "CnineCallStack.hpp"
-
+#include "MemoryManager.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -43,9 +43,14 @@ namespace cnine{
     TYPE* arr;
     int dev=0;
     bool is_view=false;
+    const MemoryManager* manager=nullptr;
 
     ~MemBlob(){
       if(is_view) return;
+      if(manager){
+	manager->free(static_cast<void*>(arr));
+	return;
+      }
       BLOB_DEBUG("Delete blob.");
       if(dev==0 && arr) {delete[] arr;}
       if(dev==1 && arr) {CUDA_SAFE(cudaFree(arr));}
@@ -72,6 +77,11 @@ namespace cnine{
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE))););
     }
 
+    MemBlob(const MemoryManager& _manager, size_t _memsize, const int _dev=0):
+      dev(_dev),
+      manager(&_manager){
+      arr=static_cast<TYPE*>(manager->malloc(_memsize*sizeof(TYPE)));
+    }
 
   };
 

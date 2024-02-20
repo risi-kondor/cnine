@@ -174,6 +174,17 @@ namespace cnine{
     }
 
 
+    TensorView(const MemoryManager& manager, const Gdims& _dims, const int fcode, const int _dev):
+      arr(manager,_dims.total(),_dev),
+      dims(_dims),
+      strides(GstridesB(_dims)),
+      dev(_dev){
+      FNTRACE();
+
+      CNINE_ASSRT(fcode<2);
+      if(fcode==0) set_zero();
+    }
+
 
     TensorView(const Gdims& _dims, const int _dev=0): 
       TensorView(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}

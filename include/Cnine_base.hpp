@@ -431,6 +431,25 @@ namespace cnine{
     operator TYPE(){return x;}
   };
 
+
+  struct Kbytes{
+  public:
+    int v;
+    Kbytes(const int _v): v(_v){}
+    operator size_t() const{
+      return static_cast<size_t>(v)<<10;
+    }
+  };
+
+  struct Mbytes{
+  public:
+    int v;
+    Mbytes(const int _v): v(_v){}
+    operator size_t() const{
+      return static_cast<size_t>(v)<<20;
+    }
+  };
+
   //template<typename TYPE>
   //_batched<TYPE> batch(const TYPE& x){return x;}
     

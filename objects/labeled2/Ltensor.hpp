@@ -83,6 +83,9 @@ namespace cnine{
     Ltensor(const Gdims& _dims, const int fcode, const int _dev=0):
       BASE(_dims,fcode,_dev){}
 
+    Ltensor(const MemoryManager& mm, const Gdims& _dims, const int fcode, const int _dev=0):
+      BASE(mm,_dims,fcode,_dev){}
+
     //Ltensor(const Gdims& _dims, const int _dev, TYPE* _arr):
     //BASE(_dims,fcode,_dev){}
 
@@ -168,21 +171,21 @@ namespace cnine{
   public: // ---- Other constructors ------------------------------------------------------------------------
 
 
-  Ltensor(const initializer_list<initializer_list<TYPE> >& list, const int _dev=0){
-    int n0=list.size();
-    CNINE_ASSRT(n0>0);
-    int n1=list.begin()->size();
-    Ltensor<TYPE> T(Gdims(n0,n1)); 
-    int i=0;
-    for(auto& p: list){
-      int j=0;
-      for(auto& q: p)
-	T.set(i,j++,q);
-      i++;
+    Ltensor(const initializer_list<initializer_list<TYPE> >& list, const int _dev=0){
+      int n0=list.size();
+      CNINE_ASSRT(n0>0);
+      int n1=list.begin()->size();
+      Ltensor<TYPE> T(Gdims(n0,n1)); 
+      int i=0;
+      for(auto& p: list){
+	int j=0;
+	for(auto& q: p)
+	  T.set(i,j++,q);
+	i++;
+      }
+      if(_dev>0) T.move_to_device(_dev);
+      reset(T);
     }
-    if(_dev>0) T.move_to_device(_dev);
-    reset(T);
-  }
 
 
   public: // ---- Copying -----------------------------------------------------------------------------------
@@ -201,6 +204,13 @@ namespace cnine{
     Ltensor copy() const{
       FNTRACE();
       Ltensor R(dims,labels,0,dev);
+      R=*this;
+      return R;
+    }
+
+    Ltensor copy(const MemoryManager& mm) const{
+      FNTRACE();
+      Ltensor R(mm,dims,labels,0,dev);
       R=*this;
       return R;
     }
