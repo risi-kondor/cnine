@@ -117,8 +117,8 @@ namespace cnine{
 
       void* p=static_cast<void*>(_p);
       auto itt=block_map.find(p);
-      if(itt==block_map.end())
-	throw std::runtime_error("Memory manager "+name+" in free(void*): not a managed object or already deallocated.");
+      //if(itt==block_map.end())
+      //throw std::runtime_error("Memory manager "+name+" in free(void*): not a managed object or already deallocated.");
       block_map.erase(p);
 
       block_it it=itt->second;
