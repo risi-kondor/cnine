@@ -30,6 +30,20 @@ namespace cnine{
   };
 
 
+  extern thread_local MemoryManager* vram_manager;
+
+  class using_vram_manager{
+  public:
+    MemoryManager* old;
+    using_vram_manager(MemoryManager* mm){
+      old=vram_manager;
+      vram_manager=mm;
+    }
+    ~using_vram_manager(){
+      vram_manager=old;
+    }
+  };
+
 }
 
 #endif 

@@ -45,7 +45,7 @@ namespace cnine{
 
 
     MemArr(){
-      cout<<"empty"<<endl;
+      //cout<<"empty"<<endl;
     }
 
     MemArr(const size_t _memsize, const int _dev=0):

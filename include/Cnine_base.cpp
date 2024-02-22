@@ -23,6 +23,7 @@
 #include "CnineCallStack.hpp"
 #include "GPUbuffer.hpp"
 #include "AsyncGPUbuffer.hpp"
+#include "MemoryManager.hpp"
 
 #ifdef _WITH_CENGINE
 #include "Cengine_base.cpp"
@@ -35,6 +36,8 @@ namespace cnine{
 
   int streaming_footprint=1024;
   thread_local DeviceSelector dev_selector;
+
+  thread_local MemoryManager* vram_manager=nullptr;
 
   Primes primes;
   Factorial factorial;

@@ -20,6 +20,7 @@
 #include "DimLabels.hpp"
 #include "LtensorSpec.hpp"
 #include "NamedType.hpp"
+#include "MemoryManager.hpp"
 
 
 namespace cnine{
@@ -67,6 +68,7 @@ namespace cnine{
     using BASE::strides;
     using BASE::dev;
     using BASE::reset;
+    using BASE::set_zero;
 
     DimLabels labels;
 
@@ -83,8 +85,8 @@ namespace cnine{
     Ltensor(const Gdims& _dims, const int fcode, const int _dev=0):
       BASE(_dims,fcode,_dev){}
 
-    Ltensor(const MemoryManager& mm, const Gdims& _dims, const int fcode, const int _dev=0):
-      BASE(mm,_dims,fcode,_dev){}
+    //Ltensor(const MemoryManager& mm, const Gdims& _dims, const int fcode, const int _dev=0):
+    //BASE(mm,_dims,fcode,_dev){}
 
     //Ltensor(const Gdims& _dims, const int _dev, TYPE* _arr):
     //BASE(_dims,fcode,_dev){}
@@ -208,9 +210,19 @@ namespace cnine{
       return R;
     }
 
+    /*
     Ltensor copy(const MemoryManager& mm) const{
       FNTRACE();
       Ltensor R(mm,dims,labels,0,dev);
+      R=*this;
+      return R;
+    }
+    */
+
+    Ltensor copy(MemoryManager* mm) const{
+      FNTRACE();
+      using_vram_manager vv(mm);
+      Ltensor R(dims,labels,0,dev);
       R=*this;
       return R;
     }
@@ -253,6 +265,54 @@ namespace cnine{
     auto bgfused_view3() const -> decltype(batch_grid_fused_view3_of(*this)){
       return batch_grid_fused_view3_of(*this);
     }
+
+
+  public: // ---- Memory managed ----------------------------------------------------------------------------
+
+
+    Ltensor(const MemoryManager& manager, const Gdims& _dims, const int fcode, const int _dev){
+      CNINE_ASSRT(fcode<2);
+      FNTRACE();
+      arr=MemArr<TYPE>(manager,_dims.total(),_dev);
+      dims=_dims;
+      strides=GstridesB(_dims);
+      dev=_dev;
+      if(fcode==0) set_zero();
+    }
+
+    static Ltensor<TYPE> vram_managed(MemoryManager* mm, const Gdims& _dims, const int fcode, const int _dev){
+      using_vram_manager vv(mm);
+      return Ltensor<TYPE>(_dims,fcode,_dev);
+    }
+
+    /*
+    Ltensor(const MemoryManager* manager, const Gdims& _dims, const int fcode, const int _dev){
+      CNINE_ASSRT(fcode<2);
+      FNTRACE();
+      dims=_dims;
+      strides=GstridesB(_dims);
+      dev=_dev;
+      if(manager && _dev>0) 
+	arr=MemArr<TYPE>(*manager,_dims.total(),_dev);
+      else arr=MemArr<TYPE>(_dims.total(),_dev);
+      if(fcode==0) set_zero();
+    }
+    */
+
+    /*
+    Ltensor(const bool condition, const MemoryManager* manager, const DimLabels& _labels, const Gdims& _dims, const int fcode, const int _dev){
+      CNINE_ASSRT(fcode<2);
+      FNTRACE();
+      dims=_dims;
+      labels=_labels;
+      strides=GstridesB(_dims);
+      dev=_dev;
+      if(manager && condition) 
+	arr=MemArr<TYPE>(*manager,_dims.total(),_dev);
+      else MemArr<TYPE>(_dims.total(),_dev);
+      if(fcode==0) set_zero();
+    }
+    */
 
 
   public: // ---- Conversions -------------------------------------------------------------------------------
@@ -663,7 +723,6 @@ namespace cnine{
   }
   
 
-
 }
 
 
@@ -689,3 +748,15 @@ namespace std{
 
 
 #endif 
+  /*
+  inline Ltensor<float> mult(const bool condition, const MemoryManager* mm, const Ltensor<float>& x, const Ltensor<float>& y){
+    Gdims d(x.dims);
+    d.set_back(y.dims.back());
+    Ltensor<float> r(condition,mm,d,x.labels,0,x.dev);
+    Rtensor2_view rv(r.arr.ptr(),r.total_bgdims()*r.cdim(0),r.cdim(1),r.cstride(0),r.cstride(1),r.dev);
+    Rtensor2_view xv(x.arr.ptr(),x.total_bgdims()*x.cdim(0),x.cdim(1),x.cstride(0),x.cstride(1),x.dev);
+    Rtensor2_view yv(y.arr.ptr(),y.cdim(0),y.cdim(1),y.cstride(0),y.cstride(1),y.dev);
+    rv.add_matmul_AA(xv,yv);
+    return r;
+  }
+  */

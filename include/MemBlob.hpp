@@ -33,6 +33,8 @@ extern cublasHandle_t cnine_cublas;
 namespace cnine{
 
   extern CallStack call_stack;
+  extern thread_local MemoryManager* vram_manager;
+
 
   template<typename TYPE>
   class MemBlob{
@@ -59,20 +61,16 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
-    // just for taking views of ATen tensors 
-    MemBlob(TYPE* _arr, const int _dev=0):
-      arr(_arr), dev(_dev){}
-
-    MemBlob(int _dev, TYPE* _arr):
-      arr(_arr), 
-      dev(_dev),
-      is_view(true){}
-
     MemBlob(size_t _memsize, const int _dev=0):
       dev(_dev){
       if(_memsize<1) _memsize=1;
       BLOB_DEBUG("New blob of size "+to_string(_memsize)+" on device "+to_string(_dev)+".");
-      //cout<<call_stack.str("  ")<<endl<<endl;
+
+      if(vram_manager && _dev>1){
+	manager=vram_manager;
+	arr=static_cast<TYPE*>(manager->malloc(_memsize*sizeof(TYPE)));
+      }
+
       CPUCODE(arr=new TYPE[_memsize];);
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE))););
     }
@@ -82,6 +80,20 @@ namespace cnine{
       manager(&_manager){
       arr=static_cast<TYPE*>(manager->malloc(_memsize*sizeof(TYPE)));
     }
+
+
+  public: // ---- Views --------------------------------------------------------------------------------------
+
+
+    // just for taking views of ATen tensors 
+    MemBlob(TYPE* _arr, const int _dev=0):
+      arr(_arr), dev(_dev){}
+
+    MemBlob(int _dev, TYPE* _arr):
+      arr(_arr), 
+      dev(_dev),
+      is_view(true){}
+
 
   };
 
