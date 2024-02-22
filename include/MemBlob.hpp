@@ -18,6 +18,7 @@
 #include "Cnine_base.hpp"
 #include "CnineCallStack.hpp"
 #include "MemoryManager.hpp"
+#include "fnlog.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -34,6 +35,7 @@ namespace cnine{
 
   extern CallStack call_stack;
   extern thread_local MemoryManager* vram_manager;
+  extern CnineLog cnine_log;
 
 
   template<typename TYPE>
@@ -66,11 +68,14 @@ namespace cnine{
       if(_memsize<1) _memsize=1;
       BLOB_DEBUG("New blob of size "+to_string(_memsize)+" on device "+to_string(_dev)+".");
 
-      if(vram_manager && _dev>1){
+      if(vram_manager && _dev>0){
+	//fnlog timer("MemBlob managed");
 	manager=vram_manager;
 	arr=static_cast<TYPE*>(manager->malloc(_memsize*sizeof(TYPE)));
+	return;
       }
 
+      //fnlog timer("MemBlob not managed");
       CPUCODE(arr=new TYPE[_memsize];);
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE))););
     }
@@ -78,6 +83,7 @@ namespace cnine{
     MemBlob(const MemoryManager& _manager, size_t _memsize, const int _dev=0):
       dev(_dev),
       manager(&_manager){
+      //fnlog timer("MemBlob explicitly managed");
       arr=static_cast<TYPE*>(manager->malloc(_memsize*sizeof(TYPE)));
     }
 
