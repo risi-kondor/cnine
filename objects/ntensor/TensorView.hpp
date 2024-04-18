@@ -62,6 +62,7 @@ namespace cnine{
   template<typename TYPE> class TensorSArrayView;
   template<typename TYPE> class Tensor;
   template<typename TYPE> class Ltensor;
+  template<typename TYPE> class BatchedTensorView;
 
 
   // this is the multiply defined functions problem
@@ -90,6 +91,7 @@ namespace cnine{
     friend class TensorSArrayView<TYPE>;
     friend class Tensor<TYPE>;
     friend class Ltensor<TYPE>;
+    friend class BatchedTensorView<TYPE>;
 
     typedef std::size_t size_t;
 
