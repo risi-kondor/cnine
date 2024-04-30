@@ -129,6 +129,21 @@ namespace cnine{
   public: // ---- Cumulative operations ---------------------------------------------------------------------
 
 
+    void add(const Ctensor2_view& x) const{
+      CNINE_UNIMPL();
+      CNINE_DEVICE_SAME(x);
+      CNINE_ASSRT(x.n0==n0);
+      CNINE_ASSRT(x.n1==n1);
+      if(x.n0*x.n1==0) return;
+      if(is_regular() && x.is_regular()){
+	CPUCODE(stdadd<float>(x.arr,x.arr+n0*s0,arr));
+	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0*n1,&alpha,x.arr,1,arr,1)));
+      }else{
+	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) {inc(i0,i1,x(i0,i1));});
+	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x,stream)));
+      }
+    }
+
     void add_matmul(const Ctensor2_view& x, const Ctensor2_view& y){
       add_matmul_AA(x,y);
     }
