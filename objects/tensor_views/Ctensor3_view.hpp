@@ -26,6 +26,10 @@
 
 namespace cnine{
 
+  #ifdef _WITH_CUDA
+  extern void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
+  //extern void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const float c, const cudaStream_t& stream);
+  #endif 
 
   class Ctensor3_view{
   public:

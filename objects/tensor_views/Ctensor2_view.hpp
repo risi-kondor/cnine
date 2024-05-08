@@ -38,6 +38,12 @@ extern cublasHandle_t cnine_cublas;
 
 namespace cnine{
 
+  #ifdef _WITH_CUDA
+  extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
+  //extern void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const float c, const cudaStream_t& stream);
+  //extern void Rtensor_sum0_into_cu(const Rtensor1_view& r, const Rtensor2_view& x, const cudaStream_t& stream);
+  //extern void Rtensor_sum0_into_cu(const Rtensor1_view& r, const Rtensor2_view& x, const float c, const cudaStream_t& stream);
+  #endif 
 
   class Ctensor2_view{
   public:
