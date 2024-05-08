@@ -146,7 +146,8 @@ namespace cnine{
 	GPUCODE(const float alpha=1; CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0*n1,&alpha,x.arr,1,arr,1)));
       }else{
 	CPUCODE(for(int i0=0; i0<x.n0; i0++) for(int i1=0; i1<x.n1; i1++) {inc(i0,i1,x(i0,i1));});
-	GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x,stream)));
+	CNINE_CPUONLY();
+	//GPUCODE(CUDA_STREAM(Rtensor_add_cu(*this,x,stream)));
       }
     }
 
