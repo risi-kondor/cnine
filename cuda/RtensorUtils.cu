@@ -250,6 +250,15 @@ __global__ void Rtensor_sum0_into_kernel_1(float* rarr, const float* arr, const 
 }
 
 
+__global__ void Rtensor3_sum1_into_kernel_0(float* rarr, const float* arr, const int rs0, const int rs1, 
+  const int s0, const int s1, const int s2, const int n){
+  float t=0;
+  for(int i=0; i<n; i++)
+    t+=arr[blockIdx.x*s0+i*s1+threadIdx.x*s2];
+  rarr[blockIdx.x*rs0+threadIdx.x*rs1]+=t;
+}
+
+
 // ----------------------------------------------------------------------------------------------------------
 
 
@@ -466,6 +475,17 @@ namespace cnine{
       if(n%1024>0) Rtensor_sum0_into_kernel_0<<<1,n%1024,0,stream>>>(r.arr+(n-n%1024)*r.s0,x.arr+(n-n%1024)*x.s1,r.s0,x.s0,x.s1,x.n0,c);
     }
   }
+
+  void Rtensor3_sum1_into_cu(const Rtensor2_view& r, const Rtensor3_view& x, const cudaStream_t& stream){
+    CNINE_ASSRT(r.n0==x.n0);
+    CNINE_ASSRT(r.n1==x.n2);
+    if(x.n2<=1024){
+      Rtensor3_sum1_into_kernel_0<<<x.n0,x.n2,0,stream>>>(r.arr,x.arr,r.s0,r.s1,x.s0,x.s1,x.s2,x.n1);
+    }else{
+      CNINE_UNIMPL();
+    }
+  }
+
 
 
   void ScaleSomeSlices_cu(const Rtensor2_view& x, const Itensor1_view& indices, const Rtensor1_view& coeffs, const cudaStream_t& stream){

@@ -37,6 +37,7 @@ namespace cnine{
   extern void Rtensor_copy_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
   extern void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
   extern void Rtensor_add_cu(const Rtensor3_view& r, const Rtensor3_view& x, const float c, const cudaStream_t& stream);
+  extern void Rtensor3_sum1_into_cu(const Rtensor2_view& r, const Rtensor3_view& x, const cudaStream_t& stream);
   #endif 
 
   class Rtensor3_view{
@@ -249,17 +250,22 @@ namespace cnine{
 	}
     }
 
-    void sum1_into(const Rtensor2_view& r){
+    void sum1_into(const Rtensor2_view& r) const{
       CNINE_CPUONLY();
       assert(r.n0==n0);
       assert(r.n1==n2);
-      for(int i0=0; i0<n0; i0++) 
-	for(int i2=0; i2<n2; i2++){
-	  float t=0; 
-	  for(int i1=0; i1<n1; i1++)
-	    t+=arr[s0*i0+s1*i1+s2*i2];
-	  r.inc(i0,i2,t);
-	}
+      if(dev==0){
+	for(int i0=0; i0<n0; i0++) 
+	  for(int i2=0; i2<n2; i2++){
+	    float t=0; 
+	    for(int i1=0; i1<n1; i1++)
+	      t+=arr[s0*i0+s1*i1+s2*i2];
+	    r.inc(i0,i2,t);
+	  }
+      }
+      if(dev==1){
+	CUDA_STREAM(Rtensor3_sum1_into_cu(r,*this,stream));
+      }
     }
 
     void avg1_into(const Rtensor2_view& r){
