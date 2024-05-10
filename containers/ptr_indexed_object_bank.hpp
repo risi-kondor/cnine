@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "observable.hpp"
+#include "ptr_pair_indexed_object_bank.hpp"
 
 
 namespace cnine{
@@ -48,11 +49,6 @@ namespace cnine{
     ptr_indexed_object_bank(std::function<OBJ(const KEY&)> _make_obj):
       make_obj(_make_obj),
       observers([this](KEY* p){erase(p);}){}
-
-    //template<typename ARG0>
-    //ptr_indexed_object_bank(std::function<OBJ(const KEY&)> _make_obj):
-    //make_obj(_make_obj),
-    //observers([this](KEY* p){erase(p);}){}
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
@@ -88,61 +84,7 @@ namespace cnine{
   };
 
 
-
 }
 
 #endif 
 
-
-  /*
-  template<typename KEY, typename OBJ>
-  class shared_object_bank: public unordered_map<KEY*,shared_ptr<OBJ> >{
-  public:
-
-    using unordered_map<KEY*,shared_ptr<OBJ> >::find;
-    using unordered_map<KEY*,shared_ptr<OBJ> >::erase;
-
-
-    std::function<OBJ*(const KEY&)> make_obj;
-    observer<KEY> observer;
-    
-    ~shared_object_bank(){
-    }
-
-
-  public: // ---- Constructors --------------------------------------------------------------------------------
-
-
-    shared_object_bank():
-      make_obj([](const KEY& x){cout<<"shared_obj_bank error"<<endl; return nullptr;}),
-      observer([this](KEY* p){erase(p);}){}
-
-    shared_object_bank(std::function<OBJ*(const KEY&)> _make_obj):
-      make_obj(_make_obj),
-      observer([this](KEY* p){erase(p);}){}
-
-
-  public: // ---- Access -------------------------------------------------------------------------------------
-
-
-    shared_ptr<OBJ> operator()(KEY& key){
-      return (*this)(&key);
-    }
-
-    shared_ptr<OBJ> operator()(const KEY& key){
-      return (*this)(&const_cast<KEY&>(key));
-    }
-
-    shared_ptr<OBJ> operator()(KEY* keyp){
-      auto it=find(keyp);
-      if(it!=unordered_map<KEY*, shared_ptr<OBJ> >::end()) 
-	return it->second;
-
-      auto new_obj=shared_ptr<OBJ>(make_obj(*keyp));
-      (*this)[keyp]=new_obj;
-      observer.add(keyp);
-      return new_obj;
-    }
-
-  };
-  */

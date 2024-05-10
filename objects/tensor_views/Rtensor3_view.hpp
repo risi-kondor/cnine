@@ -251,7 +251,6 @@ namespace cnine{
     }
 
     void sum1_into(const Rtensor2_view& r) const{
-      CNINE_CPUONLY();
       assert(r.n0==n0);
       assert(r.n1==n2);
       if(dev==0){
