@@ -39,6 +39,9 @@ namespace cnine{
     Tensor<LABEL> labels;
     bool labeled=false;
 
+    Tensor<int> degrees;
+    bool degreesp=false;
+
 
   public: // ---- Constructors -------------------------------------------------------------------------------
 
@@ -81,6 +84,7 @@ namespace cnine{
 	set(p.second,p.first,1.0);
       }
       labels=L;
+      labeled=true;
     }
 
 
@@ -209,6 +213,10 @@ namespace cnine{
       return labeled;
     }
 
+    bool with_degrees() const{
+      return degreesp;
+    }
+
     int nneighbors(const int i) const{
       return data[i].size();
     }
@@ -220,6 +228,20 @@ namespace cnine{
     void set(const KEY& i, const KEY& j, const TYPE& v){
       BASE::set(i,j,v);
       BASE::set(j,i,v);
+    }
+
+    void set_labels(const TensorView<int>& _labels){
+      CNINE_ASSRT(_labels.ndims()==1);
+      CNINE_ASSRT(_labels.dim(0)==n);
+      labels=_labels;
+      labeled=true;
+    }
+
+    void set_degrees(const TensorView<int>& _degrees){
+      CNINE_ASSRT(_degrees.ndims()==1);
+      CNINE_ASSRT(_degrees.dim(0)==n);
+      degrees=_degrees;
+      deogreesp=true;
     }
 
     vector<int> neighbors(const int i) const{
@@ -244,6 +266,7 @@ namespace cnine{
       return BASE::operator==(x);
     }
 
+    
 
   public: // ---- Lambdas ----------------------------------------------------------------------------------
 
@@ -332,7 +355,8 @@ namespace cnine{
       ostringstream oss;
       oss<<indent<<"Graph with "<<n<<" vertices:"<<endl;
       oss<<dense().str(indent+"  ")<<endl;
-      //if(is_labeled) oss<<labels.str(indent+"  ")<<endl;
+      if(is_labeled) oss<<"Labels: "<<labels.str(indent+"  ")<<endl;
+      if(with_degrees) oss<<"Degrees: "<<degrees.str(indent+"  ")<<endl;
       return oss.str();
     }
 

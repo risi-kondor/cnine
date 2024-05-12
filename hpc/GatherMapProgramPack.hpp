@@ -34,7 +34,7 @@ namespace cnine{
 
 
     template<typename TYPE>
-    void operator()(const Ltensor<TYPE>& output, const Ltensor<TYPE>& arg0){
+    void operator()(const Ltensor<TYPE>& output, const Ltensor<TYPE>& arg0) const{
 
       int N=size();
       CNINE_ASSRT(N>0);
