@@ -3,6 +3,7 @@
 #include "CnineSession.hpp"
 #include "sparse_graph.hpp"
 #include "FindPlantedSubgraphs.hpp"
+#include "Ltensor.hpp"
 
 using namespace cnine;
 
@@ -15,6 +16,14 @@ int main(int argc, char** argv){
 
   Graph triangle(3,{{0,1},{1,2},{2,0}});
   Graph square(4,{{0,1},{1,2},{2,3},{3,0}});
+
+  cout<<triangle<<endl;
+
+  Ltensor<int> deg(dims(3));
+  deg.set(0,2);
+  deg.set(1,3);
+  deg.set(2,2);
+  triangle.set_degrees(deg);
 
   cout<<triangle<<endl;
 

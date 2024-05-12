@@ -241,7 +241,7 @@ namespace cnine{
       CNINE_ASSRT(_degrees.ndims()==1);
       CNINE_ASSRT(_degrees.dim(0)==n);
       degrees=_degrees;
-      deogreesp=true;
+      degreesp=true;
     }
 
     vector<int> neighbors(const int i) const{
@@ -262,7 +262,10 @@ namespace cnine{
 
     bool operator==(const sparse_graph& x) const{
       if(n!=x.n) return false;
-      //if(labeled && labels!=x.labels) return false;
+      if(labeled!=x.labeled) return false; 
+      if(labeled && (labels!=x.labels)) return false;
+      if(degreesp!=x.degreesp) return false; 
+      if(degreesp && (degrees!=x.degrees)) return false;
       return BASE::operator==(x);
     }
 
@@ -354,9 +357,9 @@ namespace cnine{
     string str(const string indent="") const{
       ostringstream oss;
       oss<<indent<<"Graph with "<<n<<" vertices:"<<endl;
-      oss<<dense().str(indent+"  ")<<endl;
-      if(is_labeled) oss<<"Labels: "<<labels.str(indent+"  ")<<endl;
-      if(with_degrees) oss<<"Degrees: "<<degrees.str(indent+"  ")<<endl;
+      oss<<dense().str(indent+"  ");
+      if(is_labeled()) oss<<indent<<"L:"<<labels.str()<<endl;
+      if(with_degrees()) oss<<indent<<"D:"<<degrees.str()<<endl;
       return oss.str();
     }
 

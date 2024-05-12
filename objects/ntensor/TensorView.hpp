@@ -733,6 +733,10 @@ namespace cnine{
       return true;
     }
 
+    bool operator!=(const TensorView<TYPE>& x) const{
+      return !((*this)==x);
+    }
+
 
   public: // ---- Getters ------------------------------------------------------------------------------------
 

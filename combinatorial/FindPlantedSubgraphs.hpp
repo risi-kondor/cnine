@@ -46,18 +46,15 @@ namespace cnine{
       G(_G), H(_H), n(_H.getn()){
       labeled_tree<int> S=H.greedy_spanning_tree();
       Htraversal=S.indexed_depth_first_traversal();
-      //for(auto p:Htraversal) cout<<p.first<<" "<<p.second<<endl;
       assignment=vector<int>(n,-1);
 
       for(int i=0; i<G.getn(); i++){
-	//cout<<"  i="<<i<<endl;
 	labeled_tree<int>* T=new labeled_tree<int>(i);
 	matches.push_back(T);
 	if(!make_subtree(*T,0)){
 	  delete T;
 	  matches.pop_back();
 	}
-	//cout<<matches.size()<<endl;
       }
     }
 
@@ -77,7 +74,6 @@ namespace cnine{
 	p->for_each_maximal_path([&](const vector<int>& x){
 	    for(int i=0; i<n; i++) R.set(t,i,x[i]);
 	    t++;});
-      //cout<<R<<endl;
       return R;
     }
 
@@ -92,11 +88,11 @@ namespace cnine{
       const int w=node.label;
 
       if(G.is_labeled() && H.is_labeled() && (G.labels(w)!=H.labels(v))) return false;
+      if(H.with_degrees() && (G.data[w].size()!=H.degrees(v))) return false;
 
       for(auto& p:const_cast<Graph&>(H).data[v]){ // improve syntax
 	if(assignment[p.first]==-1) continue;
 	if(p.second!=G(w,assignment[p.first])){
-	  //cout<<string(m,' ')<<"failedA"<<endl;
 	  return false;
 	}
       }
@@ -106,7 +102,6 @@ namespace cnine{
 	auto it=std::find(assignment.begin(),assignment.end(),p.first);
 	if(it==assignment.end()) continue;
 	if(p.second!=H(v,it-assignment.begin())){
-	  //cout<<string(m,' ')<<"failedB"<<endl; 
 	  return false;
 	}
       }
