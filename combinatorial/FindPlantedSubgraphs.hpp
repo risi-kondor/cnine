@@ -88,7 +88,7 @@ namespace cnine{
       const int w=node.label;
 
       if(G.is_labeled() && H.is_labeled() && (G.labels(w)!=H.labels(v))) return false;
-      if(H.with_degrees() && (G.data[w].size()!=H.degrees(v))) return false;
+      if(H.with_degrees() && (H.degrees(v)>=0) && (G.data[w].size()!=H.degrees(v))) return false;
 
       for(auto& p:const_cast<Graph&>(H).data[v]){ // improve syntax
 	if(assignment[p.first]==-1) continue;
