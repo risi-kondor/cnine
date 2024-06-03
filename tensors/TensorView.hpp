@@ -27,7 +27,7 @@
 #include "Rtensor1_view.hpp"
 #include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
-#include "RtensorA.hpp"
+//#include "RtensorA.hpp"
 
 #include "Ctensor1_view.hpp"
 #include "Ctensor2_view.hpp"
@@ -433,21 +433,10 @@ namespace cnine{
 
 
 
+    /*
     IF_FLOAT
     TensorView& operator=(const RtensorA& x){
       CNINE_ASSRT(dims.size()==x.dims.size());
-
-      /*
-      if(x.dims.size()==1){
-	view1().set(x.view1());
-      }
-      if(x.dims.size()==2){
-	view2().set(x.view2());
-      }
-      if(x.dims.size()==3){
-	view3().set(x.view3());
-      }
-      */
 
       switch(x.dims.size()){
       case 1:
@@ -484,6 +473,7 @@ namespace cnine{
       }
       return RtensorA();
     }
+    */
 
 
   public: // ---- ATen --------------------------------------------------------------------------------------
@@ -496,55 +486,37 @@ namespace cnine{
       operator=(T);
     }
 
-    /*
-    IF_FLOAT
     TensorView& operator=(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
       CNINE_ASSRT(dims==Gdims(T));
       CNINE_ASSRT(dev==T.type().is_cuda());
-      if(dev==0){
-	std::copy(T.data<c10::float>(),T.data<c10::float>()+total(),
-	  reinterpret_cast<c10::float*>(arr.ptr()));
-      }
-      if(dev==1){
-	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
-	CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::float>(),total()*sizeof(c10::float),cudaMemcpyDeviceToDevice));
-      }
-      return *this;
-    }
-    */
 
-    IF_CFLOAT
-    TensorView& operator=(const at::Tensor& T){
-      CNINE_CONVERT_FROM_ATEN_WARNING();
-      CNINE_ASSRT(dims==Gdims(T));
-      CNINE_ASSRT(dev==T.type().is_cuda());
-      if(dev==0){
-	//std::copy(T.data<TYPE>(),T.data<c10::TYPE>()+total(),arr.ptr());
-	std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+total(),
-	  reinterpret_cast<c10::complex<float>*>(arr.ptr()));
+      if constexpr(std::is_same<TYPE,int>::value || std::is_same<TYPE,float>::value){
+	CNINE_ASSRT(strides==GstridesB(T));
+	if(dev==0){
+	  std::copy(T.data<TYPE>(),T.data<TYPE>()+total(),reinterpret_cast<TYPE*>(arr.ptr()));
+	}
+	if(dev==1){
+	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<TYPE>(),total()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+	}
+	return *this;
       }
-      if(dev==1){
-	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
-	CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
+
+      if constexpr(std::is_same<TYPE,complex<float> >::value){
+	CNINE_ASSRT(strides==GstridesB(T));
+	if(dev==0){
+	  std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+total(),reinterpret_cast<c10::complex<float>*>(arr.ptr()));
+	}
+	if(dev==1){
+	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
+	}
+	return *this;
       }
+
+      CNINE_UNIMPL();
       return *this;
     }
   
-    /*
-    IF_FLOAT
-    at::Tensor torch() const{
-      CNINE_CONVERT_TO_ATEN_WARNING();
-      assert(dev==0);
-      int k=ndims();
-      vector<int64_t> v(k); 
-      for(int i=0; i<k; i++) v[i]=dims[i];
-      at::Tensor R(at::zeros(v,torch::CPU(at::Float))); 
-      //std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
-      std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::float>());
-      return R;
-    }
-    */
 
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
@@ -1663,4 +1635,56 @@ namespace cnine{
 
 #endif
 
+
+    /*
+    IF_FLOAT
+    TensorView& operator=(const at::Tensor& T){
+      CNINE_CONVERT_FROM_ATEN_WARNING();
+      CNINE_ASSRT(dims==Gdims(T));
+      CNINE_ASSRT(dev==T.type().is_cuda());
+      if(dev==0){
+	std::copy(T.data<c10::float>(),T.data<c10::float>()+total(),
+	  reinterpret_cast<c10::float*>(arr.ptr()));
+      }
+      if(dev==1){
+	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::float>(),total()*sizeof(c10::float),cudaMemcpyDeviceToDevice));
+      }
+      return *this;
+    }
+    */
+
+    /*
+    IF_CFLOAT
+    TensorView& operator=(const at::Tensor& T){
+      CNINE_CONVERT_FROM_ATEN_WARNING();
+      CNINE_ASSRT(dims==Gdims(T));
+      CNINE_ASSRT(dev==T.type().is_cuda());
+      if(dev==0){
+	//std::copy(T.data<TYPE>(),T.data<c10::TYPE>()+total(),arr.ptr());
+	std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+total(),
+	  reinterpret_cast<c10::complex<float>*>(arr.ptr()));
+      }
+      if(dev==1){
+	//CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
+	CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
+      }
+      return *this;
+    }
+    */
+  
+    /*
+    IF_FLOAT
+    at::Tensor torch() const{
+      CNINE_CONVERT_TO_ATEN_WARNING();
+      assert(dev==0);
+      int k=ndims();
+      vector<int64_t> v(k); 
+      for(int i=0; i<k; i++) v[i]=dims[i];
+      at::Tensor R(at::zeros(v,torch::CPU(at::Float))); 
+      //std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
+      std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::float>());
+      return R;
+    }
+    */
 

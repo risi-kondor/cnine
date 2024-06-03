@@ -15,7 +15,8 @@
 #define _CSRmatrix
 
 #include "Cnine_base.hpp"
-#include "RtensorA.hpp"
+//#include "RtensorA.hpp"
+#include "Tensor.hpp"
 #include "array_pool.hpp"
 #include "CSRvector.hpp"
 
@@ -102,7 +103,7 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    CSRmatrix(const RtensorA& x):
+    CSRmatrix(const Tensor<TYPE>& x):
       CSRmatrix(x.view2()){}
 
     CSRmatrix(const Rtensor2_view& x):
@@ -130,13 +131,21 @@ namespace cnine{
       }
     }
 
-    operator RtensorA() const{
-      RtensorA R=RtensorA::zero({n,m});
+    operator Tensor<TYPE>() const{
+      Tensor<TYPE> R=Tensor<TYPE>({n,m},0,0);
       for_each([&](const int i, const int j, const float v){
 	  R.set(i,j,v);
 	});
       return R;
     }
+
+//     operator RtensorA() const{
+//       RtensorA R=RtensorA::zero({n,m});
+//       for_each([&](const int i, const int j, const float v){
+// 	  R.set(i,j,v);
+// 	});
+//       return R;
+//     }
 
 
   public: // ---- ATEN ---------------------------------------------------------------------------------------
@@ -147,12 +156,14 @@ namespace cnine{
     CSRmatrix(const at::Tensor& T){
       CNINE_CONVERT_FROM_ATEN_WARNING();
       CNINE_ASSERT(T.dim()==2,"Number of dimensions of tensor to be converted to CSRmatrix must be 2");
-      (*this)=CSRmatrix(RtensorA::view(const_cast<at::Tensor&>(T)).view2());
+      (*this)=CSRmatrix(Tensor<float>(T));
+      //(*this)=CSRmatrix(RtensorA::view(const_cast<at::Tensor&>(T)).view2());
     }
     
     at::Tensor torch() const{
       CNINE_CONVERT_TO_ATEN_WARNING();
-      RtensorA x(*this);
+      Tensor<float> x(*this);
+      //RtensorA x(*this);
       return x.torch();
     }
 

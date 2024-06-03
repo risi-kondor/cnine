@@ -17,7 +17,6 @@
 
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
-//#include "BatchedTensorView.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -41,6 +40,7 @@ namespace cnine{
   public:
 
     typedef std::size_t size_t;
+    typedef TensorView<TYPE> BASE;
 
     using TensorView<TYPE>::TensorView;
     using TensorView<TYPE>::arr;
@@ -65,12 +65,6 @@ namespace cnine{
 
     using TensorView<TYPE>::str;
     
-    //bool save_data=false;
-
-    //~Tensor(){
-    //if(save_data) arr.blob.arr=nullptr; // this is a terrible hack
-    //}
-
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
@@ -78,8 +72,15 @@ namespace cnine{
     Tensor():
       TensorView<TYPE>(MemArr<TYPE>(1),{1},{1}){}
 
-    Tensor(const Gdims& _dims, const int _dev=0): 
+    Tensor(const Gdims& _dims, const int _dev=0): // syntax conflict with Ltensor
       TensorView<TYPE>(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+
+    Tensor(const Gdims& _dims, const int fcode, const int _dev):
+      BASE(_dims,fcode,_dev){}
+
+
+  public: // ---- Dummy constructors ------------------------------------------------------------------------
+
 
     Tensor(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
       TensorView<TYPE>(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
@@ -143,14 +144,9 @@ namespace cnine{
       move_to_device(_dev);
     }
 
-    /*
-    Tensor(const initializer_list<TYPE>& list, const int _dev=0):
-      Tensor(Gdims(list.size()),_dev){
-      int i=0;
-      for(auto& p: list)
-	set(i++,p);
-    }
-    */ 
+
+  public: // ---- Other constructors ------------------------------------------------------------------------
+
 
   Tensor(const initializer_list<initializer_list<TYPE> >& list, const int _dev=0){
     int n0=list.size();
@@ -269,6 +265,12 @@ namespace cnine{
       return *this;
     }
 
+    Tensor copy() const{
+      Tensor R(dims,0,dev);
+      R=*this;
+      return R;
+    }
+
 
 public: // ---- Conversions ---------------------------------------------------------------------------------
   
@@ -283,11 +285,13 @@ public: // ---- Conversions ----------------------------------------------------
     //return TensorView(*this);
     //}
 
+    /*
   IF_FLOAT
   Tensor(const RtensorA& x):
     Tensor(x.dims,x.dev){
     TensorView<TYPE>::operator=(x);
   }
+    */
 
   public: // ---- Transport -----------------------------------------------------------------------------------
 
@@ -331,19 +335,6 @@ public: // ---- ATen -----------------------------------------------------------
       Tensor(Gdims(T),T.type().is_cuda()){
       TensorView<TYPE>::operator=(T);
     }
-  
-    /*
-      Tensor(TYPE* _arr, const int _dev, const Gdims& _dims, const GstridesB& _strides):
-      TensorView<TYPE>(new MemBlob<TYPE>(_arr,_dev),_dims,_strides){
-      save_data=true;
-      }
-      
-      static Tensor view(at::Tensor& T){
-      Tensor R(T.data<TYPE>(),T.type().is_cuda(),Gdims(T),GstridesB(T));
-      return R;
-    }
-    */
-
 #endif
 
 
@@ -477,4 +468,27 @@ public: // ---- ATen -----------------------------------------------------------
 
 }
 
+
+namespace std{
+
+  template<typename TYPE>
+  struct hash<cnine::Tensor<TYPE> >{
+  public:
+    size_t operator()(const cnine::Tensor<TYPE>& x) const{
+      size_t t=hash<cnine::Gdims>()(x.dims);
+      if(x.is_regular()){
+	int N=x.asize();
+	for(int i=0; i<N; i++)
+	  t=(t^hash<TYPE>()(x.arr[i]))<<1;
+      }else{
+	x.for_each([&t](const cnine::Gindex& ix, const TYPE v){
+	    t=(t^hash<TYPE>()(v))<<1;});
+      }
+      return t;
+    }
+  };
+}
+
+
 #endif
+

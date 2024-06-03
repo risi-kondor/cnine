@@ -15,7 +15,6 @@
 #define _CSRvector
 
 #include "Cnine_base.hpp"
-#include "RtensorA.hpp"
 #include "array_pool.hpp"
 
 

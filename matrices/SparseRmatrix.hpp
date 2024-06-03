@@ -20,7 +20,8 @@
 
 #include "Gdims.hpp"
 #include "IntTensor.hpp"
-#include "RtensorA.hpp"
+//#include "RtensorA.hpp"
+#include "Tensor.hpp"
 #include "CSRmatrix.hpp"
 #include "flog.hpp"
 
@@ -89,8 +90,6 @@ namespace cnine{
 
   class SparseRmatrix{
   public:
-
-    typedef RtensorA rtensor;
 
     int n=0;
     int m=0;
@@ -184,7 +183,8 @@ namespace cnine{
   public: // ---- Conversions ------------------------------------------------------------------------------
 
 
-    SparseRmatrix(const rtensor& x){
+    template<typename TYPE>
+    SparseRmatrix(const Tensor<TYPE>& x){
       CNINE_ASSRT(x.ndims()==2);
       n=x.dim(0);
       m=x.dim(1);
@@ -193,12 +193,28 @@ namespace cnine{
 	  if(x(i,j)!=0) set(i,j,x(i,j));
     }
 
-    rtensor dense() const{
-      auto R=rtensor::zero({n,m});
+//     SparseRmatrix(const rtensor& x){
+//       CNINE_ASSRT(x.ndims()==2);
+//       n=x.dim(0);
+//       m=x.dim(1);
+//       for(int i=0; i<n; i++)
+// 	for(int j=0; j<m; j++)
+// 	  if(x(i,j)!=0) set(i,j,x(i,j));
+//     }
+
+    Tensor<float> dense() const{
+      auto R=Tensor<float>({n,m},0,0);
       forall_nonzero([&](const int i, const int j, const float v){
 	  R.set(i,j,v);});
       return R;
     }
+
+//     rtensor dense() const{
+//       auto R=rtensor::zero({n,m});
+//       forall_nonzero([&](const int i, const int j, const float v){
+// 	  R.set(i,j,v);});
+//       return R;
+//     }
 
 
   public: // ---- Boolean ----------------------------------------------------------------------------------

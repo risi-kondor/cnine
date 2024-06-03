@@ -11,8 +11,7 @@
  */
 
 #include "Cnine_base.cpp"
-
-#include "CnineSession.hpp"
+#include "Ptens_base.cpp"
 #include "MultiLoop.hpp"
 #include "Ltensor.hpp"
 #include "SimpleMemoryManager.hpp"
