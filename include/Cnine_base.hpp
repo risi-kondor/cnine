@@ -289,6 +289,9 @@ namespace cnine{
   // ---- Other flags ---------------------------------------------------------------------------------------
 
 
+  enum dtype_enum{dint,dfloat,ddouble,dcint,dcfloat,dcdouble};
+
+
   class view_flag{
   public:
     view_flag(){}

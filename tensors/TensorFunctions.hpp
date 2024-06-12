@@ -197,7 +197,7 @@ namespace cnine{
 
   template<typename TYPE>
   inline Tensor<TYPE> tprod(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    Tensor<TYPE> R=Tensor<TYPE>::zero(tprod(x.get_dims(),y.get_dims()),x.dev);
+    Tensor<TYPE> R=Tensor<TYPE>::zero(tprod(x.get_dims(),y.get_dims()),x.get_dev());
     R.add_tprod(x,y);
     return R;
   }

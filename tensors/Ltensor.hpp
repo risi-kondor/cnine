@@ -19,13 +19,14 @@
 #include "TensorView.hpp"
 #include "DimLabels.hpp"
 #include "LtensorSpec.hpp"
-#include "NamedType.hpp"
+#include "NamedTypes.hpp"
 #include "MemoryManager.hpp"
 
 
 namespace cnine{
 
 
+  /*
   using BatchArgument=NamedType<int, struct BatchArgumentTag>;
   using GridArgument=NamedType<Gdims, struct GridArgumentTag>;
   using DimsArgument=NamedType<Gdims, struct DimsArgumentTag>;
@@ -39,7 +40,7 @@ namespace cnine{
   static const ChannelsArgument::argument channels;
   static const FillArgument::argument filltype;
   static const DeviceArgument::argument device;
-
+  */
 
 
   template<typename TYPE>
@@ -153,7 +154,7 @@ namespace cnine{
   public: // ---- LtensorSpec --------------------------------------------------------------------------------
 
 
-    [[deprecated]]
+    //[[deprecated]]
     Ltensor(const LtensorSpec<TYPE>& g):
       Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
 

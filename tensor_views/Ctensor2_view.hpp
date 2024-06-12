@@ -186,6 +186,9 @@ namespace cnine{
       }
     }
 
+    void add_mprod(const Ctensor2_view& x, const Ctensor2_view& y){
+      add_matmul_AA(x,y);
+    }
 
     void add_matmul_AH(const Ctensor2_view& x, const Ctensor2_view& y){
       CNINE_CHECK_DEV3((*this),x,y);

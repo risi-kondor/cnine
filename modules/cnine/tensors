@@ -1,6 +1,6 @@
-#include "../objects/ntensor/Tensor.hpp"
+#include "../tensors/Tensor.hpp"
 
-#include "../objects/ntensor/functions/ComplementSpace.hpp"
-#include "../objects/ntensor/functions/IntersectionSpace.hpp"
-#include "../objects/ntensor/functions/SymmEigenspace.hpp"
+#include "../tensors/functions/ComplementSpace.hpp"
+#include "../tensors/functions/IntersectionSpace.hpp"
+#include "../tensors/functions/SymmEigenspace.hpp"
 

@@ -75,7 +75,7 @@ namespace cnine{
       arr=nullptr;
     }
 
-    Gtensor(const Gdims& _dims, const device& _dev=0): 
+    Gtensor(const Gdims& _dims, const struct device& _dev=0): 
       dims(_dims), strides(_dims.size()){
       make_strides();
       if(_dev.id()==0){
@@ -97,7 +97,7 @@ namespace cnine{
 #endif
     }
 
-    Gtensor(const int _k, const Gdims& _dims, const vector<int>_strides, const int _asize, const device& _dev=0):
+    Gtensor(const int _k, const Gdims& _dims, const vector<int>_strides, const int _asize, const struct device& _dev=0):
       k(_k), dims(_dims), strides(_strides), asize(_asize), dev(_dev.id()){
       memsize=asize;
       if(dev==0) arr=new TYPE[memsize];
@@ -106,7 +106,7 @@ namespace cnine{
 #endif
     }
 
-    Gtensor(const Gdims& _adims, const Gdims& _dims, const device& _dev=0): 
+    Gtensor(const Gdims& _adims, const Gdims& _dims, const struct device& _dev=0): 
       k(_dims.size()+_adims.size()), dims(_adims,_dims), strides(_dims.size()){
       ak=_adims.size(); 
       make_strides(ak);
@@ -120,7 +120,7 @@ namespace cnine{
       }
     }
 
-    Gtensor(const vector<TYPE>& v, const device& _dev=0):
+    Gtensor(const vector<TYPE>& v, const struct device& _dev=0):
       k(1), strides({1}), asize(v.size()){
       dims.push_back(asize);
       memsize=asize;
@@ -173,7 +173,7 @@ namespace cnine{
       asize=dims.asize();
     }
 
-    void reallocate(const device& _dev=0) const{
+    void reallocate(const struct device& _dev=0) const{
       if(_dev.id()==0){
 	arr=new TYPE[memsize];
 	dev=0;}
@@ -186,16 +186,16 @@ namespace cnine{
   public: // ---- Filled constructors -------------------------------------------------------------------------
 
 
-    Gtensor(const Gdims& _dims, const fill_raw& dummy, const device& _dev=0): 
+    Gtensor(const Gdims& _dims, const fill_raw& dummy, const struct device& _dev=0): 
       Gtensor(_dims,_dev){}
 
-    Gtensor(const Gdims& _dims, const fill_zero& dummy, const device& _dev=0): 
+    Gtensor(const Gdims& _dims, const fill_zero& dummy, const struct device& _dev=0): 
       Gtensor(_dims,_dev) {
       if(_dev.id()==0) std::fill(arr,arr+memsize,0);
       if(_dev.id()==1) CUDA_SAFE(cudaMemset(arrg,0,memsize*sizeof(TYPE)));
     }
 
-    Gtensor(const Gdims& _dims, const fill_identity& dummy, const device& dev=0): 
+    Gtensor(const Gdims& _dims, const fill_identity& dummy, const struct device& dev=0): 
       Gtensor(_dims) {
       assert(dims.size()==2);
       assert(dims[0]==dims[1]);
@@ -205,14 +205,14 @@ namespace cnine{
       to_device(dev);
     }
 
-    Gtensor(const Gdims& _dims, const fill_gaussian& dummy, const device& _dev=0):
+    Gtensor(const Gdims& _dims, const fill_gaussian& dummy, const struct device& _dev=0):
       Gtensor(_dims){
       normal_distribution<double> distr;
       for(int i=0; i<asize; i++) arr[i]=distr(rndGen);
       to_device(_dev);
     }
 
-    Gtensor(const Gdims& _dims, const fill_cgaussian& dummy, const device& _dev=0):
+    Gtensor(const Gdims& _dims, const fill_cgaussian& dummy, const struct device& _dev=0):
       Gtensor(_dims){
       normal_distribution<double> distr;
       for(int i=0; i<asize; i++) arr[i]=TYPE(distr(rndGen),distr(rndGen));
@@ -220,7 +220,7 @@ namespace cnine{
     }
 
     template<typename U=TYPE>
-    Gtensor(const Gdims& _dims, const fill_gaussian& dummy, const device& _dev=0, 
+    Gtensor(const Gdims& _dims, const fill_gaussian& dummy, const struct device& _dev=0, 
 	      typename std::enable_if<is_same<U,complex<float> >::value | is_same<U,complex<double> >::value >::type=0): 
       Gtensor(_dims){
       normal_distribution<double> distr;
@@ -228,7 +228,7 @@ namespace cnine{
       to_device(_dev);
     }
 
-    Gtensor(const Gdims& _dims, const fill_sequential& dummy, const device& _dev=0):
+    Gtensor(const Gdims& _dims, const fill_sequential& dummy, const struct device& _dev=0):
       Gtensor(_dims){
       for(int i=0; i<asize; i++) arr[i]=i;
       to_device(_dev);
@@ -240,25 +240,25 @@ namespace cnine{
     //to_device(_dev);
     //}
 
-    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_zero& dummy, const device& _dev=0):
+    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_zero& dummy, const struct device& _dev=0):
       Gtensor(_adims,_dims,_dev){
       normal_distribution<double> distr;
       if(_dev.id()==0) std::fill(arr,arr+memsize,0);
       if(_dev.id()==1) CUDA_SAFE(cudaMemset(arrg,0,memsize*sizeof(TYPE)));
     }
 
-    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_raw& dummy, const device& _dev=0):
+    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_raw& dummy, const struct device& _dev=0):
       Gtensor(_adims,_dims,_dev){
     }
 
-    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_cgaussian& dummy, const device& _dev=0):
+    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_cgaussian& dummy, const struct device& _dev=0):
       Gtensor(_adims,_dims){
       normal_distribution<double> distr;
       for(int i=0; i<asize; i++) arr[i]=TYPE(distr(rndGen),distr(rndGen));
       to_device(_dev);
     }
 
-    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_gaussian& dummy, const device& _dev=0):
+    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_gaussian& dummy, const struct device& _dev=0):
       Gtensor(_adims,_dims){
       normal_distribution<double> distr;
       for(int i=0; i<asize; i++) arr[i]=distr(rndGen);
@@ -266,7 +266,7 @@ namespace cnine{
     }
 
     template<typename U=TYPE>
-    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_gaussian& dummy, const device& _dev=0, 
+    Gtensor(const Gdims& _adims, const Gdims& _dims, const fill_gaussian& dummy, const struct device& _dev=0, 
 	      typename std::enable_if<is_same<U,complex<float> >::value | is_same<U,complex<double> >::value >::type=0): 
       Gtensor(_adims,_dims){
       normal_distribution<double> distr;
@@ -295,7 +295,7 @@ namespace cnine{
       if(dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
     }
 
-    Gtensor(const Gtensor<TYPE>& x, const device& _dev): 
+    Gtensor(const Gtensor<TYPE>& x, const struct device& _dev): 
       Gtensor(x.k,x.dims,x.strides,x.asize,_dev){
       ak=x.ak;
       memsize=x.memsize;
@@ -397,7 +397,7 @@ namespace cnine{
   public: // ---- Transporters ------------------------------------------------------------------------------
  
 
-    const Gtensor<TYPE>& to_device(const device& __dev) const{
+    const Gtensor<TYPE>& to_device(const struct device& __dev) const{
       const int _dev=__dev.id();
       if(_dev==0){
  	if(dev==0) return *this;
@@ -1492,7 +1492,7 @@ namespace cnine{
     */
 
     string str(const string indent="", const float eps=0) const{
-      if(dev>0) return Gtensor(*this,device(0)).str(indent,eps);
+      //if(dev>0) return Gtensor(*this,typename device(0)).str(indent,eps);
       assert(dev==0);
       ostringstream oss;
 
@@ -1655,7 +1655,7 @@ namespace cnine{
     }
 
     string str_transp(const string indent="") const{
-      if(dev>0) return Gtensor(*this,device(0)).str(indent);
+      //if(dev>0) return Gtensor(*this,struct device(0)).str(indent);
       assert(dev==0);
       ostringstream oss;
 

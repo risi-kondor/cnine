@@ -17,6 +17,8 @@
 
 #include "Cnine_base.hpp"
 #include "ExprTemplates.hpp"
+#include "TensorBase.hpp"
+
 #include "Gdims.hpp"
 #include "GstridesB.hpp"
 #include "Gindex.hpp"
@@ -85,7 +87,7 @@ namespace cnine{
 
 
   template<typename TYPE>
-  class TensorView{
+  class TensorView: public TensorBase{
   private:
 
     friend class Tensor<TYPE>;
