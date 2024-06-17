@@ -18,12 +18,29 @@
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
 #include "DimLabels.hpp"
-//#include "LtensorSpec.hpp"
+#include "LtensorSpec.hpp"
 #include "NamedTypes.hpp"
 #include "MemoryManager.hpp"
 
 
 namespace cnine{
+
+
+  /*
+  using BatchArgument=NamedType<int, struct BatchArgumentTag>;
+  using GridArgument=NamedType<Gdims, struct GridArgumentTag>;
+  using DimsArgument=NamedType<Gdims, struct DimsArgumentTag>;
+  using ChannelsArgument=NamedType<int, struct ChannelsArgumentTag>;
+  using FillArgument=NamedType<int, struct FillArgumentTag>;
+  using DeviceArgument=NamedType<int, struct DeviceArgumentTag>;
+
+  static const BatchArgument::argument batch;
+  static const GridArgument::argument grid;
+  static const DimsArgument::argument cdims;
+  static const ChannelsArgument::argument channels;
+  static const FillArgument::argument filltype;
+  static const DeviceArgument::argument device;
+  */
 
 
   template<typename TYPE>
@@ -44,22 +61,15 @@ namespace cnine{
 
     enum Ttype{batch_grid_cell};
 
-    typedef TensorView<TYPE> BASE;
+    typedef TYPE<TensorView> BASE;
 
     //using BASE::BASE;
     using BASE::arr;
-    using BASE::memsize;
-    using BASE::reset;
-    using BASE::set_zero;
-    using BASE::move_to_device;
-
-    using BASE::ndims;
     using BASE::dims;
     using BASE::strides;
     using BASE::dev;
-    using BASE::dim;
-    using BASE::is_regular;
-    using BASE::set;
+    using BASE::reset;
+    using BASE::set_zero;
 
     DimLabels labels;
 
@@ -146,7 +156,6 @@ namespace cnine{
 
 
     //[[deprecated]]
-    /*
     Ltensor(const LtensorSpec<TYPE>& g):
       Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
 
@@ -158,17 +167,6 @@ namespace cnine{
     
     LtensorSpec<TYPE> spec() const{
       return LtensorSpec<TYPE>(dims,labels,dev);
-    }
-    */
-
-    Ltensor(const Gdims& _dims, const fill_identity& dummy, const int _dev=0):
-      Ltensor(_dims,0,_dev){
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(dim(0)==dim(1));
-      int N=dim(0);
-      for(int i=0; i<N; i++)
-	set(i,i,1.0);
-      move_to_device(_dev);
     }
 
 
@@ -288,18 +286,6 @@ namespace cnine{
     Ltensor(TYPE* _arr, const int _dev, const Gdims& _dims, const GstridesB& _strides):
       TensorView<TYPE>(new MemBlob<TYPE>(_arr,_dev),_dims,_strides){
     }
-
-    // Hack. Improve this!
-    template<typename TYPE2>
-    Ltensor(const TensorView<TYPE2>& x):
-      TensorView<TYPE>(MemArr<TYPE>(x.memsize(),x.get_dev()),x.get_dims(),x.get_strides()){
-      CNINE_CONVERT_WARNING();
-      CNINE_ASSRT(dev==0);
-      size_t N=memsize();
-      for(int i=0; i<N; i++)
-	arr[i]=x.get_arr()[i];
-    }
-
 
 #ifdef _WITH_ATEN
     Ltensor<TYPE>(const at::Tensor& T):
@@ -764,19 +750,3 @@ namespace std{
       if(fcode==0) set_zero();
     }
     */
-  /*
-  using BatchArgument=NamedType<int, struct BatchArgumentTag>;
-  using GridArgument=NamedType<Gdims, struct GridArgumentTag>;
-  using DimsArgument=NamedType<Gdims, struct DimsArgumentTag>;
-  using ChannelsArgument=NamedType<int, struct ChannelsArgumentTag>;
-  using FillArgument=NamedType<int, struct FillArgumentTag>;
-  using DeviceArgument=NamedType<int, struct DeviceArgumentTag>;
-
-  static const BatchArgument::argument batch;
-  static const GridArgument::argument grid;
-  static const DimsArgument::argument cdims;
-  static const ChannelsArgument::argument channels;
-  static const FillArgument::argument filltype;
-  static const DeviceArgument::argument device;
-  */
-

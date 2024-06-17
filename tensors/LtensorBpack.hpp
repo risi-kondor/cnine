@@ -16,7 +16,7 @@
 #define _cnineLtensorBpack
 
 #include "Ltensor.hpp"
-#include "LtensorApackSpec.hpp"
+//#include "LtensorApackSpec.hpp"
 
 
 namespace cnine{

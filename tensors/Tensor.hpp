@@ -232,10 +232,10 @@ namespace cnine{
     }
 
   // TODO!!
-    Tensor(TensorView<TYPE>&& x):
-      TensorView<TYPE>(x.arr,x.dims,x.strides){
-      CNINE_MOVE_WARNING();
-    }
+    //Tensor(TensorView<TYPE>&& x):
+    //TensorView<TYPE>(x.arr,x.dims,x.strides){
+    //CNINE_MOVE_WARNING();
+    //}
         
     Tensor& operator=(const Tensor& x){
       FNTRACE();

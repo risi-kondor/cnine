@@ -19,6 +19,7 @@
 #include "NamedTypes.hpp"
 //#include "TensorBase.hpp"
 #include "Tensor.hpp"
+#include "Ltensor.hpp"
 
 
 namespace cnine{
@@ -88,6 +89,20 @@ namespace cnine{
       v._dtype=x.get(); unroller(v, args...);}
 
     void unroller(vparams& v){}
+
+
+  public: // ---- Conversions -------------------------------------------------------------------------------
+
+    
+    Dtensor(const TensorView<float>& x){
+      T=new Tensor<float>(x);
+      dtype=dfloat;
+    }
+
+    Dtensor(const TensorView<complex<float> >& x){
+      T=new Tensor<complex<float> >(x);
+      dtype=dcfloat;
+    }
 
 
   public: // ---- Access ------------------------------------------------------------------------------------
