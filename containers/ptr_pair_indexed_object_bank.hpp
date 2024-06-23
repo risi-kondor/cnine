@@ -36,8 +36,6 @@ namespace cnine{
     std::function<OBJ(const KEY0&, const KEY1&)> make_obj;
     observer<KEY0> observers0;
     observer<KEY1> observers1;
-    //map_of_lists<KEY0*,KEY1*> lookup0;
-    //map_of_lists<KEY1*,KEY0*> lookup1;
     std::unordered_map<KEY0*,std::set<KEY1*> > lookup0;
     std::unordered_map<KEY1*,std::set<KEY0*> > lookup1;
 
@@ -62,18 +60,25 @@ namespace cnine{
   private:
 
     void erase0(KEY0* x){
-      for(auto y:lookup0[x]){
+      auto it=lookup0.find(x);
+      if(it==lookup0.end()) return;
+      for(auto y:*it){
 	erase(make_pair(x,y));
 	lookup1[y].erase(x);
       }
+      lookup0.erase(it);
     }
 
     void erase1(KEY1* y){
-      for(auto x:lookup1[y]){
+      auto it=lookup1.find(y);
+      if(it==lookup1.end()) return;
+      for(auto x:*it){
 	erase(make_pair(x,y));
 	lookup0[x].erase(y);
       }
+      lookup1.erase(it);
     }
+
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
@@ -134,55 +139,3 @@ namespace std{
 #endif 
 
 
-  /*
-  template<typename KEY, typename OBJ>
-  class shared_object_bank: public unordered_map<KEY*,shared_ptr<OBJ> >{
-  public:
-
-    using unordered_map<KEY*,shared_ptr<OBJ> >::find;
-    using unordered_map<KEY*,shared_ptr<OBJ> >::erase;
-
-
-    std::function<OBJ*(const KEY&)> make_obj;
-    observer<KEY> observer;
-    
-    ~shared_object_bank(){
-    }
-
-
-  public: // ---- Constructors --------------------------------------------------------------------------------
-
-
-    shared_object_bank():
-      make_obj([](const KEY& x){cout<<"shared_obj_bank error"<<endl; return nullptr;}),
-      observer([this](KEY* p){erase(p);}){}
-
-    shared_object_bank(std::function<OBJ*(const KEY&)> _make_obj):
-      make_obj(_make_obj),
-      observer([this](KEY* p){erase(p);}){}
-
-
-  public: // ---- Access -------------------------------------------------------------------------------------
-
-
-    shared_ptr<OBJ> operator()(KEY& key){
-      return (*this)(&key);
-    }
-
-    shared_ptr<OBJ> operator()(const KEY& key){
-      return (*this)(&const_cast<KEY&>(key));
-    }
-
-    shared_ptr<OBJ> operator()(KEY* keyp){
-      auto it=find(keyp);
-      if(it!=unordered_map<KEY*, shared_ptr<OBJ> >::end()) 
-	return it->second;
-
-      auto new_obj=shared_ptr<OBJ>(make_obj(*keyp));
-      (*this)[keyp]=new_obj;
-      observer.add(keyp);
-      return new_obj;
-    }
-
-  };
-  */
