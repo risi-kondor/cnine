@@ -264,19 +264,6 @@ namespace cnine{
 	lambda(target(i),(*this)(i));
     }
 
-    /*
-    void push_back(const vector<int>& v){
-      int len=2*v.size();
-      if(tail+len>memsize)
-	reserve(std::max(2*memsize,tail+len));
-      for(int i=0; i<len/2; i++){
-	arr[tail+2*i]=v[i];
-	arr[tail+2*i+1]=1.0;
-      }
-      dir.push_back(tail,len);
-      tail+=len;
-    }
-    */
 
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
@@ -299,3 +286,16 @@ namespace cnine{
 }
 
 #endif 
+    /*
+    void push_back(const vector<int>& v){
+      int len=2*v.size();
+      if(tail+len>memsize)
+	reserve(std::max(2*memsize,tail+len));
+      for(int i=0; i<len/2; i++){
+	arr[tail+2*i]=v[i];
+	arr[tail+2*i+1]=1.0;
+      }
+      dir.push_back(tail,len);
+      tail+=len;
+    }
+    */

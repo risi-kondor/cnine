@@ -32,13 +32,14 @@
 namespace cnine{
 
   thread_local int nthreads=1;
-  float* cuda_oneS=nullptr;
 
   int streaming_footprint=1024;
   thread_local DeviceSelector dev_selector;
 
   thread_local MemoryManager* vram_manager=nullptr;
 
+  string base_indent="";
+  float* cuda_oneS=nullptr;
   Primes primes;
   Factorial factorial;
   FFactorial ffactorial;

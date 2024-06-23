@@ -586,7 +586,7 @@ namespace cnine{
       for(int i=0; i<size(); i++){
 	auto v=(*this)(i);
 	int k=v.size(); // why is this needed?
-	oss<<"(";
+	oss<<base_indent<<"(";
 	for(int j=0; j<k-1; j++){
 	  oss<<v[j]<<",";
 	}

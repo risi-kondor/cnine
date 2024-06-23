@@ -142,24 +142,23 @@ namespace cnine{
     void unroller(vparams& v){}
 
 
-  public: // ---- LtensorSpec --------------------------------------------------------------------------------
+  public: // ---- Old-style constructors ---------------------------------------------------------------------
 
 
-    //[[deprecated]]
-    /*
-    Ltensor(const LtensorSpec<TYPE>& g):
-      Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
+    Ltensor(const Gdims& _dims, const fill_zero& dummy, const int _dev=0):
+      Ltensor(_dims,0,_dev){}
 
-    static LtensorSpec<TYPE> make() {return LtensorSpec<TYPE>();}
-    static LtensorSpec<TYPE> raw() {return LtensorSpec<TYPE>().raw();}
-    static LtensorSpec<TYPE> zero() {return LtensorSpec<TYPE>().zero();}
-    static LtensorSpec<TYPE> sequential() {return LtensorSpec<TYPE>().sequential();}
-    static LtensorSpec<TYPE> gaussian() {return LtensorSpec<TYPE>().gaussian();}
-    
-    LtensorSpec<TYPE> spec() const{
-      return LtensorSpec<TYPE>(dims,labels,dev);
-    }
-    */
+    Ltensor(const Gdims& _dims, const fill_raw& dummy, const int _dev=0):
+      Ltensor(_dims,1,_dev){}
+
+    Ltensor(const Gdims& _dims, const fill_ones& dummy, const int _dev=0):
+      Ltensor(_dims,2,_dev){}
+
+    Ltensor(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
+      Ltensor(_dims,3,_dev){}
+
+    Ltensor(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
+      Ltensor(_dims,4,_dev){}
 
     Ltensor(const Gdims& _dims, const fill_identity& dummy, const int _dev=0):
       Ltensor(_dims,0,_dev){
@@ -169,6 +168,26 @@ namespace cnine{
       for(int i=0; i<N; i++)
 	set(i,i,1.0);
       move_to_device(_dev);
+    }
+
+    static Ltensor zero(const Gdims& _dims, const int _dev=0){
+      return Ltensor(_dims,0,_dev);
+    }
+
+    static Ltensor raw(const Gdims& _dims, const int _dev=0){
+      return Ltensor(_dims,1,_dev);
+    }
+
+    static Ltensor ones(const Gdims& _dims, const int _dev=0){
+      return Ltensor(_dims,1,_dev);
+    }
+
+    static Ltensor gaussian(const Gdims& _dims, const int _dev=0){
+      return Ltensor(_dims,4,_dev);
+    }
+
+    static Ltensor identity(const Gdims& _dims, const int _dev=0){
+      return Ltensor(_dims,fill_identity(),_dev);
     }
 
 
@@ -724,46 +743,7 @@ namespace std{
 
 
 #endif 
-  /*
-  inline Ltensor<float> mult(const bool condition, const MemoryManager* mm, const Ltensor<float>& x, const Ltensor<float>& y){
-    Gdims d(x.dims);
-    d.set_back(y.dims.back());
-    Ltensor<float> r(condition,mm,d,x.labels,0,x.dev);
-    Rtensor2_view rv(r.arr.ptr(),r.total_bgdims()*r.cdim(0),r.cdim(1),r.cstride(0),r.cstride(1),r.dev);
-    Rtensor2_view xv(x.arr.ptr(),x.total_bgdims()*x.cdim(0),x.cdim(1),x.cstride(0),x.cstride(1),x.dev);
-    Rtensor2_view yv(y.arr.ptr(),y.cdim(0),y.cdim(1),y.cstride(0),y.cstride(1),y.dev);
-    rv.add_matmul_AA(xv,yv);
-    return r;
-  }
-  */
-    /*
-    Ltensor(const MemoryManager* manager, const Gdims& _dims, const int fcode, const int _dev){
-      CNINE_ASSRT(fcode<2);
-      FNTRACE();
-      dims=_dims;
-      strides=GstridesB(_dims);
-      dev=_dev;
-      if(manager && _dev>0) 
-	arr=MemArr<TYPE>(*manager,_dims.total(),_dev);
-      else arr=MemArr<TYPE>(_dims.total(),_dev);
-      if(fcode==0) set_zero();
-    }
-    */
 
-    /*
-    Ltensor(const bool condition, const MemoryManager* manager, const DimLabels& _labels, const Gdims& _dims, const int fcode, const int _dev){
-      CNINE_ASSRT(fcode<2);
-      FNTRACE();
-      dims=_dims;
-      labels=_labels;
-      strides=GstridesB(_dims);
-      dev=_dev;
-      if(manager && condition) 
-	arr=MemArr<TYPE>(*manager,_dims.total(),_dev);
-      else MemArr<TYPE>(_dims.total(),_dev);
-      if(fcode==0) set_zero();
-    }
-    */
   /*
   using BatchArgument=NamedType<int, struct BatchArgumentTag>;
   using GridArgument=NamedType<Gdims, struct GridArgumentTag>;
@@ -779,4 +759,20 @@ namespace std{
   static const FillArgument::argument filltype;
   static const DeviceArgument::argument device;
   */
+
+    //[[deprecated]]
+    /*
+    Ltensor(const LtensorSpec<TYPE>& g):
+      Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
+
+    static LtensorSpec<TYPE> make() {return LtensorSpec<TYPE>();}
+    static LtensorSpec<TYPE> raw() {return LtensorSpec<TYPE>().raw();}
+    static LtensorSpec<TYPE> zero() {return LtensorSpec<TYPE>().zero();}
+    static LtensorSpec<TYPE> sequential() {return LtensorSpec<TYPE>().sequential();}
+    static LtensorSpec<TYPE> gaussian() {return LtensorSpec<TYPE>().gaussian();}
+    
+    LtensorSpec<TYPE> spec() const{
+      return LtensorSpec<TYPE>(dims,labels,dev);
+    }
+    */
 

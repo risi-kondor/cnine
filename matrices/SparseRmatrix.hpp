@@ -184,7 +184,7 @@ namespace cnine{
 
 
     template<typename TYPE>
-    SparseRmatrix(const Tensor<TYPE>& x){
+    SparseRmatrix(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==2);
       n=x.dim(0);
       m=x.dim(1);

@@ -55,6 +55,25 @@ namespace cnine{
 
     cnine_session(const int _nthreads=1){
 
+      cout<<"-------------------------------------"<<endl;
+      cout<<"Cnine tensor library  (c) Risi Kondor"<<endl;
+
+#ifdef _WITH_CUDA
+      cout<<"CUDA support:                      ON"<<endl;
+#else
+      cout<<"CUDA support:                     OFF"<<endl;
+#endif
+
+#ifdef CNINE_RANGE_CHECKING
+      cout<<"Range checking:                    ON"<<endl;
+#else
+      cout<<"Range checking:                   OFF"<<endl;
+#endif
+
+      cout<<"Number of CPU threads:              "<<nthreads<<endl;
+      cout<<"-------------------------------------"<<endl<<endl;
+
+
       start_time=std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
       nthreads=_nthreads;

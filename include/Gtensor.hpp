@@ -39,6 +39,9 @@ extern default_random_engine rndGen;
 
 namespace cnine{
 
+  extern string base_indent;
+
+
   template<class TYPE>
   class Gtensor{
   public:
@@ -1497,7 +1500,7 @@ namespace cnine{
       ostringstream oss;
 
       if(k==1){
-	oss<<indent<<"[ ";
+	oss<<base_indent<<indent<<"[ ";
 	for(int j=0; j<dims[0]; j++)
 	  if(eps==0) oss<<arr[j]<<" ";
 	  else 
@@ -1509,7 +1512,7 @@ namespace cnine{
 
       if(k==2){
 	for(int i=0; i<dims[0]; i++){
-	  oss<<indent<<"[ ";
+	  oss<<base_indent<<indent<<"[ ";
 	  for(int j=0; j<dims[1]; j++)
 	    //oss<<(*this)({i,j})<<" ";
 	    if(eps==0) oss<<(*this)({i,j})<<" ";

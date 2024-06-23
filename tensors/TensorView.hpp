@@ -24,12 +24,10 @@
 #include "Gindex.hpp"
 #include "MemArr.hpp"
 #include "device_helpers.hpp"
-//#include "GatherMapB.hpp"
 
 #include "Rtensor1_view.hpp"
 #include "Rtensor2_view.hpp"
 #include "Rtensor3_view.hpp"
-//#include "RtensorA.hpp"
 
 #include "Ctensor1_view.hpp"
 #include "Ctensor2_view.hpp"
@@ -40,6 +38,7 @@
 #include "Itensor3_view.hpp"
 
 #include "tensor1_view.hpp"
+
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -57,6 +56,8 @@ extern cublasHandle_t cnine_cublas;
 
 
 namespace cnine{
+
+  extern string base_indent;
 
   template<typename TYPE> class TensorView;
   template<typename TYPE> class Tensor;
@@ -1539,7 +1540,7 @@ namespace cnine{
 	limit=max_abs()/10e5;
 
       if(ndims()==1){
-	oss<<indent<<"[ ";
+	oss<<base_indent<<indent<<"[ ";
 	for(int i0=0; i0<dims[0]; i0++)
 	  if(abs((*this)(i0))>limit) oss<<(*this)(i0)<<" ";
 	  else oss<<TYPE(0)<<" ";
@@ -1549,7 +1550,7 @@ namespace cnine{
 
       if(ndims()==2){
 	for(int i0=0; i0<dims[0]; i0++){
-	  oss<<indent<<"[ ";
+	  oss<<base_indent<<indent<<"[ ";
 	  for(int i1=0; i1<dims[1]; i1++)
 	    if(abs((*this)(i0,i1))>limit) oss<<(*this)(i0,i1)<<" ";
 	    else oss<<TYPE(0)<<" ";
@@ -1561,8 +1562,8 @@ namespace cnine{
       if(ndims()>2){
 	Gdims adims=dims.chunk(0,ndims()-2);
 	adims.for_each_index([&](const Gindex& ix){
-	    oss<<indent<<"Slice"<<ix<<":"<<endl;
-	    oss<<slice(ix).str(indent+"  ")<<endl;
+	    oss<<base_indent<<indent<<"Slice"<<ix<<":"<<endl;
+	    oss<<slice(ix).str(base_indent+indent+"  ")<<endl;
 	  });
       }
 
