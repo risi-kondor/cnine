@@ -28,6 +28,7 @@ namespace cnine{
 
     typedef std::pair<KEY0*,KEY1*> KEYS;
 
+    using unordered_map<KEYS,OBJ>::size;
     using unordered_map<KEYS,OBJ>::insert;
     using unordered_map<KEYS,OBJ>::find;
     using unordered_map<KEYS,OBJ>::erase;
@@ -62,7 +63,7 @@ namespace cnine{
     void erase0(KEY0* x){
       auto it=lookup0.find(x);
       if(it==lookup0.end()) return;
-      for(auto y:*it){
+      for(auto y:it->second){
 	erase(make_pair(x,y));
 	lookup1[y].erase(x);
       }
@@ -72,7 +73,7 @@ namespace cnine{
     void erase1(KEY1* y){
       auto it=lookup1.find(y);
       if(it==lookup1.end()) return;
-      for(auto x:*it){
+      for(auto x:it->second){
 	erase(make_pair(x,y));
 	lookup0[x].erase(y);
       }
@@ -113,6 +114,13 @@ namespace cnine{
       lookup1[keyp1].insert(keyp0);
       auto p=insert({make_pair(keyp0,keyp1),make_obj(*keyp0,*keyp1)});
       return p.first->second;
+    }
+
+    size_t rmemsize() const{
+      size_t t=0;
+      for(auto& p:*this)
+	t+=p.second->rmemsize();
+      return t;
     }
 
   };

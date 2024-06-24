@@ -16,7 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include "array_pool.hpp"
-//#include <numeric> // for reduce
+
 
 namespace cnine{
 
@@ -38,14 +38,28 @@ namespace cnine{
 
     hlists(const vector<TYPE>& heads, const vector<int>& lengths):
       BASE(lengths.size(),std::accumulate(lengths.begin(),lengths.end(),0)+lengths.size(),fill_reserve()){
-      //BASE(lengths.size(),std::reduce(lengths.begin(),lengths.end())+lengths.size(),fill_reserve()){
       int N=size();
       CNINE_ASSRT(heads.size()==N);
       for(int i=0; i<N; i++){
 	dir.set(i,0,tail);
-	dir.set(i,1,1);
+	dir.set(i,1,lengths[i]+1); // changed
 	arr[tail]=heads[i];
 	tail+=lengths[i]+1;
+      }
+    }
+
+    hlists(const map_of_lists<TYPE,TYPE>& map):
+      BASE(map.size(),map.size()+map.tsize(),fill_reserve()){
+      int i=0;
+      for(auto& p:map){
+	int m=p.second.size();
+	dir.set(i,0,tail);
+	dir.set(i,1,m+1);
+	arr[tail]=p.first;
+	for(int j=0; j<m; j++)
+	  arr[tail+j+1]=p.second[j];
+	tail+=m+1;
+	i++;
       }
     }
 
@@ -54,7 +68,7 @@ namespace cnine{
 
 
     hlists(const hlists& x):
-      BASE(x){}
+      BASE(x){cout<<"c"<<endl;}
 
     hlists(hlists&& x):
       BASE(std::move(x)){}

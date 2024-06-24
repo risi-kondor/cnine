@@ -20,7 +20,6 @@
 
 #include "Gdims.hpp"
 #include "IntTensor.hpp"
-//#include "RtensorA.hpp"
 #include "Tensor.hpp"
 #include "CSRmatrix.hpp"
 #include "flog.hpp"
@@ -70,8 +69,13 @@ namespace cnine{
 	lambda(p.first,p.second);
     }
 
+    size_t rmemsize() const{
+      return size()*(sizeof(int)+sizeof(float));
+    }
 
-  public:
+
+  public: // ---- I/O -----------------------------------------------------------------------------------------
+
 
     string str(const string indent="") const{
       ostringstream oss;
@@ -291,6 +295,14 @@ namespace cnine{
       if(lists.find(i)==lists.end()) return nullptr;
       return it->second;
     }
+
+    size_t rmemsize() const{
+      size_t t=lists.size()*(sizeof(int)+sizeof(SparseVec*));
+      for(auto& p: lists)
+	t+=p.second->rmemsize();
+      return t;
+    }
+
 
     void forall_nonzero(std::function<void(const int, const int, const float)> lambda) const{
       for(auto& p: lists){
