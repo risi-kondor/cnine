@@ -75,7 +75,7 @@ namespace cnine{
       lookup0.erase(it);
     }
 
-    void erase1(KEY0* x){
+    void erase1(KEY1* x){
       auto it=lookup1.find(x);
       if(it==lookup1.end()) return;
       for(auto& p:it->second){
@@ -86,7 +86,7 @@ namespace cnine{
       lookup1.erase(it);
     }
 
-    void erase2(KEY0* x){
+    void erase2(KEY2* x){
       auto it=lookup2.find(x);
       if(it==lookup2.end()) return;
       for(auto& p:it->second){
@@ -136,6 +136,17 @@ namespace cnine{
       lookup2[keyp2].insert(p);
       auto it2=insert({p,make_obj(*keyp0,*keyp1,*keyp2)});
       return it2.first->second;
+    }
+
+    void insert(KEY0* keyp0, KEY1* keyp1, KEY2* keyp2, const OBJ& x){
+      auto p=make_tuple(keyp0,keyp1,keyp2);
+      observers0.add(keyp0);
+      observers1.add(keyp1);
+      observers2.add(keyp2);
+      lookup0[keyp0].insert(p);
+      lookup1[keyp1].insert(p);
+      lookup2[keyp2].insert(p);
+      auto it2=insert({p,x});
     }
 
     size_t rmemsize() const{
