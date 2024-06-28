@@ -95,7 +95,6 @@ namespace cnine{
       int n=roundup(_n,granularity);
       block_it it=blocks.begin();
       while(it!=blocks.end() && (it->used || it->size<n)){
-	//cout<<it->size<<endl;
 	it++;
       }
       if(it==blocks.end())
