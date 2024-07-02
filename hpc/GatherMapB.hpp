@@ -166,7 +166,7 @@ namespace cnine{
     }
 
 
-  public: // ---- Access -------------------------------------------------------------------------------------
+  public: // ---- Getters ------------------------------------------------------------------------------------
 
 
     int get_dev() const{
@@ -207,21 +207,6 @@ namespace cnine{
       return arr(i,j);
     }
 
-    void set(const int i, const int j, const int x){
-      arr.set(i,j,x);
-    }
-
-    int push_back(const int len){
-      sorted=false;
-      arr.push_back(len);
-      return size()-1;
-    }
-
-    void push_back(const int t, const vector<int>& v){
-      sorted=false;
-      arr.push_back(t,v);
-    }
-
     void for_each(std::function<void(const int i, const int j)> lambda) const{
       int N=size();
       for(int i=0; i<N; i++){
@@ -241,6 +226,34 @@ namespace cnine{
       if(!_inv.get()) make_inv();
       return *_inv;
     }
+
+  public: // ---- Setters ------------------------------------------------------------------------------------
+
+    void set(const int i, const int j, const int x){
+      arr.set(i,j,x);
+    }
+
+    int push_back(const int len){
+      sorted=false;
+      arr.push_back(len);
+      return size()-1;
+    }
+
+    void push_back(const int t, const set<int>& v){
+      sorted=false;
+      arr.push_back(t,v);
+    }
+
+    void push_back(const int t, const vector<int>& v){
+      sorted=false;
+      arr.push_back(t,v);
+    }
+
+    void push_back(const int t, const initializer\_list<int>& v){
+      sorted=false;
+      arr.push_back(t,v);
+    }
+
 
 
   public: // ---- Operations ---------------------------------------------------------------------------------

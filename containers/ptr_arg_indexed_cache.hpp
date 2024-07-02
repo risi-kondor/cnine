@@ -12,8 +12,8 @@
  */
 
 
-#ifndef _ptr_arg_indexed_object_bank
-#define _ptr_arg_indexed_object_bank
+#ifndef _ptr_arg_indexed_cache
+#define _ptr_arg_indexed_cache
 
 #include "Cnine_base.hpp"
 #include "observable.hpp"
@@ -23,7 +23,7 @@ namespace cnine{
 
 
   template<typename KEY, typename ARG, typename OBJ>
-  class ptr_arg_indexed_object_bank: public unordered_map<std::pair<KEY*,ARG>,OBJ>{
+  class ptr_arg_indexed_cache: public unordered_map<std::pair<KEY*,ARG>,OBJ>{
   public:
 
     typedef std::pair<KEY*,ARG> KEYS;
@@ -39,22 +39,22 @@ namespace cnine{
     std::unordered_map<KEY*,std::set<ARG> > lookup0;
     ARG default_arg;
 
-    ~ptr_arg_indexed_object_bank(){
+    ~ptr_arg_indexed_cache(){
     }
 
 
   public: // ---- Constructors --------------------------------------------------------------------------------
 
 
-    ptr_arg_indexed_object_bank():
-      make_obj([](const KEY& x, const ARG& y){cout<<"empty object in bank"<<endl; return OBJ();}),
+    ptr_arg_indexed_cache():
+      make_obj([](const KEY& x, const ARG& y){return OBJ();}),
       observers([this](KEY* p){erase(p);}){}
 
-    ptr_arg_indexed_object_bank(std::function<OBJ(const KEY&, const ARG&)> _make_obj):
+    ptr_arg_indexed_cache(std::function<OBJ(const KEY&, const ARG&)> _make_obj):
       make_obj(_make_obj),
       observers([this](KEY* p){erase0(p);}){}
 
-    ptr_arg_indexed_object_bank(std::function<OBJ(const KEY&, const ARG&)> _make_obj, const ARG& _default):
+    ptr_arg_indexed_cache(std::function<OBJ(const KEY&, const ARG&)> _make_obj, const ARG& _default):
       make_obj(_make_obj),
       observers([this](KEY* p){erase0(p);}),
       default_arg(_default){}
@@ -105,28 +105,6 @@ namespace cnine{
       const auto& key=*keyp;
       return (*this)(&const_cast<KEY&>(key,arg));
     }
-
-
-    /*
-    OBJ operator()(KEY& key){
-      return (*this)(&key);
-    }
-
-    OBJ operator()(const KEY& key){
-      return (*this)(&const_cast<KEY&>(key));
-    }
-
-    OBJ operator()(shared_ptr<KEY> keyp){
-      auto& key=*keyp;
-      return (*this)(&key);
-    }
-
-    OBJ operator()(shared_ptr<const KEY> keyp){
-      const auto& key=*keyp;
-      return (*this)(&const_cast<KEY&>(key));
-    }
-    */
-
 
   };
 

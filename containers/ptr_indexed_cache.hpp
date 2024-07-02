@@ -12,19 +12,19 @@
  */
 
 
-#ifndef _ptr_indexed_object_bank
-#define _ptr_indexed_object_bank
+#ifndef _ptr_indexed_cache
+#define _ptr_indexed_cache
 
 #include "Cnine_base.hpp"
 #include "observable.hpp"
-//#include "ptr_pair_indexed_object_bank.hpp"
+//#include "ptr_pair_indexed_cache.hpp"
 
 
 namespace cnine{
 
 
   template<typename KEY, typename OBJ>
-  class ptr_indexed_object_bank: public unordered_map<KEY*,OBJ>{
+  class ptr_indexed_cache: public unordered_map<KEY*,OBJ>{
   public:
 
     using unordered_map<KEY*,OBJ>::insert;
@@ -35,18 +35,18 @@ namespace cnine{
     std::function<OBJ(const KEY&)> make_obj;
     observer<KEY> observers;
     
-    ~ptr_indexed_object_bank(){
+    ~ptr_indexed_cache(){
     }
 
 
   public: // ---- Constructors --------------------------------------------------------------------------------
 
 
-    ptr_indexed_object_bank():
+    ptr_indexed_cache():
       make_obj([](const KEY& x){return OBJ();}),
       observers([this](KEY* p){erase(p);}){}
 
-    ptr_indexed_object_bank(std::function<OBJ(const KEY&)> _make_obj):
+    ptr_indexed_cache(std::function<OBJ(const KEY&)> _make_obj):
       make_obj(_make_obj),
       observers([this](KEY* p){erase(p);}){}
 

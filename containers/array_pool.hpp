@@ -301,14 +301,11 @@ namespace cnine{
     tail=x.tail;
     memsize=x.tail;
     if(dev==0){
-      //cout<<"Copying RtensorPack to host"<<endl;
       arr=new TYPE[std::max(memsize,1)];
       if(x.dev==0) std::copy(x.arr,x.arr+tail,arr);
       if(x.dev==1) CUDA_SAFE(cudaMemcpy(arr,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToHost));  
     }
     if(dev==1){
-      //cout<<"Copying RtensorPack to device"<<endl;
-      //cout<<12233331122<<endl;
       CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
       if(x.dev==0) CUDA_SAFE(cudaMemcpy(arrg,x.arr,memsize*sizeof(TYPE),cudaMemcpyHostToDevice)); 
       if(x.dev==1) CUDA_SAFE(cudaMemcpy(arrg,x.arrg,memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice)); 

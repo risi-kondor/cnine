@@ -102,7 +102,7 @@ using namespace std;
 #ifdef CNINE_RANGE_CHECKING
 #define CNINE_CHECK_RANGE(expr) expr
 #define CNINE_CHECK_SIZE(expr) expr
-#define CNINE_IN_RANGE(ix,tsize) if(ix>=tsize) throw std::out_of_range("Cnine error in "+string(__PRETTY_FUNCTION__)+": index "+to_string(ix)+" out of range (0,"+to_string(tsize-1)+").");
+#define CNINE_IN_RANGE(ix,tsize) if(ix>=tsize) throw std::out_of_range("Cnine error in "+string(__PRETTY_FUNCTION__)+": index "+to_string(ix)+" out of range [0,"+to_string(tsize-1)+"].");
 #define CNINE_DIMS(d) if(dims.size()!=d) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": number of dimensions in "+dims.str()+" is not "+to_string(d)+".");
 #define CNINE_DIMS_VALID(dims) if(!dims.valid()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": invalid dimensions"+dims.str()+".");
 #define CNINE_DIMS_SAME(x) if(x.dims!=dims) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+dims.str()+" and "+x.dims.str()+".");
