@@ -34,6 +34,7 @@ namespace cnine{
     mutable bool sorted=false;
 
     int n=0;
+    int m=0;
     int* arrg=nullptr; // unsafe!!
 
   public:
@@ -175,6 +176,10 @@ namespace cnine{
 
     int getn() const{
       return n;
+    }
+
+    int getm() const{
+      return m;
     }
 
     int size() const{

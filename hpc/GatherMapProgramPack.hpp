@@ -25,7 +25,7 @@ namespace cnine{
   extern GPUbuffer<float>  GatherRowsMulti_fbuf;
 
 
-  class GatherMapProgramPack: public object_pack_s<GatherMapProgram>{
+  class GatherMapProgramPack: public shared_object_pack<GatherMapProgram>{
   public:
     
     
