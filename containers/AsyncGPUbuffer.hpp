@@ -50,13 +50,17 @@ namespace cnine{
     }
 
     void resize(const int n, const int _dev=1){
-      if(n<=_size) return;
+      if(dev==_dev && n==_size) return;
       if(arr) CUDA_SAFE(cudaFreeHost(arr));
       if(arrg) CUDA_SAFE(cudaFree(arrg));
       _size=std::max(1,n);
       CUDA_SAFE(cudaHostAlloc((void **)&arr,_size*sizeof(TYPE),cudaHostAllocDefault));
       CUDA_SAFE(cudaMalloc((void **)&arrg,_size*sizeof(TYPE)));
       CUDA_SAFE(cudaDeviceSynchronize());
+    }
+
+    void min_size(const int n, const int _dev=1){
+      if(n<_size || _dev!=dev) resize(n,_dev);
     }
 
     void reset(const int n, const int _dev=1){

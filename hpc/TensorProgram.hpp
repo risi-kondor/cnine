@@ -23,12 +23,15 @@
 namespace cnine{
 
 
-  class TensorProgramVar{
+  class TensorProgramVariable{
   public:
 
     Gdims dims;
 
-    TensorProgVar(const Gdims& _dims):
+    TensorProgVariable(const int _nrows, const int _ncols):
+      dims(_nrows,_ncols){}
+
+    TensorProgVariable(const Gdims& _dims):
       dims(_dims){
       CNINE_ASSRT(dims.size()=2);
     }
@@ -36,86 +39,184 @@ namespace cnine{
   };
 
 
-  template<typename OP>
-  class TensorProgInstr{
+
+  template<typename MAP>
+  class TensorProgramInstruction{
   public:
 
     int in;
     int out;
-    shared_ptr<OP> map;
+    shared_ptr<MAP> map;
 
-    TensorProgInstr(const shared_ptr<OP>& map, const int _out, const int _in):
+    TensorProgramInstruction(const shared_ptr<MAP>& map, const int _out, const int _in):
       in(_in), out(_out), map(_map);
+
+    TensorProgramInstruction inv() const{
+      return TensorProgramInstr(map.inv(),in,out);
+    }
 
   };
 
 
 
 
-  template<typename OP>
+  template<typename OPERATION, typename MAP>
   class TensorProgram{
   public: 
 
     typedef TensorProgramVariable VAR;
-    typedef GatherMapProgramInstruction INST;
+    typedef TensorProgramInstruction<MAP> INSTR;
+
+    int inputvar=0;
+    int outputvar=1;
+    bool nc_from_output=false;
+
+    vector<VAR> vars;
+    vector<INSTR> instructions;
 
 
-    vector<Variable> vars;
-    vector<Instruction> instructions;
-    int is_inverse=false;
-
-
-
-
-    TensorMapProgram<OP> inv() const{
-      TensorMapProgram<OP> R;
-
-      R.vars.resize(vars.size());
-      R.vars[0]=vars[1];
-      R.vars[1]=vars[0];
-      for(int i=2; i<vars.size(); i++)
-	R.vars[i]=vars[i];
-
-      int ninst=instructions.size();
-      R.instructions.resize(ninst);
-      for(int i=0; i<ninst; i++){
-	R.instructions[i]=instructions[ninst-1-i].inv();
-      }
-
-      return R;
-    }
-
-
-  public: // ---- Execution ----------------------------------------------------------------------------------
+  public: // ---- Operations -------------------------------------------------------------------------------
 
 
     template<typename TYPE>
-    void operator()(const Tensor<TYPE>& output, const Tensor<TYPE>& arg0){
-      CNINE_ASSRT(output.get_dev()==arg0.get_dev());
-      CNINE_ASSRT(arg0.ndims()==2);
-      CNINE_ASSRT(output.ndims()==2);
-      int nc=arg0.dim(2);
-      int dev=output.get_dev();
+    void operator()(const Ltensor<TYPE>& output, const Ltensor<TYPE>& input){
+
+      int dev=input.get_dev;
+      CNINE_ASSRT(output.get_dev()==input.get_dev());
+      CNINE_ASSRT(inputvar<vars.size());
+      CNINE_ASSRT(outputvar<vars.size());
+
+      int nc;
+      if(nc_from_output) 
+	nc=output.get_dims().back()/vars[outputvar].dims.back();
+      else 
+      	nc=input.get_dims().back()/vars[inputvar].dims.back();
+
+      CNINE_ASSRT(input.ndims()==vars[inputvar].dims.size());
+      CNINE_ASSRT(input.get_dims()==scale_last(vars[inputvar].dims,nc));
+
+      CNINE_ASSRT(output.ndims()==vars[outputvar].dims.size());
+      CNINE_ASSRT(output.get_dims()==scale_last(vars[outputvar].dims,nc));
 
       vector<Ltensor<TYPE>*> v(vars.size());
-      v[0]=new Ltensor<TYPE>(arg0);
-      v[1]=new Ltensor<TYPE>(output);
+      v[inputvar]=new Ltensor<TYPE>(input);
+      v[output]=new Ltensor<TYPE>(output);
 
-      for(int i=2; i<vars.size(); i++)
-	v[i]=new Ltensor<TYPE>(Gdims(vars[i].dims[0],vars[i].dims[1],ncols),0,dev);
+      for(int i=0; i<vars.size(); i++){
+	if(i==inputvar) v[i]=new Ltensor<TYPE>(input);
+	if(i==outputvar) v[i]=new Ltensor<TYPE>(output);
+	if(i!=inputvar && i!outputvar)
+	  v[i]=new Ltensor<TYPE>(scale_last(vars[i].dims,nc),0,dev);
+      }
 
       for(auto& p:instructions){
 	CNINE_ASSRT(p.out<vars.size());
 	CNINE_ASSRT(p.in<vars.size());
-	GatherRows()(*v[p.out],*v[p.in],*p.map);
+	OPERATION()(*v[p.out],*v[p.in],*p.map);
       }
 
       for(auto p:v) 
 	delete p;
     }
 
+
+    TensorProgram<OPERATION> inv() const{
+      TensorProgram<OPERATION> R;
+      R.vars=vars;
+      R.inputvar=outputvar;
+      R.outputvar=inputvar;
+      R.nc_from_output=!nc_from_output;
+
+      int n=instructions.size();
+      R.instructions.resize(n);
+      for(int i=0; i<n; i++)
+	R.instructions[i]=instructions[n-1-i].inv();
+
+      return R;
+    }
+
+
+    static TensorProgram<OPERATION,GatherMapPack> fuse0(const TensorProgramPack<OPERATION,GatherMapB>& x){
+      int N=x.size();
+      CNINE_ASSRT(N>0);
+      TensorProgram<OPERATION,GatherMapPack> R;
+
+      R.inputvar=x[0].inputvar;
+      R.outputvar=x[0].outputvar;
+      R.nc_from_output=x[0].nc_from_output;
+
+      int nvars=x[0].vars.size();
+      int ninst=x[0].instructions.size();
+
+      for(int j=0; j<N; j++){
+	CNINE_ASSRT(x[j].inputvar==R.inputvar);
+	CNINE_ASSRT(x[j].outputvar==R.outputvar);
+	CNINE_ASSRT(x[j].nc_from_output==R.nc_from_output);
+	CNINE_ASSRT(x[j].vars.size()==nvars);
+	CNINE_ASSRT(x[j].instructions.size()==ninstr);
+      }
+
+      for(int i=0; i<nvars; i++){
+	int D=x[0].vars[i].dims.chunk(1);
+	int t=0;
+	for(int j=0; j<N; j++){
+	  CNINE_ASSRT(x[j].vars[i].dims.chunk(1)==D);
+	  t+=x[j].vars[i].dims[0];
+	}
+	Gdims T(t);
+	R.vars.push_back(VAR(Gdims(T,D)));
+      }
+
+      for(int i=0; i<ninst; i++){
+	int in=x[0].instructions[i].in;
+	int in=x[0].instructions[i].out;
+	vector<shared_ptr<GatherMapB> > v;
+	for(int j=0; j<N; j++){
+	  auto& inst=x[j].instruction[i];
+	  CNINE_ASSRT(inst.in==in);
+	  CNINE_ASSRT(inst.out==out);
+	  v.push_back(inst.map);
+	}
+	R.instructions.push_back(TensorProgramInstruction<GatherMapPack>(GatherMapPack(v),out,in));
+      }
+      
+      return R;
+    }
+
+
+  private: // ------------------------------------------------------------------------------------------------
+
+
+    Gdims scale_last(const Gdims& x, const int nc){
+      Gdims R(x);
+      R.set_back(R.back()*nc);
+    }
+
   };
+
+
+
+  template<typename OPERATION, typename MAP>
+  class TensorProgramPack: public shared_object_pack<TensorProgram<OPERATION,MAP> >{
+
+    template<typename TYPE>
+    void operator()(const Ltensor<TYPE>& output, const Ltensor<TYPE>& input){
+
+    }
+
+    
+
+  };
+
 
 }
 
 #endif 
+    //int nrows() const{
+    //return dims[0];
+    //}
+
+    //int ncols() const{
+    //return dims[1];
+    //}
+

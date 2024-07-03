@@ -131,6 +131,10 @@ namespace cnine{
     Gdims(const int k, const fill_zero& dummy): 
       vector<int>(k,0){}
 
+    Gdims copy() const{
+      return Gdims(*this);
+    }
+
 
   public: // ---- Named constructors -------------------------------------------------------------------------
 

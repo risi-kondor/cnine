@@ -125,6 +125,18 @@ namespace cnine{
       }
     }
 
+    void add(const Itensor1_view& x, const int c) const{
+      CNINE_DEVICE_SAME(x);
+      CNINE_ASSRT(x.n0==n0);
+      if(is_regular() && x.is_regular()){
+	CPUCODE(for(int i0=0; i0<n0; i0++) arr[i0]+=c*x.arr[i0];);
+	//GPUCODE(CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&c,x.arr,1,arr,1)));
+      }else{
+	CPUCODE(for(int i0=0; i0<n0; i0++) inc(i0,c*x(i0)));
+	//GPUCODE(CUBLAS_SAFE(cublasSaxpy(cnine_cublas,n0,&c,x.arr,x.s0,arr,s0)));
+      }
+    }
+
     void operator+=(const Itensor1_view& x) const{
       add(x);
     }

@@ -21,7 +21,7 @@ namespace cnine{
 
 
   template<typename OBJ>
-  class shared_object_pack: private vector<shared_ptr<OBJ> >{
+  class shared_object_pack: public vector<shared_ptr<OBJ> >{
   public:
 
     typedef vector<shared_ptr<OBJ> > BASE;
@@ -48,20 +48,19 @@ namespace cnine{
     }
 
     shared_ptr<OBJ> operator()(const int i) const{
-      CNINE_ASSRT(i<obj.size());
-      CNINE_ASSRT(obj[i].get()!=nullptr);
+      CNINE_ASSRT(i<BASE::size());
       return BASE::operator[](i);
     }      
 
     const OBJ& operator[](const int i) const{
-      CNINE_ASSRT(i<obj.size());
-      CNINE_ASSRT(obj[i].get()!=nullptr);
+      CNINE_ASSRT(i<size());
+      CNINE_ASSRT(BASE::operator[](i).get()!=nullptr);
       return *BASE::operator[](i);
     }
 
     OBJ& operator[](const int i){
-      CNINE_ASSRT(i<obj.size());
-      CNINE_ASSRT(obj[i].get()!=nullptr);
+      CNINE_ASSRT(i<BASE::size());
+      CNINE_ASSRT(BASE::operator[](i).get()!=nullptr);
       return *BASE::operator[](i);
     }
 
@@ -79,8 +78,8 @@ namespace cnine{
 
     template<typename OTHER>
     void zip(const OTHER& x, const std::function<void(OBJ&, const OBJ&)>& fn){
-      CNINE_ASSRT(obj.size()==x.size());
-      for(int i=0; i<obj.size(); i++)
+      CNINE_ASSRT(size()==x.size());
+      for(int i=0; i<size(); i++)
 	fn((*this)[i],x[i]);
     }
     
@@ -105,7 +104,7 @@ namespace cnine{
 
     string str(const string indent="") const{
       ostringstream oss;
-      for(int i=0; i<obj.size(); i++){
+      for(int i=0; i<size(); i++){
 	oss<<"Object "<<i<<":\n";
 	oss<<(*this)[i].str(indent+"  ");
       }

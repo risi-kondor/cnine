@@ -16,6 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include "GatherMapB.hpp"
+#include "GatherMapPack.hpp"
 #include "WeightedGatherMapB.hpp"
 #include "FixedkGatherMap.hpp"
 #include "Ltensor.hpp"
@@ -41,6 +42,8 @@ namespace cnine{
       CNINE_ASSRT(_r.dim(1)%g.out_columns==0);
       CNINE_ASSRT(_x.ndims()==2);
       CNINE_ASSRT(_x.dim(1)%g.in_columns==0);
+      int dev=_x.get_dev();
+      CNINE_ASSRT(_r.get_dev()==dev);
 
       if(g.fixedk_maps.size()>0){
 	for(auto& p: g.fixedk_maps)
@@ -69,7 +72,6 @@ namespace cnine{
 	int N=g.size();
 	for(int i=0; i<N; i++){
 	  auto targt=r.slice0(g.target(i));
-	  //targt.n0=x.n1; // hack // change in cu too 
 	  int M=g.size_of(i);
 	  for(int j=0; j<M; j++){
 	    targt+=x.slice0(g(i,j));
@@ -80,6 +82,42 @@ namespace cnine{
       if(_r.get_dev()==1){
 	g.sort();
 	fnlog timer("GatherRows::operator()(G)");
+	//logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
+	CUDA_STREAM(gatherRows_cu(r,x,g,stream));
+      }
+    }
+
+
+    template<typename TYPE>
+    void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapPack& gmaps){
+      CNINE_ASSRT(_r.ndims()==2);
+      CNINE_ASSRT(_x.ndims()==2);
+      CNINE_ASSRT(_r.dim(1)%gmaps.out_columns==0);
+      CNINE_ASSRT(_x.dim(1)%gmaps.in_columns==0);
+      int dev=_x.get_dev();
+      CNINE_ASSRT(_r.get_dev()==dev);
+      if(gmaps.size()==0) return;
+
+      auto r=_r.view2();
+      r.n0*=gmaps.out_columns;
+      r.n1=r.n1*gmaps.out_columns_n/gmaps.out_columns;
+      r.s0/=gmaps.out_columns;
+      auto x=_x.view2();
+      x.n0*=gmaps.in_columns;
+      x.n1=x.n1*gmaps.in_columns_n/gmaps.in_columns;
+      x.s0/=gmaps.in_columns;
+      CNINE_ASSRT(r.n1==x.n1);
+    
+      if(dev==0){
+	fnlog timer("GatherRows::operator_pack()");
+	MultiLoop(gmaps.size(),[&](const int i){
+	    GatherRows()(r.rows(gmaps.out_offsets(i),gmaps[i].n),
+	      x.rows(gmaps.in_offsets(i),gmaps[i].m),gmaps[i]);});
+      }
+
+      if(dev==1){
+	gmaps.sort();
+	fnlog timer("GatherRows::operator_pack()(G)");
 	//logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
 	CUDA_STREAM(gatherRows_cu(r,x,g,stream));
       }

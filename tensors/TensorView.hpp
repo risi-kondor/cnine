@@ -763,42 +763,53 @@ namespace cnine{
     }
 
 
+    TYPE& operator()(const int i0){
+      CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
+      return arr[strides.offs(i0)];
+    }
+
+
   public: // ---- Setters ------------------------------------------------------------------------------------
 
 
-    void set(const Gindex& ix, const TYPE x) const{
+    TYPE set(const Gindex& ix, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(ix)]=x;
+      return x;
     }
 
-    void set(const int i0, const TYPE x) const{
+    TYPE set(const int i0, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0)]=x;
+      return x;
     }
 
-    void set(const int i0, const int i1,  const TYPE x) const{
+    TYPE set(const int i0, const int i1,  const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1)]=x;
+      return x;
     }
 
-    void set(const int i0, const int i1, const int i2, const TYPE x) const{
+    TYPE set(const int i0, const int i1, const int i2, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1,i2)]=x;
+      return x;
     }
 
-    void set(const int i0, const int i1, const int i2, const int i3, const TYPE x) const{
+    TYPE set(const int i0, const int i1, const int i2, const int i3, const TYPE x) const{
       CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
       arr[strides.offs(i0,i1,i2,i3)]=x;
+      return x;
     }
 
 
-    void set_value(const int i0, const TYPE x) const{
-      set(i0,x);
-    }
+    //void set_value(const int i0, const TYPE x) const{
+    //set(i0,x);
+    //}
 
-    void set_value(const int i0, const int i1, const TYPE x) const{
-      set(i0,i1,x);
-    }
+    // void set_value(const int i0, const int i1, const TYPE x) const{
+    //set(i0,i1,x);
+    //}
 
 
   public: // ---- Incrementers -------------------------------------------------------------------------------

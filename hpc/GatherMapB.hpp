@@ -233,7 +233,7 @@ namespace cnine{
     }
 
   public: // ---- Setters ------------------------------------------------------------------------------------
-
+    
     void set(const int i, const int j, const int x){
       arr.set(i,j,x);
     }
@@ -244,7 +244,7 @@ namespace cnine{
       return size()-1;
     }
 
-    void push_back(const int t, const set<int>& v){
+    void push_back(const int t, const std::set<int>& v){
       sorted=false;
       arr.push_back(t,v);
     }
@@ -254,7 +254,7 @@ namespace cnine{
       arr.push_back(t,v);
     }
 
-    void push_back(const int t, const initializer\_list<int>& v){
+    void push_back(const int t, const initializer_list<int>& v){
       sorted=false;
       arr.push_back(t,v);
     }

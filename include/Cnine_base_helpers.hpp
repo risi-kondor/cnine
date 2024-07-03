@@ -18,6 +18,12 @@ namespace cnine{
   }
 
   template<typename TYPE>
+  inline TYPE bump(TYPE& x, TYPE y){
+    if(y>x) x=y;
+    return x;
+  }
+
+  template<typename TYPE>
   inline void fastadd(const TYPE* source, TYPE* dest, const int n){
     for(int i=0; i<n; i++)
       *(dest+i)+=*(source+i);

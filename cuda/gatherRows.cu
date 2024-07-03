@@ -20,6 +20,7 @@
 #include "Cnine_base.hpp"
 #include "Rtensor2_view.hpp"
 #include "GatherMapB.hpp"
+#include "GatherMapPack.hpp"
 #include "WeightedGatherMapB.hpp"
 #include "minivec.hpp"
 #include "AsyncGPUbuffer.hpp"
@@ -238,6 +239,50 @@ namespace cnine{
 
     //      (r.arr,r.s0,x.arr,x.s0,buffer(0),map_pointers.arr,buffer(N),buffer(2*N+1),nc);
 
+  }
+
+  void gatherRowsMulti_cu(const Rtensor2_view& r, const Rtensor2_view& x, 
+    const GatherMapPack& maps, const cudaStream_t& stream){
+
+    int N=maps.size();
+    int nc=x.n1;
+    CNINE_ASSRT(r.dev==1);
+    CNINE_ASSRT(x.dev==1);
+    CNINE_ASSRT(nc<=1024);
+    CNINE_ASSRT(x.s1==1);
+    CNINE_ASSRT(r.s1==1);
+
+    int max_size=0;
+    Ltensor<int> sizes({N},0);
+    minivec<int*> map_pointers(N);
+    for(int i=0; i<N; i++){
+      bump(max_size,sizes.set(i,maps[i]->size());
+      map_pointers.set(i,maps[i]->get_arrg());
+    }
+    if(max_size==0) return;
+
+    auto& int_buf=GatherRowsMulti_ibuf;
+    int_buf.reset(3*N);
+    int_buf.push(0,sizes);
+    int_buf.push(N,maps.out_offsets);
+    int_buf.push(2*N,maps.in_offsets);
+    int_buf.sync(stream);
+
+    auto& intp_buf=GatherRowsMulti_ipbuf;
+    intp_buf.reset(N);
+    intp_buf.push_minivec(0,map_pointers);
+    intp_buf.sync(stream);
+
+    int nwarps=roundup(nc,32)/32;
+    int multi=32/nwarps;
+    multi=1;
+    dim3 threads(multi,nwarps*32);
+    dim3 blocks(N,(max_size-1)/multi+1);
+
+    CUDA_SAFE(cudaDeviceSynchronize());
+
+    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
+      (r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N),nc);
   }
 
 

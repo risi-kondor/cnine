@@ -14,6 +14,7 @@ int main(int argc, char** argv){
   cout<<g<<endl;
   cout<<g.sort()<<endl;
   cout<<g.inv()<<endl;
+  cout<<g<<endl;
 
   Ltensor<int> A(dims(10,10));
   uniform_int_distribution<int> distr(0,4);

@@ -16,6 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include "array_pool.hpp"
+#include "map_of_lists.hpp"
 
 
 namespace cnine{
