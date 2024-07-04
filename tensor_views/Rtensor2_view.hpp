@@ -585,8 +585,11 @@ namespace cnine{
       return Rtensor2_view(arr+i0*s0+i1*s1,m0,m1,s0,s1,dev);
     }
 
+    Rtensor2_view rows(const int offs, const int n){
+      return Rtensor2_view(arr+offs*s0,n,n1,s0,s1,dev);
+    }
 
- 
+
   public: // ---- Conversions -------------------------------------------------------------------------------
 
     

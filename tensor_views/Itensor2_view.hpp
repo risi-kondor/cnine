@@ -310,6 +310,9 @@ namespace cnine{
       return Itensor2_view(arr+i0*s0+i1*s1,m0,m1,s0,s1,dev);
     }
 
+    Itensor2_view rows(const int offs, const int n){
+      return Itensor2_view(arr+offs*s0,n,n1,s0,s1,dev);
+    }
 
  
   public: // ---- Conversions -------------------------------------------------------------------------------

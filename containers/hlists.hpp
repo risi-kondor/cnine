@@ -69,7 +69,7 @@ namespace cnine{
 
 
     hlists(const hlists& x):
-      BASE(x){cout<<"c"<<endl;}
+      BASE(x){}
 
     hlists(hlists&& x):
       BASE(std::move(x)){}

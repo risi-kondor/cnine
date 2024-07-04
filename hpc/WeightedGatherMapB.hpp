@@ -61,12 +61,13 @@ namespace cnine{
 
     WeightedGatherMapB(){}
 
-    WeightedGatherMapB(const int _n): 
-      BASE(_n){}
+    WeightedGatherMapB(const int _n_out, const int _n_in): 
+      BASE(_n_out,_n_in){}
 
     WeightedGatherMapB(const vector<int>& sources, const vector<int>& targets, const vector<float>& weights){
       cnine::fnlog timer("WeightedGatherMapB::WeightedGatherMapB(const vector<int>& sources, const vector<int>& targets)");
       CNINE_ASSRT(sources.size()==targets.size());
+      // set n_out and n_in
 
       int N=sources.size();
       unordered_map<int,int> sizes;
@@ -123,12 +124,12 @@ namespace cnine{
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static WeightedGatherMapB random(const int _n, const int m, const float p){
-      WeightedGatherMapB r(_n);
+    static WeightedGatherMapB random(const int _n_out, const int _n_in, const float p){
+      WeightedGatherMapB r(_n_out,_n_in);
       uniform_real_distribution<double> distr(0,1);
-      for(int i=0; i<_n; i++){
+      for(int i=0; i<_n_out; i++){
 	vector<int> v;
-	for(int j=0; j<m; j++)
+	for(int j=0; j<_n_in; j++)
 	  if(distr(rndGen)<p)
 	    v.push_back(j);
 	r.arr.push_back(i,v);
@@ -266,7 +267,8 @@ namespace cnine{
 	  inv_map[j].push_back(reinterpret_cast<const int&>(v));
 	  total+=2;
 	});
-      WeightedGatherMapB* r=new WeightedGatherMapB(inv_map.rbegin()->first+1);
+      WeightedGatherMapB* r=new WeightedGatherMapB(n_in,n_out);
+      //WeightedGatherMapB* r=new WeightedGatherMapB(inv_map.rbegin()->first+1);
       r->arr.reserve(size()+total);
       for(auto& p: inv_map)
 	r->arr.push_back(p.first,p.second);
@@ -282,7 +284,7 @@ namespace cnine{
       int N=size();
       for(int i=0; i<N; i++)
 	lengths[-size_of(i)].push_back(i);
-      WeightedGatherMapB r(n);
+      WeightedGatherMapB r(n_out,n_in);
       r.arr.reserve(arr.tail);
       for(auto& p:lengths){
 	int K=-p.first;
@@ -290,7 +292,7 @@ namespace cnine{
 	  int i=r.push_back(K);
 	  r.set_target(i,target(q));
 	  for(int a=0; a<K; a++){
-	    r.set(i,a,src(q,a),weight(q,a));
+	      r.set(i,a,src(q,a),weight(q,a));
 	  }
 	}
       }

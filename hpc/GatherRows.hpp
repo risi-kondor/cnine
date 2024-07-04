@@ -21,6 +21,7 @@
 #include "FixedkGatherMap.hpp"
 #include "Ltensor.hpp"
 #include "logged_timer.hpp"
+#include "MultiLoop.hpp"
 
 
 namespace cnine{
@@ -37,7 +38,7 @@ namespace cnine{
   public:
 
     template<typename TYPE>
-    void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapB& g){
+    void operator()(const Ltensor<TYPE>& _r, const Ltensor<TYPE>& _x, const GatherMapB& g){
       CNINE_ASSRT(_r.ndims()==2);
       CNINE_ASSRT(_r.dim(1)%g.out_columns==0);
       CNINE_ASSRT(_x.ndims()==2);
@@ -89,7 +90,7 @@ namespace cnine{
 
 
     template<typename TYPE>
-    void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const GatherMapPack& gmaps){
+    void operator()(const Ltensor<TYPE>& _r, const Ltensor<TYPE>& _x, const GatherMapPack& gmaps){
       CNINE_ASSRT(_r.ndims()==2);
       CNINE_ASSRT(_x.ndims()==2);
       CNINE_ASSRT(_r.dim(1)%gmaps.out_columns==0);
@@ -111,8 +112,8 @@ namespace cnine{
       if(dev==0){
 	fnlog timer("GatherRows::operator_pack()");
 	MultiLoop(gmaps.size(),[&](const int i){
-	    GatherRows()(r.rows(gmaps.out_offsets(i),gmaps[i].n),
-	      x.rows(gmaps.in_offsets(i),gmaps[i].m),gmaps[i]);});
+	    GatherRows()(Ltensor<TYPE>(_r.rows(gmaps.out_offsets[i],gmaps[i].n_out)),
+	      Ltensor<TYPE>(_x.rows(gmaps.in_offsets[i],gmaps[i].n_in)),gmaps[i]);});
       }
 
       if(dev==1){
@@ -125,7 +126,7 @@ namespace cnine{
 
 
     template<typename TYPE>
-    void weighted(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const WeightedGatherMapB& g){
+    void weighted(const TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const WeightedGatherMapB& g){
       auto r=_r.view2();
       r.n0*=g.out_columns;
       r.n1/=g.out_columns;
@@ -160,7 +161,7 @@ namespace cnine{
 
 
   template<typename TYPE>
-  void operator()(TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const FixedkGatherMap& g){
+  void operator()(const TensorView<TYPE>& _r, const TensorView<TYPE>& _x, const FixedkGatherMap& g){
     CNINE_ASSRT(_r.ndims()==2);
     CNINE_ASSRT(_r.dim(0)%g.out_columns==0);
     CNINE_ASSRT(_x.ndims()==2);
@@ -191,7 +192,15 @@ namespace cnine{
 
 
   template<typename TYPE>
-  Ltensor<TYPE> operator()(const TensorView<TYPE>& x, const GatherMapB& g){
+  Ltensor<TYPE> operator()(const Ltensor<TYPE>& x, const GatherMapB& g){
+    CNINE_ASSRT(x.ndims()==2);
+    Ltensor<TYPE> r({g.get_nout(),x.dim(1)},0,x.get_dev()); // take into account nc
+    (*this)(r,x,g);
+    return r;
+  }
+
+  template<typename TYPE>
+  Ltensor<TYPE> operator()(const Ltensor<TYPE>& x, const FixedkGatherMap& g){
     CNINE_ASSRT(x.ndims()==2);
     Ltensor<TYPE> r({g.getn(),x.dim(1)},0,x.get_dev());
     (*this)(r,x,g);
@@ -199,9 +208,9 @@ namespace cnine{
   }
 
   template<typename TYPE>
-  Ltensor<TYPE> operator()(const TensorView<TYPE>& x, const FixedkGatherMap& g){
+  Ltensor<TYPE> operator()(const Ltensor<TYPE>& x, const GatherMapPack& g){
     CNINE_ASSRT(x.ndims()==2);
-    Ltensor<TYPE> r({g.getn(),x.dim(1)},0,x.get_dev());
+    Ltensor<TYPE> r({g.get_nout(),x.dim(1)},0,x.get_dev());
     (*this)(r,x,g);
     return r;
   }

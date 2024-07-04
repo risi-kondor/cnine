@@ -90,6 +90,12 @@ namespace cnine{
       std::copy(x.mem(),x.mem()+x.asize(),arr+i);
     }
 
+    void push(const int i, const vector<TYPE>& x){
+      CNINE_ASSRT(x.get_dev()==0);
+      CNINE_ASSRT(i+x.size()<=_size);
+      std::copy(x.begin(),x.end(),arr+i);
+    }
+
 #ifdef _WITH_CUDA
     void sync(const cudaStream_t& stream){
       CUDA_SAFE(cudaMemcpyAsync(arrg,arr,_size*sizeof(TYPE),cudaMemcpyHostToDevice,stream));

@@ -33,8 +33,8 @@ namespace cnine{
     shared_ptr<GatherMapB> _inv;
     mutable bool sorted=false;
 
-    int n=0;
-    int m=0;
+    int n_out=0;
+    int n_in=0;
     int* arrg=nullptr; // unsafe!!
 
   public:
@@ -59,8 +59,8 @@ namespace cnine{
 
     GatherMapB(){}
 
-    GatherMapB(const int _n): 
-      n(_n){}
+    GatherMapB(const int _n_out, const int _n_in): 
+      n_out(_n_out), n_in(_n_in){}
 
     GatherMapB(const vector<int>& sources, const vector<int>& targets){
       cnine::fnlog timer("GatherMapB::GatherMapB(const vector<int>& sources, const vector<int>& targets)");
@@ -68,9 +68,12 @@ namespace cnine{
 
       int N=sources.size();
       unordered_map<int,int> sizes;
-      for(int i=0; i<N; i++)
+      for(int i=0; i<N; i++){
 	sizes[targets[i]]++;
-      
+	n_out=std::max(n_out,targets[i]+1);
+	n_in=std::max(n_in,sources[i]+1);
+      }
+
       int n=sizes.size();
       vector<int> heads(n);
       vector<int> lengths(n);
@@ -100,8 +103,12 @@ namespace cnine{
       //cout<<"make GatherMapB"<<endl;
 
       int total=0;
-      for(auto& p:x)
+      for(auto& p:x){
 	total+=p.second.size();
+	bump(n_out,p.first+1);
+	for(auto& q:p.second)
+	  bump(n_in,q+1);
+      }
 
       arr.reserve(x.size()+total);
       for(auto& p:x)
@@ -124,10 +131,10 @@ namespace cnine{
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static GatherMapB random(const int _n, const int m, const float p){
-      GatherMapB r(_n);
+    static GatherMapB random(const int n, const int m, const float p){
+      GatherMapB r(n,m);
       uniform_real_distribution<double> distr(0,1);
-      for(int i=0; i<_n; i++){
+      for(int i=0; i<n; i++){
 	vector<int> v;
 	for(int j=0; j<m; j++)
 	  if(distr(rndGen)<p)
@@ -142,7 +149,7 @@ namespace cnine{
 
 
     GatherMapB(const GatherMapB& x, const int _dev):
-      arr(x.arr,_dev), n(x.n){
+      arr(x.arr,_dev), n_out(x.n_out), n_in(x.n_in){
     }
 
     GatherMapB& move_to_device(const int _dev){
@@ -174,12 +181,12 @@ namespace cnine{
       return arr.get_dev();
     }
 
-    int getn() const{
-      return n;
+    int get_nout() const{
+      return n_out;
     }
 
-    int getm() const{
-      return m;
+    int get_nin() const{
+      return n_in;
     }
 
     int size() const{
@@ -272,9 +279,9 @@ namespace cnine{
 	  inv_map[j].push_back(i);
 	  total++;
 	});
-      GatherMapB* r;
-      if(inv_map.size()==0) r=new GatherMapB(0); 
-      else r=new GatherMapB(inv_map.rbegin()->first+1);
+      GatherMapB* r=new GatherMapB(n_in,n_out);
+      //if(inv_map.size()==0) r=new GatherMapB(0); 
+      //else r=new GatherMapB(inv_map.rbegin()->first+1);
       r->arr.reserve(inv_map.size()+total);
       for(auto& p: inv_map)
 	r->arr.push_back(p.first,p.second);
@@ -295,7 +302,7 @@ namespace cnine{
       int N=size();
       for(int i=0; i<N; i++)
 	lengths[-size_of(i)].push_back(i);
-      GatherMapB r(n);
+      GatherMapB r(n_out,n_in);
       r.arr.reserve(arr.tail);
       for(auto& p:lengths){
 	int K=-p.first;
@@ -325,7 +332,7 @@ namespace cnine{
 	if(p.second.size()<min_size)
 	  rem_size+=(p.first+1)*p.second.size();
 
-      GatherMapB r(n);
+      GatherMapB r(n_out,n_in);
       r.arr.reserve(rem_size);
 
       for(auto& p:lengths){
