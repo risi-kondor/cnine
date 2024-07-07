@@ -71,7 +71,7 @@ namespace cnine{
 #endif
 
       cout<<"Number of CPU threads:              "<<nthreads<<endl;
-      cout<<"-------------------------------------"<<endl<<endl;
+      cout<<"-------------------------------------"<<endl;
 
 
       start_time=std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());

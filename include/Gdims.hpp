@@ -41,7 +41,7 @@ namespace cnine{
       for(auto p:x) if(p>=0) BASE::push_back(p);
     }
 
-    Gdims(const int i0): 
+    explicit Gdims(const int i0): 
       vector<int>(1){
       (*this)[0]=i0;
     }

@@ -356,10 +356,10 @@ namespace cnine{
 
     string str(const string indent="") const{
       ostringstream oss;
-      oss<<indent<<"Graph with "<<n<<" vertices:"<<endl;
-      oss<<dense().str(indent+"  ");
-      if(is_labeled()) oss<<indent<<"L:"<<labels.str()<<endl;
-      if(with_degrees()) oss<<indent<<"D:"<<degrees.str()<<endl;
+      //oss<<indent<<"Graph with "<<n<<" vertices:"<<endl;
+      oss<<dense().str(indent); //+"  ");
+      //if(is_labeled()) oss<<indent<<"L:"<<labels.str()<<endl;
+      //if(with_degrees()) oss<<indent<<"D:"<<degrees.str()<<endl;
       return oss.str();
     }
 

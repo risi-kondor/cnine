@@ -93,7 +93,9 @@ namespace cnine{
 
     // just for taking views of ATen tensors 
     MemBlob(TYPE* _arr, const int _dev=0):
-      arr(_arr), dev(_dev){}
+      arr(_arr), 
+      dev(_dev), 
+      is_view(true){}
 
     MemBlob(int _dev, TYPE* _arr):
       arr(_arr), 
