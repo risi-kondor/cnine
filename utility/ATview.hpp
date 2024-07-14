@@ -22,6 +22,8 @@ namespace cnine{
 
 #ifdef _WITH_ATEN
 
+  // This is really dangerous and should not be used
+
   template<typename TYPE>
   class ATview: public Ltensor<TYPE>{
   public:

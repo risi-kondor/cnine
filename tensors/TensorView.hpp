@@ -868,6 +868,12 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
     }
 
+    TensorView<TYPE> columnss(const int i, const int n) const{
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(i+n<=dims[1]);
+      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
+    }
+
     tensor1_view<TYPE> rowv(const int i) const{
       CNINE_ASSRT(ndims()==2);
       CNINE_ASSRT(i<dims[0]);
