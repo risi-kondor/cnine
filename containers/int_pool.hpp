@@ -26,6 +26,7 @@ namespace cnine{
     int last=-1;
     int memsize;
     int* arr;
+    int dev=0;
 
     ~int_pool(){
       delete[] arr;
@@ -56,6 +57,30 @@ namespace cnine{
     }
 
     int_pool operator=(const int_pool& x)=delete;
+
+
+  public: // ---- Transport ------------------------------------------------
+
+
+    void move_to_device(const int _dev){
+      if(dev==_dev) return;
+      if(dev==0 &&_dev==1){
+	int* arrg=nullptr;
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
+	CUDA_SAFE(cudaMemcpy(arrg,arr,memsize()*sizeof(int),cudaMemcpyHostToDevice));
+	delete[] arr;
+	arr=arrg;
+	dev=1;
+      }
+      if(dev==1 && _dev==0){
+	int* narr=new int[memsize];
+	CUDA_SAFE(cudaMemcpy(narr,arr,memsize*sizeof(int),cudaMemcpyDeviceToHost));
+	CUDA_SAFE(cudaFree(arr));
+	arr=narr;
+	dev=0;
+      }      
+    }
+
 
 
   public: // ---- Access ---------------------------------------------------

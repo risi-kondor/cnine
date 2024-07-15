@@ -1,5 +1,5 @@
 #include "Cnine_base.cpp"
-#include "watched.hpp"
+#include "monitored.hpp"
 #include "CnineSession.hpp"
 
 
@@ -8,7 +8,7 @@ using namespace cnine;
 
 class Widget;
 
-watcher<int> int_watcher;
+obj_monitor<int> int_obj_monitor;
 
 
 class Widget{
@@ -16,7 +16,7 @@ public:
 
   int id;
 
-  watched<int> member=watched<int>(int_watcher,[&](){
+  monitored<int> member=monitored<int>(int_obj_monitor,[&](){
       //int* a=new int(2*id); 
       return make_shared<int>(2*id);});
 
@@ -33,20 +33,20 @@ int main(int argc, char** argv){
   Widget w1(1);
   Widget w2(2);
   Widget* w3=new Widget(3);
-  cout<<int_watcher<<endl;
+  cout<<int_obj_monitor<<endl;
 
   int b=w1.member;
   cout<<b<<endl;
-  cout<<int_watcher<<endl;
+  cout<<int_obj_monitor<<endl;
 
   int c=w2.member;
   cout<<c<<endl;
-  cout<<int_watcher<<endl;
+  cout<<int_obj_monitor<<endl;
 
   cout<<w3->member<<endl;
-  cout<<int_watcher<<endl;
+  cout<<int_obj_monitor<<endl;
 
   delete w3;
-  cout<<int_watcher<<endl;
+  cout<<int_obj_monitor<<endl;
 }
 

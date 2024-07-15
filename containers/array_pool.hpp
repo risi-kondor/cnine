@@ -292,6 +292,39 @@ namespace cnine{
     }
 
 
+  public: // ---- Conversions --------------------------------------------------------------------------------
+
+    /*
+    template<typename U=TYPE, typename = typename std::enable_if<std::is_same<int, U>::value, U>::type>
+    int_pool to_int_pool(const int _dev=0){
+      CNINE_ASSRT(_dev==0);
+      int N=size();
+      int_pool R(N,tail);
+      for(int i=0; i<N; i++)
+	R.arr[i+1]=N+2+offset(i);
+      R.arr[N+1]=tail;
+      std::copy(arr,arr+tail,R.arr+N+2);
+      if(_dev>0) R.move_to_device(_dev);
+      return R;
+    }
+    */
+
+    template<typename U=TYPE, typename = typename std::enable_if<std::is_same<int, U>::value, U>::type>
+    Ltensor<int> to_tensor(const int _dev=0){
+      CNINE_ASSRT(_dev==0);
+      int N=size();
+      Ltensor<int> R({N+tail+2});
+      R.set(0,N);
+      for(int i=0; i<N; i++)
+	R.set(i+1,N+2+offset(i));
+      R.set(N+1,tail);
+      std::copy(arr,arr+tail,R.get_arr()+N+2);
+      if(_dev>0) R.move_to_device(_dev);
+      return R;
+    }
+
+
+    
   public: // ---- Transport ----------------------------------------------------------------------------------
 
 

@@ -22,33 +22,47 @@
 namespace cnine{
 
   template<typename OBJ> 
-  class watcher; 
+  class obj_monitor; 
 
 
   template<typename OBJ> 
-  class watched: public observable<watched<OBJ> >{
+  class monitored: public observable<monitored<OBJ> >{
   public:
 
 
-    watcher<OBJ>& _watcher;
+    obj_monitor<OBJ>* _obj_monitor=nullptr;
 
     shared_ptr<OBJ> obj;
 
     std::function<shared_ptr<OBJ>()> make_obj;
 
-    //watched():
-    //make_obj([](){return OBJ();}){}
+    //monitored():
+    //observable<monitored<OBJ> >(this),
+    //make_obj([](){return shared_ptr<OBJ>();}){}
 
-    watched(watcher<OBJ>& __watcher, std::function<shared_ptr<OBJ>()> _make_obj):
-      observable<watched<OBJ> >(this),
-      _watcher(__watcher),
+    monitored(std::function<shared_ptr<OBJ>()> _make_obj):
+      observable<monitored<OBJ> >(this),
       make_obj(_make_obj){}
 
-    ~watched(){
+    monitored(obj_monitor<OBJ>& __obj_monitor, std::function<shared_ptr<OBJ>()> _make_obj):
+      observable<monitored<OBJ> >(this),
+      _obj_monitor(&__obj_monitor),
+      make_obj(_make_obj){}
+
+    ~monitored(){
     }
 
 
-  public: // ---- Access -------------------
+  public: // ---- Copying ----------------------------------------------------------------------------------
+
+
+    monitored(const monitored& x):
+      observable<monitored<OBJ> >(this),
+      _obj_monitor(x._obj_monitor),
+      obj(x.obj){}
+
+
+  public: // ---- Access ----------------------------------------------------------------------------------
 
 
     operator OBJ&(){
@@ -67,7 +81,8 @@ namespace cnine{
 
     void make(){
       obj=make_obj();
-      _watcher.add(this);
+      if(_obj_monitor) 
+	_obj_monitor->add(this);
     }
 
     string str() const{
@@ -80,25 +95,25 @@ namespace cnine{
 
 
   template<typename OBJ>
-  class watcher{
+  class obj_monitor{
   public:
 
-    observer<watched<OBJ> > _watched;
+    observer<monitored<OBJ> > _monitored;
 
-    void add(watched<OBJ>* x){
-      _watched.add(x);
+    void add(monitored<OBJ>* x){
+      _monitored.add(x);
     }
 
     string str() const{
       ostringstream oss;
       oss<<"[";
-      for(auto p:_watched.targets)
+      for(auto p:_monitored.targets)
 	oss<<p->str()<<",";
       oss<<"]";
       return oss.str();
    }
 
-    friend ostream& operator<<(ostream& stream, const watcher& x){
+    friend ostream& operator<<(ostream& stream, const obj_monitor& x){
       stream<<x.str(); return stream;
     }
 

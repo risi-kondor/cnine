@@ -20,7 +20,9 @@
 #include "DimLabels.hpp"
 //#include "LtensorSpec.hpp"
 #include "NamedTypes.hpp"
+#include "IntTensor.hpp"
 #include "MemoryManager.hpp"
+
 
 
 namespace cnine{
@@ -60,6 +62,7 @@ namespace cnine{
     using BASE::dim;
     using BASE::is_regular;
     using BASE::set;
+    using BASE::get_arr;
 
     DimLabels labels;
 
@@ -279,6 +282,13 @@ namespace cnine{
     }
 
 
+  public: // ---- Transport ---------------------------------------------------------------------------------
+
+
+    Ltensor(const Ltensor& x, const int _dev):
+      BASE(x,_dev){}
+
+
   public: // ---- Memory managed ----------------------------------------------------------------------------
 
 
@@ -319,6 +329,14 @@ namespace cnine{
 	arr[i]=x.get_arr()[i];
     }
 
+
+    // improve this!
+    template<typename FTYPE=TYPE, typename = typename std::enable_if<std::is_same<int, FTYPE>::value, FTYPE>::type>
+    Ltensor(const IntTensor& x):
+      Ltensor(x.dims){
+      CNINE_ASSRT(x.dev==0);
+      std::copy(x.arr,x.arr+memsize(),get_arr());
+    }
 
 #ifdef _WITH_ATEN
     Ltensor<TYPE>(const at::Tensor& T):

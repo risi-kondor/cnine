@@ -37,6 +37,10 @@ namespace cnine{
     int n_in=0;
     int* arrg=nullptr; // unsafe!!
 
+    cnine::monitored<cnine::Ltensor<int> > gpu_format=
+      cnine::monitored<cnine::Ltensor<int> >([this](){
+	  return to_share(new cnine::Ltensor<int>(arr.to_tensor(1)));});
+
   public:
 
     vector<shared_ptr<FixedkGatherMap> > fixedk_maps;
@@ -157,11 +161,13 @@ namespace cnine{
       return *this;
     }
 
+    [[deprecated]]
     int* get_arrg(const int _dev=1) const{
       if(!arrg) make_arrg();
       return arrg;
     }
 
+    [[deprecated]]
     void make_arrg() const{
       cnine::fnlog timer("GatherMapB::make_arrg()");
       //cout<<arr.dir.memsize<<"...."<<arr.get_memsize()<<endl;
@@ -240,6 +246,7 @@ namespace cnine{
     }
 
   public: // ---- Setters ------------------------------------------------------------------------------------
+
     
     void set(const int i, const int j, const int x){
       arr.set(i,j,x);
