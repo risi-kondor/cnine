@@ -971,6 +971,11 @@ namespace cnine{
       return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
     }
 
+    TensorView<TYPE> block(const int i0, const int m0) const{
+      CNINE_ASSRT(ndims()==1);
+      return block({m0},{i0});
+    }
+
     TensorView<TYPE> block(const int i0, const int i1, const int m0, const int m1) const{
       CNINE_ASSRT(ndims()==2);
       return block({m0,m1},{i0,i1});

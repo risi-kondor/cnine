@@ -35,11 +35,11 @@ namespace cnine{
 
     int n_out=0;
     int n_in=0;
-    int* arrg=nullptr; // unsafe!!
+    //int* arrg=nullptr; // unsafe!!
 
-    cnine::monitored<cnine::Ltensor<int> > gpu_format=
-      cnine::monitored<cnine::Ltensor<int> >([this](){
-	  return to_share(new cnine::Ltensor<int>(arr.to_tensor(1)));});
+    //cnine::monitored<cnine::Ltensor<int> > gpu_format=
+    //cnine::monitored<cnine::Ltensor<int> >([this](){
+    //  return to_share(new cnine::Ltensor<int>(arr.to_tensor(1)));});
 
   public:
 
@@ -54,7 +54,7 @@ namespace cnine{
   public:
 
     virtual ~GatherMapB(){
-      if(arrg) {CUDA_SAFE(cudaFree(arrg));}
+      //if(arrg) {CUDA_SAFE(cudaFree(arrg));}
     }
 
 
@@ -161,13 +161,14 @@ namespace cnine{
       return *this;
     }
 
-    [[deprecated]]
-    int* get_arrg(const int _dev=1) const{
-      if(!arrg) make_arrg();
-      return arrg;
-    }
+    //[[deprecated]]
+    //int* get_arrg(const int _dev=1) const{
+    //if(!arrg) make_arrg();
+    //return arrg;
+    //}
 
-    [[deprecated]]
+    //[[deprecated]]
+    /*
     void make_arrg() const{
       cnine::fnlog timer("GatherMapB::make_arrg()");
       //cout<<arr.dir.memsize<<"...."<<arr.get_memsize()<<endl;
@@ -178,6 +179,7 @@ namespace cnine{
       CUDA_SAFE(cudaMemcpy(arrg, arr.dir.arr, 2*arr.size()*sizeof(int),cudaMemcpyHostToDevice));  
       CUDA_SAFE(cudaMemcpy(arrg+2*arr.size(), arr.arr, arr.get_tail()*sizeof(int),cudaMemcpyHostToDevice));  
     }
+    */
 
 
   public: // ---- Getters ------------------------------------------------------------------------------------

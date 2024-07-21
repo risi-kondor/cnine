@@ -26,8 +26,8 @@ namespace cnine{
   class map_of_lists: public unordered_map<KEY,std::vector<ITEM> >{
   public:
 
-    
     typedef unordered_map<KEY,std::vector<ITEM> > BASE;
+    
 
     using BASE::find;
     using BASE::begin;
@@ -65,6 +65,13 @@ namespace cnine{
       int t=0;
       for(auto& p:*this)
 	t+=p.second.size();
+      return t;
+    }
+
+    size_t max_size() const{
+      size_t t=0;
+      for(auto& p:*this)
+	bump(t,p.second.size());
       return t;
     }
 

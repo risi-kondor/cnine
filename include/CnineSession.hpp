@@ -55,6 +55,13 @@ namespace cnine{
 
     cnine_session(const int _nthreads=1){
 
+#ifdef _WITH_CUDA
+      cout<<"Starting cnine tensor library with CUDA support..."<<endl;
+#else
+      cout<<"Starting cnine tensor library without CUDA support..."<<endl;
+#endif
+
+      /*
       cout<<"-------------------------------------"<<endl;
       cout<<"Cnine tensor library  (c) Risi Kondor"<<endl;
 
@@ -72,7 +79,7 @@ namespace cnine{
 
       cout<<"Number of CPU threads:              "<<nthreads<<endl;
       cout<<"-------------------------------------"<<endl;
-
+      */
 
       start_time=std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 

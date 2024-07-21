@@ -150,11 +150,12 @@ namespace cnine{
       return *this;
     }
 
-    int* get_arrg(const int _dev=1) const{
-      if(!arrg) make_arrg();
-      return arrg;
-    }
+    //int* get_arrg(const int _dev=1) const{
+    //if(!arrg) make_arrg();
+    //return arrg;
+    //}
 
+    /*
     void make_arrg() const{
       //cout<<arr.dir.memsize<<"...."<<arr.get_memsize()<<endl;
       //int memsize=arr.get_memsize()+arr.dir.memsize;
@@ -163,7 +164,7 @@ namespace cnine{
       CUDA_SAFE(cudaMemcpy(arrg, arr.dir.arr, 2*arr.size()*sizeof(int),cudaMemcpyHostToDevice));  
       CUDA_SAFE(cudaMemcpy(arrg+2*arr.size(), arr.arr, arr.get_tail()*sizeof(int),cudaMemcpyHostToDevice));  
     }
-
+    */
 
   public: // ---- Access -------------------------------------------------------------------------------------
 

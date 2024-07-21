@@ -67,6 +67,17 @@ namespace cnine{
     return R;
   }
 
+  template<typename ARG1, typename ARG2, typename RESULT>
+  inline std::vector<RESULT> mapcar(const std::vector<ARG1>& x1, const std::vector<ARG2>& x2, 
+    const std::function<RESULT(const ARG1&, const ARG2&)> lambda){
+    CNINE_ASSRT(x1.size()==x2.size());
+    std::vector<RESULT> R;
+    int N=x1.size();
+    for(int i=0; i<N; i++)
+      R.push_back(lambda(x1[i],x2[i]));
+    return R;
+  }
+
 
   // ---- Printing -------------------------------------------------------------------------------------------
 

@@ -55,6 +55,10 @@ namespace cnine{
       return *obj[i];
     }
 
+    void push_back(const shared_ptr<OBJ>& x){
+      obj.push_back(x);
+    }
+
 
   public: // ---- Lambdas ------------------------------------------------------------------------------------
 
@@ -83,6 +87,7 @@ namespace cnine{
     }
 
     string repr() const{
+      return "<object_pack_s<"+OBJ::classname()+">(N="+to_string(size())+">";
     }
 
     string str(const string indent="") const{
