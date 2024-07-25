@@ -96,6 +96,9 @@ namespace cnine{
 	(*this)[i]=x[i];
     }
 
+    GstridesB(const vector<size_t>& x):
+      vector<size_t>(x){}
+
 
 #ifdef _WITH_ATEN
     GstridesB(const at::Tensor& T):
@@ -111,6 +114,11 @@ namespace cnine{
     size_t operator()(const int i) const{
       if(i<0) return (*this)[size()+i];
       return (*this)[i];
+    }
+
+    GstridesB& set(const int i, const int x){
+      (*this)[i]=x;
+      return *this;
     }
 
     size_t back(const int i=0) const{
@@ -285,6 +293,9 @@ namespace cnine{
       return R;//.set_offset(offset);
     }
     
+    GstridesB remove(const vector<int>& v){
+      return cnine::except(*this,v);
+    }
 
     GstridesB insert(const int d, const int x) const{
       GstridesB r(size()+1,fill_raw());

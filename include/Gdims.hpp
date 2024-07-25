@@ -377,7 +377,12 @@ namespace cnine{
 	R[i]+=y[i];
       return R;
     }
-      
+
+    Gdims remove(const vector<int>& v){
+      return cnine::except(*this,v);
+    }
+
+
   public:
 
     Gdims Mprod(const Gdims& y) const{

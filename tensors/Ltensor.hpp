@@ -83,6 +83,9 @@ namespace cnine{
     Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims):
       BASE(_arr,_dims,GstridesB(_dims)){}
 
+    Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const Gstrides& _strides):
+      BASE(_arr,_dims,_strides){}
+
     Ltensor(TYPE* _arr, const Gdims& _dims, const int _dev=0):
       Ltensor(MemArr<TYPE>(_arr,_dev),_dims){}
 
@@ -262,6 +265,14 @@ namespace cnine{
     Ltensor like(TYPE* _arr) const{
       FNTRACE();
       return Ltensor(_arr,dims,dev);
+    }
+
+    void reset(const Ltensor& x){
+      arr=x.arr;
+      dims=x.dims;
+      strides=x.strides;
+      dev=x.dev;
+      labels=x.labels;
     }
 
 
@@ -532,6 +543,50 @@ namespace cnine{
       Ltensor R=zeros_like();
       R.add_ReLU(*this,alpha);
       return R;
+    }
+
+
+  public: // ---- Index manipulations -----------------------------------------------------------------------
+
+
+    Ltensor diag(const vector<int>& ix){
+      CNINE_ASSRT(ix.size()>0);
+      CNINE_ASSRT(ix[0]<dims.size());
+      int n=dims[ix[0]];
+      int s=strides[ix[0]];
+      for(int i=1; i<ix.size(); i++){
+	CNINE_ASSRT(ix[i]<dims.size());
+	CNINE_ASSRT(dims[ix[i]]==n);
+	s+=strides[ix[i]];
+      }
+      vector<int> ix0(ix.begin()+1,ix.end());
+      return Ltensor(arr,dims.remove(ix0),strides.remove(ix0).set(ix[0],s));
+    }
+
+    Ltensor diag_slice(const vector<int>& ix, const int i){
+      CNINE_ASSRT(ix.size()>0);
+      CNINE_ASSRT(ix[0]<dims.size());
+      CNINE_ASSRT(i<dims[ix[0]]);
+      int n=dims[ix[0]];
+      int s=0;
+      for(int j=0; j<ix.size(); j++){
+	CNINE_ASSRT(ix[j]<ndims());
+	CNINE_ASSRT(dims[ix[j]]==n);
+	s+=strides[ix[j]];
+      }
+      return Ltensor(arr+s,dims.remove(ix),strides.remove(ix));
+    }
+
+    Ltensor reduce(const vector<int>& ix){
+      return diag(ix).sum(ix[0]);
+    }
+
+    void broadcast_to_diagonal(const vector<int>& ix, const Ltensor& x){
+      if(ix.size()==0) return;
+      CNINE_ASSRT(ix[0]<dims.size());
+      int n=dims[ix[0]];
+      for(int i=0; i<n; i++)
+	diag_slice(ix,i)+=x;
     }
 
 

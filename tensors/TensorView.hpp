@@ -1407,9 +1407,9 @@ namespace cnine{
 	for(int i=0; i<asize(); i++)
 	  if(abs(arr[i])>t) t=abs(arr[i]);
       }else{
-	CNINE_UNIMPL()
-	//for_each([&](const Gindex& ix, TYPE& v){
-	//  if(abs(v)>t) t=abs(v);});
+	//CNINE_UNIMPL()
+	for_each([&](const Gindex& ix, TYPE& v){
+	    if(abs(v)>t) t=abs(v);});
       }
       return t; 
     }

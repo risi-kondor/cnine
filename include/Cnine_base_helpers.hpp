@@ -78,6 +78,28 @@ namespace cnine{
     return R;
   }
 
+  template<typename TYPE>
+  inline vector<TYPE> except(const vector<TYPE>& x, const vector<int>& ix){
+    int N=x.size();
+    int n=ix.size();
+
+    vector<TYPE> R(N-n);
+    int last=0;
+    auto beg=x.begin(); 
+    auto tail=R.begin();
+    for(int i=0; i<ix.size(); i++){
+      CNINE_ASSRT(ix[i]<N);
+      int len=ix[i]-last;
+      std::copy(beg,beg+len,tail);
+      beg+=len+1;
+      tail+=len;
+      last=ix[i]+1;
+    }
+    if(last<N)
+      std::copy(beg,x.end(),tail);
+    return R;
+  }
+
 
   // ---- Printing -------------------------------------------------------------------------------------------
 

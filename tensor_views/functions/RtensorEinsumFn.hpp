@@ -51,7 +51,7 @@ namespace cnine{
 
 	if(xstr.find(c)==string::npos && ystr.find(c)==string::npos){ // broadcast case
 	  bstrides.push_back(rindices);
-	}else{ // sirect case
+	}else{ // direct case
 	  dstrides.push_back(triple<vector<int> >(rindices,find_all(xstr,c),find_all(ystr,c)));
 	}
       }
