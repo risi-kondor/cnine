@@ -1,13 +1,10 @@
 EIGENDIR=/usr/local/include
 
-ROOTDIR=../../../../
+ROOTDIR=../../../
 include $(ROOTDIR)/common.txt
 
-INCLUDE= -I$(INCLUDEDIR) -I$(COMBIDIR) -I$(CONTAINERSDIR) -I$(MATHDIR) -I$(WRAPPERSDIR)  
-INCLUDE+= -I$(SCALARDIR) -I$(MATRIXDIR) 
-INCLUDE+= -I$(TENSORDIR) -I$(NTENSORDIR) -I$(NTENSORDIR)/functions  
-INCLUDE+= -I$(TENSORVIEWDIR) -I$(TENSORVIEWDIR)/functions 
-INCLUDE+= -I$(BACKENDADIR) -I$(LABELEDDIR)
+INCLUDE= $(CNINE_INCLUDES)
+INCLUDE+= $(CENGINE_INCLUDES)
 
 TESTS=$(patsubst %.cpp,%,$(wildcard *.cpp))
 
@@ -32,7 +29,7 @@ $(TESTS): %: %.cpp
 ifdef WITH_CUDA
 	$(NVCC) $(NVCCFLAGS) -o $@ $@.cpp $(CUDA_EXTERNS) $(CUDA_OBJECTS) $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 else
-	$(CC) -o $@ $@.cpp $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
+	$(CC) -o $@ $@.cpp ../*.o $(CFLAGS) $(MACROS) $(INCLUDE) $(LIBS) 
 endif
 
 

@@ -14,7 +14,7 @@
 
 #include "Cnine_base.cpp"
 #include "CnineSession.hpp"
-#include "LtensorEinsum.hpp"
+#include "LtensorEinsum1.hpp"
 
 using namespace cnine;
 
@@ -28,8 +28,14 @@ int main(int argc, char** argv){
   Ltensor<float> A(dims(3,3,3),filltype=3);
   cout<<A<<endl;
 
-  LtensorEinsum R("aabdedee->bcqqq");
+  LtensorEinsum1 R("abc->abc");
+  cout<<R(A)<<endl;
 
+  while(true){
+    string str;
+    getline(cin,str);
+    cout<<LtensorEinsum1(str)(A)<<endl;
+  }
 
   //auto B=R(A);
   //cout<<B<<endl;

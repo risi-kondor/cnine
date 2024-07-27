@@ -21,133 +21,90 @@
 namespace cnine{
 
 
-  class shrink_map{
-  public:
-
-    vector<int> map;
-
-    shrink_map(const vector<int>& ix, const int n):
-      map(n){
-      int tail=0;
-      for(int i=0; i<ix.size(); i++){
-	CNINE_ASSRT(ix[i]<n);
-	for(int j=tail; j<ix[i]; j++)
-	  map[j]=j-i;
-	map[ix[i]]=-1;
-	tail=ix[i]+1;
-      }
-      for(int j=tail; j<n; j++)
-	map[j]=j-ix.size();
-    }
-
-    vector<int> operator()(const vector<int>& x){
-      int N=x.size();
-      vector<int> R(x.size());
-      for(int i=0; i<N; i++){
-	CNINE_ASSRT(R[i]<map.size());
-	R[i]=map[R[i]];
-      }
-      return R;
-    }
-
-    void shrink(vector<int>& x){
-      for(auto& p:x){
-	CNINE_ASSRT(p<map.size());
-	p=map[p];
-      }
-    }
-
-  };
-
-
-
-  //template<typename TYPE>
   class LtensorEinsum{
   public:
 
-    vector<vector<vector<int> > > sindices; // each input is independently reduces along these diagonals
-    vector<vector<int> > bindices; // the output is broadcast along these diagonals
+    int nargs=0;
+    vector<vector<vector<int> > > diagonals;
+    vector<vector<int> > remaps;
+    vector<vector<int> > summations;
+    vector<int> rdims;
 
-    vector<vector<vector<int> > > dstrides;
-
-
+    
     LtensorEinsum(const string str){
+
+      vector<string> arg_str; 
 
       auto dout=str.find("->");
       if(dout==string::npos){
 	COUT("Error in LtensorEinsum: malformed einsum string");
 	return;
       }
-      auto args_str=str.substr(0,dout);
-      auto rstr=str.substr(dout+2,string::npos);
+      arg_str.push_back(str.substr(dout+2,string::npos));
+      auto rest=str.substr(0,dout);
 
-      vector<string> args; 
       int last=0;
-      auto p=args_str.find_first_of(',');
+      auto p=rest.find_first_of(',');
       while(p!=string::npos){
-	args.push_back(str.substr(last,p));
+	arg_str.push_back(rest.substr(last,p));
 	last=p+1;
-	p=args_str.find_first_of(',',last);
+	p=rest.find_first_of(',',last);
       }
-      args.push_back(args_str.substr(last,string::npos));
+      arg_str.push_back(rest.substr(last,string::npos));
+      nargs=arg_str.size()-1;
 
-      for(int i=0; i<args.size(); i++)
-	cout<<"arg"<<i<<": "<<args[i]<<endl;
-      cout<<"out:  "<<rstr<<endl;
+      for(int i=0; i<nargs; i++)
+	cout<<"arg"<<i<<": "<<arg_str[i+1]<<endl;
+      cout<<"out:  "<<arg_str[0]<<endl;
 
-      // Find broadcast indices
-      while(true){
-	auto p=rstr.find_first_not_of('x');
-	if(p==string::npos) break;
-	char c=rstr[p];
-	auto rstrides=find_all(rstr,c);
-
-	if([&](){for(auto& p:args) if (p.find(c)!=string::npos) return true; return false;}()){
-	  vector<vector<int> > directs;
-	  directs.push_back(rstrides);
-	  for(auto& p:args)
-	    directs.push_back(find_all(p,c));
-	  dstrides.push_back(directs);
-	}else{
-	  bindices.push_back(rstrides);
-	}	  
-      }
-
-      // Find summation indices
-      for(int i=0; i<args.size(); i++){
-	vector<vector<int> > v;
-	while(true){
-	  auto p=args[i].find_first_not_of('x');
-	  if(p==string::npos) break;
-	  char c=args[i][p];
-	  v.push_back(find_all(args[i],c));
+      for(int j=0; j<nargs+1; j++){
+	vector<vector<int> > diags; 
+	auto& s=arg_str[j];
+	for(int i=0; i<s.size(); i++){
+	  char c=s[i];
+	  if(s.find(c,i+1)!=string::npos){
+	    auto v=find_all(s,c);
+	    s=except(s,vector<int>(v.begin()+1,v.end()));
+	    diags.push_back(v);
+	  }
 	}
-	sindices.push_back(v);
+	diagonals.push_back(diags);
       }
 
+      auto& r_str=arg_str[0];
+      for(int j=0; j<nargs; j++){
+	auto& s=arg_str[j+1];
+	vector<int> remap;
+	vector<int> sums;
+	int retard=0
+	for(int i=0; i<s.size(); i++){
+	  auto f=r_str.find(s[i]);
+	  if(f!=string::npos)
+	    remap.push_back(f);
+	  else
+	    sums.push_back[i-(retard++)];
+	}
+	remaps.push_back(remap);
+	summations.push_back(sums);
+      }
+
+      //rdims=vector<int>(diagona)
       
       if(true){
-	cout<<"Direct:"<<endl;
-	for(auto& p:dstrides){
-	  for(int i=0; i<p.size(); i++){
-	    cout<<p[i];
-	    if(i==0) cout<<"<-";
-	    if(i>0 && i<p.size()-1) cout<<",";
-	  }
-	  cout<<endl;
-	}
-	cout<<"Sum:"<<endl;
-	for(auto& p:sindices){
+	cout<<"Diags:"<<endl;
+	for(auto& p:diagonals){
 	  for(int i=0; i<p.size(); i++){
 	    cout<<p[i];
 	    if(i>0 && i<p.size()-1) cout<<",";
 	  }
 	  cout<<endl;
 	}
-	cout<<"Broadcast:"<<endl;
-	for(auto& p:bindices){
-	  cout<<p<<endl;
-	}
+	cout<<"Summations:"<<endl;
+	for(int i=0; i<summations.size(); i++)
+	  cout<<summations[i]<<endl;
+	cout<<"Remappings:"<<endl;
+	for(int i=0; i<remaps.size(); i++)
+	  cout<<remaps[i]<<endl;
       }
       
     }
@@ -155,34 +112,57 @@ namespace cnine{
       
   private:
 
-    inline vector<int> find_all(string& str, const char c) const{
+    inline vector<int> find_all(const string& str, const char c) const{
       vector<int> r;
-      auto p=str.find_first_of(c);
-      while(p!=string::npos){
-	str.replace(p,1,1,'x');
-	r.push_back(p);
-	p=str.find_first_of(c);
-      }
+      for(int i=0; i<str.size(); i++)
+	if(str[i]==c) r.push_back(i);
       return r;
     }
+
+    string except(string& s, vector<int> v) const{
+      string r;
+      int tail=0;
+      for(int i=0; i<v.size(); i++){
+	r.append(s.begin()+tail,s.begin()+v[i]);
+	tail=v[i]+1;
+      }
+      return r.append(s.begin()+tail,s.end());
+    }
+
 
   public:
 
     template<typename TYPE>
     Ltensor<TYPE> operator()(const Ltensor<TYPE>& _x){
-      Ltensor<TYPE> x(_x);
-
-      for(int i=0; i<sindices.size(); i++){
-	auto& p=sindices[i];
-	x.reset(x.diag(p[0]).sum(p[0][0]));
-	for(int a=i+1; a<sindices.size(); a++)
-	  for(int b=1; b<p[0].size(); b++)
-	    for(int c=0; c<sindices[a][0].size(); b++)
-	     if(sindices[a][0][c]>p[0][b]) sindices[a][0][c]--;
-      }
-
+      CNINE_ASSRT(nargs==1);
+      auto x=diag(_x,diagonals[1]);
       return x;
     }
+
+
+      
+    template<typename TYPE>
+    void add_to(Ltensor<TYPE>& R, const Ltensor<TYPE>& _x){
+
+     Ltensor<TYPE> x=_x;
+     for(auto& p:diagonals[1])
+       x.reset(x.diag(p));
+
+     for(auto& p:summations[1])
+       x.reset(x.sum(p));
+
+     auto& bcast=summations[0];
+     for(int i=bcast.size()-1; i>=0; i--)
+       x.reset(x.broadcast_explicit(bcast[i],3));
+     
+     Ltensor<TYPE> r(R);
+     for(auto& p:diagonals[0])
+       r.reset(r.diag(p));
+
+     r+=x;
+    }
+      
+
 
 
   private: // -----------------------------------------------------------------------------------------------
@@ -223,3 +203,69 @@ namespace cnine{
 }
 
 #endif 
+
+/*
+  class shrink_map{
+  public:
+
+    vector<int> map;
+
+    shrink_map(const vector<int>& ix, const int n):
+      map(n){
+      int tail=0;
+      for(int i=0; i<ix.size(); i++){
+	CNINE_ASSRT(ix[i]<n);
+	for(int j=tail; j<ix[i]; j++)
+	  map[j]=j-i;
+	map[ix[i]]=-1;
+	tail=ix[i]+1;
+      }
+      for(int j=tail; j<n; j++)
+	map[j]=j-ix.size();
+    }
+
+    vector<int> operator()(const vector<int>& x){
+      int N=x.size();
+      vector<int> R(x.size());
+      for(int i=0; i<N; i++){
+	CNINE_ASSRT(R[i]<map.size());
+	R[i]=map[R[i]];
+      }
+      return R;
+    }
+
+    void shrink(vector<int>& x){
+      for(auto& p:x){
+	CNINE_ASSRT(p<map.size());
+	p=map[p];
+      }
+    }
+
+  };
+*/
+  /*
+    template<typename TYPE>
+    Ltensor<TYPE> operator()(const Ltensor<TYPE>& _x){
+      Ltensor<TYPE> x(_x);
+
+      for(int i=0; i<sindices.size(); i++){
+	auto& p=sindices[i];
+	x.reset(x.diag(p[0]).sum(p[0][0]));
+	for(int a=i+1; a<sindices.size(); a++)
+	  for(int b=1; b<p[0].size(); b++)
+	    for(int c=0; c<sindices[a][0].size(); b++)
+	     if(sindices[a][0][c]>p[0][b]) sindices[a][0][c]--;
+      }
+
+      return x;
+    }
+  */
+    /*
+    template<typename TYPE>
+    Ltensor<TYPE> diag(const Ltensor<TYPE>& _x, const vector<vector<int> >& diags){
+      Ltensor<TYPE> x=_x;
+      for(auto& p:diags)
+	x.reset(x.diag(p));
+      return x;
+    }
+    */

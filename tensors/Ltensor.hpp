@@ -83,7 +83,7 @@ namespace cnine{
     Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims):
       BASE(_arr,_dims,GstridesB(_dims)){}
 
-    Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const Gstrides& _strides):
+    Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides):
       BASE(_arr,_dims,_strides){}
 
     Ltensor(TYPE* _arr, const Gdims& _dims, const int _dev=0):
@@ -563,6 +563,17 @@ namespace cnine{
       return Ltensor(arr,dims.remove(ix0),strides.remove(ix0).set(ix[0],s));
     }
 
+    Ltensor broadcast(const int d, const int n){
+      return Ltensor(arr,dims.insert(d,n),strides.insert(d,0));
+    }
+
+    Ltensor broadcast_explicit(const int d, const int n){
+      Ltensor R(dims.insert(d,n));
+      R.add_broadcast(d,*this);
+      return R;
+    }
+
+    /*
     Ltensor diag_slice(const vector<int>& ix, const int i){
       CNINE_ASSRT(ix.size()>0);
       CNINE_ASSRT(ix[0]<dims.size());
@@ -588,7 +599,7 @@ namespace cnine{
       for(int i=0; i<n; i++)
 	diag_slice(ix,i)+=x;
     }
-
+    */
 
   public: // ---- Stacking ----------------------------------------------------------------------------------
 
