@@ -662,7 +662,7 @@ namespace cnine{
     //} 
 
     TYPE* get_arr() const{
-      return arr.get_arr();
+      return const_cast<TYPE*>(arr.get_arr());
     } 
 
     //TYPE* get_arro(){
@@ -1068,7 +1068,8 @@ namespace cnine{
       if(dev==1){
 	if(is_regular() && x.is_regular() && strides==x.strides){
 	  const float alpha=1.0; // todo
-	  CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
+	  if constexpr(std::is_same<TYPE,complex<float> >::value)
+	    CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
 	}else{
 	  if(ndims()<=3){
 	    if(ndims()==1) view1().add(x.view1());
