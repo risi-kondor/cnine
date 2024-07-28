@@ -657,11 +657,11 @@ namespace cnine{
     //return arr.get_arr();
     //} 
 
-    const TYPE* get_arr() const{
-      return arr.get_arr();
-    } 
+    //const TYPE* get_arr() const{
+    //return arr.get_arr();
+    //} 
 
-    TYPE* get_arr(){
+    TYPE* get_arr() const{
       return arr.get_arr();
     } 
 
