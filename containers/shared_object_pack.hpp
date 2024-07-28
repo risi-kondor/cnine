@@ -100,6 +100,7 @@ namespace cnine{
     }
 
     string repr() const{
+      return "shared_object_pack";
     }
 
     string str(const string indent="") const{

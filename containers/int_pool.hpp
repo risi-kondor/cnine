@@ -67,7 +67,7 @@ namespace cnine{
       if(dev==0 &&_dev==1){
 	int* arrg=nullptr;
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(int)));
-	CUDA_SAFE(cudaMemcpy(arrg,arr,memsize()*sizeof(int),cudaMemcpyHostToDevice));
+	CUDA_SAFE(cudaMemcpy(arrg,arr,memsize*sizeof(int),cudaMemcpyHostToDevice));
 	delete[] arr;
 	arr=arrg;
 	dev=1;

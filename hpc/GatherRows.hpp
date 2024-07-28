@@ -120,7 +120,7 @@ namespace cnine{
 	gmaps.sort();
 	fnlog timer("GatherRows::operator_pack()(G)");
 	//logged_timer ptimer("GatherRows(GPU)",r,x,((long long)g.n_ops())*x.n1);
-	CUDA_STREAM(gatherRows_cu(r,x,g,stream));
+	//CUDA_STREAM(gatherRows_cu(r,x,g,stream));
       }
     }
 
@@ -154,7 +154,7 @@ namespace cnine{
 	g.sort();
 	fnlog timer("GatherRows::weighted()(G)");
 	//logged_timer ptimer("GatherRows::weighted(GPU)",r,x,((long long)g.n_ops())*x.n1);
-	CUDA_STREAM(gatherRowsw_cu(r,x,g,stream));
+	//CUDA_STREAM(gatherRowsw_cu(r,x,g,stream));
       }
     }
 
