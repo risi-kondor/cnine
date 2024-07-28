@@ -265,7 +265,7 @@ namespace cnine{
       for_each([&](const int i, const int j, const float v){
 	  //inv_map[j].push_back(make_pair(i,v));
 	  inv_map[j].push_back(i);
-	  inv_map[j].push_back(reinterpret_cast<const int&>(v));
+	  inv_map[j].push_back(*reinterpret_cast<const int*>(&v));
 	  total+=2;
 	});
       WeightedGatherMapB* r=new WeightedGatherMapB(n_in,n_out);

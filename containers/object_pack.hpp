@@ -83,6 +83,7 @@ namespace cnine{
     }
 
     string repr() const{
+      return "object_pack";
     }
 
     string str(const string indent="") const{
