@@ -378,7 +378,7 @@ namespace cnine{
       return R;
     }
 
-    Gdims remove(const vector<int>& v){
+    Gdims remove(const vector<int>& v) const{
       return cnine::except(*this,v);
     }
 

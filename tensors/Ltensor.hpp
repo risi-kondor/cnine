@@ -546,10 +546,39 @@ namespace cnine{
     }
 
 
+  public: // ---- Rows and columns --------------------------------------------------------------------------
+
+
+    Ltensor row(const int i) const{
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(i<dims[0]);
+      return Ltensor(arr+strides[0]*i,{dims[1]},{strides[1]});
+    }
+
+    Ltensor rows(const int i, const int n) const{
+      CNINE_ASSRT(ndims()==2);
+      CNINE_ASSRT(i+n<=dims[0]);
+      return Ltensor(arr+strides[0]*i,{n,dims[1]},{strides[0],strides[1]});
+    }
+
+    Ltensor col(const int i) const{
+      int k=ndims();
+      CNINE_ASSRT(k>0);
+      CNINE_ASSRT(i<dims.back());
+      return Ltensor(arr+strides.back()*i,dims.chunk(0,k-1),strides.chunk(0,k-1));
+    }
+
+    Ltensor cols(const int i, const int n) const{
+      CNINE_ASSRT(ndims()>0);
+      CNINE_ASSRT(i+n<=dims.back());
+      return Ltensor(arr+strides.back()*i,dims.copy().set_back(n),strides);
+    }
+
+
   public: // ---- Index manipulations -----------------------------------------------------------------------
 
 
-    Ltensor diag(const vector<int>& ix){
+    Ltensor diag(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()>0);
       CNINE_ASSRT(ix[0]<dims.size());
       int n=dims[ix[0]];
@@ -571,6 +600,35 @@ namespace cnine{
       Ltensor R(dims.insert(d,n));
       R.add_broadcast(d,*this);
       return R;
+    }
+
+    Ltensor split(const int d, const int a) const{
+      CNINE_ASSRT(ndims()>d);
+      CNINE_ASSRT(dims[d]%a==0);
+      Gdims D=dims.insert(d+1,a); 
+      D[d]/=a;
+      GstridesB s=strides.insert(d,strides[0]*a);
+      return Ltensor(arr,D,s);
+    }
+
+    Ltensor fuse(const vector<int>& ix) const{ // TODO 
+      CNINE_ASSRT(ix.size()>0);
+      CNINE_ASSRT(ix[0]<dims.size());
+      int t=dims[ix[0]];
+      int s=strides[ix[0]];
+      for(int i=1; i<ix.size(); i++){
+	CNINE_ASSRT(ix[i]<dims.size());
+	t*=dims[ix[i]];
+	if(strides[ix[i]]<s) s=strides[ix[i]];
+      }
+      vector<int> ix0(ix.begin()+1,ix.end());
+      return Ltensor(arr,dims.remove(ix0).set(ix[0],t),strides.remove(ix0));
+    }
+
+    Ltensor transp(const int a, const int b) const{
+      CNINE_ASSRT(a<ndims());
+      CNINE_ASSRT(b<ndims());
+      return Ltensor(arr,dims.copy().set(a,dims[b]).set(b,dims[a]),strides.copy().set(a,strides[b]).set(b,strides[a]));
     }
 
     /*

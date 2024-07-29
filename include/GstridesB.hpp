@@ -99,6 +99,9 @@ namespace cnine{
     GstridesB(const vector<size_t>& x):
       vector<size_t>(x){}
 
+    GstridesB copy() const{
+      return GstridesB(*this);
+    }
 
 #ifdef _WITH_ATEN
     GstridesB(const at::Tensor& T):
@@ -293,7 +296,7 @@ namespace cnine{
       return R;//.set_offset(offset);
     }
     
-    GstridesB remove(const vector<int>& v){
+    GstridesB remove(const vector<int>& v) const{
       return cnine::except(*this,v);
     }
 
