@@ -317,7 +317,7 @@ namespace cnine{
       R.set(0,N);
       for(int i=0; i<N; i++)
 	R.set(i+1,N+2+offset(i));
-      R.set(N+1,tail);
+      R.set(N+1,tail+N+2);
       std::copy(arr,arr+tail,R.get_arr()+N+2);
       if(_dev>0) R.move_to_device(_dev);
       return R;
