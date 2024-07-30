@@ -311,7 +311,7 @@ namespace cnine{
 
     template<typename U=TYPE, typename = typename std::enable_if<std::is_same<int, U>::value, U>::type>
     Ltensor<int> to_tensor(const int _dev=0){
-      CNINE_ASSRT(_dev==0);
+      CNINE_ASSRT(dev==0);
       int N=size();
       Ltensor<int> R({N+tail+2});
       R.set(0,N);
