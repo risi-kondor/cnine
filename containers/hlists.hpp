@@ -83,6 +83,10 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
     
 
+    int total() const{
+      return BASE::total()-size();
+    }
+
     int size_of(const int i) const{
       CNINE_ASSRT(i<size());
       return dir(i,1)-1;
@@ -134,6 +138,17 @@ namespace cnine{
       int n=size();
       for(int i=0; i<n; i++)
 	lambda(head(i),(*this)(i));
+    }
+
+    void for_each(const std::function<void(const TYPE, const TYPE)>& lambda) const{
+      int n=size();
+      for(int i=0; i<n; i++){
+	TYPE h=head(i);
+	int offs=dir(i,0)+1;
+	int n=dir(i,1)-1;
+	for(int j=0; j<n; j++)
+	  lambda(h,arr[offs+j]);
+      }
     }
 
     void for_each_of(const int i, std::function<void(const TYPE)> lambda) const{
