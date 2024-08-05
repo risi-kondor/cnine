@@ -39,6 +39,8 @@ jobs:
           environment-file: environment.yml
       - name: Install Missing Developper packages
         run: conda install pytest
+      - name: Setting environment variables
+        run: echo "$CONDA_PREFIX" >> $CUDA_HOME
       - name: Install and build
         run: pip install python/
       - name: Test with pytest
