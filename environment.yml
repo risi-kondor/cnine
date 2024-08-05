@@ -1,0 +1,9 @@
+name: cnine
+channels:
+  - pytorch
+  - nvidia
+  - defaults
+dependencies:
+  - pytorch
+  - pytorch-cuda=12.1
+  - cuda-nvcc
