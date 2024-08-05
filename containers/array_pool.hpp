@@ -584,6 +584,10 @@ namespace cnine{
       return true;
     }
 
+    bool operator!=(const array_pool<TYPE>& y) const{
+      return !((*this)==y);
+    }
+
 
   public: // ---- Specialized --------------------------------------------------------------------------------
 

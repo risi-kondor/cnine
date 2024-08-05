@@ -18,6 +18,7 @@
 #include "Ltensor.hpp"
 #include "map_of_maps.hpp"
 #include "hlists.hpp"
+#include "double_indexed_map.hpp"
 
 
 namespace cnine{
@@ -35,13 +36,13 @@ namespace cnine{
     
     TENSOR arr;
     //map_of_maps<int,int,int> offsets;
-    double_indexed_map<int,int,int> offsets;
+    cnine::double_indexed_map<int,int,int> offsets;
     
 
   public: // ---- Constructors -----------------------------------------------------------------------------
 
 
-    BlockCsparseMatrix(const int _nblocks, const int _mblocks, const int _blockn, const int _blockm){
+    BlockCsparseMatrix(const int _nblocks, const int _mblocks, const int _blockn, const int _blockm):
       nblocks(_nblocks), mblocks(_mblocks), blockn(_blockn), blockm(_blockm){}
 
     BlockCsparseMatrix(const int _nblocks, const int _mblocks, const int _blockn, const int _blockm,
@@ -82,15 +83,15 @@ namespace cnine{
     }
 
     bool is_filled(const int i, const int j){
-      if(rmap.find(i)==rmap.end()) return false;
-      if(rmap[i].find(j)==rmap[i].end()) return false;
+      if(offsets.rmap.find(i)==offsets.rmap.end()) return false;
+      if(offsets.rmap[i].find(j)==offsets.rmap[i].end()) return false;
       return true;
     }
     
     int offset(const int i, const int j){
-      CNINE_ASSRT(rmap.find[i]!=rmap.end());
-      CNINE_ASSRT(rmap[i].find(j)!=rmap[i].end());
-      return rmap[i][j];
+      CNINE_ASSRT(offsets.rmap.find(i)!=offsets.rmap.end());
+      CNINE_ASSRT(offsets.rmap[i].find(j)!=offsets.rmap[i].end());
+      return offsets.rmap[i][j];
     }
 
     TENSOR block(const int i, const int j){
@@ -121,12 +122,12 @@ namespace cnine{
 
     BlockCsparseMatrix operator*(const BlockCsparseMatrix& x){
 
-      BlockCsparseMatrix R();
+      BlockCsparseMatrix R;
       int t=0;
-      for(auto& p1:offests.rmap)
+      for(auto& p1:offsets.rmap)
 	for(auto& p2:x.offsets.cmap){
 	  bool found=0;
-	  for(auto& q1=p1.second)
+	  for(auto& q1:p1.second)
 	    if(p2.second.find(q1.first)!=p2.second::end()){
 	      found=true;
 	      break;
@@ -135,9 +136,9 @@ namespace cnine{
 	}
 
       R.arr.reset(TENSOR(dims(t,blockn,x.blockm),0,get_dev()));
-      for(auto& p1:offests.rmap)
+      for(auto& p1:offsets.rmap)
 	for(auto& p2:x.offsets.cmap)
-	  for(auto& q1=p1.second)
+	  for(auto& q1:p1.second)
 	    if(p2.second.find(q1.first)!=p2.second::end())
 	      R.block(p1.first,p2.first).add_mprod(block(p1.first,q1.first),x.block(q1.first,p2.first));
       return R;

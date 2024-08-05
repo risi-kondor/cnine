@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef _CnineMapOfMaps
-#define _CnineMapOfMaps
+#ifndef _cnine_double_indexed_map
+#define _cnine_double_indexed_map
 
 #include "Cnine_base.hpp"
 #include <map>
@@ -93,7 +93,7 @@ namespace cnine{
 
 
     void for_each(const std::function<void(const KEY1&, const KEY2&, const TYPE&)>& lambda) const{
-      for(auto& p:data)
+      for(auto& p:rmap)
 	for(auto& q:p.second)
 	  lambda(p.first,q.first,q.second);
     }

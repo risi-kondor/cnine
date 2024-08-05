@@ -602,6 +602,13 @@ namespace cnine{
       return R;
     }
 
+    Ltensor unsqueeze(const int d) const{
+      CNINE_ASSRT(d<ndims());
+      Gdims D=dims.insert(d,1); 
+      GstridesB S=strides.insert(d,strides[d]);
+      return Ltensor(arr,D,S);
+    }
+
     Ltensor split(const int d, const int a) const{
       CNINE_ASSRT(ndims()>d);
       CNINE_ASSRT(dims[d]%a==0);
@@ -623,6 +630,10 @@ namespace cnine{
       }
       vector<int> ix0(ix.begin()+1,ix.end());
       return Ltensor(arr,dims.remove(ix0).set(ix[0],t),strides.remove(ix0));
+    }
+
+    Ltensor transp() const{
+      return BASE::transp();
     }
 
     Ltensor transp(const int a, const int b) const{
