@@ -1,6 +1,6 @@
 # Runs all the Python SDK tests within the `tests/` directory to check our code
 
-name: CI Tests
+name: CI Tests with CPU build
 permissions: read-all
 
 on:
@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pytest:
+  pytest-cpu:
     name: pytest (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     defaults:
