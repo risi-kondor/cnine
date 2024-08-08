@@ -1,0 +1,56 @@
+# Runs all the Python SDK tests within the `tests/` directory to check our code
+
+name: CI Tests
+permissions: read-all
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  # github.workflow: name of the workflow
+  # github.event.pull_request.number || github.ref: pull request number or branch name if not a pull request
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
+  # Cancel in-progress runs when a new workflow with the same group name is triggered
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    name: pytest (${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.11"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          environment-file: environment-gpu.yml
+          activate-environment: cnine
+      - name: Install Missing Developper packages
+        # We use pip here, since conda isn't very happy with the total env, but it works...
+        run: pip install pytest
+      - name: Install and build
+        run: |
+          export WITH_CUDA=True
+          export CUDA_HOME=$CONDA_PREFIX
+          # Pretending we have a CUDA capable card on the runner
+          export TORCH_CUDA_ARCH_LIST="7.5"
+          pip install python/
+      - name: Test with pytest
+        run: pytest python/tests
