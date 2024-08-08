@@ -57,18 +57,21 @@ def main():
      ]
 
  _cxx_compile_args=['-std=c++17',
-                    '-Wno-sign-compare',
-                    '-Wno-deprecated-declarations',
-                    '-Wno-unused-variable',
-                    '-Wno-unused-but-set-variable',
-                    '-Wno-reorder',
-                    '-Wno-reorder-ctor',
                     '-D_WITH_ATEN',
                     '-DCNINE_RANGE_CHECKING',
                     '-DCNINE_SIZE_CHECKING',
                     '-DCNINE_DEVICE_CHECKING',
                     '-DWITH_FAKE_GRAD'
                    ]
+# Adding compiler spcific flags
+if os.name == "posix":
+ _cxx_compile_args += ['-Wno-sign-compare',
+                       '-Wno-deprecated-declarations',
+                       '-Wno-unused-variable',
+                       '-Wno-unused-but-set-variable',
+                       '-Wno-reorder',
+                       '-Wno-reorder-ctor',
+                       ]
 
  if copy_warnings:
      _cxx_compile_args.extend([
