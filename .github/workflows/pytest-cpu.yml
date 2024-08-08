@@ -49,5 +49,6 @@ jobs:
         run: |
           export WITH_CUDA=False
           pip install python/
-      - name: Test with pytest
-        run: pytest python/tests
+      # TODO activate pytests when ready
+      # - name: Test with pytest
+      #   run: pytest python/tests

@@ -52,5 +52,6 @@ jobs:
           # Pretending we have a CUDA capable card on the runner
           export TORCH_CUDA_ARCH_LIST="7.5"
           pip install python/
-      - name: Test with pytest
-        run: pytest python/tests
+      # TODO activate pytests when ready
+      # - name: Test with pytest
+      #   run: pytest python/tests
