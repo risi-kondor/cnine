@@ -63,15 +63,15 @@ def main():
                     '-DCNINE_DEVICE_CHECKING',
                     '-DWITH_FAKE_GRAD'
                    ]
-# Adding compiler spcific flags
-if os.name == "posix":
- _cxx_compile_args += ['-Wno-sign-compare',
-                       '-Wno-deprecated-declarations',
-                       '-Wno-unused-variable',
-                       '-Wno-unused-but-set-variable',
-                       '-Wno-reorder',
-                       '-Wno-reorder-ctor',
-                       ]
+ # Adding compiler spcific flags
+ if os.name == "posix":
+  _cxx_compile_args += ['-Wno-sign-compare',
+                        '-Wno-deprecated-declarations',
+                        '-Wno-unused-variable',
+                        '-Wno-unused-but-set-variable',
+                        '-Wno-reorder',
+                        '-Wno-reorder-ctor',
+                        ]
 
  if copy_warnings:
      _cxx_compile_args.extend([
