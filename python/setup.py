@@ -11,10 +11,10 @@ def main():
  # --- User settings ------------------------------------------------------------------------------------------
 
 
- compile_with_cuda=os.environ("WITH_CUDA", False)
+ compile_with_cuda=os.environ.get("WITH_CUDA", False)
 
- copy_warnings=os.environ("COPY_WARNING", False)
- torch_convert_warnings=os.environ("TORCH_CONVERT_WARNINGS", False)
+ copy_warnings=os.environ.get("COPY_WARNING", False)
+ torch_convert_warnings=os.environ.get("TORCH_CONVERT_WARNINGS", False)
 
 
  # ------------------------------------------------------------------------------------------------------------
