@@ -1,20 +1,20 @@
 import sys,os
-import torch 
+import torch
 from setuptools import setup
 from setuptools import find_packages
 from torch.utils.cpp_extension import CppExtension, BuildExtension, CUDAExtension
-import time 
+import time
 from glob import glob
 
 def main():
-    
+
  # --- User settings ------------------------------------------------------------------------------------------
 
 
- compile_with_cuda=False
+ compile_with_cuda=os.environ.get("WITH_CUDA", False)
 
- copy_warnings=False
- torch_convert_warnings=False
+ copy_warnings=os.environ.get("COPY_WARNING", False)
+ torch_convert_warnings=os.environ.get("TORCH_CONVERT_WARNINGS", False)
 
 
  # ------------------------------------------------------------------------------------------------------------
@@ -57,18 +57,21 @@ def main():
      ]
 
  _cxx_compile_args=['-std=c++17',
-                    '-Wno-sign-compare',
-                    '-Wno-deprecated-declarations',
-                    '-Wno-unused-variable',
-                    '-Wno-unused-but-set-variable',
-                    '-Wno-reorder',
-                    '-Wno-reorder-ctor',
                     '-D_WITH_ATEN',
                     '-DCNINE_RANGE_CHECKING',
                     '-DCNINE_SIZE_CHECKING',
                     '-DCNINE_DEVICE_CHECKING',
                     '-DWITH_FAKE_GRAD'
                    ]
+ # Adding compiler spcific flags
+ if os.name == "posix":
+  _cxx_compile_args += ['-Wno-sign-compare',
+                        '-Wno-deprecated-declarations',
+                        '-Wno-unused-variable',
+                        '-Wno-unused-but-set-variable',
+                        '-Wno-reorder',
+                        '-Wno-reorder-ctor',
+                        ]
 
  if copy_warnings:
      _cxx_compile_args.extend([
@@ -116,7 +119,7 @@ def main():
                                     'nvcc': _nvcc_compile_args,
                                     'cxx': _cxx_compile_args},
                                 depends=_depends,
-                                )] 
+                                )]
  else:
      ext_modules=[CppExtension('cnine_base',
                                ['bindings/cnine_py.cpp'],
@@ -144,7 +147,7 @@ if __name__ == "__main__":
 print("Compilation finished:",time.ctime(time.time()))
 
 
-#os.environ['CUDA_HOME']='/usr/local/cuda' #doesn't work, need explicit export 
+#os.environ['CUDA_HOME']='/usr/local/cuda' #doesn't work, need explicit export
 #os.environ["CC"] = "clang"
 #CUDA_HOME='/usr/local/cuda'
 #print(torch.cuda.is_available())
