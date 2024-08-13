@@ -16,24 +16,11 @@
 #define _CnineLtensorEinsum1
 
 #include "Ltensor.hpp"
+#include "EinsumParams.hpp"
 
 
 namespace cnine{
 
-
-  struct EsumParams{
-  public:
-
-    int ddims[4];
-    int xstride_d[4];
-    int rstride_d[4];
-
-    int sdims[4];
-    int xstride_s[4];
-
-    int bdims[4];
-    int rstride_b[4];
-  };
 
   extern void LtensorEinsum1loops(int d, int r , int b, float* R, const float* x, const EsumParams& params);
 
@@ -41,14 +28,75 @@ namespace cnine{
   class LtensorEinsum1{
   public:
 
-    vector<pair<vector<int>,vector<int> > > dstrides;
-    vector<vector<int> > sstrides;
-    vector<vector<int> > bstrides;
-    vector<int> r_ids;
-    vector<int> x_ids;
-    vector<int> bcast_ids;
-    int id_tail=0;
+    EinsumForm1 form;
 
+    LtensorEinsum1(const string str):
+      form(str){}
+
+    template<typename TYPE>
+    Ltensor<TYPE> operator()(const Ltensor<TYPE>& x, vector<int> rdims={}){
+      CNINE_ASSRT(rdims.size()==form.bcast_ids.size());
+      
+      vector<int> dimensions(id_tail,-1);
+      for(int i=0; i<form.x_ids.size(); i++){
+	if(dimensions[form.x_ids[i]]==-1)
+	  dimensions[form.x_ids[i]]=x.dims[i];
+	else
+	  CNINE_ASSRT(dimensions[form.x_ids[i]]==x.dims[i]);
+      }
+
+      for(int i=0; i<form.bcast_ids.size(); i++)
+	dimensions[form.bcast_ids[i]]=rdims[i];
+
+      auto r_dims=mapcar<int,int>(form.r_ids,[&](const int& id){return dimensions[id];});
+      Ltensor<TYPE> R(r_dims,0,x.get_dev());
+      add_einsum(R,x,form);
+      return R;
+    }
+      
+
+    template<typename TYPE>
+    void add_einsum(const Ltensor<TYPE>& r, const Ltensor<TYPE>& x, const EinsumForm1& form){
+
+      if(!r.strides.is_decreasing()||!x.strides.is_decreasing())
+	add_einsum(r.with_descreasing_strides(),x.with_decreasing_strides(),
+	  form.permute(r.strides.decreasing_ordering(),x.strides.decreasing_ordering()));
+
+      auto& transfer_indices=form.transfer_indices;
+      auto& summation_indices=form.summation_indices;
+      auto& broadcast_indices=form.broadcast_indices;
+
+      CNINE_ASSRT(transfer_indices.size()<=4);
+      CNINE_ASSRT(summation_indices.size()<=4);
+      CNINE_ASSRT(broadcast_indices.size()<=4);
+
+      EsumParams params;
+      for(int i=0; i<transfer_indices.size(); i++){
+	params.ddims[i]=r.dims[transfer_indices[i].first[0]];
+	params.rstride_d[i]=r.strides.combine(transfer_indices[i].first);
+	params.xstride_d[i]=x.strides.combine(transfer_indices[i].second);
+      }
+      for(int i=0; i<summation_indices.size(); i++){
+	params.sdims[i]=x.dims[summation_indices[i][0]];
+	params.xstride_s[i]=x.strides.combine(summation_indices[i]);
+      }
+      for(int i=0; i<broadcast_indices.size(); i++){
+	params.bdims[i]=r.dims[broadcast_indices[i][0]];
+	params.rstride_b[i]=r.strides.combine(broadcast_indices[i]);
+      }
+
+      LtensorEinsum1loops(transfer_indices.size(),summation_indices.size(),broadcast_indices.size(),const_cast<TYPE*>(r.get_arr()), x.get_arr(), params);
+    }
+
+   
+  };
+
+}
+
+#endif 
+
+
+    /*
     LtensorEinsum1(const string str){
 
       auto d1=str.find("->");
@@ -90,61 +138,16 @@ namespace cnine{
 	id_tail++;
       }
     }
-
-    template<typename TYPE>
-    Ltensor<TYPE> operator()(const Ltensor<TYPE>& x, vector<int> rdims={}){
-      //CNINE_ASSRT(rdims.size()==bcast_ids.size());
-      
-      vector<int> dimensions(id_tail,-1);
-      for(int i=0; i<x_ids.size(); i++){
-	if(dimensions[x_ids[i]]==-1)
-	  dimensions[x_ids[i]]=x.dims[i];
-	else
-	  CNINE_ASSRT(dimensions[x_ids[i]]==x.dims[i]);
-      }
-
-      for(int i=0; i<bcast_ids.size(); i++)
-	if(i<rdims.size())
-	  dimensions[bcast_ids[i]]=rdims[i];
-	else
-	  dimensions[bcast_ids[i]]=3;
-
-      auto r_dims=mapcar<int,int>(r_ids,[&](const int& id){return dimensions[id];});
-      Ltensor<TYPE> R(r_dims,0,x.get_dev());
-
-      add_einsum(R,x);
-
-      return R;
-    }
-      
-
-
-    template<typename TYPE>
-    void add_einsum(const Ltensor<TYPE>& r, const Ltensor<TYPE>& x){
-
-      CNINE_ASSRT(dstrides.size()<=4);
-      CNINE_ASSRT(sstrides.size()<=4);
-      CNINE_ASSRT(bstrides.size()<=4);
-
-      EsumParams params;
-      for(int i=0; i<dstrides.size(); i++){
-	params.ddims[i]=r.dims[dstrides[i].first[0]];
-	params.rstride_d[i]=r.strides.combine(dstrides[i].first);
-	params.xstride_d[i]=x.strides.combine(dstrides[i].second);
-      }
-      for(int i=0; i<sstrides.size(); i++){
-	params.sdims[i]=x.dims[sstrides[i][0]];
-	params.xstride_s[i]=x.strides.combine(sstrides[i]);
-      }
-      for(int i=0; i<bstrides.size(); i++){
-	params.bdims[i]=r.dims[bstrides[i][0]];
-	params.rstride_b[i]=r.strides.combine(bstrides[i]);
-      }
-
-      LtensorEinsum1loops(dstrides.size(),sstrides.size(),bstrides.size(),const_cast<TYPE*>(r.get_arr()), x.get_arr(), params);
-    }
-
-   
+    */
+    /*
+    vector<pair<vector<int>,vector<int> > > dstrides;
+    vector<vector<int> > sstrides;
+    vector<vector<int> > bstrides;
+    vector<int> r_ids;
+    vector<int> x_ids;
+    vector<int> bcast_ids;
+    int id_tail=0;
+    */
     /*
     void compute(TYPE* r, TYPE* x, const EsumParams& params, const int n_direct, const int n_sum, const int n_bcast){
 
@@ -179,8 +182,7 @@ namespace cnine{
       }
     */
     
-  private:
-
+    /*
     inline vector<int> find_all(string& str, const char c) const{
       vector<int> r;
       auto p=str.find_first_of(c);
@@ -191,9 +193,4 @@ namespace cnine{
       }
       return r;
     }
-
-  };
-
-}
-
-#endif 
+    */

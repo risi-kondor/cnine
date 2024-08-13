@@ -467,6 +467,21 @@ namespace cnine{
 #include "Cnine_base_variadics.hpp"
 #include "Cnine_base_CUDA.hpp"
 
+#ifdef _WITH_CENGINE
+#define CNINE_RSCALAR_IMPL RscalarM
+#define CNINE_CSCALAR_IMPL CscalarM
+#define CNINE_RTENSOR_IMPL RtensorM
+#define CNINE_CTENSOR_IMPL CtensorM
+#define CNINE_RTENSORARRAY_IMPL RtensorArrayM
+#define CNINE_CTENSORARRAY_IMPL CtensorArrayM
+#else 
+#define CNINE_RSCALAR_IMPL RscalarA
+#define CNINE_CSCALAR_IMPL CscalarA
+#define CNINE_RTENSOR_IMPL RtensorA
+#define CNINE_CTENSOR_IMPL CtensorB
+#define CNINE_RTENSORARRAY_IMPL RtensorArrayA
+#define CNINE_CTENSORARRAY_IMPL CtensorArrayB
+#endif 
 
 
 #endif 

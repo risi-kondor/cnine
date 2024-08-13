@@ -16,6 +16,7 @@
 #define __Gdims
 
 #include "Cnine_base.hpp"
+#include "Gvec.hpp"
 #include "GindexSet.hpp"
 //#include "Bifstream.hpp"
 //#include "Bofstream.hpp"
@@ -24,112 +25,49 @@
 namespace cnine{
 
 
-  class Gdims: public vector<int>{
+  class Gdims: public Gvec<int,Gdims>{
   public:
 
-    typedef vector<int> BASE;
+    typedef Gvec<int,Gdims> BASE;
     typedef std::size_t size_t;
+
+    using BASE::operator[];
+    using BASE::push_back;
+
+    using BASE::operator();
+    using BASE::operator+;
+    using BASE::insert;
+    using BASE::remove;
+    using BASE::replace;
+    using BASE::prepend;
+    using BASE::append;
+    using BASE::cat;
+    using BASE::chunk;
+    using BASE::permute;
+    using BASE::to_vector;
 
 
     Gdims(){}
 
-    Gdims(const vector<int>& x){
-      for(auto p:x) if(p>=0) BASE::push_back(p);
-    }
+    Gdims(const vector<int>& x):
+      BASE(x){}
 
-    Gdims(const initializer_list<int>& x){
-      for(auto p:x) if(p>=0) BASE::push_back(p);
-    }
+    Gdims(const initializer_list<int>& x):
+      BASE(x){}
 
     explicit Gdims(const int i0): 
-      vector<int>(1){
-      (*this)[0]=i0;
-    }
+      BASE({i0}){}
 
+    /*
     Gdims(const int i0, const int i1): 
-      vector<int>(2){
+      BASE(2){
       (*this)[0]=i0;
       (*this)[1]=i1;
     }
-
-    Gdims(const int i0, const int i1, const int i2): 
-      vector<int>(3){
-      (*this)[0]=i0;
-      (*this)[1]=i1;
-      (*this)[2]=i2;
-    }
-
-    Gdims(const int i0, const int i1, const int i2, const int i3): 
-      vector<int>(4){
-      (*this)[0]=i0;
-      (*this)[1]=i1;
-      (*this)[2]=i2;
-      (*this)[3]=i3;
-    }
-
-    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4): 
-      vector<int>(5){
-      (*this)[0]=i0;
-      (*this)[1]=i1;
-      (*this)[2]=i2;
-      (*this)[3]=i3;
-      (*this)[4]=i4;
-    }
-
-    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5): 
-      vector<int>(6){
-      (*this)[0]=i0;
-      (*this)[1]=i1;
-      (*this)[2]=i2;
-      (*this)[3]=i3;
-      (*this)[4]=i4;
-      (*this)[5]=i5;
-    }
-
-    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6): 
-      vector<int>(7){
-      (*this)[0]=i0;
-      (*this)[1]=i1;
-      (*this)[2]=i2;
-      (*this)[3]=i3;
-      (*this)[4]=i4;
-      (*this)[5]=i5;
-      (*this)[6]=i6;
-    }
-
-    Gdims(const Gdims& d1, const Gdims& d2): 
-      vector<int>(d1.size()+d2.size()){
-      for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
-      for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
-    }
-
-    Gdims(const int b, const Gdims& d1, const Gdims& d2): 
-      vector<int>((b>0)+d1.size()+d2.size()){
-      if(b>0){
-	(*this)[0]=b;
-	for(int i=0; i<d1.size(); i++) (*this)[1+i]=d1[i];
-	for(int i=0; i<d2.size(); i++) (*this)[1+i+d1.size()]=d2[i];
-      }else{
-	for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
-	for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
-      }
-    }
-
-    Gdims(const vector<vector<int> >& list){
-      int n=0; 
-      for(auto& p:list) n+=p.size();
-      resize(n);
-      int i=0;
-      for(auto& p:list)
-	for(auto q:p)
-	  (*this)[i++]=q;
-    }
+    */
 
     Gdims(const int k, const fill_raw& dummy): 
-      vector<int>(k){}
-
-    Gdims(const int k, const fill_zero& dummy): 
-      vector<int>(k,0){}
+      BASE(k){}
 
     Gdims copy() const{
       return Gdims(*this);
@@ -140,10 +78,12 @@ namespace cnine{
 
 
     static Gdims raw(const int k){
-      return Gdims(k,fill_raw());}
+      return BASE(k);
+    }
 
     static Gdims zero(const int k){
-      return Gdims(k,fill_zero());}
+      return BASE(k,0);
+    }
 
 
   public: // ---- ATEN ---------------------------------------------------------------------------------------
@@ -170,49 +110,22 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
-    int k() const{
-      return size();
-    }
-
-    int operator()(const int i) const{
-      if(i<0) return (*this)[size()+i];
-      return (*this)[i];
-    }
-
-    int back(const int i=0) const{
-      return (*this)[size()-1-i];
-    }
-
     Gdims& set(const int i, const int x){
-      (*this)[i]=x;
+      BASE::set(i,x);
       return *this;
     }
 
     Gdims& set_back(const int x){
-      (*this)[size()-1]=x;
+      BASE::set_back(x);
       return *this;
     }
 
     Gdims& set_back(const int i, const int x){
-      (*this)[size()-1-i]=x;
+      BASE::set_back(i,x);
       return *this;
     }
 
-    int first() const{
-      return (*this)[0];
-    }
-
-    int last() const{
-      return (*this)[size()-1];
-    }
-
     size_t asize() const{
-      size_t t=1; 
-      for(int i=0; i<size(); i++) t*=(*this)[i];
-      return t;
-    }
-
-    size_t total() const{
       size_t t=1; 
       for(int i=0; i<size(); i++) t*=(*this)[i];
       return t;
@@ -224,32 +137,9 @@ namespace cnine{
       return true;
     }
 
-    bool operator==(const Gdims& x) const{
-      if(size()!=x.size()) return false;
-      for(size_t i=0; i<size(); i++)
-	if((*this)[i]!=x[i]) return false;
-      return true;
-    }
 
-    bool operator<=(const Gdims& x) const{
-      if(size()!=x.size()) return false;
-      for(size_t i=0; i<size(); i++)
-	if((*this)[i]>x[i]) return false;
-      return true;
-    }
+  public: // ---- Operations ---------------------------------------------------------------------------------
 
-
-  public: // in-place
-
-
-    Gdims& extend(const vector<int>& x){
-      for(auto p: x)
-	BASE::push_back(p);
-      return *this;
-    }
-
-
-  public: // operations 
 
     int combined(const int a, const int b) const{
       assert(a<=b);
@@ -264,51 +154,9 @@ namespace cnine{
       assert(a+n<=size());
       Gdims R(size()-n+1,fill_raw());
       for(int i=0; i<a; i++) R[i]=(*this)[i];
-      int t=1; 
-      for(int i=0; i<n; i++) t*=(*this)[a+i];
-      R[a]=t;
       for(int i=0; i<size()-(a+n); i++) R[a+i+1]=(*this)[a+i+n];
-      return R;
-    }
-
-    Gdims chunk(int beg, int n=-1) const{
-      if(beg<0) beg=size()+beg;
-      if(n==-1) n=size()-beg;
-      Gdims R;
-      for(int i=0; i<n; i++)
-	R.push_back((*this)[beg+i]);
-      return R;
-    }
-
-    Gdims remove(const int j) const{
-      Gdims R;
-      assert(j<size());
-      if(size()==1){
-	R.push_back(1);
-	return R;
-      }
-      if(j<0){
-	for(int i=0; i<size(); i++)
-	  if(i!=size()+j) R.push_back((*this)[i]);
-      }else{
-	for(int i=0; i<size(); i++)
-	  if(i!=j) R.push_back((*this)[i]);
-      }
-      return R;
-    }
-
-    Gdims insert(const int j, const int n) const{
-      Gdims R;
-      for(int i=0; i<j; i++) R.push_back((*this)[i]);
-      R.push_back(n);
-      for(int i=j; i<size(); i++) R.push_back((*this)[i]);
-      return R;
-    }
-
-    Gdims replace(const int j, const int x) const{
-      Gdims R(*this);
-      assert(j<size());
-      R[j]=x;
+      int t=1; for(int i=0; i<n; i++) t*=(*this)[a+i];
+      R[a]=t;
       return R;
     }
 
@@ -316,31 +164,10 @@ namespace cnine{
       return insert(d,1);
     }
 
-    Gdims append(const int i) const{
-      Gdims R=*this;
-      if(i>=0) R.push_back(i);
-      return R;
-    }
-
-    Gdims cat(const Gdims& y) const{
-      Gdims R(size()+y.size(),fill_raw());
-      for(int i=0; i<size(); i++) R[i]=(*this)[i];
-      for(int i=0; i<y.size(); i++) R[size()+i]=y[i];
-      return R;
-    }
-
-    Gdims prepend(const int i) const{
-      if(i<0) return *this;
-      Gdims R;
-      R.push_back(i);
-      for(auto p:*this) R.push_back(p);
-      return R;
-    }
-
     Gdims transp() const{
       int len=size();
       assert(len>=2);
-      if(len==2) return Gdims((*this)[1],(*this)[0]);
+      if(len==2) return Gdims({(*this)[1],(*this)[0]});
       Gdims r(*this);
       std::swap(r[len-2],r[len-1]);
       return r;
@@ -348,20 +175,9 @@ namespace cnine{
 
     Gdims transpose() const{
       assert(size()==2);
-      return Gdims((*this)[1],(*this)[0]);
+      return Gdims({(*this)[1],(*this)[0]});
     }
-
-    Gdims permute(const vector<int>& p) const{
-      CNINE_ASSRT(p.size()<=size());
-      Gdims R;
-      R.resize(size());
-      for(int i=0; i<p.size(); i++)
-	R[i]=(*this)[p[i]];
-      for(int i=p.size(); i<size(); i++)
-	R[i]=p[i];
-      return R;
-    }
-
+    
     Gdims convolve(const Gdims& y) const{
       assert(size()==y.size());
       Gdims R(*this);
@@ -370,20 +186,19 @@ namespace cnine{
       return R;
     }
 
-    Gdims operator+(const Gdims& y) const{
-      CNINE_ASSRT(y.size()==size());
-      Gdims R(*this);
-      for(int i=0; i<size(); i++)
-	R[i]+=y[i];
-      return R;
+
+  public: // In-place operations 
+
+
+    Gdims& extend(const vector<int>& x){
+      for(auto p: x)
+	BASE::push_back(p);
+      return *this;
     }
 
-    Gdims remove(const vector<int>& v) const{
-      return cnine::except(*this,v);
-    }
 
+  public: // ---- Products -----------------------------------------------------------------------------------
 
-  public:
 
     Gdims Mprod(const Gdims& y) const{
       Gdims R(size()+y.size()-2,fill::raw);
@@ -424,7 +239,9 @@ namespace cnine{
       return R;
     }
 
-  public:
+
+  public: // ---- IndexSet -----------------------------------------------------------------------------------
+
 
     Gdims select(const GindexSet& s) const{
       Gdims r;
@@ -445,7 +262,8 @@ namespace cnine{
     }
 
 
-  public:
+  public: // ---- Strides -----------------------------------------------------------------------------------
+
     
     vector<int> strides() const{
       int k=size();
@@ -457,14 +275,6 @@ namespace cnine{
       return R;
     }
     
-    template<typename TYPE>
-    vector<TYPE> to_vec() const{
-      vector<TYPE> R(size());
-      for(size_t i=0; i<size(); i++)
-	R[i]=(*this)[i];
-      return R;
-    }
-
 
   public: // ---- Lambdas -----------------------------------------------------------------------------------
 
@@ -497,7 +307,8 @@ namespace cnine{
     }
 
 
-  public: // checks
+  public: // ---- Checks ------------------------------------------------------------------------------------
+
 
     void check_eq(const Gdims& x) const{
       if(!((*this)==x)) throw std::out_of_range("Tensor dimensions "+str()+" do not match "+x.str()+".");
@@ -539,23 +350,71 @@ namespace cnine{
     }
 
 
-  public:
+  public: // ---- Deprecated --------------------------------------------------------------------------------
 
-    /*
-    Gdims(Bifstream& ifs){
-      int _k=ifs.get<int>();
-      resize(_k);
-      for(int i=0; i<_k; i++)
-	(*this)[i]=ifs.get<int>();
+    [[deprecated]]
+    Gdims(const int i0, const int i1, const int i2): 
+      BASE(3){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
     }
 
-    void serialize(Bofstream& ofs) const{
-      const int k=size();
-      ofs.write(k);
-      for(int i=0; i<k; i++)
-	ofs.write((*this)[i]);
+    [[deprecated]]
+    Gdims(const int i0, const int i1, const int i2, const int i3): 
+      BASE(4){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
     }
-    */
+
+    [[deprecated]]
+    Gdims(const Gdims& d1, const Gdims& d2): 
+      BASE(d1.size()+d2.size()){
+      for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
+      for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
+    }
+
+    [[deprecated]]
+    Gdims(const int b, const Gdims& d1, const Gdims& d2): 
+      BASE((b>0)+d1.size()+d2.size()){
+      if(b>0){
+	(*this)[0]=b;
+	for(int i=0; i<d1.size(); i++) (*this)[1+i]=d1[i];
+	for(int i=0; i<d2.size(); i++) (*this)[1+i+d1.size()]=d2[i];
+      }else{
+	for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
+	for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
+      }
+    }
+
+    [[deprecated]]
+    Gdims(const vector<vector<int> >& list){
+      int n=0; 
+      for(auto& p:list) n+=p.size();
+      resize(n);
+      int i=0;
+      for(auto& p:list)
+	for(auto q:p)
+	  (*this)[i++]=q;
+    }
+
+    [[deprecated]]
+    size_t total() const{
+      size_t t=1; 
+      for(int i=0; i<size(); i++) t*=(*this)[i];
+      return t;
+    }
+
+    template<typename TYPE>
+    vector<TYPE> to_vec() const{
+      return BASE::to_vector<TYPE>();
+    }
+
+
+  public: // ---- I/O ---------------------------------------------------------------------------------------
+
 
     string str() const{
       ostringstream oss;
@@ -581,11 +440,11 @@ namespace cnine{
   };
 
 
-  inline Gdims dims(const int i0) {return Gdims(i0);}
-  inline Gdims dims(const int i0, const int i1) {return Gdims(i0,i1);}
-  inline Gdims dims(const int i0, const int i1, const int i2) {return Gdims(i0,i1,i2);}
-  inline Gdims dims(const int i0, const int i1, const int i2, const int i3) {return Gdims(i0,i1,i2,i3);}
-  inline Gdims dims(const int i0, const int i1, const int i2, const int i3, const int i4) {return Gdims(i0,i1,i2,i3,i4);}
+  inline Gdims dims(const int i0) {return Gdims({i0});}
+  inline Gdims dims(const int i0, const int i1) {return Gdims({i0,i1});}
+  inline Gdims dims(const int i0, const int i1, const int i2) {return Gdims({i0,i1,i2});}
+  inline Gdims dims(const int i0, const int i1, const int i2, const int i3) {return Gdims({i0,i1,i2,i3});}
+  inline Gdims dims(const int i0, const int i1, const int i2, const int i3, const int i4) {return Gdims({i0,i1,i2,i3,i4});}
 
 
   template<typename OBJ>
@@ -624,3 +483,157 @@ namespace std{
 
 
 #endif
+    /*
+    int operator()(const int i) const{
+      if(i<0) return (*this)[size()+i];
+      return (*this)[i];
+    }
+
+    int back(const int i=0) const{
+      return (*this)[size()-1-i];
+    }
+
+    Gdims& set(const int i, const int x){
+      (*this)[i]=x;
+      return *this;
+    }
+
+    Gdims& set_back(const int x){
+      (*this)[size()-1]=x;
+      return *this;
+    }
+
+    Gdims& set_back(const int i, const int x){
+      (*this)[size()-1-i]=x;
+      return *this;
+    }
+
+    int first() const{
+      return (*this)[0];
+    }
+
+    int last() const{
+      return (*this)[size()-1];
+    }
+    */
+    /*
+    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4): 
+      vector<int>(5){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+    }
+
+    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5): 
+      vector<int>(6){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+      (*this)[5]=i5;
+    }
+
+    Gdims(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6): 
+      vector<int>(7){
+      (*this)[0]=i0;
+      (*this)[1]=i1;
+      (*this)[2]=i2;
+      (*this)[3]=i3;
+      (*this)[4]=i4;
+      (*this)[5]=i5;
+      (*this)[6]=i6;
+    }
+    */
+
+    /*
+    bool operator<=(const Gdims& x) const{
+      if(size()!=x.size()) return false;
+      for(size_t i=0; i<size(); i++)
+	if((*this)[i]>x[i]) return false;
+      return true;
+    }
+    */
+    //bool operator==(const Gdims& x) const{
+    //if(size()!=x.size()) return false;
+    //for(size_t i=0; i<size(); i++)
+    //if((*this)[i]!=x[i]) return false;
+    //return true;
+    //}
+
+
+    /*
+    Gdims append(const int i) const{
+      Gdims R=*this;
+      if(i>=0) R.push_back(i);
+      return R;
+    }
+
+    Gdims cat(const Gdims& y) const{
+      Gdims R(size()+y.size(),fill_raw());
+      for(int i=0; i<size(); i++) R[i]=(*this)[i];
+      for(int i=0; i<y.size(); i++) R[size()+i]=y[i];
+      return R;
+    }
+
+    Gdims prepend(const int i) const{
+      if(i<0) return *this;
+      Gdims R;
+      R.push_back(i);
+      for(auto p:*this) R.push_back(p);
+      return R;
+    }
+    */
+    /*
+    Gdims remove(const int j) const{
+      Gdims R;
+      assert(j<size());
+      if(size()==1){
+	R.push_back(1);
+	return R;
+      }
+      if(j<0){
+	for(int i=0; i<size(); i++)
+	  if(i!=size()+j) R.push_back((*this)[i]);
+      }else{
+	for(int i=0; i<size(); i++)
+	  if(i!=j) R.push_back((*this)[i]);
+      }
+      return R;
+    }
+
+    Gdims insert(const int j, const int n) const{
+      Gdims R;
+      for(int i=0; i<j; i++) R.push_back((*this)[i]);
+      R.push_back(n);
+      for(int i=j; i<size(); i++) R.push_back((*this)[i]);
+      return R;
+    }
+
+    Gdims replace(const int j, const int x) const{
+      Gdims R(*this);
+      assert(j<size());
+      R[j]=x;
+      return R;
+    }
+    */
+    /*
+    Gdims permute(const vector<int>& p) const{
+      CNINE_ASSRT(p.size()<=size());
+      Gdims R;
+      R.resize(size());
+      for(int i=0; i<p.size(); i++)
+	R[i]=(*this)[p[i]];
+      for(int i=p.size(); i<size(); i++)
+	R[i]=p[i];
+      return R;
+    }
+    */
+    //Gdims remove(const vector<int>& v) const{
+    //return cnine::except(*this,v);
+    //}
+    //Gdims(const int k, const fill_zero& dummy): 
+    //BASE(k,0){}
+

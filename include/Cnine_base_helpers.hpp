@@ -50,6 +50,16 @@ namespace cnine{
       dest[i]-=beg[i];
   }
 
+  template<typename TYPE>
+  inline std::vector<TYPE> permute(const std::vector<TYPE> x, const std::vector<TYPE> pi){
+    int n=pi.size();
+    CNINE_ASSRT(x.size()==n);
+    std::vector<TYPE> R(n);
+    for(int i=0; i<n; i++)
+      R[i]=x[pi[i]];
+    return R;
+  }
+
   template<typename TYPE1, typename TYPE2>
   inline std::vector<TYPE1> convert(std::vector<TYPE2>& x){
     std::vector<TYPE1> R(x.size());

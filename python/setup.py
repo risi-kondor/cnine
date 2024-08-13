@@ -30,24 +30,28 @@ def main():
 
  _include_dirs=[
      cwd+'/../include',
+     cwd+'/../algorithms',
      cwd+'/../combinatorial',
      cwd+'/../containers',
+     cwd+'/../hpc',
      cwd+'/../math',
+     cwd+'/../matrices',
+     cwd+'/../tensors',
      cwd+'/../utility',
      cwd+'/../wrappers',
      cwd+'/../include/cmaps',
-     cwd+'/../objects/scalar',
-     cwd+'/../objects/matrix',
-     cwd+'/../objects/tensor',
-     cwd+'/../objects/backendA',
-     cwd+'/../objects/backendB',
-     cwd+'/../objects/tensor_views',
-     cwd+'/../objects/tensor_array',
-     cwd+'/../objects/tensor_array/cell_maps',
-     cwd+'/../objects/tensor_array/cell_ops',
-     cwd+'/../objects/labeled',
-     cwd+'/../objects/ntensor',
-     cwd+'/../objects/ntensor/functions'
+     cwd+'/../legacy/scalar',
+     cwd+'/../legacy/matrix',
+     cwd+'/../legacy/tensor',
+     cwd+'/../legacy/backendA',
+     cwd+'/../legacy/backendB',
+     cwd+'/../tensor_views',
+     cwd+'/../legacy/tensor_array',
+     cwd+'/../legacy/tensor_array/cell_maps',
+     cwd+'/../legacy/tensor_array/cell_ops',
+     cwd+'/../legacy/labeled',
+     cwd+'/../legacy/ntensor',
+     cwd+'/../legacy/ntensor/functions'
      ]
 
  _nvcc_compile_args=[

@@ -27,9 +27,13 @@
 
 namespace cnine{
 
-
+  
   template<typename TYPE>
   class Ltensor;
+
+#ifdef _WITH_CUDA
+  extern void Ltensorf_inc_cu(const Ltensor<float>& r, const float v, const cudaStream_t& stream);
+#endif 
 
   inline Itensor2_view batch_grid_fused_view2_of(const Ltensor<int>& x);
   inline Rtensor2_view batch_grid_fused_view2_of(const Ltensor<float>& x);
@@ -63,6 +67,16 @@ namespace cnine{
     using BASE::is_regular;
     using BASE::set;
     using BASE::get_arr;
+    using BASE::get_dev;
+    using BASE::asize;
+    using BASE::is_contiguous;
+    using BASE::mem;
+
+    //using BASE::permute_indices;
+
+    using BASE::scrunch;
+
+    using BASE::add;
 
     DimLabels labels;
 
@@ -204,7 +218,7 @@ namespace cnine{
       int n0=list.size();
       CNINE_ASSRT(n0>0);
       int n1=list.begin()->size();
-      Ltensor<TYPE> T(Gdims(n0,n1)); 
+      Ltensor<TYPE> T(Gdims({n0,n1})); 
       int i=0;
       for(auto& p: list){
 	int j=0;
@@ -510,6 +524,184 @@ namespace cnine{
     }
 
 
+  public: // ---- Elements -----------------------------------------------------------------------------------
+
+    
+    void for_each(std::function<void(TYPE&)> lambda) const{
+      TYPE* arr=get_arr();
+      switch(ndims()){
+      case 0:
+	return;
+      case 1:
+	{
+	  int n0=dims[0];
+	  int s0=strides[0];
+	  for(int i0=0; i0<n0; i0++)
+	    return lambda(*(arr+i0*s0));
+	}
+	break;
+      case 2:
+	{
+	  int n0=dims[0];
+	  int s0=strides[0];
+	  int n1=dims[1];
+	  int s1=strides[1];
+	  for(int i0=0; i0<n0; i0++)
+	    for(int i1=0; i1<n1; i1++)
+	      return lambda(*(arr+i0*s0+i1*s1));
+	}
+	break;
+      case 3:
+	{
+	  int n0=dims[0];
+	  int s0=strides[0];
+	  int n1=dims[1];
+	  int s1=strides[1];
+	  int n2=dims[2];
+	  int s2=strides[2];
+	  for(int i0=0; i0<n0; i0++)
+	    for(int i1=0; i1<n1; i1++)
+	      for(int i2=0; i2<n2; i2++)
+		return lambda(*(arr+i0*s0+i1*s1+i2*s2));
+	}
+	break;
+      case 4:
+	{
+	  int n0=dims[0];
+	  int s0=strides[0];
+	  int n1=dims[1];
+	  int s1=strides[1];
+	  int n2=dims[2];
+	  int s2=strides[2];
+	  int n3=dims[3];
+	  int s3=strides[3];
+	  for(int i0=0; i0<n0; i0++)
+	    for(int i1=0; i1<n1; i1++)
+	      for(int i2=0; i2<n2; i2++)
+		for(int i3=0; i3<n3; i3++)
+		  return lambda(*(arr+i0*s0+i1*s1+i2*s2+i3*s3));
+	}
+	break;
+      case 5:
+	{
+	  int n0=dims[0];
+	  int s0=strides[0];
+	  int n1=dims[1];
+	  int s1=strides[1];
+	  int n2=dims[2];
+	  int s2=strides[2];
+	  int n3=dims[3];
+	  int s3=strides[3];
+	  int n4=dims[4];
+	  int s4=strides[4];
+	  for(int i0=0; i0<n0; i0++)
+	    for(int i1=0; i1<n1; i1++)
+	      for(int i2=0; i2<n2; i2++)
+		for(int i3=0; i3<n3; i3++)
+		  for(int i4=0; i4<n4; i4++)
+		    return lambda(*(arr+i0*s0+i1*s1+i2*s2+i3*s3+i4*s4));
+	}
+	break;
+      default:
+	dims.for_each_index([&](const Gindex& ix){
+	    lambda(arr[strides.offs(ix)]);});
+      }
+    }
+
+
+  public: // ---- Copying ------------------------------------------------------------------------------------
+
+
+    /*
+    Ltensor& operator=(const Ltensor& x){
+      CNINE_ASSRT(dims==x.dims);
+      CNINE_ASSIGN_WARNING();
+      labels=x.labels;
+
+      if(asize()==0) return const_cast<Ltensor<TYPE>&>(*this);
+      
+      if(is_contiguous() && x.is_contiguous() && strides==x.strides){
+	if(get_dev()==0){
+	  if(x.get_dev()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
+	  if(x.get_dev()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost));
+	}
+	if(get_dev()==1){
+	  if(x.get_dev()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyHostToDevice));
+	  if(x.get_dev()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+	}      
+	return const_cast<Ltensor&>(*this);
+      }
+
+    }
+    */
+
+    
+  public: // ---- Cumulative Operations ----------------------------------------------------------------------
+
+
+    Ltensor& operator+=(const TYPE x){
+      inc(x);
+      return *this;
+    }
+
+    Ltensor& operator+=(const Ltensor& x){
+      add(x);
+      return *this;
+    }
+
+    void inc(const TYPE x){
+      if(x==0) return;
+      Ltensor R=scrunch();
+      if(dev==0) R.for_each([&](TYPE& v){v+=x;});
+      if(dev==1){
+	if constexpr(std::is_same<TYPE,int>::value){
+	  CUDA_STREAM(Ltensor_inc_cu(R,x,stream));
+	  return;}
+	if constexpr(std::is_same<TYPE,float>::value){
+	  CUDA_STREAM(Ltensor_inc_cu(R,x,stream));
+	  return;}
+	if constexpr(std::is_same<TYPE,double>::value){
+	  CUDA_STREAM(Ltensor_inc_cu(R,x,stream));
+	  return;}
+	CNINE_CPUONLY();
+      }
+    }
+
+
+    /*
+    void add(const Ltensor& x){
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(asize()==x.asize());
+      if(dev==0){
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  for(size_t i=0; i<asize(); i++) ptr[i]+=xptr[i];
+	}
+	else for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
+      }
+      if(dev==1){
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  if constexpr(std::is_same<TYPE,float>::value){
+	    const float alpha=1.0;
+	    CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
+	  }
+	}else{
+	  if(ndims()<=3){
+	    if(ndims()==1) view1().add(x.view1());
+	    if(ndims()==2) view2().add(x.view2());
+	    if(ndims()==3) view3().add(x.view3());
+	  }else{
+	    cout<<strides<<x.strides<<endl;
+	    CNINE_UNIMPL();
+	  }
+	}
+      }
+    }
+    */
+
+
   public: // ---- Operations --------------------------------------------------------------------------------
 
 
@@ -577,6 +769,24 @@ namespace cnine{
 
   public: // ---- Index manipulations -----------------------------------------------------------------------
 
+
+#include "Ltensor_reshaping.inc"
+
+
+    Ltensor block(const Gdims& _dims, const Gindex& offs) const{
+      CNINE_ASSRT(offs+_dims<=dims);
+      return Ltensor(get_arr()+strides.offs(offs),_dims,strides);
+    }
+
+    Ltensor block(const int i0, const int m0) const{
+      CNINE_ASSRT(ndims()==1);
+      return block({m0},{i0});
+    }
+
+    Ltensor block(const int i0, const int i1, const int m0, const int m1) const{
+      CNINE_ASSRT(ndims()==2);
+      return block({m0,m1},{i0,i1});
+    }
 
     Ltensor diag(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()>0);
@@ -734,6 +944,7 @@ namespace cnine{
       if(is_batched()) oss<<"b="<<nbatch()<<",";
       if(is_grid()) oss<<"grid="<<gdims()<<",";
       oss<<"dim="<<cdims()<<",";
+      oss<<"strides="<<strides<<",";
       if(dev>0) oss<<"dev="<<dev<<",";
       oss<<"\b)";
       return oss.str();

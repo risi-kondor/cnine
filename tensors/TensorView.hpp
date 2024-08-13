@@ -39,6 +39,7 @@
 
 #include "tensor1_view.hpp"
 
+#include "TensorView_assign.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -50,7 +51,7 @@
 extern cublasHandle_t cnine_cublas;
 #endif 
 
-#ifdef _WITH_EIGEN
+#ifdef _WITH_include
 #include <Eigen/Dense>
 #endif
 
@@ -119,24 +120,24 @@ namespace cnine{
       dev(_arr.device()){
     }
 
+    TensorView(const Gdims& _dims, const GstridesB& _strides, const int _dev):
+      arr(_strides.memsize(_dims),_dev),
+      dims(_dims), 
+      strides(_strides), 
+      dev(_dev){
+    }
+
 
   public: // ---- Constructors for non-view derived classes --------------------------------------------------
 
 
     TensorView(const Gdims& _dims, const int fcode, const int _dev):
-      //arr(1), //TODO: eliminate this
       dims(_dims),
       strides(GstridesB(_dims)),
       dev(_dev){
       FNTRACE();
 
-      size_t N=dims.total();
-
-      //if(vram_manager && _dev>1){
-      //arr=MemArr<TYPE>(*manager,N,_dev);
-      //CNINE_ASSRT(fcode<2);
-      //if(fcode==0) set_zero();
-      //}
+      size_t N=dims.asize();
 
       if(fcode==0){
 	arr=MemArr<TYPE>(N,fill_zero(),_dev);
@@ -181,40 +182,29 @@ namespace cnine{
 	return;
       }
 
-      arr=MemArr<TYPE>(_dims.total(),_dev);
+      arr=MemArr<TYPE>(N,_dev);
     }
-
-    /*
-    TensorView(const MemoryManager& manager, const Gdims& _dims, const int fcode, const int _dev):
-      arr(manager,_dims.total(),_dev),
-      dims(_dims),
-      strides(GstridesB(_dims)),
-      dev(_dev){
-      FNTRACE();
-
-      CNINE_ASSRT(fcode<2);
-      if(fcode==0) set_zero();
-    }
-    */
 
     TensorView(const Gdims& _dims, const int _dev=0): 
-      TensorView(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+      TensorView(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
 
     TensorView(const Gdims& _dims, const fill_raw& dummy, const int _dev=0): 
-      TensorView(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+      TensorView(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
 
     TensorView(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
-      TensorView(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){
+      TensorView(MemArr<TYPE>(_dims.asize(),dummy,_dev),_dims,GstridesB(_dims)){
     }
 
+    // TODO 
     TensorView(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
       TensorView(_dims,0){
-      size_t N=dims.total();
+      size_t N=dims.asize();
       for(size_t i=0; i<N; i++)
 	arr[i]=dummy.v;
       move_to_device(_dev);
     }
 
+    // TODO 
     TensorView(const Gdims& _dims, const fill_identity& dummy, const int _dev=0):
       TensorView(_dims,fill_zero(),0){
       CNINE_ASSRT(ndims()==2);
@@ -227,7 +217,7 @@ namespace cnine{
 
     TensorView(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       TensorView(_dims,0){
-      size_t N=dims.total();
+      size_t N=dims.asize();
       for(size_t i=0; i<N; i++)
 	arr[i]=i;
       move_to_device(_dev);
@@ -235,13 +225,13 @@ namespace cnine{
 
     TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       TensorView(_dims,0){
-      int N=dims.total();
+      int N=dims.asize();
       if constexpr(is_complex<TYPE>()){
-	normal_distribution<double> distr;
+	normal_distribution<TYPE> distr;
 	for(int i=0; i<N; i++) 
 	  arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
       }else{
-	normal_distribution<double> distr;
+	normal_distribution<TYPE> distr;
 	for(int i=0; i<N; i++) 
 	  arr[i]=distr(rndGen)*dummy.c;
       }
@@ -258,56 +248,13 @@ namespace cnine{
       strides(x.strides),
       dev(x.dev){
     }
-        
+
     TensorView& operator=(const TensorView& x) const{
       CNINE_ASSRT(dims==x.dims);
       CNINE_ASSIGN_WARNING();
-
-      if(asize()==0) return const_cast<TensorView&>(*this); 
-
-      if(strides==x.strides){
-	if(device()==0){
-	  if(x.device()==0) std::copy(x.mem(),x.mem()+memsize(),mem());
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToHost));
-	}
-	if(device()==1){
-	  if(x.device()==0) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyHostToDevice));
-	  if(x.device()==1) CUDA_SAFE(cudaMemcpy(mem(),x.mem(),memsize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
-	}      
-	return const_cast<TensorView&>(*this);
-      }
-
-      if(device()==0){
-	CNINE_ASSRT(x.device()==0);
-	for_each([&](const Gindex& ix, TYPE& v) {v=x(ix);});
-      }
-
-      if(device()==1){
-	CNINE_ASSRT(x.device()==1);
-	if constexpr(std::is_same<TYPE,float>::value){
-	  switch(ndims()){
-	  case(1): 
-	    view1().set(x.view1());
-	    //Rtensor1_view(*this).set(Rtensor1_view(x));
-	    break;
-	  case(2): 
-	    //Rtensor2_view(*this).set(Rtensor2_view(x));
-	    view2().set(x.view2());
-	    break;
-	  case(3): 
-	    //Rtensor3_view(*this).set(Rtensor3_view(x));
-	    view3().set(x.view3());
-	    break;
-	  default:
-	    CNINE_UNIMPL();
-	  }
-	}else{
-	  CNINE_UNIMPL();
-	}
-      }
-
+      TensorView_assign(*this,x);
       return const_cast<TensorView&>(*this);
-    }
+    }        
 
     void reset(const TensorView& x){
       arr=x.arr;
@@ -324,8 +271,9 @@ namespace cnine{
   public: // ---- Devices ------------------------------------------------------------------------------------
 
 
+    // change this so as to keep strides!!
     TensorView(const TensorView<TYPE>& x, const int _dev):
-      TensorView<TYPE>(MemArr<TYPE>(x.dims.total(),_dev),x.dims,GstridesB(x.dims)){
+      TensorView<TYPE>(MemArr<TYPE>(x.dims.asize(),_dev),x.dims,GstridesB(x.dims)){
       (*this)=x;
     }
 
@@ -359,35 +307,6 @@ namespace cnine{
       return Rtensor3_view(mem(),dims(0),dims(1),dims(2),strides(0),strides(1),strides(2),dev);
     }
 
-    /*
-    IF_FLOAT
-    Rtensor1_view view1() const{
-      CNINE_ASSRT(ndims()==1);
-      return Rtensor1_view(mem(),dims,strides,dev);
-    }
-    */
-
-    /*
-    IF_FLOAT
-    Rtensor2_view view2() const{
-      CNINE_ASSRT(ndims()==2);
-      return Rtensor2_view(mem(),dims,strides,dev);
-    }
-
-    IF_CFLOAT
-    Rtensor2_view view2() const{
-      CNINE_ASSRT(ndims()==2);
-      return Rtensor2_view(mem(),dims,strides,dev);
-    }
-
-    IF_FLOAT
-    Rtensor3_view view3() const{
-      CNINE_ASSRT(ndims()==3);
-      return Rtensor3_view(mem(),dims,strides,dev);
-    }
-
-    */
-
     auto view1() const -> decltype(view1_of(*this)){
       CNINE_ASSRT(ndims()==1);
       return view1_of(*this);
@@ -406,77 +325,6 @@ namespace cnine{
     auto flat_view() const -> decltype(view1_of(*this)){
       return flat_view_of(*this);
     }
-
-  
-
-    //deprecated 
-    IF_INT
-    operator Itensor1_view() const{
-      CNINE_ASSRT(ndims()==1);
-      return Itensor1_view(mem(),dims,strides,dev);
-    }
-
-    IF_INT
-    Itensor1_view view1() const{
-      CNINE_ASSRT(ndims()==1);
-      return Itensor1_view(mem(),dims,strides,dev);
-    }
-
-    IF_INT
-    Itensor2_view view2() const{
-      CNINE_ASSRT(ndims()==2);
-      return Itensor2_view(mem(),dims,strides,dev);
-    }
-  
-    IF_INT
-    Itensor3_view view3() const{
-      CNINE_ASSRT(ndims()==3);
-      return Itensor3_view(mem(),dims,strides,dev);
-    }
-
-
-
-    /*
-    IF_FLOAT
-    TensorView& operator=(const RtensorA& x){
-      CNINE_ASSRT(dims.size()==x.dims.size());
-
-      switch(x.dims.size()){
-      case 1:
-	view1().set(x.view1());
-	break;
-      case 2:
-	view2().set(x.view2());
-	break;
-      case 3:
-	view3().set(x.view3());
-	break;
-      default:
-	CNINE_UNIMPL();
-      }
-
-      return *this;
-    }
-
-    // TODO 
-    IF_FLOAT
-    RtensorA rtensor() const{
-      switch(dims.size()){
-      case 1:
-	return RtensorA(view1());
-	break;
-      case 2:
-	return RtensorA(view2());
-	break;
-      case 3:
-	return RtensorA(view3());
-	break;
-      default:
-	CNINE_UNIMPL();
-      }
-      return RtensorA();
-    }
-    */
 
 
   public: // ---- ATen --------------------------------------------------------------------------------------
@@ -497,10 +345,10 @@ namespace cnine{
       if constexpr(std::is_same<TYPE,int>::value || std::is_same<TYPE,float>::value){
 	CNINE_ASSRT(strides==GstridesB(T));
 	if(dev==0){
-	  std::copy(T.data<TYPE>(),T.data<TYPE>()+total(),reinterpret_cast<TYPE*>(arr.ptr()));
+	  std::copy(T.data<TYPE>(),T.data<TYPE>()+memsize(),reinterpret_cast<TYPE*>(arr.ptr()));
 	}
 	if(dev==1){
-	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<TYPE>(),total()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
+	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<TYPE>(),asize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
 	}
 	return *this;
       }
@@ -508,10 +356,10 @@ namespace cnine{
       if constexpr(std::is_same<TYPE,complex<float> >::value){
 	CNINE_ASSRT(strides==GstridesB(T));
 	if(dev==0){
-	  std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+total(),reinterpret_cast<c10::complex<float>*>(arr.ptr()));
+	  std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+asize(),reinterpret_cast<c10::complex<float>*>(arr.ptr()));
 	}
 	if(dev==1){
-	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::complex<float>>(),total()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
+	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::complex<float>>(),asize()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
 	}
 	return *this;
       }
@@ -531,7 +379,7 @@ namespace cnine{
       if constexpr(std::is_same<TYPE,int>::value){
 	if(dev==0){
 	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kInt))); 
-	  std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<int>());
+	  std::copy(arr.ptr(),arr.ptr()+dims.asize(),R.data<int>());
 	  return R;
 	}
       }
@@ -539,12 +387,12 @@ namespace cnine{
       if constexpr(std::is_same<TYPE,float>::value){
 	if(dev==0){
 	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kFloat))); 
-	  std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<float>());
+	  std::copy(arr.ptr(),arr.ptr()+dims.asize(),R.data<float>());
 	  return R;
 	}
 	if(dev==1){
 	  at::Tensor R(at::zeros(dims.as_int64(),torch::CUDA(at::kFloat))); 
-	  CUDA_SAFE(cudaMemcpy(R.data<float>(),arr.ptr(),dims.total()*sizeof(float),cudaMemcpyDeviceToDevice));  
+	  CUDA_SAFE(cudaMemcpy(R.data<float>(),arr.ptr(),dims.asize()*sizeof(float),cudaMemcpyDeviceToDevice));  
 	  return R;
 	}
       }
@@ -552,7 +400,7 @@ namespace cnine{
       if constexpr(std::is_same<TYPE,complex<float> >::value){
 	if(dev==0){
 	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kComplexFloat))); 
-	  std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::complex<float>>());
+	  std::copy(arr.ptr(),arr.ptr()+dims.asize(),R.data<c10::complex<float>>());
 	  return R;
 	}
       }
@@ -644,34 +492,17 @@ namespace cnine{
       return dims.asize();
     }
 
-    size_t total() const{
-      return dims.total();
-    }
+    //size_t total() const{
+    //return dims.total();
+    //}
 
     size_t memsize() const{
       return strides.memsize(dims);
     }
 
-    // replace with get_arro?
-    //TYPE* get_arr(){
-    //return arr.get_arr();
-    //} 
-
-    //const TYPE* get_arr() const{
-    //return arr.get_arr();
-    //} 
-
     TYPE* get_arr() const{
       return const_cast<TYPE*>(arr.get_arr());
     } 
-
-    //TYPE* get_arro(){
-    //return arr.get_arr()+strides.offset;
-    //} 
-
-    //const TYPE* get_arro() const{
-    //return arr.get_arr()+strides.offset;
-    //} 
 
     TYPE* mem() const{
       return const_cast<TYPE*>(arr.get_arr());
@@ -902,55 +733,9 @@ namespace cnine{
     //return TensorView<TYPE>(arr,dims.transp(),strides.transp());
     //}
 
-    const TensorView<TYPE> transp() const{
-      return TensorView<TYPE>(arr,dims.transp(),strides.transp());
-    }
+#include "TensorView_reshapes.inc"
+#include "TensorView_subtensors.inc"
 
-    TensorView<TYPE> permute_indices(const vector<int>& p){
-      return TensorView<TYPE>(arr,dims.permute(p),strides.permute(p));
-    }
-
-    TensorView<TYPE> reshape(const Gdims& _dims){
-      CNINE_ASSRT(_dims.asize()==asize());
-      CNINE_ASSRT(is_regular());
-      return TensorView<TYPE>(arr,_dims,GstridesB(_dims));
-    }
-
-    TensorView<TYPE> inplace_reshape(const Gdims& _dims){
-      CNINE_ASSRT(_dims.asize()==asize());
-      CNINE_ASSRT(is_regular());
-      dims=_dims;
-      strides=GstridesB(_dims);
-      return *this;
-    }
-
-    TensorView<TYPE> slice(const int d, const int i) const{
-      CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
-      return TensorView<TYPE>(arr+strides[d]*i,dims.remove(d),strides.remove(d)/*.inc_offset(strides[d]*i)*/);
-    }
-
-    TensorView<TYPE> slice(const Gindex& ix) const{
-      const int k=ix.size();
-      return TensorView<TYPE>(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k)/*.set_offset(strides.chunk(0,k)(ix))*/);
-    }
-
-    TensorView<TYPE> slices(const int d, const int i, const int j) const{ //changed
-      //CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
-      if(i+j>0) {CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+j-1,string(__PRETTY_FUNCTION__)));}
-      Gdims _dims(dims);
-      return TensorView<TYPE>(arr+strides[d]*i,_dims.set(d,j),strides);
-    }
-
-    TensorView<TYPE> unsqueeze(const int d) const{
-      int s;
-      if(d==0) s=strides.memsize(dims);
-      else s=strides[d-1];
-      return TensorView(arr,Gdims(dims).insert(d,1),GstridesB(strides).insert(d,s));
-    }
-
-    TensorView<TYPE> insert_dim(const int d, const int n) const{
-      return TensorView(arr,Gdims(dims).insert(d,n),GstridesB(strides).insert(d,0));
-    }
 
     TensorView<TYPE> cinflate(const int d, const int n) const{
       CNINE_ASSRT(dims[d]==1||dims[d]==n);
@@ -961,36 +746,6 @@ namespace cnine{
       return R;
     }
 
-    TensorView<TYPE> block(const Gdims& _dims) const{
-      CNINE_ASSRT(_dims<=dims);
-      return TensorView<TYPE>(arr,_dims,strides);
-    }
-
-    TensorView<TYPE> block(const Gdims& _dims, const Gindex& offs) const{
-      CNINE_ASSRT(offs+_dims<=dims);
-      return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
-    }
-
-    TensorView<TYPE> block(const int i0, const int m0) const{
-      CNINE_ASSRT(ndims()==1);
-      return block({m0},{i0});
-    }
-
-    TensorView<TYPE> block(const int i0, const int i1, const int m0, const int m1) const{
-      CNINE_ASSRT(ndims()==2);
-      return block({m0,m1},{i0,i1});
-    }
-
-    TensorView<TYPE> block2(const int i0, const int i1, const int m0, const int m1) const{
-      CNINE_ASSRT(ndims()==2);
-      return block({m0,m1},{i0,i1});
-    }
-
-    TensorView<TYPE> diag() const{
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(dims[0]==dims[1]);
-      return TensorView<TYPE>(arr,{dims[0]},{strides[0]+strides[1]});
-    }
 
     TensorView<TYPE> tprod_view(const Gdims& dims1, const Gdims& dims2) const{
       int k=ndims();
@@ -1489,36 +1244,6 @@ namespace cnine{
     }
 
 
-  public: // ---- Index manipulations -----------------------------------------------------------------------
-
-
-    TensorView fuse01() const{
-      CNINE_ASSRT(ndims()>=2);
-      Gdims d=dims.remove(1); 
-      d[0]*=dims[1];
-      GstridesB s=strides.remove(0);
-      return TensorView(arr,d,s);
-    }
-
-    TensorView split0(const int a, const int b) const{
-      CNINE_ASSRT(ndims()>=1);
-      CNINE_ASSRT(dims[0]==a*b);
-      Gdims d=dims.insert(0,a); 
-      d[1]=b; 
-      GstridesB s=strides.insert(0,strides[0]*b);
-      return TensorView(arr,d,s);
-    }
-
-    TensorView split1(const int a, const int b) const{
-      CNINE_ASSRT(ndims()>=2);
-      CNINE_ASSRT(dims[1]==a*b);
-      Gdims d=dims.insert(1,a); 
-      d[2]=b; 
-      GstridesB s=strides.insert(1,strides[1]*b);
-      return TensorView(arr,d,s);
-    }
-
-
 
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
@@ -1535,23 +1260,11 @@ namespace cnine{
 
     string repr() const{
       ostringstream oss;
-      oss<<"TensorView"<<dims<<" ["<<strides<<"]"<<endl;
+      oss<<"TensorView"<<dims<<" [strides="<<strides<<"]";
       return oss.str();
     }
 
-    /*
-    template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,double>::value, U>::type>
-    float prnt_limit() const{
-      return (std::max(-min(),max()))/10e5;
-    }
-
-    template<typename U=TYPE, typename = typename std::enable_if<!std::is_same<U,double>::value, U>::type>
-    float prnt_limit() const{
-      return 0;
-    }
-    */
-
-    string str(const string indent="") const{
+    string to_string(const string indent="") const{
       if(dev>0) return TensorView(*this,0).str(indent);
       ostringstream oss;
 
@@ -1586,12 +1299,21 @@ namespace cnine{
 	Gdims adims=dims.chunk(0,ndims()-2);
 	adims.for_each_index([&](const Gindex& ix){
 	    oss<<base_indent<<indent<<"Slice"<<ix<<":"<<endl;
-	    oss<<slice(ix).str(base_indent+indent+"  ")<<endl;
+	    oss<<slice(ix).to_string(base_indent+indent+"  ")<<endl;
 	  });
       }
 
       return oss.str();
     }
+
+
+    string str(const string indent="") const{
+      ostringstream oss;
+      oss<<repr()<<":"<<endl;
+      oss<<to_string(indent+"  ");
+      return oss.str();
+    }
+
 
     friend ostream& operator<<(ostream& stream, const TensorView<TYPE>& x){
       stream<<x.str(); return stream;
@@ -1711,6 +1433,19 @@ namespace cnine{
       //std::copy(arr,arr+memsize,reinterpret_cast<float*>(R.data<c10::complex<float> >()));
       std::copy(arr.ptr(),arr.ptr()+dims.total(),R.data<c10::float>());
       return R;
+    }
+    */
+
+    /*
+    TensorView(const MemoryManager& manager, const Gdims& _dims, const int fcode, const int _dev):
+      arr(manager,_dims.total(),_dev),
+      dims(_dims),
+      strides(GstridesB(_dims)),
+      dev(_dev){
+      FNTRACE();
+
+      CNINE_ASSRT(fcode<2);
+      if(fcode==0) set_zero();
     }
     */
 

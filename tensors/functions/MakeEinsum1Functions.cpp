@@ -19,7 +19,7 @@ int main(int argc, char** argv){
 
   ofstream ofs("Einsum1_loops.cpp");
 
-  ofs<<"#include \"LtensorEinsum1.hpp\""<<endl<<endl;
+  ofs<<"#include \"EinsumParams.hpp\""<<endl<<endl;
 
   ofs<<"namespace cnine{"<<endl<<endl;
   string indent="  ";

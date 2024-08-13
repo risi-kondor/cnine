@@ -44,7 +44,7 @@ namespace cnine{
 
 
     FixedkGatherMap(const int _n, const int _K):
-      BASE(Gdims(_n,_K+1)){}
+      BASE(Gdims({_n,_K+1})){}
 
 
   public: // ---- Conversions --------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ namespace cnine{
 
 
     static FixedkGatherMap random(const int _n, const int _k, const float p){
-      FixedkGatherMap r(Gdims(_n,_k+1));
+      FixedkGatherMap r(Gdims({_n,_k+1}));
       uniform_real_distribution<double> distr(0,1);
       for(int i=0; i<_n; i++){
 	r.set(i,0,i);

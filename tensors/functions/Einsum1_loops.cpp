@@ -1,4 +1,4 @@
-#include "LtensorEinsum1.hpp"
+#include "EinsumParams.hpp"
 
 namespace cnine{
 

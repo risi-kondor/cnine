@@ -51,6 +51,8 @@ namespace cnine{
     int id_tail=0;
 
 
+    EinsumForm1();
+
     EinsumForm1(const string str){
 
       auto d1=str.find("->");
@@ -99,6 +101,21 @@ namespace cnine{
 	id_tail++;
       }
 
+    }
+
+    EinsumForm1 permute(const vector<int>& r_pi, const vector<int>& x_pi){
+      EinsumForm1 R;
+      for(auto& p: transfer_indices)
+	R.transfer_indices.push_back(make_pair(permute(p.first,r_pi),permute(p.second,x_pi)));
+      for(auto& p: summation_indices)
+	R.summation_indices.push_back(permute(p,x_pi));
+      for(auto& p: broadcast_indices)
+	R.broadcast_indices.push_back(permute(p,r_pi));
+      R.x_ids=permute(x_ids,x_pi);
+      R.r_ids=permute(r_ids,r_pi);
+      R.bcast_ids=bcast_ids; // this is doesn't matter because permutation is applied after constructing result
+      R.id_tail=id_tail; // this is doesn't matter because permutation is applied after constructing result
+      return R;
     }
 
 

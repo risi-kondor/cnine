@@ -256,7 +256,7 @@ namespace cnine{
       return dims.size()-ak;
     }
 
-    Gdims get_cdim(const int i) const{
+    int get_cdim(const int i) const{
       return dims[ak+i];
     }
 

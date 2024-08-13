@@ -396,6 +396,7 @@ namespace cnine{
     }
     Rtensor_add_kernel_bt<<<x.n0/1024,1024,0,stream>>>(r.arr,x.arr,1024*x.s0,x.s0,1024*r.s0,r.s0);
     Rtensor_add_kernel_t<<<0,x.n0%1024,0,stream>>>(r.arr+(x.n0-x.n0%1024)*r.s0,x.arr+(x.n0-x.n0%1024),x.s0,r.s0);
+    // blocks should be 1???
   }
 
   void Rtensor_add_cu(const Rtensor2_view& r, const Rtensor2_view& x, const cudaStream_t& stream){

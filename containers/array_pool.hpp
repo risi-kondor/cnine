@@ -72,22 +72,21 @@ namespace cnine{
 
 
     array_pool(): 
-      dir(Gdims(0,2),cnine::fill_noalloc()){}
+      dir(Gdims({0,2}),cnine::fill_noalloc()){}
 
     array_pool(const int n): 
-      dir(Gdims(n,2)){}
+      dir(Gdims({n,2})){}
 
     array_pool(const int n, const int m, const int _dev=0): 
       memsize(n*m),
       tail(n*m),
       dev(_dev),
-      dir(Gdims(n,2)){
+      dir(Gdims({n,2})){
       for(int i=0; i<n; i++){
 	dir.set(i,0,i*m);
 	dir.set(i,1,m);
       }
       CPUCODE(arr=new TYPE[std::max(n*m,1)]);
-      //cout<<12233331122<<endl;
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE))));
     }
 
@@ -102,14 +101,13 @@ namespace cnine{
       memsize(_total),
       tail(0),
       dev(_dev),
-      dir(Gdims(n,2)){
+      dir(Gdims({n,2})){
       CPUCODE(arr=new TYPE[std::max(memsize,1)]);
-      //cout<<12233331122<<endl;
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE))));
     }
 
     array_pool(const Tensor<TYPE>& M):
-      dir(Gdims(M.dim(0),2)),
+      dir(Gdims({M.dim(0),2})),
       memsize(M.asize()),
       tail(M.asize()),
       dev(M.dev){
@@ -127,7 +125,6 @@ namespace cnine{
       }
       if(dev==1){
 	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
-	//cout<<12233331122<<endl;
 	CUDA_SAFE(cudaMemcpy(arrg,M.mem(),memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
       }
     }
