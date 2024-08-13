@@ -579,7 +579,7 @@ namespace cnine{
       Gstrides Tstrides(Tdims);
       bool t=true;
       for(int i=0; i<k; i++)
-	if(Tstrides[i]!=T.stride(i)) {t=false; break;}
+	if(Tstrides[i]!=T.stride(i) && Tdims[i]>1) {t=false; break;}
       if(t==false){
 	CoutLock lk;
 	cout<<"Warning: ATen tensor of dims "<<Tdims<<" has strides [ ";

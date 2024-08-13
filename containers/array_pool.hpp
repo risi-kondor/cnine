@@ -37,7 +37,8 @@ namespace cnine{
 
   template<typename TYPE>
   class array_pool{
-  private:
+    //private:
+  public:
 
     TYPE* arr=nullptr;
     TYPE* arrg=nullptr;
