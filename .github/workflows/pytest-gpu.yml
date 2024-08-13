@@ -12,6 +12,7 @@ on:
   pull_request:
     branches:
       - main
+      - dev**
 
 concurrency:
   # github.workflow: name of the workflow
