@@ -15,17 +15,22 @@
 #ifndef _cnine_TensorView_assign
 #define _cnine_TensorView_assign
 
-//#include "TensorView.hpp"
+//#ifdef _WITH_CUDA
+//#include <cuda.h>
+//#include <cuda_runtime.h>
+//#endif 
 
 
 namespace cnine{
 
   template<typename TYPE> class TensorView;
 
+  //template<> class TensorView<int>;
+
 #ifdef _WITH_CUDA
-  extern void TensorView_assign_cu(const TensorView<int>& r, (const TensorView<int>& x, const cudaStream_t& stream);
-  extern void TensorView_assign_cu(const TensorView<float>& r, (const TensorView<float>& x, const cudaStream_t& stream);
-  extern void TensorView_assign_cu(const TensorView<double>& r, (const TensorView<double>& x, const cudaStream_t& stream);
+  extern void TensorView_assign_cu(const TensorView<int>& r, const TensorView<int>& x, const cudaStream_t& stream);
+  extern void TensorView_assign_cu(const TensorView<float>& r, const TensorView<float>& x, const cudaStream_t& stream);
+  extern void TensorView_assign_cu(const TensorView<double>& r, const TensorView<double>& x, const cudaStream_t& stream);
 #endif 
 
 

@@ -81,7 +81,7 @@ namespace cnine{
 	return;
       }
 
-      if(R.dim[1]<=1024){
+      if(r.dim[1]<=1024){
 	TensorView_inc_kernel_bt<<<r.dim[0],r.dim[1],0,stream>>>(r.get_arr(),x,r.strides[0],r.strides[1]);
 	return;
       }
@@ -103,7 +103,7 @@ namespace cnine{
 
       if(r.dim[1]*r.dim[2]<128){
 	dim3 threads(r.dim[1],r.dim[2]);
-	TensorView_inc_kernel_btt<<<R.dim[0],threads,0,stream>>>(r.get_arr(),x,r.strides[0],r.strides[1],r.strides[2]);
+	TensorView_inc_kernel_btt<<<r.dim[0],threads,0,stream>>>(r.get_arr(),x,r.strides[0],r.strides[1],r.strides[2]);
 	return;
       }
 

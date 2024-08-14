@@ -27,7 +27,7 @@ static string dtype_str(){
 
 string describe() const{
   ostringstream oss;
-  oss<<"TensorView<"<<dtype_str<<">"<<dims<<" ["<<strides<<"]"<<endl;
+  oss<<"TensorView<"<<dtype_str()<<">"<<dims<<" ["<<strides<<"]"<<endl;
   return oss.str();
 }
 

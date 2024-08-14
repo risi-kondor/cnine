@@ -23,9 +23,9 @@ namespace cnine{
   template<typename TYPE> class TensorView;
 
 #ifdef _WITH_CUDA
-  extern void TensorView_add_cu(const TensorView<int>& r, (const TensorView<int>& x, const cudaStream_t& stream);
-  extern void TensorView_add_cu(const TensorView<float>& r, (const TensorView<float>& x, const cudaStream_t& stream);
-  extern void TensorView_add_cu(const TensorView<double>& r, (const TensorView<double>& x, const cudaStream_t& stream);
+  extern void TensorView_add_cu(const TensorView<int>& r, const TensorView<int>& x, const cudaStream_t& stream);
+  extern void TensorView_add_cu(const TensorView<float>& r, const TensorView<float>& x, const cudaStream_t& stream);
+  extern void TensorView_add_cu(const TensorView<double>& r, const TensorView<double>& x, const cudaStream_t& stream);
 #endif 
 
 
