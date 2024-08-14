@@ -240,9 +240,9 @@ namespace cnine{
       for(int i=0; i<nz; i++){
 	auto it=std::find(v.begin(),v.end(),t);
 	if(it==v.end()) return false;
-	int a=it-v.begin();
-	v[a]=0;
-	t*=dims[a];
+	//int a=it-v.begin();
+	*it=0;
+	t*=dims[it-v.begin()];
       }
 
       return true;

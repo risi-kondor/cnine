@@ -91,7 +91,7 @@ namespace cnine{
     }
 
     void push(const int i, const vector<TYPE>& x){
-      CNINE_ASSRT(x.get_dev()==0);
+      //CNINE_ASSRT(x.get_dev()==0);
       CNINE_ASSRT(i+x.size()<=_size);
       std::copy(x.begin(),x.end(),arr+i);
     }

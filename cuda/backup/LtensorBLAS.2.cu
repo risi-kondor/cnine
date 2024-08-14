@@ -11,8 +11,8 @@
  *
  */
 
-#ifndef _RtensorUtils_cu
-#define _RtensorUtils_cu
+#ifndef _LtensorBLAS_cu
+#define _LtensorBLAS_cu
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -216,7 +216,7 @@ namespace cnine{
       dim3 blocks(r.dim[0],r.dim[1],r.dim[2]/1024);
       Ltensor_inc_kernel_bbbt<<<blocks,1024,0,stream>>>(r.get_arr(),r.strides[0],r.strides[1],1024*r.strides[2],r.strides[2],v);
       dim3 blocks2(r.dim[0],r.dim[1]);
-      Ltensor_inc_kernel_bbt<<<blocks2,R.dim[2]%1024,0,stream>>>(r.get_arr(),r.strides[0],r.strides[1],r.strides[2],v);
+      Ltensor_inc_kernel_bbt<<<blocks2,r.dim[2]%1024,0,stream>>>(r.get_arr(),r.strides[0],r.strides[1],r.strides[2],v);
     }    
     if(D>=4){
       CNINE_UNIMPL();
@@ -265,7 +265,7 @@ namespace cnine{
       dim3 blocks(r.dim[0],r.dim[1],r.dim[2]/1024);
       Ltensor_copy_kernel_bbbt<<<blocks,1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],1024*r.strides[2],r.strides[2],x.strides[0],x.strides[1],1024*x.strides[2],x.strides[2]);
       dim3 blocks2(r.dim[0],r.dim[1]);
-      Ltensor_copy_kernel_bbt<<<blocks2,R.dim[2]%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
+      Ltensor_copy_kernel_bbt<<<blocks2,r.dim[2]%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
     }    
     if(D>=4){
       CNINE_UNIMPL();
@@ -314,7 +314,7 @@ namespace cnine{
       dim3 blocks(r.dim[0],r.dim[1],r.dim[2]/1024);
       Ltensor_add_kernel_bbbt<<<blocks,1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],1024*r.strides[2],r.strides[2],x.strides[0],x.strides[1],1024*x.strides[2],x.strides[2]);
       dim3 blocks2(r.dim[0],r.dim[1]);
-      Ltensor_add_kernel_bbt<<<blocks2,R.dim[2]%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
+      Ltensor_add_kernel_bbt<<<blocks2,r.dim[2]%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
     }    
     if(D>=4){
       CNINE_UNIMPL();

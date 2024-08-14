@@ -25,18 +25,20 @@ CUDA_EXTERNS=
 
 ifdef WITH_CUDA
 INCLUDE+=-I$(CUDA_HOME)/include
-CUDA_OBJECTS+=Flock.o CtensorA_add.o CtensorA_add_plus.o CtensorA_copy.o CtensorA_plus.o
+#CUDA_OBJECTS+=Flock.o CtensorA_add.o CtensorA_add_plus.o CtensorA_copy.o CtensorA_plus.o
 CUDA_OBJECTS+=TensorView_accumulators.o  
-CUDA_OBJECTS+=BasicCtensorProducts.o  
-CUDA_OBJECTS+=RtensorEinsumProducts.o  
+#CUDA_OBJECTS+=BasicCtensorProducts.o  
+#CUDA_OBJECTS+=RtensorEinsumProducts.o  
 CUDA_OBJECTS+=RtensorUtils.o  
-CUDA_OBJECTS+=RtensorPackUtils.o  
-CUDA_OBJECTS+=RtensorConvolve2d.o 
-CUDA_OBJECTS+=RtensorConvolve2dSparse.o 
-CUDA_OBJECTS+=RtensorConvolve3d.o  
-CUDA_OBJECTS+=RtensorConvolve3dSparse.o  
+#CUDA_OBJECTS+=RtensorPackUtils.o  
+#CUDA_OBJECTS+=RtensorConvolve2d.o 
+#CUDA_OBJECTS+=RtensorConvolve2dSparse.o 
+#CUDA_OBJECTS+=RtensorConvolve3d.o  
+#CUDA_OBJECTS+=RtensorConvolve3dSparse.o  
 CUDA_OBJECTS+=gatherRows.o  
-CUDA_OBJECTS+=LtensorBLAS.o  
+CUDA_OBJECTS+=TensorView_add.o  
+CUDA_OBJECTS+=TensorView_assign.o  
+CUDA_OBJECTS+=TensorView_inc.o  
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
 NVCCFLAGS+= -D_WITH_CUDA -D_WITH_CUBLAS
 endif 
