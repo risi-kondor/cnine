@@ -1,16 +1,57 @@
 
 
+// ---- Rows and columns ------------------------------------------------------------------------------------
+
+
+TensorView row(const int i) const{
+  CNINE_ASSRT(ndims()==2);
+  CNINE_ASSRT(i<dims[0]);
+  return TensorView(arr+strides[0]*i,{dims[1]},{strides[1]});
+}
+
+TensorView rows(const int i, const int n) const{
+  CNINE_ASSRT(ndims()==2);
+  CNINE_ASSRT(i+n<=dims[0]);
+  return TensorView(arr+strides[0]*i,{n,dims[1]},{strides[0],strides[1]});
+}
+
+TensorView col(const int i) const{
+  CNINE_ASSRT(ndims()==2);
+  CNINE_ASSRT(i<dims[1]);
+  return TensorView(arr+strides[1]*i,{dims[0]},{strides[0]});
+}
+
+TensorView cols(const int i, const int n) const{
+  CNINE_ASSRT(ndims()==2);
+  CNINE_ASSRT(i+n<=dims[1]);
+  return TensorView(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
+}
+
+//TensorView columnss(const int i, const int n) const{
+//CNINE_ASSRT(ndims()==2);
+//CNINE_ASSRT(i+n<=dims[1]);
+//return TensorView(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
+//}
+
+[[deprecated]]
+tensor1_view rowv(const int i) const{
+  CNINE_ASSRT(ndims()==2);
+  CNINE_ASSRT(i<dims[0]);
+  return tensor1_view(arr.ptr()+strides[0]*i,dims[1],strides[1]);
+}
+
+
 // ---- Blocks ---------------------------------------------------------------------------------------------
 
 
 TensorView block(const Gdims& _dims) const{
   CNINE_ASSRT(_dims<=dims);
-  return TensorView<TYPE>(arr,_dims,strides);
+  return TensorView(arr,_dims,strides);
 }
 
 TensorView block(const Gdims& _dims, const Gindex& offs) const{
   CNINE_ASSRT(offs+_dims<=dims);
-  return TensorView<TYPE>(arr+strides.offs(offs),_dims,strides);
+  return TensorView(arr+strides.offs(offs),_dims,strides);
 }
 
 TensorView block(const int i0, const int m0) const{
@@ -23,11 +64,6 @@ TensorView block(const int i0, const int i1, const int m0, const int m1) const{
   return block({m0,m1},{i0,i1});
 }
 
-//TensorView block2(const int i0, const int i1, const int m0, const int m1) const{
-//  CNINE_ASSRT(ndims()==2);
-//  return block({m0,m1},{i0,i1});
-//}
-
 
 // ---- Diagonals ------------------------------------------------------------------------------------------
 
@@ -35,7 +71,7 @@ TensorView block(const int i0, const int i1, const int m0, const int m1) const{
 TensorView diag() const{
   CNINE_ASSRT(ndims()==2);
   CNINE_ASSRT(dims[0]==dims[1]);
-  return TensorView<TYPE>(arr,{dims[0]},{strides[0]+strides[1]});
+  return TensorView(arr,{dims[0]},{strides[0]+strides[1]});
 }
 
 TensorView diag(const vector<int>& ix) const{
@@ -53,24 +89,22 @@ TensorView diag(const vector<int>& ix) const{
 }
 
 
-
-
 // ---- Slices ---------------------------------------------------------------------------------------------
 
 
 TensorView slice(const int d, const int i) const{
   CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
-  return TensorView<TYPE>(arr+strides[d]*i,dims.remove(d),strides.remove(d)/*.inc_offset(strides[d]*i)*/);
+  return TensorView(arr+strides[d]*i,dims.remove(d),strides.remove(d)/*.inc_offset(strides[d]*i)*/);
 }
 
 TensorView slice(const Gindex& ix) const{
   const int k=ix.size();
-  return TensorView<TYPE>(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k));
+  return TensorView(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k));
 }
 
 TensorView slices(const int d, const int i, const int j) const{
   if(i+j>0) {CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+j-1,string(__PRETTY_FUNCTION__)));}
   Gdims _dims(dims);
-  return TensorView<TYPE>(arr+strides[d]*i,_dims.set(d,j),strides);
+  return TensorView(arr+strides[d]*i,_dims.set(d,j),strides);
 }
 

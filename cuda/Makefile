@@ -36,7 +36,9 @@ CUDA_OBJECTS+=RtensorConvolve2dSparse.o
 CUDA_OBJECTS+=RtensorConvolve3d.o  
 CUDA_OBJECTS+=RtensorConvolve3dSparse.o  
 CUDA_OBJECTS+=gatherRows.o  
-CUDA_OBJECTS+=LtensorBLAS.o  
+CUDA_OBJECTS+=TensorView_add.o  
+CUDA_OBJECTS+=TensorView_assign.o  
+CUDA_OBJECTS+=TensorView_inc.o  
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
 NVCCFLAGS+= -D_WITH_CUDA -D_WITH_CUBLAS
 endif 

@@ -139,4 +139,33 @@ TensorView split1(const int a, const int b) const{
   return TensorView(arr,d,s);
 }
 
+TensorView<TYPE> cinflate(const int d, const int n) const{
+  CNINE_ASSRT(dims[d]==1||dims[d]==n);
+  if(dims[d]==n) return *this; 
+  TensorView<TYPE> R(*this);
+      R.dims[d]=n;
+      R.strides[d]=0;
+      return R;
+}
+
+
+// ---- Tensor products -------------------------------------------------------------------------------------
+
+
+TensorView<TYPE> tprod_view(const Gdims& dims1, const Gdims& dims2) const{
+  int k=ndims();
+  CNINE_ASSRT(dims1.size()==k);
+  CNINE_ASSRT(dims2.size()==k);
+  Gdims rdims(2*k,fill_raw());
+  for(int i=0; i<k; i++){
+    rdims[2*i]=dims1[i];
+    rdims[2*i+1]=dims2[i];
+  }
+  GstridesB rstrides(2*k,fill_raw());
+  for(int i=0; i<k; i++){
+    rdims[2*i]=dims2[i]*strides[i];
+    rdims[2*i+1]=strides[i];
+  }
+  return TensorView<TYPE>(arr,rdims,rstrides);
+}
 

@@ -14,12 +14,18 @@
 #ifndef _cnine_TensorView_assign
 #define _cnine_TensorView_assign
 
-#include "TensorView.hpp"
+//#include "TensorView.hpp"
 
 
 namespace cnine{
 
   template<typename TYPE> class TensorView;
+
+#ifdef _WITH_CUDA
+  extern void TensorView_assign_cu(const TensorView<int>& r, (const TensorView<int>& x, const cudaStream_t& stream);
+  extern void TensorView_assign_cu(const TensorView<float>& r, (const TensorView<float>& x, const cudaStream_t& stream);
+  extern void TensorView_assign_cu(const TensorView<double>& r, (const TensorView<double>& x, const cudaStream_t& stream);
+#endif 
 
 
   template<typename TYPE>
@@ -43,24 +49,23 @@ namespace cnine{
     if constexpr(!(std::is_same<TYPE,int>::value || 
 	std::is_same<TYPE,float>::value || std::is_same<TYPE,double>::value)){
       CNINE_UNIMPL();
-      return;
-    }
+    }else{
+      if(rp.get_dev()==1){
+	if(xp.get_dev()==0) CUDA_STREAM(TensorView_assign_cu(rp,TensorView<TYPE>(xp,rp.get_dev()),stream));
+	if(xp.get_dev()==1) CUDA_STREAM(TensorView_assign_cu(rp,xp,stream));
+	return;
+      }
 
-    if(rp.get_dev()==1){
-      if(xp.get_dev()==0) CUDA_STREAM(TensorView_assign_cu(rp,TensorView<TYPE>(xp,rp.get_dev()),stream));
-      if(xp.get_dev()==1) CUDA_STREAM(TensorView_assign_cu(rp,xp,stream));
-      return;
-    }
-
-    // TODO; refine this a lot!
-    if(rp.get_dev()==0){
-      if(rp.is_contiguous()){
-	TensorView<TYPE> z(MemArr<TYPE>(rp.get_strides().memsize(rp.get_dims()),xp.get_dev()),rp.get_dims(),rp.get_strides());
-	CUDA_STREAM(TensorView_assign_cu(z,xp,stream));
-	TensorView_assign(rp,z);
-      }else{
-	TensorView<TYPE> z(xp,0);
-	TensorView_assign(rp,z);
+      // TODO; refine this a lot!
+      if(rp.get_dev()==0){
+	if(rp.is_contiguous()){
+	  TensorView<TYPE> z(MemArr<TYPE>(rp.get_strides().memsize(rp.get_dims()),xp.get_dev()),rp.get_dims(),rp.get_strides());
+	  CUDA_STREAM(TensorView_assign_cu(z,xp,stream));
+	  TensorView_assign(rp,z);
+	}else{
+	  TensorView<TYPE> z(xp,0);
+	  TensorView_assign(rp,z);
+	}
       }
     }
   }

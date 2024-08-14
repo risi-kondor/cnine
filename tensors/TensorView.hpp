@@ -40,6 +40,7 @@
 #include "tensor1_view.hpp"
 
 #include "TensorView_assign.hpp"
+#include "TensorView_add.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -68,6 +69,11 @@ namespace cnine{
   template<typename TYPE> class Ltensor;
   template<typename TYPE> class BatchedTensorView;
 
+#ifdef _WITH_CUDA
+  extern void TensorView_inc_cu(const TensorView<int>& r, const int v, const cudaStream_t& stream);
+  extern void TensorView_inc_cu(const TensorView<float>& r, const float v, const cudaStream_t& stream);
+  extern void TensorView_inc_cu(const TensorView<double>& r, const double v, const cudaStream_t& stream);
+#endif 
 
   // this is the multiply defined functions problem
   inline Itensor1_view view1_of(const TensorView<int>& x);
@@ -263,6 +269,25 @@ namespace cnine{
       dev=x.dev;
     }
 
+    TensorView copy() const{
+      TensorView R(dims,0,dev);
+      R=*this;
+      return R;
+    }
+
+    TensorView copy(const int _dev) const{
+      TensorView R(dims,0,_dev);
+      R=*this;
+      return R;
+    }
+
+    TensorView copy_keeping_strides(int _dev=-1) const{
+      if(_dev==-1) _dev=dev;
+      TensorView R(MemArr<TYPE>(strides.memsize(dims),_dev),dims,strides);
+      R=*this;
+      return R;
+    }
+    
     TensorView* clone() const{
       return new TensorView(*this);
     }
@@ -276,7 +301,6 @@ namespace cnine{
       TensorView<TYPE>(MemArr<TYPE>(x.dims.asize(),_dev),x.dims,GstridesB(x.dims)){
       (*this)=x;
     }
-
 
     void move_to_device(const int _dev) const{
       if(_dev==dev) return;
@@ -543,226 +567,10 @@ namespace cnine{
       return !((*this)==x);
     }
 
-
-  public: // ---- Getters ------------------------------------------------------------------------------------
-
-
-    TYPE operator()(const Gindex& ix) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
-      return arr[strides.offs(ix)];
-    }
-
-    TYPE operator()(const int i0) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
-      return arr[strides.offs(i0)];
-    }
-
-    TYPE operator()(const int i0, const int i1) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,string(__PRETTY_FUNCTION__)));
-      return arr[strides.offs(i0,i1)];
-    }
-
-    TYPE operator()(const int i0, const int i1, const int i2) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
-      return arr[strides.offs(i0,i1,i2)];
-    }
-
-    TYPE operator()(const int i0, const int i1, const int i2, const int i3) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
-      return arr[strides.offs(i0,i1,i2,i3)];
-    }
-
-
-    TYPE get(const int i0) const{
-      return operator()(i0);
-    }
-
-    TYPE get(const int i0, const int i1) const{
-      return operator()(i0,i1);
-    }
-
-    TYPE get_value(const int i0) const{
-      return operator()(i0);
-    }
-
-    TYPE get_value(const int i0, const int i1) const{
-      return operator()(i0,i1);
-    }
-
-    TYPE get_value(const int i0, const int i1, const int i2) const{
-      return operator()(i0,i1,i2);
-    }
-
-
-    TYPE& operator()(const int i0){
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
-      return arr[strides.offs(i0)];
-    }
-
-
-  public: // ---- Setters ------------------------------------------------------------------------------------
-
-
-    TYPE set(const Gindex& ix, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(ix)]=x;
-      return x;
-    }
-
-    TYPE set(const int i0, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0)]=x;
-      return x;
-    }
-
-    TYPE set(const int i0, const int i1,  const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0,i1)]=x;
-      return x;
-    }
-
-    TYPE set(const int i0, const int i1, const int i2, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0,i1,i2)]=x;
-      return x;
-    }
-
-    TYPE set(const int i0, const int i1, const int i2, const int i3, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0,i1,i2,i3)]=x;
-      return x;
-    }
-
-
-    //void set_value(const int i0, const TYPE x) const{
-    //set(i0,x);
-    //}
-
-    // void set_value(const int i0, const int i1, const TYPE x) const{
-    //set(i0,i1,x);
-    //}
-
-
-  public: // ---- Incrementers -------------------------------------------------------------------------------
-
-
-    void inc(const Gindex& ix, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(ix)]+=x;
-    }
-
-    void inc(const int i0, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0)]+=x;
-    }
-
-    void inc(const int i0, const int i1,  const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0,i1)]+=x;
-    }
-
-    void inc(const int i0, const int i1, const int i2, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0,i1,i2)]+=x;
-    }
-
-    void inc(const int i0, const int i1, const int i2, const int i3, const TYPE x) const{
-      CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
-      arr[strides.offs(i0,i1,i2,i3)]+=x;
-    }
-
-
-  public: // ---- Rows and columns --------------------------------------------------------------------------
-
-
-    TensorView<TYPE> row(const int i) const{
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i<dims[0]);
-      return TensorView<TYPE>(arr+strides[0]*i,{dims[1]},{strides[1]});
-    }
-
-    TensorView<TYPE> rows(const int i, const int n) const{
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i+n<=dims[0]);
-      return TensorView<TYPE>(arr+strides[0]*i,{n,dims[1]},{strides[0],strides[1]});
-    }
-
-    TensorView<TYPE> col(const int i) const{
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i<dims[1]);
-      return TensorView<TYPE>(arr+strides[1]*i,{dims[0]},{strides[0]});
-    }
-
-    TensorView<TYPE> cols(const int i, const int n) const{
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i+n<=dims[1]);
-      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
-    }
-
-    TensorView<TYPE> columnss(const int i, const int n) const{
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i+n<=dims[1]);
-      return TensorView<TYPE>(arr+strides[1]*i,{dims[0],n},{strides[0],strides[1]});
-    }
-
-    tensor1_view<TYPE> rowv(const int i) const{
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(i<dims[0]);
-      return tensor1_view<TYPE>(arr.ptr()+strides[0]*i,dims[1],strides[1]);
-    }
-
-
-  public: // ---- Lambdas -----------------------------------------------------------------------------------
-
-
-    void for_each(const std::function<void(const Gindex&, TYPE& x)>& lambda) const{
-      dims.for_each_index([&](const Gindex& ix){
-	  lambda(ix,const_cast<MemArr<TYPE>&>(arr)[strides.offs(ix)]);});
-    }
-
-    //void for_each(const std::function<void(const Gindex&, TYPE x)>& lambda) const{
-    //dims.for_each_index([&](const Gindex& ix){
-    //  lambda(ix,arr[strides.offs(ix)]);});
-    //}
-
-
-  public: // ---- Index changes ------------------------------------------------------------------------------
-
-
-    //TensorView<TYPE> transp(){
-    //return TensorView<TYPE>(arr,dims.transp(),strides.transp());
-    //}
-
+#include "TensorView_access.inc"
+#include "TensorView_lambdas.inc"
 #include "TensorView_reshapes.inc"
 #include "TensorView_subtensors.inc"
-
-
-    TensorView<TYPE> cinflate(const int d, const int n) const{
-      CNINE_ASSRT(dims[d]==1||dims[d]==n);
-      if(dims[d]==n) return *this; 
-      TensorView<TYPE> R(*this);
-      R.dims[d]=n;
-      R.strides[d]=0;
-      return R;
-    }
-
-
-    TensorView<TYPE> tprod_view(const Gdims& dims1, const Gdims& dims2) const{
-      int k=ndims();
-      CNINE_ASSRT(dims1.size()==k);
-      CNINE_ASSRT(dims2.size()==k);
-      Gdims rdims(2*k,fill_raw());
-      for(int i=0; i<k; i++){
-	rdims[2*i]=dims1[i];
-	rdims[2*i+1]=dims2[i];
-      }
-      GstridesB rstrides(2*k,fill_raw());
-      for(int i=0; i<k; i++){
-	rdims[2*i]=dims2[i]*strides[i];
-	rdims[2*i+1]=strides[i];
-      }
-      return TensorView<TYPE>(arr,rdims,rstrides);
-    }
 
 
   public: // ---- In-place Operations ------------------------------------------------------------------------
@@ -808,38 +616,34 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    void add(const TensorView& x){
-      CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(asize()==x.asize());
-      if(dev==0){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
-	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
-	  for(size_t i=0; i<asize(); i++) ptr[i]+=xptr[i];
-	}else
-	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
-      }
+    void operator+=(const TYPE x) const {add(x);}
+    void operator+=(const TensorView& x) const {add(x);}
+    void operator-=(const TYPE x) const {add(-x);}
+    void operator-=(const TensorView& x) const {subtract(x);}
+
+    void add(const TYPE x){
+      if(asize()==0) return;
+      if(x==0) return;
+      auto R=scrunch();
+      if(dev==0) R.for_each([&](TYPE& v){v+=x;});
       if(dev==1){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  const float alpha=1.0; // todo
-	  if constexpr(std::is_same<TYPE,complex<float> >::value)
-	    CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
-	}else{
-	  if(ndims()<=3){
-	    if(ndims()==1) view1().add(x.view1());
-	    if(ndims()==2) view2().add(x.view2());
-	    if(ndims()==3) view3().add(x.view3());
-	  }else{
-	    cout<<strides<<x.strides<<endl;
-	    CNINE_UNIMPL();
-	  }
-	}
+	if constexpr(std::is_same<TYPE,int>::value){
+	  CUDA_STREAM(TensorView_inc_cu(R,x,stream));
+	  return;}
+	if constexpr(std::is_same<TYPE,float>::value){
+	  CUDA_STREAM(TensorView_inc_cu(R,x,stream));
+	  return;}
+	if constexpr(std::is_same<TYPE,double>::value){
+	  CUDA_STREAM(TensorView_inc_cu(R,x,stream));
+	  return;}
+	CNINE_CPUONLY();
       }
     }
 
-    void operator+=(const TensorView& x){
-      add(x);
+    void add(const TensorView& x){
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      TensorView_add(*this,x);
     }
 
     void subtract(const TensorView& x) const{
@@ -862,10 +666,6 @@ namespace cnine{
 	}else
 	  CNINE_UNIMPL();
       }
-    }
-
-    void operator-=(const TensorView& x) const{
-      add(x);
     }
 
     void add(const TensorView& x, const TYPE c){
@@ -1449,3 +1249,43 @@ namespace cnine{
     }
     */
 
+    //void set_value(const int i0, const TYPE x) const{
+    //set(i0,x);
+    //}
+
+    // void set_value(const int i0, const int i1, const TYPE x) const{
+    //set(i0,i1,x);
+    //}
+
+
+    /*
+    void add(const TensorView& x){
+      CNINE_DEVICE_SAME(x);
+      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
+      assert(asize()==x.asize());
+      if(dev==0){
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  for(size_t i=0; i<asize(); i++) ptr[i]+=xptr[i];
+	}else
+	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
+      }
+      if(dev==1){
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  const float alpha=1.0; // todo
+	  if constexpr(std::is_same<TYPE,complex<float> >::value)
+	    CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
+	}else{
+	  if(ndims()<=3){
+	    if(ndims()==1) view1().add(x.view1());
+	    if(ndims()==2) view2().add(x.view2());
+	    if(ndims()==3) view3().add(x.view3());
+	  }else{
+	    cout<<strides<<x.strides<<endl;
+	    CNINE_UNIMPL();
+	  }
+	}
+      }
+    }
+    */
