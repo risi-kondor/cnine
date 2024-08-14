@@ -1,7 +1,7 @@
 /*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
- * Copyright (c) 2021, Imre Risi Kondor
+ * Copyright (c) 2024, Imre Risi Kondor
  *
  * This source code file is subject to the terms of the noncommercial 
  * license distributed with cnine in the file LICENSE.TXT. Commercial 
@@ -10,6 +10,7 @@
  * must be accompanied by a verbatim copy of the license. 
  *
  */
+
 
 #ifndef _TensorView_add_cu
 #define _TensorView_add_cu

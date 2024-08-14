@@ -1,3 +1,15 @@
+/*
+ * This file is part of cnine, a lightweight C++ tensor library. 
+ *  
+ * Copyright (c) 2021--, Imre Risi Kondor
+ *
+ * This source code file is subject to the terms of the noncommercial 
+ * license distributed with cnine in the file LICENSE.TXT. Commercial 
+ * use is prohibited. All redistributed versions of this file (in 
+ * original or modified form) must retain this copyright notice and 
+ * must be accompanied by a verbatim copy of the license. 
+ *
+ */
 
 
 // ---- Rows and columns ------------------------------------------------------------------------------------
@@ -34,10 +46,10 @@ TensorView cols(const int i, const int n) const{
 //}
 
 [[deprecated]]
-tensor1_view rowv(const int i) const{
+tensor1_view<TYPE> rowv(const int i) const{
   CNINE_ASSRT(ndims()==2);
   CNINE_ASSRT(i<dims[0]);
-  return tensor1_view(arr.ptr()+strides[0]*i,dims[1],strides[1]);
+  return tensor1_view<TYPE>(arr.ptr()+strides[0]*i,dims[1],strides[1]);
 }
 
 

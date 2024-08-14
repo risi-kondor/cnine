@@ -113,7 +113,7 @@ namespace cnine{
     GstridesB strides;
     int dev;
 
-
+  
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
@@ -354,87 +354,7 @@ namespace cnine{
   public: // ---- ATen --------------------------------------------------------------------------------------
 
 
-    #ifdef _WITH_ATEN
-
-    TensorView(const at::Tensor& T):
-      TensorView(Gdims(T),T.type().is_cuda()){
-      operator=(T);
-    }
-
-    TensorView& operator=(const at::Tensor& T){
-      CNINE_CONVERT_FROM_ATEN_WARNING();
-      CNINE_ASSRT(dims==Gdims(T));
-      CNINE_ASSRT(dev==T.type().is_cuda());
-
-      if constexpr(std::is_same<TYPE,int>::value || std::is_same<TYPE,float>::value){
-	CNINE_ASSRT(strides==GstridesB(T));
-	if(dev==0){
-	  std::copy(T.data<TYPE>(),T.data<TYPE>()+memsize(),reinterpret_cast<TYPE*>(arr.ptr()));
-	}
-	if(dev==1){
-	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<TYPE>(),asize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));
-	}
-	return *this;
-      }
-
-      if constexpr(std::is_same<TYPE,complex<float> >::value){
-	CNINE_ASSRT(strides==GstridesB(T));
-	if(dev==0){
-	  std::copy(T.data<c10::complex<float>>(),T.data<c10::complex<float>>()+asize(),reinterpret_cast<c10::complex<float>*>(arr.ptr()));
-	}
-	if(dev==1){
-	  CUDA_SAFE(cudaMemcpy(arr.ptr(),T.data<c10::complex<float>>(),asize()*sizeof(c10::complex<float>),cudaMemcpyDeviceToDevice));
-	}
-	return *this;
-      }
-
-      CNINE_UNIMPL();
-      return *this;
-    }
   
-
-    at::Tensor torch() const{
-      CNINE_CONVERT_TO_ATEN_WARNING();
-      //assert(dev==0);
-      int k=ndims();
-      //vector<int64_t> v(k); 
-      //for(int i=0; i<k; i++) v[i]=dims[i];
-
-      if constexpr(std::is_same<TYPE,int>::value){
-	if(dev==0){
-	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kInt))); 
-	  std::copy(arr.ptr(),arr.ptr()+dims.asize(),R.data<int>());
-	  return R;
-	}
-      }
-
-      if constexpr(std::is_same<TYPE,float>::value){
-	if(dev==0){
-	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kFloat))); 
-	  std::copy(arr.ptr(),arr.ptr()+dims.asize(),R.data<float>());
-	  return R;
-	}
-	if(dev==1){
-	  at::Tensor R(at::zeros(dims.as_int64(),torch::CUDA(at::kFloat))); 
-	  CUDA_SAFE(cudaMemcpy(R.data<float>(),arr.ptr(),dims.asize()*sizeof(float),cudaMemcpyDeviceToDevice));  
-	  return R;
-	}
-      }
-
-      if constexpr(std::is_same<TYPE,complex<float> >::value){
-	if(dev==0){
-	  at::Tensor R(at::zeros(dims.as_int64(),torch::CPU(at::kComplexFloat))); 
-	  std::copy(arr.ptr(),arr.ptr()+dims.asize(),R.data<c10::complex<float>>());
-	  return R;
-	}
-      }
-      
-      CNINE_UNIMPL();
-      return at::Tensor(at::zeros(dims.as_int64(),torch::CPU(at::kFloat))); 
-    }
-
-    #endif
-
 
   public: // ---- Eigen --------------------------------------------------------------------------------------
 
@@ -464,7 +384,7 @@ namespace cnine{
     }
 
 #endif 
-
+  
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -571,8 +491,12 @@ namespace cnine{
 #include "TensorView_lambdas.inc"
 #include "TensorView_reshapes.inc"
 #include "TensorView_subtensors.inc"
+#include "TensorView_scalar_ops.inc"
+#include "TensorView_cumulative_ops.inc"
+#include "TensorView_ATen.inc"
+#include "TensorView_IO.inc"
 
-
+  
   public: // ---- In-place Operations ------------------------------------------------------------------------
 
 
@@ -616,163 +540,7 @@ namespace cnine{
   public: // ---- Cumulative Operations ----------------------------------------------------------------------
 
 
-    void operator+=(const TYPE x) const {add(x);}
-    void operator+=(const TensorView& x) const {add(x);}
-    void operator-=(const TYPE x) const {add(-x);}
-    void operator-=(const TensorView& x) const {subtract(x);}
-
-    void add(const TYPE x){
-      if(asize()==0) return;
-      if(x==0) return;
-      auto R=scrunch();
-      if(dev==0) R.for_each([&](TYPE& v){v+=x;});
-      if(dev==1){
-	if constexpr(std::is_same<TYPE,int>::value){
-	  CUDA_STREAM(TensorView_inc_cu(R,x,stream));
-	  return;}
-	if constexpr(std::is_same<TYPE,float>::value){
-	  CUDA_STREAM(TensorView_inc_cu(R,x,stream));
-	  return;}
-	if constexpr(std::is_same<TYPE,double>::value){
-	  CUDA_STREAM(TensorView_inc_cu(R,x,stream));
-	  return;}
-	CNINE_CPUONLY();
-      }
-    }
-
-    void add(const TensorView& x){
-      CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      TensorView_add(*this,x);
-    }
-
-    void subtract(const TensorView& x) const{
-      CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      CNINE_CPUONLY();
-      assert(asize()==x.asize());
-      if(dev==0){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
-	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
-	  for(size_t i=0; i<asize(); i++) ptr[i]-=xptr[i];
-	}else
-	  for_each([&](const Gindex& ix, TYPE& v){v-=x(ix);});
-      }
-      if(dev==1){
-	if(is_contiguous() && x.is_contiguous() && strides==x.strides){
-	  const float alpha=-1.0; // todo
-	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
-	}else
-	  CNINE_UNIMPL();
-      }
-    }
-
-    void add(const TensorView& x, const TYPE c){
-      CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      CNINE_CPUONLY();
-      assert(asize()==x.asize());
-      if(dev==0){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
-	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
-	  for(size_t i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
-	}else{
-	  for_each([&](const Gindex& ix, TYPE& v){v+=c*x(ix);});
-	}
-      }
-      if(dev==1){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  const TYPE alpha=c;
-	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
-	}else
-	  CNINE_UNIMPL();
-      }
-    }
-
-    void add_sum(const int d, const TensorView& x){
-      CNINE_ASSRT(x.dims.size()>d);
-      for(int i=0; i<x.dims[d]; i++)
-	add(x.slice(d,i));
-    }
-
-    void subtract(const TensorView& x, const TYPE c){
-      CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      CNINE_CPUONLY();
-      assert(asize()==x.asize());
-      if(dev==0){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
-	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
-	  for(size_t i=0; i<asize(); i++) ptr[i]-=c*xptr[i];
-	}else{
-	  for_each([&](const Gindex& ix, TYPE& v){v-=c*x(ix);});
-	}
-      }
-      if(dev==1){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  const TYPE alpha=c;
-	  //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
-	}else
-	  CNINE_UNIMPL();
-      }
-    }
-
-    void add_prod(const TensorView& x, const TensorView& y) const{
-      CNINE_DEVICE_SAME(x);
-      CNINE_DEVICE_SAME(y);
-      CNINE_DIMS_SAME(x);
-      CNINE_DIMS_SAME(y);
-      if(dev==0){
-	if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
-	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
-	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
-	  TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
-	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i]*yptr[i];
-	}else
-	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix)*y(ix);});
-      }
-      if(dev==1){
-	CNINE_UNIMPL();
-      }
-    }
-
-    void add_broadcast(const int d, const TensorView& x){
-      CNINE_ASSRT(d<dims.size());
-      CNINE_CPUONLY();
-      if(dev==0)
-	for(int i=0; i<dims[d]; i++)
-	  slice(d)+=x;
-    }
-
-    void add_ReLU(const TensorView& x, const float alpha){
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(x.get_dev()==get_dev());
-      int N=asize();
-      if(dev==0){
-	for(int i=0; i<N; i++) 
-	  arr[i]+=((x.arr[i]>0)+alpha*(x.arr[i]<0))*x.arr[i];
-      }
-      if(dev==1){
-	flat_view().add_ReLU(x.flat_view(),alpha);
-      }
-    }
-
-    void add_ReLU_back(const TensorView& g, const TensorView& x, const float alpha){
-      CNINE_CHECK_SIZE(dims.check_eq(g.dims));
-      assert(g.get_dev()==get_dev());
-      int N=asize();
-      if(dev==0){
-	for(int i=0; i<N; i++)
-	  arr[i]+=((g.arr[i]>0)+alpha*(g.arr[i]<0))*g.arr[i];
-      }
-      if(dev==1){
-	flat_view().add_ReLU_back(g.flat_view(),x.flat_view(),alpha);
-      }
-    }
-
+  
 
   public: // ---- Matrix multiplication ---------------------------------------------------------------------
 
@@ -822,7 +590,7 @@ namespace cnine{
 	});
     }
 
-
+  
     void add_mprod(const TensorView& x, const TensorView& y) const{
       reconcile_devices<TensorView<TYPE> >(*this,x,y,[]
 	(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
@@ -855,7 +623,7 @@ namespace cnine{
 
 
   public: // ---- Tensor multiplication ---------------------------------------------------------------------
-
+  
 
     void add_tprod(const TensorView& x, const TensorView& y) const{
       reconcile_devices<TensorView<TYPE> >(*this,x,y,[&](const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
@@ -895,7 +663,7 @@ namespace cnine{
 	});
     }
 
-
+  
   public: // ---- Scaling -----------------------------------------------------------------------------------
 
     
@@ -925,261 +693,14 @@ namespace cnine{
   public: // ---- Not in-place operations -------------------------------------------------------------------
 
 
-
-
-  public: // ---- Scalar valued operations ------------------------------------------------------------------
-
-
-    TYPE max() const{
-      if(asize()==0) return 0;
-      TYPE t=arr[0];
-      if(is_contiguous()){
-	for(size_t i=0; i<asize(); i++)
-	  if(arr[i]>t) t=arr[i];
-      }else{
-	for_each([&](const Gindex& ix, TYPE& v){
-	    if(v>t) t=v;});
-      }
-      return t; 
-    }
-
-    TYPE min() const{
-      if(asize()==0) return 0;
-      TYPE t=arr[0];
-      if(is_contiguous()){
-	for(size_t i=0; i<asize(); i++)
-	  if(arr[i]<t) t=arr[i];
-      }else{
-	for_each([&](const Gindex& ix, TYPE& v){
-	    if(v<t) t=v;});
-      }
-      return t; 
-    }
-
-    auto max_abs() const -> decltype(std::real(min())){
-      if(asize()==0) return 0;
-      decltype(std::real(min())) t=std::real(arr[0]);
-      if(is_contiguous()){
-	for(int i=0; i<asize(); i++)
-	  if(abs(arr[i])>t) t=abs(arr[i]);
-      }else{
-	//CNINE_UNIMPL()
-	for_each([&](const Gindex& ix, TYPE& v){
-	    if(abs(v)>t) t=abs(v);});
-      }
-      return t; 
-    }
-
-    TYPE inp(const TensorView& y) const{
-      CNINE_CPUONLY();
-      CNINE_ASSRT(dims==y.dims);
-      TYPE t=0;
-      if(dev==0){
-	if(is_regular() && y.is_regular()){
-	  for(size_t i=0; i<asize(); i++)
-	    t+=arr[i]*y.arr[i];
-	  //t+=std::conj(arr[i])*y.arr[i];
-	}else{
-	  for_each([&](const Gindex& ix, TYPE& v){
-	      t+=v*y(ix);});
-	  //t+=std::conj(v)*y(ix);});
-	}
-      }
-      return t;
-    }
-
-    TYPE norm2() const{
-      CNINE_CPUONLY();
-      TYPE t=0;
-      if(dev==0){
-	if(is_contiguous()){
-	  for(size_t i=0; i<asize(); i++)
-	    t+=arr[i]*arr[i];
-	  //t+=std::conj(arr[i])*arr[i];
-	}else{
-	  for_each([&](const Gindex& ix, TYPE& v){
-	      t+=v*v;});
-	  //t+=std::conj(v)*v;});
-	}
-      }
-      return t;
-    }
-
-    TYPE norm() const{
-      return sqrt(norm2());
-    }
-
-    TYPE diff2(const TensorView& x) const{
-      CNINE_ASSRT(x.asize()==asize());
-      if(get_dev()==0 && x.get_dev()>0)
-	return diff2(TensorView(x,0));
-      TYPE t=0;
-      if(is_regular() && x.is_regular()){
-	for(size_t i=0; i<asize(); i++){
-	  const TYPE a=x.arr[i]-arr[i];
-	  if constexpr(is_complex<TYPE>())
-	    t+=a*std::conj(a);
-	  else
-	    t+=a*a;
-	}
-      }else{
-	for_each([&](const Gindex& ix, TYPE& v){
-	    const TYPE a=x(ix)-(*this)(ix);
-	    if constexpr(is_complex<TYPE>())
-	      t+=a*std::conj(a);
-	    else
-	      t+=a*a;
-	  });
-      }
-      return t;
-    }
-
-    TYPE unitary_error() const{
-      CNINE_ASSRT(dims[0]==dims[1]);
-      TensorView A({dims[0],dims[0]},fill_zero());
-      A.add_mprod(*this,transp());
-      for(int i=0; i<dims[0]; i++)
-	A.inc(i,i,-1.0);
-      return A.norm();
-    }
-
-
-
-  public: // ---- I/O ---------------------------------------------------------------------------------------
-
-
-    string classname() const{
-      return "TensorView";
-    }
-
-    string describe() const{
-      ostringstream oss;
-      oss<<"TensorView"<<dims<<" ["<<strides<<"]"<<endl;
-      return oss.str();
-    }
-
-    string repr() const{
-      ostringstream oss;
-      oss<<"TensorView"<<dims<<" [strides="<<strides<<"]";
-      return oss.str();
-    }
-
-    string to_string(const string indent="") const{
-      if(dev>0) return TensorView(*this,0).str(indent);
-      ostringstream oss;
-
-      //TYPE largest=std::max(-min(),max());
-      float limit;
-      if constexpr(std::is_same<TYPE,complex<float> >::value)
-	limit=std::real(max_abs())/10e5;
-      else 
-	limit=max_abs()/10e5;
-
-      if(ndims()==1){
-	oss<<base_indent<<indent<<"[ ";
-	for(int i0=0; i0<dims[0]; i0++)
-	  if(abs((*this)(i0))>limit) oss<<(*this)(i0)<<" ";
-	  else oss<<TYPE(0)<<" ";
-	oss<<"]"<<endl;
-	return oss.str();
-      }
-
-      if(ndims()==2){
-	for(int i0=0; i0<dims[0]; i0++){
-	  oss<<base_indent<<indent<<"[ ";
-	  for(int i1=0; i1<dims[1]; i1++)
-	    if(abs((*this)(i0,i1))>limit) oss<<(*this)(i0,i1)<<" ";
-	    else oss<<TYPE(0)<<" ";
-	  oss<<"]"<<endl;
-	}
-	return oss.str();
-      }
-
-      if(ndims()>2){
-	Gdims adims=dims.chunk(0,ndims()-2);
-	adims.for_each_index([&](const Gindex& ix){
-	    oss<<base_indent<<indent<<"Slice"<<ix<<":"<<endl;
-	    oss<<slice(ix).to_string(base_indent+indent+"  ")<<endl;
-	  });
-      }
-
-      return oss.str();
-    }
-
-
-    string str(const string indent="") const{
-      ostringstream oss;
-      oss<<repr()<<":"<<endl;
-      oss<<to_string(indent+"  ");
-      return oss.str();
-    }
-
-
-    friend ostream& operator<<(ostream& stream, const TensorView<TYPE>& x){
-      stream<<x.str(); return stream;
-    }
-
   };
-
-
-  // ---- Functions ----------------------------------------------------------------------------------------------
-
-  
-  template<typename TYPE>
-  TYPE inp(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    return x.inp(y);
-  }
-
-  template<typename TYPE>
-  TYPE norm2(const TensorView<TYPE>& x){
-    return x.norm2();
-  }
-
-  template<typename TYPE>
-  TYPE norm(const TensorView<TYPE>& x){
-    return x.norm();
-  }
-
-
-  // ---- View converters ----------------------------------------------------
-
-
-  inline Itensor1_view view1_of(const TensorView<int>& x){
-    return Itensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
-  inline Rtensor1_view view1_of(const TensorView<float>& x){
-    return Rtensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
-  inline Rtensor1_view view1_of(const TensorView<double>& x){// hack!!
-    return Rtensor1_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.stride(0),x.get_dev());}
-  inline Ctensor1_view view1_of(const TensorView<complex<float> >& x){
-    return Ctensor1_view(x.mem_as<float>(),x.mem_as<float>()+1,x.dim(0),2*x.stride(0),x.get_dev());}
-
-  inline Itensor2_view view2_of(const TensorView<int>& x){
-    return Itensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
-  inline Rtensor2_view view2_of(const TensorView<float>& x){
-    return Rtensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
-  inline Rtensor2_view view2_of(const TensorView<double>& x){ // hack!!
-    return Rtensor2_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
-  inline Ctensor2_view view2_of(const TensorView<complex<float> >& x){
-    return Ctensor2_view(x.mem_as<float>(),x.mem_as<float>()+1,
-      x.dim(0),x.dim(1),2*x.stride(0),2*x.stride(1),x.get_dev());}
-
-  inline Itensor3_view view3_of(const TensorView<int>& x){
-    return Itensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
-  inline Rtensor3_view view3_of(const TensorView<float>& x){
-    return Rtensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
-  inline Rtensor3_view view3_of(const TensorView<double>& x){
-    return Rtensor3_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
-  inline Ctensor3_view view3_of(const TensorView<complex<float> >& x){
-    return Ctensor3_view(x.mem_as<float>(),x.mem_as<float>()+1,
-      x.dim(0),x.dim(1),x.dim(2),2*x.stride(0),2*x.stride(1),2*x.stride(2),x.get_dev());}
-
-  inline Rtensor1_view flat_view_of(const TensorView<float>& x){
-    CNINE_ASSRT(x.is_contiguous());
-    return Rtensor1_view(x.mem(),x.asize(),1,x.get_dev());}
 
 }
 
-#define _CnineTensorViewComplete
+#include "TensorView_functions.hpp"
+
+
+//#define _CnineTensorViewComplete
 
 #endif
 
