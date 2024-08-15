@@ -20,11 +20,11 @@ TensorView(const at::Tensor& T):
   
 
 static TensorView view(const at::Tensor& T){
-  if(!((std::is_same<TYPE,int>::value && T.dtype()!=torch::kInt32)||
-      (std::is_same<TYPE,float>::value && T.dtype()!=torch::kFloat32)||
-      (std::is_same<TYPE,double>::value && T.dtype()!=torch::kFloat64)||
-      (std::is_same<TYPE,complex<float> >::value && T.dtype()!=at::kComplexFloat)||
-      (std::is_same<TYPE,complex<double> >::value && T.dtype()!=at::kComplexDouble))){
+  if(!((std::is_same<TYPE,int>::value && T.dtype()==torch::kInt32)||
+      (std::is_same<TYPE,float>::value && T.dtype()==torch::kFloat32)||
+      (std::is_same<TYPE,double>::value && T.dtype()==torch::kFloat64)||
+      (std::is_same<TYPE,complex<float> >::value && T.dtype()==at::kComplexFloat)||
+      (std::is_same<TYPE,complex<double> >::value && T.dtype()==at::kComplexDouble))){
     CNINE_ERROR("Cannot view a torch::Tensor with data type "+dtype_str(T)+" as a "+classname());
   }
   return TensorView(MemArr<TYPE>(T.data<TYPE>(),T.type().is_cuda()),Gdims(T),GstridesB(T));

@@ -134,8 +134,8 @@ namespace cnine{
     //cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
     if(g.size()==0) return;
 
-    //gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
-    //  (r.arr,r.s0,x.arr,x.s0,g.get_arrg(1),g.size(),nc);
+    gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
+      (r.arr,r.s0,x.arr,x.s0,g.on_device(1),g.size(),nc);
     //cudaDeviceSynchronize();
   }
 
@@ -156,8 +156,8 @@ namespace cnine{
     //cout<<multi<<" "<<nwarps<<" "<<g.size()<<" "<<(g.size()-1)/multi+1<<endl;
     //cout<<g.arr.dir<<endl;
 
-    //gatherRowsw_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
-    //(r.arr,r.s0,x.arr,x.s0,g.get_arrg(1),g.size(),nc);
+    gatherRowsw_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
+      (r.arr,r.s0,x.arr,x.s0,g.on_device(1),g.size(),nc);
     //cudaDeviceSynchronize();
   }
 
@@ -178,8 +178,8 @@ namespace cnine{
     multi=1; // muti seems to make things worse!
     dim3 threads(multi,nwarps*32);
 
-    //gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>> // changed
-    //(r.arr,r.s0,x.arr,x.s0,g.arr.ptr(),g.size(),g.getk(),nc);
+    gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>> // changed
+      (r.arr,r.s0,x.arr,x.s0,g.on_device(1),g.size(),g.getk(),nc);
   }
 
 
@@ -209,7 +209,7 @@ namespace cnine{
       int s=maps[i]->size();
       sizes.set(i,s);
       if(s>max_size) max_size=s;
-      //map_pointers.set(i,maps[i]->get_arrg());
+      map_pointers.set(i,maps[i]->on_device(1));
     }
     if(max_size==0) return;
 
@@ -234,8 +234,8 @@ namespace cnine{
 
     CUDA_SAFE(cudaDeviceSynchronize());
 
-    //gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
-    //(r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N+1),nc);
+    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
+      (r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N+1),nc);
 
   }
 
@@ -254,8 +254,8 @@ namespace cnine{
     Ltensor<int> sizes({N},0);
     minivec<int*> map_pointers(N);
     for(int i=0; i<N; i++){
-      //bump(max_size,sizes.set(i,maps[i]->size());
-	//map_pointers.set(i,maps[i]->get_arrg());
+      bump(max_size,sizes.set(i,maps[i]->size());
+	map_pointers.set(i,maps[i]->on_device(1));
     }
     if(max_size==0) return;
 
@@ -279,8 +279,8 @@ namespace cnine{
 
     CUDA_SAFE(cudaDeviceSynchronize());
 
-    //gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
-    //(r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N),nc);
+    gatherRowsMulti_kernel<<<blocks,threads,0,stream>>>
+      (r.arr,r.s0,x.arr,x.s0,int_buf(0),intp_buf(0),int_buf(N),int_buf(2*N),nc);
   }
 
 

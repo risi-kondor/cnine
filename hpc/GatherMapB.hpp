@@ -19,6 +19,7 @@
 #include "FixedkGatherMap.hpp"
 #include "map_of_lists.hpp"
 #include "fnlog.hpp"
+#include "RemoteCopy.hpp"
 
 namespace cnine{
 
@@ -28,6 +29,8 @@ namespace cnine{
   class GatherMapB{
   private:
   public:
+
+    typedef cnine::TensorView<int> ITENSOR;
 
     hlists<int> arr;
     shared_ptr<GatherMapB> _inv;
@@ -40,6 +43,10 @@ namespace cnine{
     //cnine::monitored<cnine::Ltensor<int> > gpu_format=
     //cnine::monitored<cnine::Ltensor<int> >([this](){
     //  return to_share(new cnine::Ltensor<int>(arr.to_tensor(1)));});
+
+    RemoteCopy<int,ITENSOR> on_device=cnine::RemoteCopy<int,ITENSOR>([this](const int& _dev){
+	return to_share(new ITENSOR(arr.to_tensor(_dev)));});
+
 
   public:
 
@@ -105,6 +112,27 @@ namespace cnine{
       out_columns_n(_out_columns_n){
       cnine::fnlog timer("GatherMapB::GatherMapB(const map_of_lists<int,int>& map)");
       //cout<<"make GatherMapB"<<endl;
+
+      int total=0;
+      for(auto& p:x){
+	total+=p.second.size();
+	bump(n_out,p.first+1);
+	for(auto& q:p.second)
+	  bump(n_in,q+1);
+      }
+
+      arr.reserve(x.size()+total);
+      for(auto& p:x)
+	arr.push_back(p.first,p.second);
+    }
+
+
+    GatherMapB(const map<int,std::map<int,int> >& x, const int _out_columns=1, const int _in_columns=1,
+      const int _out_columns_n=1, const int _in_columns_n=1):
+      in_columns(_in_columns),
+      out_columns(_out_columns),
+      in_columns_n(_in_columns_n),
+      out_columns_n(_out_columns_n){
 
       int total=0;
       for(auto& p:x){

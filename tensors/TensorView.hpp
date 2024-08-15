@@ -493,6 +493,7 @@ namespace cnine{
 #include "TensorView_subtensors.inc"
 #include "TensorView_scalar_ops.inc"
 #include "TensorView_cumulative_ops.inc"
+#include "TensorView_gen_ops.inc"
 #include "TensorView_ATen.inc"
 #include "TensorView_IO.inc"
 

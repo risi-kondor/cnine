@@ -17,6 +17,7 @@
 #include "Cnine_base.hpp"
 #include "Ltensor.hpp"
 #include "hlists.hpp"
+#include "RemoteCopy.hpp"
 
 namespace cnine{
 
@@ -33,6 +34,8 @@ namespace cnine{
     int in_columns=1;
     int out_columns=1;
 
+    cnine::RemoteCopy<int,BASE> on_device=cnine::RemoteCopy<int,BASE>([this](const int& _dev){
+	return to_share(new BASE(*this,_dev));});
 
   public:
 
