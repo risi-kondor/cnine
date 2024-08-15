@@ -127,6 +127,7 @@ namespace cnine{
     }
 
 
+    // this is specifically for BlockCsparseMatrix, maybe move it there?
     GatherMapB(const map<int,std::map<int,int> >& x, const int _out_columns=1, const int _in_columns=1,
       const int _out_columns_n=1, const int _in_columns_n=1):
       in_columns(_in_columns),
@@ -139,12 +140,17 @@ namespace cnine{
 	total+=p.second.size();
 	bump(n_out,p.first+1);
 	for(auto& q:p.second)
-	  bump(n_in,q+1);
+	  bump(n_in,q.first+1);
       }
 
       arr.reserve(x.size()+total);
-      for(auto& p:x)
-	arr.push_back(p.first,p.second);
+      for(auto& p:x){
+	vector<int> v(p.second.size());
+	int i=0;
+	for(auto& q:p.second)
+	  v[i++]=q.first;
+	arr.push_back(p.first,v);
+      }
     }
 
 
