@@ -1,0 +1,7 @@
+name: cnine
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - pytorch
+

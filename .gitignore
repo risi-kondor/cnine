@@ -12,3 +12,5 @@ python/cnine
 *.so
 
 .vscode
+
+cnine.log
