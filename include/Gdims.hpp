@@ -55,6 +55,11 @@ namespace cnine{
     Gdims(const initializer_list<int>& x):
       BASE(x){}
 
+    Gdims(const initializer_list<size_t>& x){
+      for(auto& p:x)
+	push_back(p);
+    }
+
     explicit Gdims(const int i0): 
       BASE({i0}){}
 
@@ -369,14 +374,12 @@ namespace cnine{
       (*this)[3]=i3;
     }
 
-    [[deprecated]]
     Gdims(const Gdims& d1, const Gdims& d2): 
       BASE(d1.size()+d2.size()){
       for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
       for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
     }
 
-    [[deprecated]]
     Gdims(const int b, const Gdims& d1, const Gdims& d2): 
       BASE((b>0)+d1.size()+d2.size()){
       if(b>0){

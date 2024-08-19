@@ -34,6 +34,17 @@ namespace cnine{
   }
 
 
+  // ---- Tensor product ------------------------------------------------------
+
+
+  template<typename TYPE>
+  inline TensorView<TYPE> kron(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    TensorView<TYPE> R(tprod(x.get_dims(),y.get_dims()),0,x.get_dev());
+    R.add_tprod(x,y);
+    return R;
+  }
+
+
   // ---- View converters ----------------------------------------------------
 
 

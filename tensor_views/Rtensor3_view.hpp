@@ -75,11 +75,11 @@ namespace cnine{
 
 
     Gdims get_dims() const{
-      return Gdims(n0,n1,n2);
+      return Gdims({n0,n1,n2});
     }
 
     Gstrides get_strides() const{
-      return Gstrides(s0,s1,s2);
+      return Gstrides({s0,s1,s2});
     }
 
     virtual bool is_regular() const{

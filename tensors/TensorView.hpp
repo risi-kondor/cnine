@@ -96,7 +96,7 @@ namespace cnine{
 
   template<typename TYPE>
   class TensorView: public TensorBase{
-  private:
+  public:
 
     friend class Tensor<TYPE>;
     friend class TensorArrayView<TYPE>;
@@ -636,7 +636,7 @@ namespace cnine{
 	  if(x.ndims()==1){
 	    CNINE_ASSRT(r.dims[0]==x.dims[0]*y.dims[0]);
 	      for(int i=0; i<x.dims[0]; i++)
-		block({y.dims[0]},{i*y.dims[0]}).add(y,x(i));
+		r.block({y.dims[0]},{i*y.dims[0]}).add(y,x(i));
 	    return;
 	  }
 	  
@@ -645,7 +645,7 @@ namespace cnine{
 	    CNINE_ASSRT(r.dims[1]==x.dims[1]*y.dims[1]);
 	    for(int i=0; i<x.dims[0]; i++)
 	      for(int j=0; j<x.dims[1]; j++)
-		block({y.dims[0],y.dims[1]},{i*y.dims[0],j*y.dims[1]}).add(y,x(i,j));
+		r.block({y.dims[0],y.dims[1]},{i*y.dims[0],j*y.dims[1]}).add(y,x(i,j));
 	    return;
 	  }
 
@@ -656,7 +656,7 @@ namespace cnine{
 	    for(int i=0; i<x.dims[0]; i++)
 	      for(int j=0; j<x.dims[1]; j++)
 		for(int k=0; k<x.dims[2]; k++)
-		  block(y.dims,{i*y.dims[0],j*y.dims[1],k*y.dims[2]}).add(y,x(i,j,k));
+		  r.block(y.dims,{i*y.dims[0],j*y.dims[1],k*y.dims[2]}).add(y,x(i,j,k));
 	    return;
 	  }
 	    

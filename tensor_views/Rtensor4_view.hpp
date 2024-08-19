@@ -63,11 +63,11 @@ namespace cnine{
 
 
     Gdims get_dims() const{
-      return Gdims(n0,n1,n2,n3);
+      return Gdims({n0,n1,n2,n3});
     }
 
     Gstrides get_strides() const{
-      return Gstrides(s0,s1,s2,s3);
+      return Gstrides({s0,s1,s2,s3});
     }
 
     float operator()(const int i0, const int i1, const int i2, const int i3) const{

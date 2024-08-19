@@ -47,12 +47,12 @@ __global__ void BSM_times_BV_kernel(TYPE* rarr, const int rs0, const int rs1,
 namespace cnine{
 
   template<typename TYPE>
-  BSM_times_BV_cu(const TensorView<TYPE>& r, const BlockCsparseMatrix<TYPE>& x, const TensorView<TYPE>& y, 
+  BSM_apply_to_BV_cu(const BlockCsparseMatrix<TYPE>& x, const TensorView<TYPE>& r, const TensorView<TYPE>& y, 
     const cudaStream_t& stream){
     CNINE_ASSRT(r.ndims()==2);
     CNINE_ASSRT(y.ndims()==2);
 
-    if(x.block*y.dim(1)<1024){
+    if(x.blockn*y.dim(1)<1024){
       dim3 threads(x.blockn,y.dim(1));
       BSM_times_BV_kernel<<<x.offsets.rmap.size(),threads,0,stream>>>
 	(r.get_arr(),r.stride(0),r.stride(1),
@@ -64,6 +64,28 @@ namespace cnine{
     }
 
   }
+
+  template<typename TYPE>
+  BSM_apply_transp_to_BV_cu(const BlockCsparseMatrix<TYPE>& x, const TensorView<TYPE>& r, const TensorView<TYPE>& y, 
+    const cudaStream_t& stream){
+    CNINE_ASSRT(r.ndims()==2);
+    CNINE_ASSRT(y.ndims()==2);
+
+    if(x.blockm*y.dim(1)<1024){
+      dim3 threads(x.blockm,y.dim(1));
+      BSMt_times_BV_kernel<<<x.offsets.cmap.size(),threads,0,stream>>>
+	(r.get_arr(),r.stride(0),r.stride(1),
+	  x.mx.get_arr(),x.mx.stride(0),x.mx.stride(1),
+	  y.get_arr(),y.stride(0),y.stride(1),
+	  x.blockn,x.blockm,
+	  x.gather_mapR.on_device(1),x.row_offsets_on_device(1),x.offsets.cmap.size());
+      return;
+    }
+
+  }
+
+  BSM_apply_to_BV_cu(const BlockCsparseMatrix<float>& x, const TensorView<float>& r, const TensorView<float>& y);
+  BSM_apply_transp_to_BV_cu(const BlockCsparseMatrix<float>& x, const TensorView<float>& r, const TensorView<float>& y);
 
 }
 

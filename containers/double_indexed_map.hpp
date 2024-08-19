@@ -32,6 +32,8 @@ namespace cnine{
   public: // ---- Constructors ------------------------------------------------------------------------------
 
 
+    double_indexed_map(){}
+
     double_indexed_map(const map_of_maps<KEY1,KEY2,TYPE>& x){
       for(auto& p:x){
 	map<KEY2,TYPE> a;

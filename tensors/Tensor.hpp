@@ -74,7 +74,7 @@ namespace cnine{
       TensorView<TYPE>(MemArr<TYPE>(1),{1},{1}){}
 
     Tensor(const Gdims& _dims, const int _dev=0): // syntax conflict with Ltensor
-      TensorView<TYPE>(MemArr<TYPE>(_dims.total(),_dev),_dims,GstridesB(_dims)){}
+      TensorView<TYPE>(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
 
     Tensor(const Gdims& _dims, const int fcode, const int _dev):
       BASE(_dims,fcode,_dev){}
@@ -84,11 +84,11 @@ namespace cnine{
 
 
     Tensor(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
-      TensorView<TYPE>(MemArr<TYPE>(_dims.total(),dummy,_dev),_dims,GstridesB(_dims)){}
+      TensorView<TYPE>(MemArr<TYPE>(_dims.asize(),dummy,_dev),_dims,GstridesB(_dims)){}
 
     Tensor(const Gdims& _dims, const fill_ones& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      size_t N=dims.total();
+      size_t N=dims.asize();
       for(int i=0; i<N; i++)
 	arr[i]=1;
       move_to_device(_dev);
@@ -96,7 +96,7 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      size_t N=dims.total();
+      size_t N=dims.asize();
       for(int i=0; i<N; i++)
 	arr[i]=dummy.v;
       move_to_device(_dev);
@@ -130,7 +130,7 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      size_t N=dims.total();
+      size_t N=dims.asize();
       for(int i=0; i<N; i++)
 	arr[i]=i;
       move_to_device(_dev);
@@ -138,7 +138,7 @@ namespace cnine{
 
     Tensor(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
       Tensor(_dims,_dev){
-      size_t N=dims.total();
+      size_t N=dims.asize();
       normal_distribution<double> distr;
       for(int i=0; i<N; i++) 
 	arr[i]=distr(rndGen)*dummy.c;
@@ -240,7 +240,7 @@ namespace cnine{
     Tensor& operator=(const Tensor& x){
       FNTRACE();
       CNINE_ASSIGN_WARNING();
-      arr=MemArr<TYPE>(x.dims.total(),x.dev);
+      arr=MemArr<TYPE>(x.dims.asize(),x.dev);
       dims=x.dims;
       strides=GstridesB(dims);
       dev=x.dev;

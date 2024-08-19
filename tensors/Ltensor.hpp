@@ -316,7 +316,7 @@ namespace cnine{
     Ltensor(const MemoryManager& manager, const Gdims& _dims, const int fcode, const int _dev){
       CNINE_ASSRT(fcode<2);
       FNTRACE();
-      arr=MemArr<TYPE>(manager,_dims.total(),_dev);
+      arr=MemArr<TYPE>(manager,_dims.asize(),_dev);
       dims=_dims;
       strides=GstridesB(_dims);
       dev=_dev;
@@ -684,7 +684,7 @@ namespace cnine{
       CNINE_ASSRT(dims[d]%a==0);
       Gdims D=dims.insert(d+1,a); 
       D[d]/=a;
-      GstridesB s=strides.insert(d,strides[0]*a);
+      GstridesB s=strides.insert(d,strides[d]*a);
       return Ltensor(arr,D,s);
     }
 

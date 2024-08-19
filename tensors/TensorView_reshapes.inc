@@ -32,19 +32,19 @@ TensorView permute_indices(const vector<int>& p){
 
 TensorView falling_strides(){
   auto p=strides.descending_ordering();
-  return Ltensor(arr,dims.permute(p),strides.permute(p));
+  return TensorView(arr,dims.permute(p),strides.permute(p));
 }
 
 TensorView with_decreasing_strides(){
   auto p=strides.descending_ordering();
-  return Ltensor(arr,dims.permute(p),strides.permute(p));
+  return TensorView(arr,dims.permute(p),strides.permute(p));
 }
 
 
 // ---- Reshaping -------------------------------------------------------------------------------------------
 
 
-TensorView reshape(const Gdims& _dims){
+TensorView reshape(const Gdims& _dims) const{
   // add option for non-regular tensors
   CNINE_ASSRT(_dims.asize()==asize());
   CNINE_ASSRT(is_regular());
@@ -133,6 +133,18 @@ TensorView fuse01() const{
   return TensorView(arr,d,s);
 }
 
+TensorView fuse(const int a, const int b) const{
+  CNINE_ASSRT(a<ndims());
+  CNINE_ASSRT(b<ndims());
+  if(strides(a)<strides(b)){
+    CNINE_ASSRT(dims[a]*strides[a]==strides[b]);
+    return TensorView(arr,dims.copy().set(a,dims(a)*dims(b)).remove(b),strides.remove(b));
+  }else{
+    CNINE_ASSRT(dims[b]*strides[b]==strides[a]);
+    return TensorView(arr,dims.copy().set(b,dims(a)*dims(b)).remove(a),strides.remove(a));
+  }
+}
+
 TensorView split0(const int a, const int b) const{
   CNINE_ASSRT(ndims()>=1);
   CNINE_ASSRT(dims[0]==a*b);
@@ -149,6 +161,15 @@ TensorView split1(const int a, const int b) const{
   d[2]=b; 
   GstridesB s=strides.insert(1,strides[1]*b);
   return TensorView(arr,d,s);
+}
+
+TensorView split(const int d, const int a) const{
+  CNINE_ASSRT(ndims()>d);
+  CNINE_ASSRT(dims[d]%a==0);
+  Gdims D=dims.insert(d+1,a); 
+  D[d]/=a;
+  GstridesB S=strides.insert(d,strides[d]*a);
+  return Ltensor(arr,D,S);
 }
 
 TensorView<TYPE> cinflate(const int d, const int n) const{

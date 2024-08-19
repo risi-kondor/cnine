@@ -18,6 +18,7 @@
 #include "Ltensor.hpp"
 #include "map_of_maps.hpp"
 #include "hlists.hpp"
+#include "map_of_lists.hpp"
 #include "double_indexed_map.hpp"
 
 
@@ -36,6 +37,7 @@ namespace cnine{
   public:
     
     typedef Ltensor<TYPE> TENSOR;
+    typedef TensorView<int> ITENSOR;
 
     int blockn;
     int blockm;
@@ -49,6 +51,9 @@ namespace cnine{
     once<GatherMapB> gather_mapL=once<GatherMapB>([this](){
 	return GatherMapB(offsets.rmap);});
 
+    once<GatherMapB> gather_mapR=once<GatherMapB>([this](){
+	return GatherMapB(offsets.cmap);});
+
     once<TensorView<int> > row_offsets=once<TensorView<int> >([this](){
 	TensorView<int> R({offsets.rmap.size()});
 	int i=0;
@@ -58,11 +63,13 @@ namespace cnine{
       });
 
     RemoteCopy<int,ITENSOR> row_offsets_on_device=cnine::RemoteCopy<int,ITENSOR>([this](const int& _dev){
-	return to_share(new TensorView<int>(row_offsets,_dev));});
+	return to_share(new ITENSOR(row_offsets(),_dev));});
     
       
   public: // ---- Constructors -----------------------------------------------------------------------------
 
+
+    BlockCsparseMatrix(){}
 
     BlockCsparseMatrix(const int _nblocks, const int _mblocks, const int _blockn, const int _blockm):
       nblocks(_nblocks), mblocks(_mblocks), blockn(_blockn), blockm(_blockm){}
@@ -74,6 +81,15 @@ namespace cnine{
       int t=0; 
       mask.for_each([&](const int i, const int j){offsets.set(i,j,t++);});
     }
+
+    BlockCsparseMatrix(const int _nblocks, const int _mblocks, const int _blockn, const int _blockm,
+      const map_of_lists<int,int>& mask, const int fcode, const int _dev=0):
+      nblocks(_nblocks), mblocks(_mblocks), blockn(_blockn), blockm(_blockm),
+      mx(cnine::dims(mask.total(),_blockn,_blockm),fcode,_dev){
+      int t=0; 
+      mask.for_each([&](const int i, const int j){offsets.set(i,j,t++);});
+    }
+
 
   public: // ---- Named Constructors -----------------------------------------------------------------------
 
@@ -104,6 +120,14 @@ namespace cnine{
       return block_m;
     }
 
+    int nrows() const{
+      return nblocks*blockn;
+    }
+
+    int ncols() const{
+      return mblocks*blockm;
+    }
+
     bool is_filled(const int i, const int j){
       if(offsets.rmap.find(i)==offsets.rmap.end()) return false;
       if(offsets.rmap[i].find(j)==offsets.rmap[i].end()) return false;
@@ -131,20 +155,52 @@ namespace cnine{
   public: // ---- Operations --------------------------------------------------------------------------------
 
 
-    Ltensor<TYPE> operator*(const TensorView<TYPE>& x){
+    TensorView<TYPE> operator*(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==2);
       CNINE_ASSRT(x.dim(0)==mblocks*blockm);
       CNINE_ASSRT(get_dev()==x.get_dev());
-      Ltensor<TYPE> R({nblocks*blockn,x.dim(1)},0,get_dev());
+      TensorView<TYPE> R({nblocks*blockn,x.dim(1)},0,get_dev());
+      apply_to(R,x);
+      return R;
+    }
 
-      if(get_dev()==0){
+    void apply_to(const TensorView<TYPE>& r, const TensorView<TYPE>& x){
+      int dev=get_dev();
+      CNINE_ASSRT(x.get_dev()==dev);
+      CNINE_ASSRT(r.get_dev()==dev);
+      CNINE_ASSRT(x.ndims()==2);
+      CNINE_ASSRT(x.dim(0)==mblocks*blockm);
+      CNINE_ASSRT(r.ndims()==2);
+      CNINE_ASSRT(r.dim(0)==nblocks*blockn);
+      CNINE_ASSRT(x.dim(1)==r.dim(1));
+
+      if(dev==0){
 	for_each_block([&](const int i, const int j, const TENSOR& b){
-	    R.rows(i*blockn,blockn)+=b*x.rows(j*blockm,blockm);
+	    r.rows(i*blockn,blockn)+=b*x.rows(j*blockm,blockm);
 	  });
       }else{
-	CUDA_STREAM(BSM_times_BV_cu(R,*this,x,stream));
+	CUDA_STREAM(BSM_times_BV_cu(r,*this,x,stream));
       }
-      return R;
+    }
+
+
+    void apply_transp_to(const TensorView<TYPE>& r, const TensorView<TYPE>& x){
+      int dev=get_dev();
+      CNINE_ASSRT(x.get_dev()==dev);
+      CNINE_ASSRT(r.get_dev()==dev);
+      CNINE_ASSRT(x.ndims()==2);
+      CNINE_ASSRT(x.dim(0)==nblocks*blockn);
+      CNINE_ASSRT(r.ndims()==2);
+      CNINE_ASSRT(r.dim(0)==mblocks*blockm);
+      CNINE_ASSRT(x.dim(1)==r.dim(1));
+
+      if(dev==0){
+	for_each_block([&](const int i, const int j, const TENSOR& b){
+	    r.rows(j*blockm,blockm)+=b.transp()*x.rows(i*blockn,blockn);
+	  });
+      }else{
+	CUDA_STREAM(BSM_times_BV_cu(r,*this,x,stream));
+      }
     }
 
 

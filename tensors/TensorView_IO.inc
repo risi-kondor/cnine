@@ -82,8 +82,8 @@ string to_string(const string indent="") const{
 
 string str(const string indent="") const{
   ostringstream oss;
-  oss<<repr()<<":"<<endl;
-  oss<<to_string(indent+"  ");
+  //oss<<repr()<<":"<<endl;
+  oss<<to_string(indent);
   return oss.str();
 }
 
