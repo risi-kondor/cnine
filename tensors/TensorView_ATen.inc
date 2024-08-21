@@ -37,11 +37,11 @@ static TensorView copy(const at::Tensor& T){
   if(_strides.is_contiguous(_dims)){
     TensorView R(_dims,_strides,T.type().is_cuda());
     R=view(T);
-    return T;
+    return R;
   }
   TensorView R(_dims,T.type().is_cuda());
   R=view(T);
-  return T;
+  return R;
 }
 
 
