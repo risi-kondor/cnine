@@ -145,6 +145,20 @@ TensorView fuse(const int a, const int b) const{
   }
 }
 
+TensorView fuse(const vector<int>& ix) const{ // TODO 
+  CNINE_ASSRT(ix.size()>0);
+  CNINE_ASSRT(ix[0]<dims.size());
+  int t=dims[ix[0]];
+  int s=strides[ix[0]];
+  for(int i=1; i<ix.size(); i++){
+    CNINE_ASSRT(ix[i]<dims.size());
+    t*=dims[ix[i]];
+    if(strides[ix[i]]<s) s=strides[ix[i]];
+  }
+  vector<int> ix0(ix.begin()+1,ix.end());
+  return TensorView(arr,dims.remove(ix0).set(ix[0],t),strides.remove(ix0));
+}
+
 TensorView split0(const int a, const int b) const{
   CNINE_ASSRT(ndims()>=1);
   CNINE_ASSRT(dims[0]==a*b);

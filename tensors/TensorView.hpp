@@ -133,6 +133,10 @@ namespace cnine{
       dev(_dev){
     }
 
+    TensorView zeros_like() const{
+      return TensorView(dims,0,dev);
+    }
+
 
   public: // ---- Constructors for non-view derived classes --------------------------------------------------
 

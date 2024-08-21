@@ -48,7 +48,7 @@ namespace cnine{
 
     ptr_arg_indexed_cache():
       make_obj([](const KEY& x, const ARG& y){return OBJ();}),
-      observers([this](KEY* p){erase(p);}){}
+      observers([this](KEY* p){erase0(p);}){}
 
     ptr_arg_indexed_cache(std::function<OBJ(const KEY&, const ARG&)> _make_obj):
       make_obj(_make_obj),
@@ -64,6 +64,7 @@ namespace cnine{
     void erase0(KEY* x){
       for(auto y:lookup0[x])
 	erase(make_pair(x,y));
+      lookup0.erase(x);
     }
 
 
@@ -88,6 +89,19 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    bool contains(const KEY& key, const ARG& arg){
+      return BASE::find(pair<KEY*,ARG>(&const_cast<KEY&>(key),arg))!=unordered_map<KEYS,OBJ>::end();
+    }
+
+    OBJ& insert(const KEY& key, const ARG& arg, const OBJ& val){
+      //KEY* keyp=&const_cast<KEY&>(key);
+      KEY* keyp=&unconst(key);
+      observers.add(keyp);
+      lookup0[keyp].insert(arg);
+      auto p=insert({make_pair(keyp,arg),val});
+      return p.first->second;
+    }
+
     OBJ operator()(KEY& key, const ARG& arg){
       return (*this)(&key,arg);
     }
@@ -108,6 +122,20 @@ namespace cnine{
 
   };
 
+
+}
+
+namespace std{
+
+  template<typename IX1, typename IX2> // duplicate! 
+  struct hash<pair<IX1,IX2> >{
+  public:
+    size_t operator()(const pair<IX1,IX2>& x) const{
+      size_t h=hash<IX1>()(x.first);
+      h=(h<<1)^hash<IX2>()(x.second);
+      return h;
+    }
+  };
 
 }
 

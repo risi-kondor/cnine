@@ -4,6 +4,11 @@
 
 namespace cnine{
 
+  template<typename TYPE>
+  inline TYPE& unconst(const TYPE& x){
+    return const_cast<TYPE&>(x);
+  }
+
   inline int roundup(const int x, const int s){
     return ((x-1)/s+1)*s;
   }
