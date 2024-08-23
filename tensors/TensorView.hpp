@@ -196,7 +196,8 @@ namespace cnine{
     }
 
     TensorView(const Gdims& _dims, const int _dev=0): 
-      TensorView(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
+      TensorView(_dims,0,_dev){}
+    //TensorView(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
 
     TensorView(const Gdims& _dims, const fill_raw& dummy, const int _dev=0): 
       TensorView(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
