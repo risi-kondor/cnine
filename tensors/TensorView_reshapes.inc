@@ -118,7 +118,7 @@ pair<TensorView,TensorView> co_scrunch(const TensorView& y) const{
   std::reverse(_xstrides.begin(),_xstrides.end());
   std::reverse(_ystrides.begin(),_ystrides.end());
 
-  return make_pair(TensorView(get_arr(),_dims,_xstrides),TensorView(get_arr(),_dims,_ystrides));
+  return make_pair(TensorView(get_arr(),_dims,_xstrides),TensorView(y.get_arr(),_dims,_ystrides));
 }
 
 

@@ -34,6 +34,11 @@ namespace cnine{
     CNINE_ASSRT(r.get_dims()==x.get_dims());
     if(r.asize()==0) return; 
 
+    //cout<<"----------------"<<endl;
+    //cout<<r.dims<<" "<<x.dims<<endl;
+    //cout<<r.strides<<" "<<x.strides<<endl;
+    //cout<<"x="<<x<<endl;
+
     int dev=r.get_dev();
     CNINE_ASSRT(x.get_dev()==dev);
 
@@ -59,6 +64,8 @@ namespace cnine{
     }
 
     auto [rp,xp]=r.co_scrunch(x);
+    //cout<<rp.dims<<" "<<xp.dims<<endl;
+    //cout<<rp.strides<<" "<<xp.strides<<endl;
 
     if(dev==0){
       TensorView_add_loops(rp,xp);
@@ -91,6 +98,7 @@ namespace cnine{
     }
 
     if(D==2){
+      //cout<<r<<x<<endl;
       int n0=r.dim(0);
       int rs0=r.get_strides()(0);
       int xs0=x.get_strides()(0);
@@ -101,6 +109,7 @@ namespace cnine{
       for(int i0=0; i0<n0; i0++)
 	for(int i1=0; i1<n1; i1++)
 	  rarr[i0*rs0+i1*rs1]+=xarr[i0*xs0+i1*xs1];
+      //cout<<r<<endl;
     }
 
     if(D==3){

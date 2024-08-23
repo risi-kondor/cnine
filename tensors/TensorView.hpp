@@ -266,6 +266,11 @@ namespace cnine{
       return const_cast<TensorView&>(*this);
     }        
 
+    TensorView& set(const TensorView& x) const{
+      (*this)=x;
+      return const_cast<TensorView&>(*this);
+    }
+
     void reset(const TensorView& x){
       arr=x.arr;
       dims=x.dims;

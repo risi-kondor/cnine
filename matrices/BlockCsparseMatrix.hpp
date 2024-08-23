@@ -212,7 +212,7 @@ namespace cnine{
 	for(auto& p2:x.offsets.cmap){
 	  bool found=0;
 	  for(auto& q1:p1.second)
-	    if(p2.second.find(q1.first)!=p2.second::end()){
+	    if(p2.second.find(q1.first)!=p2.second.end()){
 	      found=true;
 	      break;
 	    }
@@ -223,7 +223,7 @@ namespace cnine{
       for(auto& p1:offsets.rmap)
 	for(auto& p2:x.offsets.cmap)
 	  for(auto& q1:p1.second)
-	    if(p2.second.find(q1.first)!=p2.second::end())
+	    if(p2.second.find(q1.first)!=p2.second.end())
 	      R.block(p1.first,p2.first).add_mprod(block(p1.first,q1.first),x.block(q1.first,p2.first));
       return R;
     }
