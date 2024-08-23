@@ -36,7 +36,7 @@ namespace cnine{
   class BlockCsparseMatrix{
   public:
     
-    typedef Ltensor<TYPE> TENSOR;
+    typedef TensorView<TYPE> TENSOR;
     typedef TensorView<int> ITENSOR;
 
     int blockn;
@@ -176,7 +176,7 @@ namespace cnine{
 
       if(dev==0){
 	for_each_block([&](const int i, const int j, const TENSOR& b){
-	    r.rows(i*blockn,blockn)+=b*x.rows(j*blockm,blockm);
+	    r.rows(i*blockn,blockn).add_mprod(b,x.rows(j*blockm,blockm));
 	  });
       }else{
 	CUDA_STREAM(BSM_times_BV_cu(r,*this,x,stream));
@@ -196,7 +196,7 @@ namespace cnine{
 
       if(dev==0){
 	for_each_block([&](const int i, const int j, const TENSOR& b){
-	    r.rows(j*blockm,blockm)+=b.transp()*x.rows(i*blockn,blockn);
+	    r.rows(j*blockm,blockm).add_mprod(b.transp(),x.rows(i*blockn,blockn));
 	  });
       }else{
 	CUDA_STREAM(BSM_times_BV_cu(r,*this,x,stream));

@@ -45,7 +45,7 @@ void add(const TensorView& x) const{
 }
 
 
-void add(const TensorView& x, const TYPE c){
+void add(const TensorView& x, const TYPE c) const{
   CNINE_DEVICE_SAME(x);
   CNINE_CHECK_SIZE(dims.check_eq(x.dims));
   CNINE_CPUONLY();
@@ -95,7 +95,7 @@ void subtract(const TensorView& x) const{
 }
 
 
-void subtract(const TensorView& x, const TYPE c){
+void subtract(const TensorView& x, const TYPE c) const{
   CNINE_DEVICE_SAME(x);
   CNINE_CHECK_SIZE(dims.check_eq(x.dims));
   CNINE_CPUONLY();
@@ -122,7 +122,7 @@ void subtract(const TensorView& x, const TYPE c){
 // ---- Other ------------------------------------------------------------------------------------------------
 
 
-void add_sum(const int d, const TensorView& x){
+void add_sum(const int d, const TensorView& x) const{
   CNINE_ASSRT(x.dims.size()>d);
   for(int i=0; i<x.dims[d]; i++)
     add(x.slice(d,i));
@@ -150,7 +150,7 @@ void add_prod(const TensorView& x, const TensorView& y) const{
 }
 
 
-void add_broadcast(const int d, const TensorView& x){
+void add_broadcast(const int d, const TensorView& x) const{
   CNINE_ASSRT(d<dims.size());
   CNINE_CPUONLY();
   if(dev==0)
@@ -159,7 +159,7 @@ void add_broadcast(const int d, const TensorView& x){
 }
 
 
-void add_ReLU(const TensorView& x, const float alpha){
+void add_ReLU(const TensorView& x, const float alpha) const{
   CNINE_CHECK_SIZE(dims.check_eq(x.dims));
   assert(x.get_dev()==get_dev());
   int N=asize();
@@ -173,7 +173,7 @@ void add_ReLU(const TensorView& x, const float alpha){
 }
 
 
-void add_ReLU_back(const TensorView& g, const TensorView& x, const float alpha){
+void add_ReLU_back(const TensorView& g, const TensorView& x, const float alpha) const{
   CNINE_CHECK_SIZE(dims.check_eq(g.dims));
   assert(g.get_dev()==get_dev());
   int N=asize();

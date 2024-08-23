@@ -635,7 +635,7 @@ namespace cnine{
 
     Ltensor block(const Gdims& _dims, const Gindex& offs) const{
       CNINE_ASSRT(offs+_dims<=dims);
-      return Ltensor(get_arr()+strides.offs(offs),_dims,strides);
+      return Ltensor(arr+strides.offs(offs),_dims,strides);
     }
 
     Ltensor block(const int i0, const int m0) const{

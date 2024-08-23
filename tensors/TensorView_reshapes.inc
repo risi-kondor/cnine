@@ -26,16 +26,16 @@ TensorView transp(const int a, const int b) const{
   return TensorView(arr,dims.copy().set(a,dims[b]).set(b,dims[a]),strides.copy().set(a,strides[b]).set(b,strides[a]));
 }
 
-TensorView permute_indices(const vector<int>& p){
+TensorView permute_indices(const vector<int>& p) const{
   return TensorView(arr,dims.permute(p),strides.permute(p));
 }
 
-TensorView falling_strides(){
+TensorView falling_strides() const{
   auto p=strides.descending_ordering();
   return TensorView(arr,dims.permute(p),strides.permute(p));
 }
 
-TensorView with_decreasing_strides(){
+TensorView with_decreasing_strides() const{
   auto p=strides.descending_ordering();
   return TensorView(arr,dims.permute(p),strides.permute(p));
 }
@@ -88,7 +88,7 @@ TensorView scrunch() const{
   std::reverse(_dims.begin(),_dims.end());
   std::reverse(_strides.begin(),_strides.end());
 
-  return TensorView(get_arr(),_dims,_strides);
+  return TensorView(arr,_dims,_strides);
 }
 
 
@@ -118,7 +118,7 @@ pair<TensorView,TensorView> co_scrunch(const TensorView& y) const{
   std::reverse(_xstrides.begin(),_xstrides.end());
   std::reverse(_ystrides.begin(),_ystrides.end());
 
-  return make_pair(TensorView(get_arr(),_dims,_xstrides),TensorView(y.get_arr(),_dims,_ystrides));
+  return make_pair(TensorView(arr,_dims,_xstrides),TensorView(y.arr,_dims,_ystrides));
 }
 
 
