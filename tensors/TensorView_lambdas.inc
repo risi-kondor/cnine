@@ -98,6 +98,15 @@ void for_each(std::function<void(TYPE&)> lambda) const{
 }
 
 
+void for_each(const std::function<void(const int i0, const int i1, TYPE& x)>& lambda) const{
+  CNINE_ASSRT(ndims()==2);
+  int n0=dims[0];
+  int n1=dims[1];
+  for(int i0=0; i0<n0; i0++)
+    for(int i1=0; i1<n1; i1++)
+      lambda(i0,i1,arr[strides.offs(i0,i1)]);
+}
+
 void for_each(const std::function<void(const Gindex&, TYPE& x)>& lambda) const{
   dims.for_each_index([&](const Gindex& ix){
       lambda(ix,const_cast<MemArr<TYPE>&>(arr)[strides.offs(ix)]);});

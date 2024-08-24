@@ -29,7 +29,7 @@ namespace cnine{
   class FindPlantedSubgraphs{
   public:
 
-    typedef sparse_graph<int,float,LABEL> Graph;
+    typedef sparse_graph<int,int,LABEL> Graph;
 
     const Graph& G;
     const Graph& H;
@@ -87,7 +87,7 @@ namespace cnine{
       const int v=Htraversal[m].first;
       const int w=node.label;
 
-      if(G.is_labeled() && H.is_labeled() && (G.labels(w)!=H.labels(v))) return false;
+      if(G.is_labeled() && H.is_labeled() && G.labels.row(w)!=H.labels.row(v)) return false;
       if(H.with_degrees() && (H.degrees(v)>=0) && (G.data[w].size()!=H.degrees(v))) return false;
 
       for(auto& p:const_cast<Graph&>(H).data[v]){ // improve syntax
