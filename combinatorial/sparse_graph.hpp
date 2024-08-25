@@ -36,10 +36,10 @@ namespace cnine{
 
     int n=0;
 
-    Tensor<LABEL> labels;
+    TensorView<LABEL> labels;
     bool labeled=false;
 
-    Tensor<int> degrees;
+    TensorView<int> degrees;
     bool degreesp=false;
 
 
@@ -233,14 +233,14 @@ namespace cnine{
     void set_labels(const TensorView<int>& _labels){
       CNINE_ASSRT(_labels.ndims()==1);
       CNINE_ASSRT(_labels.dim(0)==n);
-      labels=_labels;
+      labels.reset(_labels);
       labeled=true;
     }
 
     void set_degrees(const TensorView<int>& _degrees){
       CNINE_ASSRT(_degrees.ndims()==1);
       CNINE_ASSRT(_degrees.dim(0)==n);
-      degrees=_degrees;
+      degrees.reset(_degrees);
       degreesp=true;
     }
 

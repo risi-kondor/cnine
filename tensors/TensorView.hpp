@@ -250,6 +250,14 @@ namespace cnine{
     }
 
 
+  public: // ---- Named constructors ------------------------------------------------------------------------
+
+
+    static TensorView zero(const Gdims& _dims, const int _dev=0){
+      return TensorView(_dims,0,_dev);
+    }
+
+
   public: // ---- Copying -----------------------------------------------------------------------------------
 
 
