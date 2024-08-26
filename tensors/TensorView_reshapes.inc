@@ -156,7 +156,7 @@ TensorView fuse(const vector<int>& ix) const{ // TODO
     if(strides[ix[i]]<s) s=strides[ix[i]];
   }
   vector<int> ix0(ix.begin()+1,ix.end());
-  return TensorView(arr,dims.remove(ix0).set(ix[0],t),strides.remove(ix0));
+  return TensorView(arr,dims.remove(ix0).set(ix[0],t),strides.remove(ix0).set(ix[0],s));
 }
 
 TensorView split0(const int a, const int b) const{

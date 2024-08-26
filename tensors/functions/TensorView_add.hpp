@@ -44,7 +44,7 @@ namespace cnine{
 
     if(r.is_contiguous() && r.get_strides()==x.get_strides()){
       if(dev==0){
-	stdadd(r.get_arr(),r.get_arr()+r.memsize(),x.get_arr());
+	stdadd(x.get_arr(),x.get_arr()+x.memsize(),r.get_arr());
 	return;
       }
       if(dev==1){

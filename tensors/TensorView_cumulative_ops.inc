@@ -126,7 +126,6 @@ void add_sum(const int d, const TensorView& x) const{
   CNINE_ASSRT(x.dims.size()>d);
   for(int i=0; i<x.dims[d]; i++)
     add(x.slice(d,i));
-  //cout<<*this<<endl;
 }
 
 

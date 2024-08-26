@@ -620,7 +620,7 @@ namespace cnine{
 	  CNINE_ASSRT(y.dims[1]==r.dims[1]);
 	  CNINE_ASSRT(x.dims[1]==y.dims[0]);
 
-	  r.view2().add_mprod(x.view2(),y.view2());
+	  r.view2().add_matmul_AA(x.view2(),y.view2());
 
 	  /*
 	  if(r.dev==0){

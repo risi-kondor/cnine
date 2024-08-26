@@ -141,7 +141,7 @@ namespace cnine{
 	  oss<<q.first<<":"<<q.second<<",";
 	oss<<"\b)"<<endl;
       }
-      return oss<<str();
+      return oss.str();
     }
 
     friend ostream& operator<<(ostream& stream, const double_indexed_map& v){
