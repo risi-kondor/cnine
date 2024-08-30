@@ -65,7 +65,7 @@ namespace cnine{
     SPEC dims(const vector<int>& v) {ddims=Gdims(v); return *this;}
     SPEC dims(const Gdims& v) {ddims=v; return *this;}
     
-    SPEC matrix(const int _n, const int _m) {ddims=Gdims(_n,_m); return *this;}
+    SPEC matrix(const int _n, const int _m) {ddims=Gdims({_n,_m}); return *this;}
 
     SPEC zero() {_fcode=0; return *this;}
     SPEC raw() {_fcode=1; return *this;}

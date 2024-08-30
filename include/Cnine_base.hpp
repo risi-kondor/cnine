@@ -107,7 +107,7 @@ using namespace std;
 #define CNINE_DIMS_VALID(dims) if(!dims.valid()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": invalid dimensions"+dims.str()+".");
 #define CNINE_DIMS_SAME(x) if(x.dims!=dims) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+dims.str()+" and "+x.dims.str()+".");
 #define CNINE_DIMS_EQ(a,b) if(a!=b) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": dimension mismatch between "+a.str()+" and "+b.str()+".");
-#define CNINE_DIMS_EQ_TOTAL(a,b) if(a.total()!=b.total()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch between total size of "+a.str()+" and "+b.str()+".");
+#define CNINE_DIMS_EQ_TOTAL(a,b) if(a.asize()!=b.asize()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch between total size of "+a.str()+" and "+b.str()+".");
 #define CNINE_NDIMS_IS_1(a) if(a.dims.size()!=1) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is not a vector."); 
 #define CNINE_NDIMS_IS_2(a) if(a.dims.size()!=2) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is not a matrix."); 
 #define CNINE_NDIMS_IS(n) if(dims.size()!=n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is of order "+to_string(dims.size())+"."); 

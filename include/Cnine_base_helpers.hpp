@@ -119,11 +119,10 @@ namespace cnine{
   // ---- Printing -------------------------------------------------------------------------------------------
 
 
-  template<typename TYPE>
-  std::ostream& print(const TYPE& x){
-    cout<<x.str()<<endl;
-    return cout;
-  }
+  //template<typename TYPE>
+  //void print(const TYPE& x){
+  //cout<<x.str()<<endl;
+  //}
 
   template<typename TYPE>
   inline ostream& print(const string name, const TYPE& x){

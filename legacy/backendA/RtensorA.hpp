@@ -52,7 +52,7 @@ namespace cnine{
   class RtensorArrayA;
 
 
-  class RtensorA: public CnineObject,   public CnineBackendObject{
+  class RtensorA: public CnineObject{ //,   public CnineBackendObject{
   public:
 
     int k;
@@ -376,7 +376,7 @@ namespace cnine{
     */
 
     RtensorA(const initializer_list<initializer_list<float> >& M, const int _dev=0):
-      RtensorA(Gdims(M.size(),M.begin()->size())){
+      RtensorA(Gdims({M.size(),M.begin()->size()})){
       int i=0; 
       for(auto& p:M){
 	int j=0; 

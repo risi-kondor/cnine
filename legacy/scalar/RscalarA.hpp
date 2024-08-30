@@ -23,7 +23,7 @@ extern default_random_engine rndGen;
 
 namespace cnine{
 
-  class RscalarA: public CnineObject, public CnineBackendObject{
+  class RscalarA: public CnineObject{ //, public CnineBackendObject{
   public:
 
     int nbu=-1;

@@ -16,7 +16,7 @@
 #define __Gdims
 
 #include "Cnine_base.hpp"
-#include "Gvec.hpp"
+#include "gvectr.hpp"
 #include "GindexSet.hpp"
 //#include "Bifstream.hpp"
 //#include "Bofstream.hpp"
@@ -61,7 +61,7 @@ namespace cnine{
     }
 
     explicit Gdims(const int i0): 
-      BASE({i0}){}
+      BASE(i0){}
 
     /*
     Gdims(const int i0, const int i1): 
@@ -378,6 +378,12 @@ namespace cnine{
       BASE(d1.size()+d2.size()){
       for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
       for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
+    }
+
+    Gdims(const int b, const Gdims& d): 
+      BASE(d.size()+1){
+	(*this)[0]=b;
+	std::copy(d.begin(),d.end(),begin()+1);
     }
 
     Gdims(const int b, const Gdims& d1, const Gdims& d2): 

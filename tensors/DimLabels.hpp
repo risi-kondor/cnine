@@ -29,6 +29,9 @@ namespace cnine{
 
     DimLabels(){}
 
+    DimLabels(const bool b):
+      _batched(b){}
+
     DimLabels(const bool b, const int na):
       _batched(b), _narray(na){}
 

@@ -43,7 +43,7 @@ namespace cnine{
   class CtensorArrayA;
 
 
-  class CtensorA: public CnineObject, public CnineBackendObject{
+  class CtensorA: public CnineObject{ //, public CnineBackendObject{
   public:
 
     int k;
@@ -2160,6 +2160,7 @@ namespace cnine{
 
       if(dev>0){
 	
+#ifdef _WITH_CUDA
 	float alpha0=1.0;
 	float alpha1=1.0;
 	float alpha2=1.0;
@@ -2169,6 +2170,7 @@ namespace cnine{
 	if (selector==0||selector==3) alpha1=-1.0;
 	if (selector==2||selector==3) alpha2=-1.0;
 	if (selector==1||selector==3) alpha3=-1.0;
+#endif 
 
 	CUBLAS_SAFE(cublasSgemm(cnine_cublas,CUBLAS_OP_N,CUBLAS_OP_T,J,I,K,&alpha0,
 	    y.arrg,J,x.arrg,I,&beta,arrg,J)); 

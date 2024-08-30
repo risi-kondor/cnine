@@ -665,8 +665,8 @@ namespace cnine{
     */
 
     RtensorObj operator*(const Transpose<RtensorObj>& y) const{
-      int I=dims.combined(0,dims.k()-1);
-      int J=y.obj.dims.combined(0,y.obj.dims.k()-1);
+      int I=dims.combined(0,dims.size()-1);
+      int J=y.obj.dims.combined(0,y.obj.dims.size()-1);
       RtensorObj R(cnine::dims(I,J),fill::zero);
       R.add_mprod_AT(*this,y.obj);
       return R;

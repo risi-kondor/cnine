@@ -18,7 +18,6 @@
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
 #include "DimLabels.hpp"
-//#include "LtensorSpec.hpp"
 #include "NamedTypes.hpp"
 #include "IntTensor.hpp"
 #include "MemoryManager.hpp"
@@ -100,16 +99,26 @@ namespace cnine{
       Ltensor(MemArr<TYPE>(_arr,_dev),_dims){}
 
 
+    Ltensor(const int _b, const Gdims& _ddims, const int fcode, const int _dev=0):
+      BASE(Gdims(_b,_ddims),fcode,_dev), 
+      labels(_b){}
+
+    Ltensor(const int _b, const Gdims& _gdims, const Gdims& _ddims, const int fcode, const int _dev=0):
+      BASE(Gdims(_b,_gdims,_ddims),fcode,_dev), 
+      labels(_b,_gdims.size()){}
+
+    void reset(const int _b, const Gdims& _gdims, const Gdims& _ddims, const int fcode, const int _dev=0){
+      BASE::reset(BASE(Gdims(_b,_gdims,_ddims),fcode,_dev)); 
+      labels=DimLabels(_b,_gdims.size());
+    }
+
+
   public: // ---- Constructors with labels -------------------------------------------------------------------
 
 
     Ltensor(const Gdims& _dims, const DimLabels& _labels, const int fcode, const int _dev=0):
       BASE(_dims,fcode,_dev), 
       labels(_labels){}
-
-    Ltensor(const int _b, const Gdims& _gdims, const Gdims& _ddims, const int fcode, const int _dev=0):
-      BASE(Gdims(_b,_gdims,_ddims),fcode,_dev), 
-      labels(_b,_gdims.size()){}
 
     Ltensor(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides, const DimLabels& _labels):
       BASE(_arr,_dims,_strides),
@@ -407,7 +416,7 @@ namespace cnine{
 	lambda(b,batch(b));
     }
 
-
+ 
   public: // ---- Grid ---------------------------------------------------------------------------------------
 
 
@@ -811,12 +820,17 @@ namespace cnine{
     }
 
     string to_string(const string indent="") const{
+      return str(indent);
+    }
+
+    string str(const string indent="") const{
+      if(nbatch()==1) return batch(0).to_string(indent);
 
       if(is_batched()){
 	ostringstream oss;
 	for_each_batch([&](const int b, const Ltensor& x){
 	    oss<<indent<<"Batch "<<b<<":"<<endl;
-	    oss<<x.to_string(indent+"  ");
+	    oss<<x.str(indent+"  ");
 	  });
 	return oss.str();
       }
@@ -825,19 +839,12 @@ namespace cnine{
 	ostringstream oss;
 	for_each_cell([&](const Gindex& ix, const Ltensor& x){
 	    oss<<indent<<"Cell"<<ix<<":"<<endl;
-	    oss<<x.to_string(indent+"  ");
+	    oss<<x.str(indent+"  ");
 	  });
 	return oss.str();
       }
       
       return BASE::str(indent);
-    }
-
-    string str(const string indent="") const{
-      ostringstream oss;
-      oss<<indent<<repr()<<":"<<endl;
-      oss<<to_string(indent+"  ");
-      return oss.str();
     }
 
     friend ostream& operator<<(ostream& stream, const Ltensor<TYPE>& x){
@@ -968,87 +975,3 @@ namespace std{
 
 #endif 
 
-  /*
-  using BatchArgument=NamedType<int, struct BatchArgumentTag>;
-  using GridArgument=NamedType<Gdims, struct GridArgumentTag>;
-  using DimsArgument=NamedType<Gdims, struct DimsArgumentTag>;
-  using ChannelsArgument=NamedType<int, struct ChannelsArgumentTag>;
-  using FillArgument=NamedType<int, struct FillArgumentTag>;
-  using DeviceArgument=NamedType<int, struct DeviceArgumentTag>;
-
-  static const BatchArgument::argument batch;
-  static const GridArgument::argument grid;
-  static const DimsArgument::argument cdims;
-  static const ChannelsArgument::argument channels;
-  static const FillArgument::argument filltype;
-  static const DeviceArgument::argument device;
-  */
-
-    //[[deprecated]]
-    /*
-    Ltensor(const LtensorSpec<TYPE>& g):
-      Ltensor(g.get_dims(), g.get_labels(), g.get_fcode(), g.get_dev()){}
-
-    static LtensorSpec<TYPE> make() {return LtensorSpec<TYPE>();}
-    static LtensorSpec<TYPE> raw() {return LtensorSpec<TYPE>().raw();}
-    static LtensorSpec<TYPE> zero() {return LtensorSpec<TYPE>().zero();}
-    static LtensorSpec<TYPE> sequential() {return LtensorSpec<TYPE>().sequential();}
-    static LtensorSpec<TYPE> gaussian() {return LtensorSpec<TYPE>().gaussian();}
-    
-    LtensorSpec<TYPE> spec() const{
-      return LtensorSpec<TYPE>(dims,labels,dev);
-    }
-    */
-
-    /*
-    void inc(const TYPE x){
-      if(x==0) return;
-      Ltensor R=scrunch();
-      if(dev==0) R.for_each([&](TYPE& v){v+=x;});
-      if(dev==1){
-	if constexpr(std::is_same<TYPE,int>::value){
-	  CUDA_STREAM(Ltensor_inc_cu(R,x,stream));
-	  return;}
-	if constexpr(std::is_same<TYPE,float>::value){
-	  CUDA_STREAM(Ltensor_inc_cu(R,x,stream));
-	  return;}
-	if constexpr(std::is_same<TYPE,double>::value){
-	  CUDA_STREAM(Ltensor_inc_cu(R,x,stream));
-	  return;}
-	CNINE_CPUONLY();
-      }
-    }
-    */
-
-    /*
-    void add(const Ltensor& x){
-      CNINE_DEVICE_SAME(x);
-      CNINE_CHECK_SIZE(dims.check_eq(x.dims));
-      assert(asize()==x.asize());
-      if(dev==0){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
-	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
-	  for(size_t i=0; i<asize(); i++) ptr[i]+=xptr[i];
-	}
-	else for_each([&](const Gindex& ix, TYPE& v){v+=x(ix);});
-      }
-      if(dev==1){
-	if(is_regular() && x.is_regular() && strides==x.strides){
-	  if constexpr(std::is_same<TYPE,float>::value){
-	    const float alpha=1.0;
-	    CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.get_arr(), 1, get_arr(), 1));
-	  }
-	}else{
-	  if(ndims()<=3){
-	    if(ndims()==1) view1().add(x.view1());
-	    if(ndims()==2) view2().add(x.view2());
-	    if(ndims()==3) view3().add(x.view3());
-	  }else{
-	    cout<<strides<<x.strides<<endl;
-	    CNINE_UNIMPL();
-	  }
-	}
-      }
-    }
-    */

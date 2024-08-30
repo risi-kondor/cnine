@@ -120,7 +120,7 @@ namespace cnine{
 
     Gdims get_adims() const{
       if(parts.size()>0) return parts[0]->get_adims();
-      return 0;
+      return Gdims({0});
     }
 
     int get_dev() const{

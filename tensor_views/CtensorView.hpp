@@ -46,15 +46,15 @@ namespace cnine{
       arr(_arr), arrc(_arrc), dims(_n0), strides(_s0), dev(_dev){}
 
     CtensorView(float* _arr, float* _arrc, const int _n0, const int _n1, const int _s0, const int _s1, const int _dev=0): 
-      arr(_arr), arrc(_arrc), dims(_n0,_n1), strides(_s0,_s1), dev(_dev){}
+      arr(_arr), arrc(_arrc), dims({_n0,_n1}), strides({_s0,_s1}), dev(_dev){}
     
     CtensorView(float* _arr, float* _arrc, const int _n0, const int _n1, const int _n2, 
       const int _s0, const int _s1, const int _s2, const int _dev=0): 
-      arr(_arr), arrc(_arrc), dims(_n0,_n1,_n2), strides(_s0,_s1,_s2), dev(_dev){}
+      arr(_arr), arrc(_arrc), dims({_n0,_n1,_n2}), strides({_s0,_s1,_s2}), dev(_dev){}
 
     CtensorView(float* _arr, float* _arrc, const int _n0, const int _n1, const int _n2, const int _n3,
       const int _s0, const int _s1, const int _s2, const int _s3, const int _dev=0): 
-      arr(_arr), arrc(_arrc), dims(_n0,_n1,_n2,_n3), strides(_s0,_s1,_s2,_s3), dev(_dev){}
+      arr(_arr), arrc(_arrc), dims({_n0,_n1,_n2,_n3}), strides({_s0,_s1,_s2,_s3}), dev(_dev){}
 
     CtensorView(float* _arr,  float* _arrc, const Gdims& _dims, const Gstrides& _strides, const int _dev=0):
       arr(_arr), arrc(_arrc), dims(_dims), strides(_strides), dev(_dev){

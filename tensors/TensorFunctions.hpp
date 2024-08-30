@@ -53,7 +53,7 @@ namespace cnine{
     int n0=list.size();
     CNINE_ASSRT(n0>0);
     int n1=list.begin()->size();
-    Tensor<TYPE> T(Gdims(n0,n1),_dev); 
+    Tensor<TYPE> T(Gdims({n0,n1}),_dev); 
     int i=0;
     for(auto& p: list){
       int j=0;

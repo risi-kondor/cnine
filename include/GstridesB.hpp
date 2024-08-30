@@ -16,7 +16,7 @@
 #define __GstridesB
 
 #include "Cnine_base.hpp"
-#include "Gvec.hpp"
+#include "gvectr.hpp"
 #include "Gdims.hpp"
 #include "Gstrides.hpp"
 

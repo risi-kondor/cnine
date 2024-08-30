@@ -70,7 +70,7 @@ namespace cnine{
 
 
     Gdims get_dims() const{
-      return Gdims(n0,n1,n2,n3,n4,n5,n6);
+      return Gdims({n0,n1,n2,n3,n4,n5,n6});
     }
 
     float operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const int i6) const{

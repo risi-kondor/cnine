@@ -139,7 +139,7 @@ namespace cnine{
       const Gdims& sdims=v[0]->dims;
       const int smemsize=v[0]->smemsize;
       k=sdims.size()+1;
-      dims=Gdims({n},sdims);
+      dims=Gdims(n,sdims);
       make_strides();
       reallocate();
       for(int i=0; i<n; i++){
