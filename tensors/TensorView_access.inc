@@ -25,7 +25,7 @@ TYPE operator()(const int i0) const{
   return arr[strides.offs(i0)];
 }
 
-TYPE operator()(const int i0, const int i1) const{
+TYPE& operator()(const int i0, const int i1) const{
   CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,string(__PRETTY_FUNCTION__)));
   return arr[strides.offs(i0,i1)];
 }

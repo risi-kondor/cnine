@@ -114,9 +114,9 @@ TensorView slice(const Gindex& ix) const{
   return TensorView(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k));
 }
 
-TensorView slices(const int d, const int i, const int j) const{
-  if(i+j>0) {CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+j-1,string(__PRETTY_FUNCTION__)));}
+TensorView slices(const int d, const int i, const int n) const{
+  if(i+n>0) {CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+n-1,string(__PRETTY_FUNCTION__)));}
   Gdims _dims(dims);
-  return TensorView(arr+strides[d]*i,_dims.set(d,j),strides);
+  return TensorView(arr+strides[d]*i,_dims.set(d,n),strides);
 }
 

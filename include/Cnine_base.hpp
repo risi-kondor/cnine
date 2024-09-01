@@ -111,8 +111,8 @@ using namespace std;
 #define CNINE_NDIMS_IS_1(a) if(a.dims.size()!=1) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is not a vector."); 
 #define CNINE_NDIMS_IS_2(a) if(a.dims.size()!=2) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is not a matrix."); 
 #define CNINE_NDIMS_IS(n) if(dims.size()!=n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is of order "+to_string(dims.size())+"."); 
-#define CNINE_NDIMS_LEAST(n) if(dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(dims.size())+"."); 
-#define CNINE_NDIMS_LEASTX(x,n) if(x.dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be of order "+to_string(n)+" but is of order "+to_string(x.dims.size())+"."); 
+#define CNINE_NDIMS_LEAST(n) if(dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be at least "+to_string(n)+" dimensional, but is only "+to_string(dims.size())+"."); 
+#define CNINE_NDIMS_LEASTX(x,n) if(x.dims.size()<n) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": tensor is expected to be at least "+to_string(n)+" dimensional but is only "+to_string(x.dims.size())+"."); 
 //#define CNINE_CHECK_DIM(d,i) if(dims[d]<=i) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": "+to_string(i)+" is out of bounds for dimension "+to_string(d)+" in "+dims.str()+"."); 
 #define CNINE_NTENS_SAME(x) if(x.tensors.size()!=tensors.size()) throw std::invalid_argument("Cnine error in "+string(__PRETTY_FUNCTION__)+": mismatch in number of tensors "+to_string(x.tensors.size())+" vs "+to_string(tensors.size())+".");
 #else
@@ -153,7 +153,7 @@ using namespace std;
 #endif
 
 #define CNINE_CHECK_DEV2(x,y) if(x.dev!=y.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
-#define CNINE_CHECK_DEV3(x,y,z) if(x.dev!=y.dev || x.dev!=z.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": device mismatch.");
+#define CNINE_CHECK_DEV3(x,y,z) if(x.dev!=y.dev || x.dev!=z.dev) throw std::out_of_range("cnine error in "+std::string(__PRETTY_FUNCTION__)+": all three operands must be on the same device.");
 
 
 // ---- Templates ---------------------------------------------------------------------------------------------

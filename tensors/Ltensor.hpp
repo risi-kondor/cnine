@@ -81,7 +81,6 @@ namespace cnine{
 
     Ltensor(): 
       Ltensor({1},0,0){}
-      //Ltensor({1},DimLabels(),0,0){}
 
     Ltensor(const Gdims& _dims):
       BASE(_dims,0,0){}
@@ -97,7 +96,6 @@ namespace cnine{
 
     Ltensor(TYPE* _arr, const Gdims& _dims, const int _dev=0):
       Ltensor(MemArr<TYPE>(_arr,_dev),_dims){}
-
 
     Ltensor(const int _b, const Gdims& _ddims, const int fcode, const int _dev=0):
       BASE(Gdims(_b,_ddims),fcode,_dev), 
@@ -399,9 +397,14 @@ namespace cnine{
       return labels._batched;
     }
 
+    int getb() const{
+      if(is_batched()) return dims[0];
+      else return 1;
+    }
+
     int nbatch() const{
       if(is_batched()) return dims[0];
-      else return 0;
+      else return 1;
     }
 
     Ltensor batch(const int i) const{
@@ -415,8 +418,8 @@ namespace cnine{
       for(int b=0; b<B; b++)
 	lambda(b,batch(b));
     }
-
  
+
   public: // ---- Grid ---------------------------------------------------------------------------------------
 
 
@@ -528,6 +531,57 @@ namespace cnine{
       return Ltensor(arr+gstrides().offs(ix),bcdims(),bcstrides(),labels.copy().set_ngrid(0));
     }
 
+
+  public: // ---- Promotions ---------------------------------------------------------------------------------
+
+    /*
+    static int dominant_batch(const Ltensor& x, const Ltensor& y){
+      int xb=x.getb();
+      int yb=y.getb();
+      if(xb==yb) return xb;
+      if(xb==1) return yb;
+      if(yb==1) return xb;
+      throw std::invalid_argument("Cnine error: batch dimensions of "+x.repr()+" and "+y.repr()+" cannot be reconciled.");
+      return 0;
+    }
+
+    static Gdims dominant_grid(const Ltensor& x, const Ltensor& y){
+      if(!x.is_grid()){
+	if(!y.is_grid()) return Gdims({});
+	else return y.gdims();
+      }
+      if(!y.is_grid()) return x.gdims();
+      if(x.gdims()!=y.gdims())
+	throw std::invalid_argument("Cnine error: grid dimensions of "+x.repr()+" and "+y.repr()+" cannot be reconciled.");
+      return x.gdims();
+    }
+
+    Ltensor promote_batch(const int b){
+      if(!is_batched()) return Ltensor(arr,dims.prepend(b),strides.prepend(0),labels.copy.set_batched(true));
+      if(get_nb()==b) return *this;
+      if(get_nb()==1) return Ltensor(arr,dims.copy().set(0,b),strides.set(0,0));
+      throw std::invalid_argument("Cnine error: batch dimension of "+repr()+" cannot be promoted to "+to_string(b)+".");
+    }
+    */
+
+    //Ltensor promote_grid(const Gdims& g){
+    //if(!is_grid()) return Ltensor(arr,dims.prepend(b),strides.prepend(0),labels.copy.set_batched(true));
+    //if(get_nb()==b) return *this;
+    //if(get_nb()==1) return Ltensor(arr,dims.copy().set(0,b),strides.set(0,0));
+    //throw std::invalid_argument("Cnine error: batch dimension of "+repr()+" cannot be promoted to "+to_string(b)+".");
+    //}
+
+    /*
+    Ltensor promote(const int b, const Gdims& g){
+      return promote_batch(b);
+    }
+
+    static std::pair<Ltensor,Ltensor> co_promote_bg(const Ltensor& x, const Ltensor& y){
+      int b=dominant_batch(x,y);
+      Gdims g=dominant_grid(x,y);
+      return make_pair(x.promote(b,g),y.promote(b,g));
+    }
+    */
 
   public: // ---- Copying ------------------------------------------------------------------------------------
 

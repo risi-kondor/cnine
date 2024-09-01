@@ -105,6 +105,23 @@ namespace cnine{
       return R;
     }
 
+    SUB insert(const int j, const vector<TYPE>& x) const{
+      Gvec R(size()+x.size());
+      std::copy(begin(),begin()+j,R.begin());
+      std::copy(x.begin(),x.end(),R.begin()+j);
+      std::copy(begin()+j,end(),R.begin()+j+x.size());
+      return R;
+    }
+
+    SUB insert(const int j, int n, const TYPE x) const{
+      Gvec R(size()+n);
+      std::copy(begin(),begin()+j,R.begin());
+      std::copy(begin()+j,end(),R.begin()+j+n);
+      for(int i=0; i<n; i++)
+	R[j+i]=x;
+      return R;
+    }
+
     SUB remove(const int j) const{
       CNINE_ASSRT(j<size());
       Gvec R(size()-1);
