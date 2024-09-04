@@ -159,6 +159,14 @@ TensorView fuse(const vector<int>& ix) const{ // TODO
   return TensorView(arr,dims.remove(ix0).set(ix[0],t),strides.remove(ix0).set(ix[0],s));
 }
 
+TensorView fuse_chunk(const int i, const int n) const{
+  auto [s,d]=strides.chunk(i,n).fuser(dims.chunk(i,n));
+  if(d==-1) throw std::out_of_range("Indices "+std::to_string(i)+" to "+std::to_string(i+n-1)+" in "+repr()+
+				    "cannot be fused.");
+  return TensorView(arr,Gdims(dims.chunk(0,i),d,dims.chunk(i+1)),
+    GstridesB(strides.chunk(0,i),s,strides.chunk(i+1)));
+}
+
 TensorView split0(const int a, const int b) const{
   CNINE_ASSRT(ndims()>=1);
   CNINE_ASSRT(dims[0]==a*b);

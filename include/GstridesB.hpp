@@ -73,6 +73,13 @@ namespace cnine{
     }
 
 
+  public: // ---- Merging -------------------------------------------------------------------------
+
+
+    GstridesB(const GstridesB& d1, const size_t v, const GstridesB& d2):
+      BASE(d1,v,d2){}
+
+
   public: // ---- Constructing from Gdims -------------------------------------------------------------------
 
 
@@ -246,6 +253,17 @@ namespace cnine{
       }
 
       return true;
+    }
+
+    pair<size_t,int> fuser(const Gdims& dims) const{
+      auto p=ordering();
+      int n=size();
+      if(n==-1) return make_pair((size_t)0,-1);
+      int mins=(*this)[p[0]];
+      for(int i=0; i<n-1; i++)
+	if((*this)[p[i+1]]!=(*this)[p[i]]*dims[p[i]])
+	  return make_pair((size_t)0,-1);
+      return std::pair<size_t,int>((*this)[p[0]],(*this)[p[n-1]]*dims[p[n-1]]);
     }
 
 

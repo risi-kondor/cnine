@@ -38,6 +38,23 @@ namespace cnine{
       BASE(x){}
 
 
+  public: // ---- Merging ------------------------------------------------------------------------------------
+
+    
+    Gvec(const Gvec& x, const Gvec& y):
+      Gvec(x.size()+y.size()){
+      std::copy(x.begin(),x.end(),begin());
+      std::copy(y.begin(),y.end(),begin()+x.size());
+    }
+
+    Gvec(const Gvec& x, const TYPE v, const Gvec& y):
+      Gvec(x.size()+y.size()+1){
+      std::copy(x.begin(),x.end(),begin());
+      std::copy(y.begin(),y.end(),begin()+x.size()+1);
+      (*this)[x.size()]=v;
+    }
+
+
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 

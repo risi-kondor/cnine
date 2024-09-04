@@ -91,6 +91,37 @@ namespace cnine{
     }
 
 
+  public: // ---- Merging -------------------------------------------------------------------------
+
+
+    Gdims(const Gdims& d1, const Gdims& d2): 
+      BASE(d1.size()+d2.size()){
+      for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
+      for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
+    }
+
+    Gdims(const int b, const Gdims& d): 
+      BASE(d.size()+1){
+	(*this)[0]=b;
+	std::copy(d.begin(),d.end(),begin()+1);
+    }
+
+    Gdims(const int b, const Gdims& d1, const Gdims& d2): 
+      BASE((b>0)+d1.size()+d2.size()){
+      if(b>0){
+	(*this)[0]=b;
+	for(int i=0; i<d1.size(); i++) (*this)[1+i]=d1[i];
+	for(int i=0; i<d2.size(); i++) (*this)[1+i+d1.size()]=d2[i];
+      }else{
+	for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
+	for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
+      }
+    }
+
+    Gdims(const Gdims& d1, const int v, const Gdims& d2):
+      BASE(d1,v,d2){}
+
+
   public: // ---- ATEN ---------------------------------------------------------------------------------------
 
 
@@ -372,30 +403,6 @@ namespace cnine{
       (*this)[1]=i1;
       (*this)[2]=i2;
       (*this)[3]=i3;
-    }
-
-    Gdims(const Gdims& d1, const Gdims& d2): 
-      BASE(d1.size()+d2.size()){
-      for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
-      for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
-    }
-
-    Gdims(const int b, const Gdims& d): 
-      BASE(d.size()+1){
-	(*this)[0]=b;
-	std::copy(d.begin(),d.end(),begin()+1);
-    }
-
-    Gdims(const int b, const Gdims& d1, const Gdims& d2): 
-      BASE((b>0)+d1.size()+d2.size()){
-      if(b>0){
-	(*this)[0]=b;
-	for(int i=0; i<d1.size(); i++) (*this)[1+i]=d1[i];
-	for(int i=0; i<d2.size(); i++) (*this)[1+i+d1.size()]=d2[i];
-      }else{
-	for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
-	for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
-      }
     }
 
     [[deprecated]]

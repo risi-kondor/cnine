@@ -1,4 +1,4 @@
-EIGENDIR=/usr/local/include
+# EIGENDIR=/usr/local/include
 
 ROOTDIR=../../../
 include $(ROOTDIR)/common.txt

@@ -106,15 +106,15 @@ namespace cnine{
     EinsumForm1 permute(const vector<int>& r_pi, const vector<int>& x_pi){
       EinsumForm1 R;
       for(auto& p: transfer_indices)
-	R.transfer_indices.push_back(make_pair(permute(p.first,r_pi),permute(p.second,x_pi)));
+	R.transfer_indices.push_back(make_pair(cnine::permute(p.first,r_pi),cnine::permute(p.second,x_pi)));
       for(auto& p: summation_indices)
-	R.summation_indices.push_back(permute(p,x_pi));
+	R.summation_indices.push_back(cnine::permute(p,x_pi));
       for(auto& p: broadcast_indices)
-	R.broadcast_indices.push_back(permute(p,r_pi));
-      R.x_ids=permute(x_ids,x_pi);
-      R.r_ids=permute(r_ids,r_pi);
+	R.broadcast_indices.push_back(cnine::permute(p,r_pi));
+      R.x_ids=cnine::permute(x_ids,x_pi);
+      R.r_ids=cnine::permute(r_ids,r_pi);
       R.bcast_ids=bcast_ids; // this is doesn't matter because permutation is applied after constructing result
-      R.id_tail=id_tail; // this is doesn't matter because permutation is applied after constructing result
+      R.id_tail=id_tail;
       return R;
     }
 

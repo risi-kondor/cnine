@@ -72,7 +72,7 @@ namespace cnine{
 
       EsumParams params;
       for(int i=0; i<transfer_indices.size(); i++){
-	params.ddims[i]=r.dims[transfer_indices[i].first[0]];
+	params.ddims[i]=r.dims[transfer_indices[i].first[0]]; // ???
 	params.rstride_d[i]=r.strides.combine(transfer_indices[i].first);
 	params.xstride_d[i]=x.strides.combine(transfer_indices[i].second);
       }

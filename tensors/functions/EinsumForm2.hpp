@@ -15,7 +15,8 @@
 #ifndef _CnineEinsumForm2
 #define _CnineEinsumForm2
 
-#include "Ltensor.hpp"
+#include "TensorView.hpp"
+#include "EinsumForm1.hpp"
 
 
 namespace cnine{
@@ -28,6 +29,7 @@ namespace cnine{
     vector<vector<int> > x_summation_indices;
     vector<vector<int> > y_summation_indices;
     vector<pair<vector<int>,vector<int> > > contraction_indices;
+    vector<vector<vector<int> > > triple_contraction_indices;
     vector<vector<int> > broadcast_indices;
     vector<int> x_ids;
     vector<int> y_ids;
@@ -48,7 +50,7 @@ namespace cnine{
       auto ystr=str.substr(d0+1,d1-d0-1);
       auto rstr=str.substr(d1+2,string::npos);
       x_ids=vector<int>(xstr.size());
-      y_ids=vector<int>(xstr.size());
+      y_ids=vector<int>(ystr.size());
       r_ids=vector<int>(rstr.size());
 
       while(true){
@@ -60,23 +62,35 @@ namespace cnine{
 	auto v=find_all(rstr,c);
 	for(auto q:v) r_ids[q]=id_tail;
 
-	// if i is a broadcast index
-	if(xstr.find(c)==string::npos && ystr.find(c)==string::npos){
-	  broadcast_indices.push_back(v);
-	  bcast_ids.push_back(id_tail);
-	}
-
-	// if i is a transfer index
-	else{
+	// Three-way contraction index
+	if(c=='*'){
 	  auto xw=find_all(xstr,c);
 	  for(auto q:xw) x_ids[q]=id_tail;
 	  auto yw=find_all(ystr,c);
 	  for(auto q:yw) y_ids[q]=id_tail;
-	  vector<vector<int> > u;
-	  u.push_back(xw);
-	  u.push_back(yw);
-	  u.push_back(v);
-	  transfer_indices.push_back(u);
+	  if(xw.size()==0 || yw.size()==2)
+	    CNINE_ERROR("The three-way contraction token '*' must appear in all three parts of the einsum string.");
+	  triple_contraction_indices.push_back({xw,yw,v});
+	}
+	else{
+	  // if i is a broadcast index
+	  if(xstr.find(c)==string::npos && ystr.find(c)==string::npos){
+	    broadcast_indices.push_back(v);
+	    bcast_ids.push_back(id_tail);
+	  }
+
+	  // if i is a transfer index
+	  else{
+	    auto xw=find_all(xstr,c);
+	    for(auto q:xw) x_ids[q]=id_tail;
+	    auto yw=find_all(ystr,c);
+	    for(auto q:yw) y_ids[q]=id_tail;
+	    vector<vector<int> > u;
+	    u.push_back(xw);
+	    u.push_back(yw);
+	    u.push_back(v);
+	    transfer_indices.push_back(u);
+	  }
 	}
 
 	id_tail++;
@@ -138,9 +152,14 @@ namespace cnine{
 	oss<<p.first<<"*"<<p.second<<",";
       oss<<"\b"<<endl;
 
+      oss<<indent<<"Three way contractions: ";
+      for(auto& p:triple_contraction_indices)
+	oss<<p[0]<<"*"<<p[1]<<"->"<<p[2]<<",";
+      oss<<"\b"<<endl;
+
       oss<<indent<<"Transfers: ";
       for(auto& p:transfer_indices)
-	oss<<p[0]<<","<<p[1]<<"->"<<p[2]<<",";
+	oss<<p[0]<<"*"<<p[1]<<"->"<<p[2]<<",";
       oss<<"\b"<<endl;
 
       oss<<indent<<"Broadcasting: ";
