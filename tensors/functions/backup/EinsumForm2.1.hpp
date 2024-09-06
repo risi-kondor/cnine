@@ -17,7 +17,7 @@
 
 #include "TensorView.hpp"
 #include "EinsumForm1.hpp"
-#include "multivec.hpp"
+
 
 namespace cnine{
 
@@ -25,25 +25,22 @@ namespace cnine{
   class EinsumForm2: EinsumFormBase{
   public:
 
+    //vector<bool> convolution_flag;
     vector<vector<int> > x_summation_indices;
     vector<vector<int> > y_summation_indices;
     vector<vector<int> > r_summation_indices;
-    multivec<vector<int> > xr_indices=multivec<vector<int> >(2);
-    multivec<vector<int> > yr_indices=multivec<vector<int> >(2);
-    multivec<vector<int> > xy_indices=multivec<vector<int> >(2);
-    multivec<vector<int> > transfer_indices=multivec<vector<int> >(3);
-    multivec<vector<int> > convolution_indices=multivec<vector<int> >(3);
-    multivec<vector<int> > triple_contraction_indices=multivec<vector<int> >(3);
+    vector<pair<vector<int>,vector<int> > > xr_indices;
+    vector<pair<vector<int>,vector<int> > > yr_indices;
+    vector<pair<vector<int>,vector<int> > > xy_indices;
+    vector<vector<vector<int> > > transfer_indices;
+    vector<vector<vector<int> > > convolution_indices;
+    vector<vector<vector<int> > > triple_contraction_indices;
 
     vector<int> x_ids;
     vector<int> y_ids;
     vector<int> r_ids;
-    vector<int> bcast_ids;
     int id_tail=0;
 
-
-    //EinsumForm2(){
-    //}
 
     EinsumForm2(const string str){
 
@@ -79,41 +76,27 @@ namespace cnine{
 	    auto yw=find_all(ystr,c);
 	    if(c=='*'){ // triple contraction
 	      triple_contraction_indices.push_back({xw,yw,v});
-	      //triple_contraction_indices[0].push_back(xw);
-	      //triple_contraction_indices[1].push_back(yw);
-	      //triple_contraction_indices[2].push_back(v);
 	    }else{ // transfer or convolution
 	      if(c=='U'||c=='V'||c=='W'){
 		id_tail++;
 		convolution_indices.push_back({xw,yw,v});
-		//convolution_indices[0].push_back(xw);
-		//convolution_indices[1].push_back(yw);
-		//convolution_indices[2].push_back(v);
+		//convolution_flag.push_back(c=='U'||c=='V'||c=='W');
 	      }else{
 		transfer_indices.push_back({xw,yw,v});
-		//transfer_indices[0].push_back(xw);
-		//transfer_indices[1].push_back(yw);
-		//transfer_indices[2].push_back(v);
 	      }
 	    }
 	    for(auto q:yw) y_ids[q]=id_tail;
 	  }else{ // xr transfer index
-	    xr_indices.push_back({xw,v});
-	    //xr_indices.push_back(make_pair(xw,v));
-	    //xr_indices.first.push_back(xw);
-	    //xr_indices.second.push_back(v);
+	    xr_indices.push_back(make_pair(xw,v));
 	  }	  
 	}else{
 	  if(is_in_y){ // yr transfer index 
 	    auto yw=find_all(ystr,c);
 	    for(auto q:yw) y_ids[q]=id_tail;
-	    yr_indices.push_back({yw,v});
-	    //yr_indices.push_back(make_pair(yw,v));
-	    //yr_indices.first.push_back(yw);
-	    //yr_indices.second.push_back(v);
+	    yr_indices.push_back(make_pair(yw,v));
 	  }else{ // broadcast index 
 	    r_summation_indices.push_back(v);
-	    bcast_ids.push_back(id_tail);
+	    r_ids.push_back(id_tail);
 	  }
 	}
 	id_tail++;
@@ -134,10 +117,7 @@ namespace cnine{
 	else{
 	  auto w=find_all(ystr,c);
 	  for(auto q:w) y_ids[q]=id_tail;
-	  xy_indices.push_back({v,w});
-	  //xy_indices.push_back(make_pair(v,w));
-	  //xy_indices.first.push_back(v);
-	  //xy_indices.second.push_back(w);
+	  xy_indices.push_back(make_pair(v,w));
 	}
 
 	id_tail++;
@@ -164,65 +144,47 @@ namespace cnine{
     string str(const string indent="") const{
       ostringstream oss;
 
-      if(x_summation_indices.size()>0){
-	oss<<indent<<"x summations: ";
-	for(auto& p:x_summation_indices) oss<<p<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"x summations: ";
+      for(auto& p:x_summation_indices) oss<<p<<",";
+      oss<<"\b"<<endl;
 
-      if(y_summation_indices.size()>0){
-	oss<<indent<<"y summations: ";
-	for(auto& p:y_summation_indices) oss<<p<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"y summations: ";
+      for(auto& p:y_summation_indices) oss<<p<<",";
+      oss<<"\b"<<endl;
 
-      if(xr_indices.size()>0){
-	oss<<indent<<"xr transfers: ";
-	for(auto p:xr_indices)
-	  oss<<p[0]<<"->"<<p[1]<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"xr transfers: ";
+      for(auto& p:xr_indices)
+	oss<<p.first<<"->"<<p.second<<",";
+      oss<<"\b"<<endl;
 
-      if(yr_indices.size()>0){
-	oss<<indent<<"yr_transfers: ";
-	for(auto p:yr_indices)
-	  oss<<p[0]<<"->"<<p[1]<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"yr_transfers: ";
+      for(auto& p:yr_indices)
+	oss<<p.first<<"->"<<p.second<<",";
+      oss<<"\b"<<endl;
 
-      if(xy_indices.size()>0){
-	oss<<indent<<"xy contractions: ";
-	for(auto p:xy_indices)
-	  oss<<p[0]<<"*"<<p[1]<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"xt contractions: ";
+      for(auto& p:xy_indices)
+	oss<<p.first<<"*"<<p.second<<",";
+      oss<<"\b"<<endl;
 
-      if(triple_contraction_indices.size()>0){
-	oss<<indent<<"Three way contractions: ";
-	for(auto p:triple_contraction_indices)
-	  oss<<p[0]<<""<<p[1]<<"->"<<p[2]<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"Three way contractions: ";
+      for(auto& p:triple_contraction_indices)
+	oss<<p[0]<<"*"<<p[1]<<"->"<<p[2]<<",";
+      oss<<"\b"<<endl;
 
-      if(convolution_indices.size()>0){
-	oss<<indent<<"Convolutions: ";
-	for(auto p:convolution_indices)
-	  oss<<p[0]<<""<<p[1]<<"->"<<p[2]<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"Convolutions: ";
+      for(auto& p:convolution_indices)
+	oss<<p[0]<<"*"<<p[1]<<"->"<<p[2]<<",";
+      oss<<"\b"<<endl;
 
-      if(transfer_indices.size()>0){
-	oss<<indent<<"Three way transfers: ";
-	for(auto p:transfer_indices)
-	  oss<<p[0]<<""<<p[1]<<"->"<<p[2]<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"Three way transfers: ";
+      for(auto& p:transfer_indices)
+	oss<<p[0]<<"*"<<p[1]<<"->"<<p[2]<<",";
+      oss<<"\b"<<endl;
 
-      if(r_summation_indices.size()>0){
-	oss<<indent<<"Broadcasting: ";
-	for(auto p:r_summation_indices) oss<<p<<",";
-	oss<<"\b"<<endl;
-      }
+      oss<<indent<<"Broadcasting: ";
+      for(auto& p:r_summation_indices) oss<<p<<",";
+      oss<<"\b"<<endl;
 
       return oss.str();
     }

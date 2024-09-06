@@ -21,10 +21,11 @@ namespace cnine{
   template<typename OWNER, typename OBJ>
   class GenericIterator{
   public:
-    const OWNER* owner;
+
+    OWNER* owner;
     int i;
 
-    GenericIterator(const OWNER* _owner, const int _i=0): 
+    GenericIterator(OWNER* _owner, const int _i=0): 
       owner(_owner), i(_i){}
 
     int operator++(){++i; return i;}
@@ -40,6 +41,35 @@ namespace cnine{
     }
 
     bool operator!=(const GenericIterator& x) const{
+      return i!=x.i;
+    }
+
+  };
+
+
+  template<typename OWNER, typename OBJ>
+  class GenericConstIterator{
+  public:
+
+    const OWNER* owner;
+    int i;
+
+    GenericConstIterator(const OWNER* _owner, const int _i=0): 
+      owner(_owner), i(_i){}
+
+    int operator++(){++i; return i;}
+
+    int operator++(int a){++i; return i-1;}
+
+    OBJ operator*() const{
+      return (*owner)[i];
+    }
+      
+    bool operator==(const GenericConstIterator& x) const{
+      return i==x.i;
+    }
+
+    bool operator!=(const GenericConstIterator& x) const{
       return i!=x.i;
     }
 

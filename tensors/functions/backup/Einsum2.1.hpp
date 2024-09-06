@@ -34,11 +34,11 @@ namespace cnine{
     EinsumForm2 form;
 
     Einsum2(const string str):
-      form(str){cout<<form<<endl;}
+      form(str){}
 
     template<typename TYPE>
     TensorView<TYPE> operator()(const TensorView<TYPE>& x, const TensorView<TYPE>& y, vector<int> rdims={}){
-      CNINE_ASSRT(rdims.size()==form.bcast_ids.size());
+      CNINE_ASSRT(rdims.size()==form.r_ids.size());
       
       vector<int> dimensions(form.id_tail,-1);
       for(int i=0; i<form.x_ids.size(); i++){
@@ -54,17 +54,18 @@ namespace cnine{
 	  CNINE_ASSRT(dimensions[form.y_ids[i]]==y.dims[i]);
       }
 
-      for(int i=0; i<form.bcast_ids.size(); i++)
-	dimensions[form.bcast_ids[i]]=rdims[i];
+      for(int i=0; i<form.r_ids.size(); i++)
+	dimensions[form.r_ids[i]]=rdims[i];
 
       auto r_dims=mapcar<int,int>(form.r_ids,[&](const int& id){return dimensions[id];});
-      for(auto p:form.convolution_indices){ // special treatment for convolutions
-	int d=x.dims[p[0][0]]-y.dims[p[1][0]]+1;
-	for(auto j:p[2]) r_dims[j]=d;
+      for(int i=0; i<form.transfer_indices.size(); i++){ // special treatment for convolutions
+	if(form.convolution_flag[i]){
+	  int d=x.dims[form.transfer_indices[i][0][0]]-x.dims[form.transfer_indices[i][1][0]]+1;
+	  for(auto j:form.transfer_indices[i][2]) r_dims[j]=d;
+	}
       }
-
+	
       TensorView<TYPE> R(r_dims,0,x.get_dev());
-      cout<<R.repr()<<endl;
       add_einsum(R,x,y);
       return R;
     }
@@ -82,6 +83,11 @@ namespace cnine{
       auto& transfer_indices=form.transfer_indices;
       auto& convolution_indices=form.convolution_indices;
       auto& triple_contraction_indices=form.triple_contraction_indices;
+      //auto& convolution_flag=form.convolution_flag;
+
+      //int nconvolutions=0;
+      //for(auto p:convolution_flag)
+      //nconvolutions+=p;
 
       CNINE_ASSRT(x_summation_indices.size()<=3);
       CNINE_ASSRT(y_summation_indices.size()<=3);
@@ -97,21 +103,18 @@ namespace cnine{
       params.bcast(r_summation_indices,r);
 
       int ntransf=0;
-      params.transfer1(ntransf,xr_indices.vecs[0],xr_indices.vecs[1],x,r);
-      params.transfer1(ntransf,convolution_indices.vecs[0],convolution_indices.vecs[2],x,r);
-      params.transfer2(ntransf,yr_indices.vecs[0],yr_indices.vecs[1],y,r);
-      params.transfer12(ntransf,transfer_indices.vecs[0],transfer_indices.vecs[1],transfer_indices.vecs[2],x,y,r);
+      params.transfer1(ntransf,xr_indices,x,r);
+      params.transfer2(ntransf,yr_indices,y,r);
+      params.transfer12(ntransf,transfer_indices,x,y,r);
+      params.transfer12(ntransf,convolution_indices,x,y,r);
 
       int ncontr=0;
-      params.contract(ncontr,xy_indices.vecs[0],xy_indices.vecs[1],x,y);
-      params.contract(ncontr,convolution_indices.vecs[0],convolution_indices.vecs[1],x,y);
-
+      params.contract(ncontr,xy_indices,x,y);
+      params.convolve(ncontr,convolution_indices,r,x,y);
+     
       add_einsum(r,x,y,params);
     }
- 
-    // r_i=x_{i+j} y_j
-    // x_i=r_{i-j} y_j // limit!!
-    // y_j=r_i x_{i+j}  
+
 
     template<typename TYPE>
     void add_einsum_back0(const TensorView<TYPE>& x, const TensorView<TYPE>& r, const TensorView<TYPE>& y){
@@ -125,12 +128,17 @@ namespace cnine{
       auto& transfer_indices=form.transfer_indices;
       auto& convolution_indices=form.convolution_indices;
       auto& triple_contraction_indices=form.triple_contraction_indices;
+      auto& convolution_flag=form.convolution_flag;
+
+      //int nconvolutions=0;
+      //for(auto p:convolution_flag)
+      //nconvolutions+=p;
 
       CNINE_ASSRT(x_summation_indices.size()<=3);
       CNINE_ASSRT(y_summation_indices.size()<=3);
       CNINE_ASSRT(r_summation_indices.size()<=3);
-      CNINE_ASSRT(transfer_indices.size()+xr_indices.size()+yr_indices.size()+convolution_indices.size()<=4);
-      CNINE_ASSRT(xy_indices.size()+convolution_indices.size()<=3);
+      CNINE_ASSRT(transfer_indices.size()+xr_indices.size()+yr_indices.size()<=4);
+      CNINE_ASSRT(xy_indices.size()+nconvolutions<=3);
       CNINE_ASSRT(triple_contraction_indices.size()<=1);
 
       Einsum2params params;
@@ -140,57 +148,18 @@ namespace cnine{
       params.bcast(x_summation_indices,x);
 
       int ntransf=0;
-      params.transfer1(ntransf,convolution_indices.vecs[2],convolution_indices.vecs[0],r,x);
-      params.transfer1(ntransf,xr_indices.vecs[1],xr_indices.vecs[0],r,x);
-      params.transfer2(ntransf,xy_indices.vecs[1],xy_indices.vecs[0],y,x);
-      params.transfer12(ntransf,transfer_indices.vecs[2],transfer_indices.vecs[1],transfer_indices.vecs[0],r,y,x);
+      params.transfer1_back(ntransf,xr_indices,x,r);
+      params.transfer2_back(ntransf,xy_indices,x,y);
+      params.transfer12_back0(ntransf,transfer_indices,x,y,r);
 
       int ncontr=0;
-      params.convolve_back(ncontr,convolution_indices.vecs[2],convolution_indices.vecs[1],r,y); // special case! TODO!
-      params.contract(ncontr,yr_indices.vecs[1],yr_indices.vecs[0],r,y);
+      params.contract_back(ncontr,yr_indices,y,r);
+      params.convolve_back0(ncontr,transfer_indices,convolution_flag,x,y,r);
      
       add_einsum(x,r,y,params);
     }
- 
 
-    template<typename TYPE>
-    void add_einsum_back1(const TensorView<TYPE>& y, const TensorView<TYPE>& r, const TensorView<TYPE>& x){
 
-      auto& x_summation_indices=form.x_summation_indices;
-      auto& y_summation_indices=form.y_summation_indices;
-      auto& r_summation_indices=form.r_summation_indices;
-      auto& xr_indices=form.xr_indices;
-      auto& yr_indices=form.yr_indices;
-      auto& xy_indices=form.xy_indices;
-      auto& transfer_indices=form.transfer_indices;
-      auto& convolution_indices=form.convolution_indices;
-      auto& triple_contraction_indices=form.triple_contraction_indices;
-
-      CNINE_ASSRT(x_summation_indices.size()<=3);
-      CNINE_ASSRT(y_summation_indices.size()<=3);
-      CNINE_ASSRT(r_summation_indices.size()<=3);
-      CNINE_ASSRT(transfer_indices.size()+xr_indices.size()+yr_indices.size()+convolution_indices.size()<=4);
-      CNINE_ASSRT(xy_indices.size()+convolution_indices.size()<=3);
-      CNINE_ASSRT(triple_contraction_indices.size()<=1);
-
-      Einsum2params params;
-
-      params.sum1(r_summation_indices,r);
-      params.sum2(x_summation_indices,x);
-      params.bcast(y_summation_indices,y);
-
-      int ntransf=0;
-      params.transfer1(ntransf,yr_indices.vecs[1],yr_indices.vecs[0],r,y);
-      params.transfer2(ntransf,convolution_indices.vecs[0],convolution_indices.vecs[1],x,y);
-      params.transfer2(ntransf,xy_indices.vecs[0],xy_indices.vecs[1],x,y);
-      params.transfer12(ntransf,transfer_indices.vecs[2],transfer_indices.vecs[0],transfer_indices.vecs[1],r,x,y);
-
-      int ncontr=0;
-      params.contract(ncontr,xr_indices.vecs[1],xr_indices.vecs[0],r,x);
-      params.contract(ncontr,convolution_indices.vecs[2],convolution_indices.vecs[0],r,x); 
-     
-      add_einsum(y,r,x,params);
-    }
  
 
   public: // ----------------------------------------------------------------------------------------------------------
