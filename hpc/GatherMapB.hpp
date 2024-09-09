@@ -169,7 +169,7 @@ namespace cnine{
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static GatherMapB random(const int n, const int m, const float p){
+    static GatherMapB random(const int n, const int m, const float p=0.5){
       GatherMapB r(n,m);
       uniform_real_distribution<double> distr(0,1);
       for(int i=0; i<n; i++){

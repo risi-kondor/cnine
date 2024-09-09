@@ -129,6 +129,19 @@ namespace cnine{
   }
 
   template<typename TYPE>
+  inline TensorView<TYPE> einsum(const string str, const TensorView<TYPE>& x, const GatherMapB& gmap, const vector<int>& rdims={}){
+    Einsum1 esum(str);
+    return esum(x,gmap,rdims);
+  }
+
+  template<typename TYPE>
+  void einsum_add_back(const string str, const TensorView<TYPE>& x, const TensorView<TYPE>& r, const GatherMapB& gmap){
+    Einsum1 esum(str);
+    esum.add_einsum_back(x,r,gmap);
+  }
+
+
+  template<typename TYPE>
   inline TensorView<TYPE> einsum(const string str, const TensorView<TYPE>& x, const TensorView<TYPE>& y, vector<int> rdims={}){
     Einsum2 esum(str);
     return esum(x,y,rdims);

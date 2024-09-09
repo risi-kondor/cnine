@@ -87,8 +87,8 @@ namespace cnine{
 	else{
 	  auto w=find_all(xstr,c);
 	  for(auto q:w) x_ids[q]=id_tail;
-	  if(c!='S') xr_indices.push_back({v,w});
-	  else xr_gather.push_back({v,w});
+	  if(c!='S') xr_indices.push_back({w,v});
+	  else xr_gather.push_back({w,v});
 	}
 
 	id_tail++;
