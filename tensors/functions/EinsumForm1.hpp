@@ -15,10 +15,12 @@
 #ifndef _CnineEinsumForm1
 #define _CnineEinsumForm1
 
-#include "Ltensor.hpp"
+#include "TensorView.hpp"
+#include "multivec.hpp"
 
 
 namespace cnine{
+
 
   class EinsumFormBase{
   public:
@@ -42,9 +44,10 @@ namespace cnine{
   class EinsumForm1: EinsumFormBase{
   public:
 
-    vector<pair<vector<int>,vector<int> > > transfer_indices;
-    vector<vector<int> > summation_indices;
-    vector<vector<int> > broadcast_indices;
+    vector<vector<int> > x_summation_indices;
+    vector<vector<int> > r_summation_indices;
+    multivec<vector<int> > xr_indices=multivec<vector<int> >(2);
+    multivec<vector<int> > xr_gather=multivec<vector<int> >(2);
     vector<int> r_ids;
     vector<int> x_ids;
     vector<int> bcast_ids;
@@ -76,7 +79,7 @@ namespace cnine{
 
 	// if i is a broadcast index
 	if(xstr.find(c)==string::npos){
-	  broadcast_indices.push_back(v);
+	  r_summation_indices.push_back(v);
 	  bcast_ids.push_back(id_tail);
 	}
 
@@ -84,7 +87,8 @@ namespace cnine{
 	else{
 	  auto w=find_all(xstr,c);
 	  for(auto q:w) x_ids[q]=id_tail;
-	  transfer_indices.push_back(make_pair(v,w));
+	  if(c!='S') xr_indices.push_back({v,w});
+	  else xr_gather.push_back({v,w});
 	}
 
 	id_tail++;
@@ -97,12 +101,72 @@ namespace cnine{
 	char c=xstr[p];
 	auto v=find_all(xstr,c);
 	for(auto q:v) x_ids[q]=id_tail;
-	summation_indices.push_back(v);
+	x_summation_indices.push_back(v);
 	id_tail++;
       }
 
     }
 
+
+    static string random_string(const int k=3, const int m=4){
+      CNINE_ASSRT(m<=6);
+      ostringstream oss;
+      string letters="ijklab";
+      std::uniform_int_distribution<> distr(0,m-1);
+      for(int i=0; i<k; i++)
+	oss<<letters[distr(rndGen)];
+      oss<<"->";
+      for(int i=0; i<k; i++)
+	oss<<letters[distr(rndGen)];
+      return oss.str();
+    }
+
+
+    // ---- I/O -----------------------------------------------------------------------------------------------
+
+
+    string str(const string indent="") const{
+      ostringstream oss;
+
+      if(x_summation_indices.size()>0){
+	oss<<indent<<"Summations: ";
+	for(auto& p:x_summation_indices) oss<<p<<",";
+	oss<<"\b"<<endl;
+      }
+
+      if(xr_indices.size()>0){
+	oss<<indent<<"Transfers: ";
+	for(auto p:xr_indices)
+	  oss<<p[0]<<"->"<<p[1]<<",";
+	oss<<"\b"<<endl;
+      }
+
+      if(xr_gather.size()>0){
+	oss<<indent<<"Gather: ";
+	for(auto p:xr_gather)
+	  oss<<p[0]<<"->"<<p[1]<<",";
+	oss<<"\b"<<endl;
+      }
+
+      if(r_summation_indices.size()>0){
+	oss<<indent<<"Broadcasting: ";
+	for(auto& p:r_summation_indices) oss<<p<<",";
+	oss<<"\b"<<endl;
+      }
+
+      return oss.str();
+    }
+
+    friend ostream& operator<<(ostream& stream, const EinsumForm1& x){
+      stream<<x.str(); return stream;
+    }
+
+  };
+
+}
+
+#endif 
+    /*
     EinsumForm1 permute(const vector<int>& r_pi, const vector<int>& x_pi){
       EinsumForm1 R;
       for(auto& p: transfer_indices)
@@ -117,36 +181,4 @@ namespace cnine{
       R.id_tail=id_tail;
       return R;
     }
-
-
-    // ---- I/O -----------------------------------------------------------------------------------------------
-
-
-    string str(const string indent="") const{
-      ostringstream oss;
-
-      oss<<indent<<"Summations: ";
-      for(auto& p:summation_indices) oss<<p<<",";
-      oss<<"\b"<<endl;
-
-      oss<<indent<<"Transfers: ";
-      for(auto& p:transfer_indices)
-	oss<<p.second<<"->"<<p.first<<",";
-      oss<<"\b"<<endl;
-
-      oss<<indent<<"Broadcasting: ";
-      for(auto& p:broadcast_indices) oss<<p<<",";
-      oss<<"\b"<<endl;
-
-      return oss.str();
-    }
-
-    friend ostream& operator<<(ostream& stream, const EinsumForm1& x){
-      stream<<x.str(); return stream;
-    }
-
-  };
-
-}
-
-#endif 
+    */

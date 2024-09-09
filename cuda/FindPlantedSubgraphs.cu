@@ -262,12 +262,12 @@ __global__ FindPlantedSubgraphs_kernel(int* _matches, const int N, const int n, 
 
 namespace cnine{
 
-  Tensor<int> FindPlantedSubgraphs_cu(const int_pool& _G, int_pool& _H, const cudaStream_t& stream){
+  TensorView<int> FindPlantedSubgraphs_cu(const int_pool& _G, int_pool& _H, const cudaStream_t& stream){
 
     int n=_H.getn();
     int N=_G.getn();
     int nmatches=0;
-    Tensor<int> matches(Gdims(10,n));
+    TensorView<int> matches(Gdims(10,n));
 
     sparse_graph<int,float,LABEL> Hsg(_H);
     int_tree Htree=Hsg.greedy_spanning_tree().as_int_tree();

@@ -35,10 +35,14 @@ namespace cnine{
     multivec<vector<int> > convolution_indices=multivec<vector<int> >(3);
     multivec<vector<int> > triple_contraction_indices=multivec<vector<int> >(3);
 
+    multivec<vector<int> > xr_gather=multivec<vector<int> >(2);
+    multivec<vector<int> > yr_gather=multivec<vector<int> >(2);
+
     vector<int> x_ids;
     vector<int> y_ids;
     vector<int> r_ids;
     vector<int> bcast_ids;
+    //vector<int> gather_ids; //currently can only really handle one gather index
     int id_tail=0;
 
 
@@ -79,38 +83,33 @@ namespace cnine{
 	    auto yw=find_all(ystr,c);
 	    if(c=='*'){ // triple contraction
 	      triple_contraction_indices.push_back({xw,yw,v});
-	      //triple_contraction_indices[0].push_back(xw);
-	      //triple_contraction_indices[1].push_back(yw);
-	      //triple_contraction_indices[2].push_back(v);
 	    }else{ // transfer or convolution
 	      if(c=='U'||c=='V'||c=='W'){
 		id_tail++;
 		convolution_indices.push_back({xw,yw,v});
-		//convolution_indices[0].push_back(xw);
-		//convolution_indices[1].push_back(yw);
-		//convolution_indices[2].push_back(v);
 	      }else{
 		transfer_indices.push_back({xw,yw,v});
-		//transfer_indices[0].push_back(xw);
-		//transfer_indices[1].push_back(yw);
-		//transfer_indices[2].push_back(v);
 	      }
 	    }
 	    for(auto q:yw) y_ids[q]=id_tail;
 	  }else{ // xr transfer index
-	    xr_indices.push_back({xw,v});
-	    //xr_indices.push_back(make_pair(xw,v));
-	    //xr_indices.first.push_back(xw);
-	    //xr_indices.second.push_back(v);
+	    if(c!='S') xr_indices.push_back({xw,v});
+	    else{
+	      xr_gather.push_back({xw,v});
+	      //gather_ids.push_back(id_tail);
+	      //id_tail++;
+	    }
 	  }	  
 	}else{
 	  if(is_in_y){ // yr transfer index 
 	    auto yw=find_all(ystr,c);
 	    for(auto q:yw) y_ids[q]=id_tail;
-	    yr_indices.push_back({yw,v});
-	    //yr_indices.push_back(make_pair(yw,v));
-	    //yr_indices.first.push_back(yw);
-	    //yr_indices.second.push_back(v);
+	    if(c!='S') yr_indices.push_back({yw,v});
+	    else{
+	      yr_gather.push_back({yw,v});
+	      //gather_ids.push_back(id_tail);
+	      //id_tail++;
+	    }
 	  }else{ // broadcast index 
 	    r_summation_indices.push_back(v);
 	    bcast_ids.push_back(id_tail);
@@ -135,9 +134,6 @@ namespace cnine{
 	  auto w=find_all(ystr,c);
 	  for(auto q:w) y_ids[q]=id_tail;
 	  xy_indices.push_back({v,w});
-	  //xy_indices.push_back(make_pair(v,w));
-	  //xy_indices.first.push_back(v);
-	  //xy_indices.second.push_back(w);
 	}
 
 	id_tail++;
@@ -155,6 +151,22 @@ namespace cnine{
 	id_tail++;
       }
 
+    }
+
+
+    static string random_string(){
+      ostringstream oss;
+      string letters="ijkl";
+      std::uniform_int_distribution<> distr(0,3);
+      for(int i=0; i<4; i++)
+	oss<<letters[distr(rndGen)];
+      oss<<",";
+      for(int i=0; i<4; i++)
+	oss<<letters[distr(rndGen)];
+      oss<<"->";
+      for(int i=0; i<4; i++)
+	oss<<letters[distr(rndGen)];
+      return oss.str();
     }
 
 

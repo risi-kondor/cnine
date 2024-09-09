@@ -21,6 +21,13 @@ void operator-=(const TensorView& x) const {subtract(x);}
 // ---- Addition ---------------------------------------------------------------------------------------------
 
 
+//TensorView<TYPE> operator+(const TensorView<TYPE>& y){
+//auto r=copy();
+//r.add(y);
+//return r;
+//}
+
+
 void add(const TYPE x) const{
   if(asize()==0) return;
   if(x==0) return;
@@ -70,6 +77,13 @@ void add(const TensorView& x, const TYPE c) const{
 
 
 // ---- Subtractions -----------------------------------------------------------------------------------------
+
+
+//TensorView operator-(const TensorView& y){
+//auto r=copy();
+//r.subtract(y);
+//return r;
+//}
 
 
 void subtract(const TensorView& x) const{

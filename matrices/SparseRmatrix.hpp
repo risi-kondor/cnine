@@ -20,7 +20,7 @@
 
 #include "Gdims.hpp"
 #include "IntTensor.hpp"
-#include "Tensor.hpp"
+#include "TensorView.hpp"
 #include "CSRmatrix.hpp"
 #include "flog.hpp"
 
@@ -206,8 +206,8 @@ namespace cnine{
 // 	  if(x(i,j)!=0) set(i,j,x(i,j));
 //     }
 
-    Tensor<float> dense() const{
-      auto R=Tensor<float>({n,m},0,0);
+    TensorView<float> dense() const{
+      Tensor<float> R({n,m},0,0);
       forall_nonzero([&](const int i, const int j, const float v){
 	  R.set(i,j,v);});
       return R;

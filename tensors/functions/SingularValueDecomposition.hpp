@@ -14,7 +14,7 @@
 #ifndef _SingularValueDecomposition
 #define _SingularValueDecomposition
 
-#include "Tensor.hpp"
+#include "TensorView.hpp"
 
 #ifdef _WITH_EIGEN
 #include <Eigen/Dense>
@@ -34,15 +34,15 @@ namespace cnine{
       svd.compute(_A,Eigen::ComputeThinU|Eigen::ComputeThinV);
     }
 
-    Tensor<TYPE> U() const{
+    TensorView<TYPE> U() const{
       return svd.matrixU();
     }
 
-    Tensor<TYPE> S() const{
+    TensorView<TYPE> S() const{
       return svd.singularValues();
     }
 
-    Tensor<TYPE> V() const{
+    TensorView<TYPE> V() const{
       return svd.matrixV();
 
     }

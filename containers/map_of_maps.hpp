@@ -16,7 +16,7 @@
 
 #include "Cnine_base.hpp"
 #include <unordered_map>
-#include "Tensor.hpp"
+#include "TensorView.hpp"
 #include "int_pool.hpp"
 
 

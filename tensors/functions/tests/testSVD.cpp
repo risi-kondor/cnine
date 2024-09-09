@@ -16,7 +16,9 @@
 #include "Tensor.hpp"
 #include "TensorFunctions.hpp"
 #include "CnineSession.hpp"
+#ifdef _WITH_EIGEN
 #include "SingularValueDecomposition.hpp"
+#endif 
 
 using namespace cnine;
 
@@ -31,6 +33,8 @@ int main(int argc, char** argv){
   Tensor<double> A=Tensor<double>::randn({5,5});
   cout<<A<<endl;
 
+
+#ifdef _WITH_EIGEN
   auto svd=SingularValueDecomposition(A);
   //print(svd.S());
   //print(svd.U());
@@ -41,4 +45,5 @@ int main(int argc, char** argv){
   auto S=svd.S();
 
   print(U*diag(S)*cnine::transp(V));
+#endif
 }

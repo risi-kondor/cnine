@@ -12,27 +12,13 @@
  */
 
 
-#ifndef _CnineLtensorEinsumParams
-#define _CnineLtensorEinsumParams
+#ifndef _CnineLtensorEinsum2params
+#define _CnineLtensorEinsum2params
 
 #include "Ltensor.hpp"
 
 
 namespace cnine{
-
-  struct EsumParams{
-  public:
-
-    int ddims[4];
-    int xstride_d[4];
-    int rstride_d[4];
-
-    int sdims[4];
-    int xstride_s[4];
-
-    int bdims[4];
-    int rstride_b[4];
-  };
 
   class Einsum2params{
   public:
@@ -59,6 +45,10 @@ namespace cnine{
 
     int bdims[4]={1,1,1,1};
     int bstride[4]={0,0,0,0};
+
+    int gstride_x[4]={0,0,0,0};
+    int gstride_y[4]={0,0,0,0};
+    int gstride_r[4]={0,0,0,0};
 
     bool convo_limiter[4]={false,false,false,false};
 

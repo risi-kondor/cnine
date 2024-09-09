@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 #include "TensorView.hpp"
+//#include "TensorView_functions.hpp"
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
@@ -121,7 +122,7 @@ namespace cnine{
 	auto v=Tensor({N},fill_gaussian(),0);
 	for(int j=0; j<i; j++){
 	  auto u=row(j); 
-	  v=v-inp(u,v)*u;
+	  v.subtract(inp(u,v)*u);
 	}
 	row(i).add(v,TYPE(1.0)/norm(v));
       }

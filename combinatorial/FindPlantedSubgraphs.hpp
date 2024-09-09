@@ -18,7 +18,7 @@
 #include "sparse_graph.hpp"
 #include "labeled_tree.hpp"
 #include "labeled_forest.hpp"
-#include "Tensor.hpp"
+#include "TensorView.hpp"
 #include "flog.hpp"
 
 
@@ -66,9 +66,9 @@ namespace cnine{
     }
 
 
-    operator cnine::Tensor<int>(){
+    operator cnine::TensorView<int>(){
       int N=nmatches();
-      cnine::Tensor<int> R(cnine::dims(N,n));
+      cnine::TensorView<int> R(cnine::dims(N,n));
       int t=0;
       for(auto p:matches)
 	p->for_each_maximal_path([&](const vector<int>& x){

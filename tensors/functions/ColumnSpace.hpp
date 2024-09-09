@@ -14,7 +14,7 @@
 #ifndef _ColumnSpace
 #define _ColumnSpace
 
-#include "Ltensor.hpp"
+#include "TensorView.hpp"
 
 
 namespace cnine{
@@ -23,7 +23,7 @@ namespace cnine{
   class ColumnSpace{
   public:
 
-    Tensor<TYPE> T;
+    TensorView<TYPE> T;
     int ncols=0;
 
     ColumnSpace(const TensorView<TYPE>& M, TYPE threshold=10e-5):
@@ -32,7 +32,7 @@ namespace cnine{
       const int m=M.dim(1);
 
       for(int i=0; i<m; i++){
-	Tensor<TYPE> col=const_cast<TensorView<TYPE>&>(M).col(i);
+	TensorView<TYPE> col=const_cast<TensorView<TYPE>&>(M).col(i);
 
 	for(int j=0; j<ncols; j++)
 	  col.subtract(T.col(j),inp(col,T.col(j)));
@@ -51,9 +51,9 @@ namespace cnine{
       return T.block({T.dim(0),ncols});
     }
 
-    operator Ltensor<TYPE>(){
-      return T.block({T.dim(0),ncols});
-    }
+    //operator Ltensor<TYPE>(){
+    //return T.block({T.dim(0),ncols});
+    //}
 
     TensorView<TYPE> operator()(){
       return T.block({T.dims[0],ncols});

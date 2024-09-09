@@ -103,7 +103,7 @@ namespace cnine{
   public: // ---- Conversions --------------------------------------------------------------------------------
 
 
-    CSRmatrix(const Tensor<TYPE>& x):
+    CSRmatrix(const TensorView<TYPE>& x):
       CSRmatrix(x.view2()){}
 
     CSRmatrix(const Rtensor2_view& x):
@@ -131,8 +131,8 @@ namespace cnine{
       }
     }
 
-    operator Tensor<TYPE>() const{
-      Tensor<TYPE> R=Tensor<TYPE>({n,m},0,0);
+    operator TensorView<TYPE>() const{
+      TensorView<TYPE> R({n,m},0,0);
       for_each([&](const int i, const int j, const float v){
 	  R.set(i,j,v);
 	});

@@ -15,8 +15,45 @@
 #ifndef _Cnine_TensorView_functions
 #define _Cnine_TensorView_functions
 
+#include "TensorView.hpp"
+#include "Einsum1.hpp"
+#include "Einsum2.hpp"
+
+
 namespace cnine{
 
+
+  // ---- Constructors 
+
+
+  template<typename TYPE>
+  inline TensorView<TYPE> Identity(const int n, const int _dev=0){
+    return TensorView<TYPE>({n,n},fill_identity(), _dev);
+  }
+
+  template<typename TYPE>
+  inline Tensor<TYPE> UnitVec(const int n, const int i, const int _dev=0){
+    Tensor<TYPE> R({n},fill_zero(),_dev);
+    R.set(i,1);
+    return R;
+  }
+
+
+
+
+  template<typename TYPE>
+  TensorView<TYPE> operator+(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    TensorView<TYPE> r=x.copy();
+    r.add(y);
+    return r;
+  }
+
+  template<typename TYPE>
+  TensorView<TYPE> operator-(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    TensorView<TYPE> r=x.copy();
+    r.subtract(y);
+    return r;
+  }
 
   template<typename TYPE>
   TYPE inp(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
@@ -33,6 +70,24 @@ namespace cnine{
     return x.norm();
   }
 
+  template<typename TYPE>
+  inline TensorView<TYPE> operator*(const TYPE c, const TensorView<TYPE>& x){
+    TensorView<TYPE> R=x.zeros_like(); //TensorView<TYPE>::zeros_like(x);
+    R.add(x,c);
+    return R;
+  }
+
+
+  // ---- Matrix products
+
+
+  template<typename TYPE>
+  inline TensorView<TYPE> operator*(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    auto R=TensorView<TYPE>::zero(x.get_dims().Mprod(y.get_dims()),x.get_dev());
+    if(R.asize()>0) R.add_mprod(x,y);
+    return R;
+  }
+
 
   // ---- Tensor product ------------------------------------------------------
 
@@ -45,41 +100,86 @@ namespace cnine{
   }
 
 
-  // ---- View converters ----------------------------------------------------
+  // ---- Direct sums 
 
 
-  inline Itensor1_view view1_of(const TensorView<int>& x){
-    return Itensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
-  inline Rtensor1_view view1_of(const TensorView<float>& x){
-    return Rtensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
-  inline Rtensor1_view view1_of(const TensorView<double>& x){// hack!!
-    return Rtensor1_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.stride(0),x.get_dev());}
-  inline Ctensor1_view view1_of(const TensorView<complex<float> >& x){
-    return Ctensor1_view(x.mem_as<float>(),x.mem_as<float>()+1,x.dim(0),2*x.stride(0),x.get_dev());}
+  template<typename TYPE>
+  inline TensorView<TYPE> oplus(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    CNINE_ASSRT(x.ndims()==y.ndims());
+    TensorView<TYPE> R=TensorView<TYPE>::zero(x.get_dims()+y.get_dims(),x.dev);
+    R.block(x.get_dims())=x;
+    R.block(y.get_dims(),Gindex(x.get_dims()))=y;
+    return R;
+  }
+  
 
-  inline Itensor2_view view2_of(const TensorView<int>& x){
-    return Itensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
-  inline Rtensor2_view view2_of(const TensorView<float>& x){
-    return Rtensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
-  inline Rtensor2_view view2_of(const TensorView<double>& x){ // hack!!
-    return Rtensor2_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
-  inline Ctensor2_view view2_of(const TensorView<complex<float> >& x){
-    return Ctensor2_view(x.mem_as<float>(),x.mem_as<float>()+1,
-      x.dim(0),x.dim(1),2*x.stride(0),2*x.stride(1),x.get_dev());}
+  // ---- Einsum -------------------------------------------------------------
 
-  inline Itensor3_view view3_of(const TensorView<int>& x){
-    return Itensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
-  inline Rtensor3_view view3_of(const TensorView<float>& x){
-    return Rtensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
-  inline Rtensor3_view view3_of(const TensorView<double>& x){
-    return Rtensor3_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
-  inline Ctensor3_view view3_of(const TensorView<complex<float> >& x){
-    return Ctensor3_view(x.mem_as<float>(),x.mem_as<float>()+1,
-      x.dim(0),x.dim(1),x.dim(2),2*x.stride(0),2*x.stride(1),2*x.stride(2),x.get_dev());}
 
-  inline Rtensor1_view flat_view_of(const TensorView<float>& x){
-    CNINE_ASSRT(x.is_contiguous());
-    return Rtensor1_view(x.mem(),x.asize(),1,x.get_dev());}
+  template<typename TYPE>
+  inline TensorView<TYPE> einsum(const string str, const TensorView<TYPE>& x, const vector<int>& rdims={}){
+    Einsum1 esum(str);
+    return esum(x,rdims);
+  }
+
+  template<typename TYPE>
+  void einsum_add_back(const string str, const TensorView<TYPE>& x, const TensorView<TYPE>& r){
+    Einsum1 esum(str);
+    esum.add_einsum_back(x,r);
+  }
+
+  template<typename TYPE>
+  inline TensorView<TYPE> einsum(const string str, const TensorView<TYPE>& x, const TensorView<TYPE>& y, vector<int> rdims={}){
+    Einsum2 esum(str);
+    return esum(x,y,rdims);
+  }
+
+  template<typename TYPE>
+  void einsum_add_back0(const string str, const TensorView<TYPE>& x, const TensorView<TYPE>& y, 
+    const TensorView<TYPE>& r){
+    Einsum2 esum(str);
+    esum.add_einsum_back0(x,r,y);
+  }
+
+  template<typename TYPE>
+  void einsum_add_back1(const string str, const TensorView<TYPE>& x, const TensorView<TYPE>& y, 
+    const TensorView<TYPE>& r){
+    Einsum2 esum(str);
+    esum.add_einsum_back1(y,r,x);
+  }
+
+
+  // ---------------------------------------------------------------------------------------------------------
+
+
+  template<typename TYPE>
+  array_pool<TYPE> to_array_pool(const Tensor<TYPE>& M){ // why?
+    CNINE_ASSRT(M.ndims()==2);
+    CNINE_ASSRT(M.is_regular());
+    array_pool<TYPE> R(M.dim(0),M.dim(1),M.get_dev());
+    if(M.get_dev()==0){
+      std::copy(M.mem(),M.mem()+R.get_memsize(),R.get_arr());
+    }
+    if(M.get_dev()==1){
+      CUDA_SAFE(cudaMemcpy(R.get_arrg(),M.mem(),R.get_memsize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+    }
+  }
+
+  template<typename TYPE>
+  array_pool<TYPE> to_array_pool(const TensorView<TYPE>& M){
+    CNINE_ASSRT(M.ndims()==2);
+    CNINE_ASSRT(M.is_regular());
+    array_pool<TYPE> R(M.dim(0),M.dim(1),M.get_dev());
+    if(M.get_dev()==0){
+      std::copy(M.mem(),M.mem()+R.get_memsize(),R.get_arr());
+    }
+    if(M.get_dev()==1){
+      CUDA_SAFE(cudaMemcpy(R.get_arrg(),M.mem(),R.get_memsize()*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+    }
+    return R;
+  }
+
+
 
 }
 

@@ -75,12 +75,12 @@ namespace cnine{
     return R;
   }
 
-  template<typename TYPE>
-  inline Tensor<TYPE> operator-(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    Tensor<TYPE> R(x);
-    R.subtract(y);
-    return R;
-  }
+  //template<typename TYPE>
+  //inline Tensor<TYPE> operator-(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+  //Tensor<TYPE> R(x);
+  //R.subtract(y);
+  //return R;
+  //}
 
   template<typename TYPE>
   inline Tensor<TYPE> operator*(const TYPE c, const TensorView<TYPE>& x){

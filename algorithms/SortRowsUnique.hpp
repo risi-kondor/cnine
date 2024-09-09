@@ -17,7 +17,7 @@
 #include <set>
 
 #include "Cnine_base.hpp"
-#include "Tensor.hpp"
+#include "TensorView.hpp"
 #include "tensor1_view.hpp"
 
 
@@ -27,25 +27,26 @@ namespace cnine{
   class SortRowsUnique{
   public:
 
-    Tensor<TYPE> r;
+    TensorView<TYPE> r;
 
-    SortRowsUnique(const TensorView<TYPE> x){
+    SortRowsUnique(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.dev==0);
       CNINE_ASSRT(x.ndims()==2);
       int N=x.dim(0);
 
       set<tensor1_view<TYPE> > hashmap;
       for(int i=0; i<N; i++)
-	hashmap.insert(x.rowv(i));
+	hashmap.insert(tensor1_view<TYPE>(x.arr.ptr()+x.strides[0]*i,x.dims[1],x.strides[1]));
 
       int i=0;
-      Tensor<TYPE> R(Gdims(hashmap.size(),x.dim(1)));
+      TensorView<TYPE> R(Gdims({(int)hashmap.size(),x.dim(1)}));
       for(auto& p:hashmap)
-	R.rowv(i++)=p;
-      r=R;
+	tensor1_view<TYPE>(R.arr.ptr()+R.strides[0]*(i++),R.dims[1],R.strides[1])=p;
+
+      r.reset(R);
     }
 
-    operator Tensor<TYPE>(){
+    operator TensorView<TYPE>(){
       return r;
     }
 

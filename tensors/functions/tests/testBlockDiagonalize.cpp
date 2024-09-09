@@ -13,10 +13,12 @@
 
 
 #include "Cnine_base.cpp"
-#include "Tensor.hpp"
-#include "TensorFunctions.hpp"
+#include "TensorView.hpp"
+#include "TensorView_functions.hpp"
 #include "CnineSession.hpp"
+#ifdef _WITH_EIGEN
 #include "BlockDiagonalize.hpp"
+#endif 
 
 using namespace cnine;
 
@@ -30,12 +32,13 @@ int main(int argc, char** argv){
 
   //Tensor<double> A=Tensor<double>::randn({5,5});
   
-  Tensor<double> A=oplus(Tensor<double>::random_unitary({3,3}),Tensor<double>::random_unitary({4,4}));
+  TensorView<double> A=oplus(TensorView<double>::random_unitary({3,3}),TensorView<double>::random_unitary({4,4}));
   cout<<A<<endl;
 
-
+#ifdef _WITH_EIGEN
   BlockDiagonalize blocked(A);
   cout<<blocked<<endl;
+#endif 
 
   //cout<<blocked.U<<endl;
   //cout<<blocked.V<<endl;

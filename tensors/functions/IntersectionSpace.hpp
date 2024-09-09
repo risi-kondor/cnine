@@ -14,7 +14,8 @@
 #ifndef _IntersectionSpace
 #define _IntersectionSpace
 
-#include "../TensorFunctions.hpp"
+//#include "../TensorFunctions.hpp"
+#include "TensorView_functions.hpp"
 #include "ComplementSpace.hpp"
 //#include "SingularValueDecomposition.hpp"
 
@@ -25,7 +26,7 @@ namespace cnine{
   class IntersectionSpace{
   public:
 
-    Tensor<TYPE> T;
+    TensorView<TYPE> T;
     int ncols=0;
 
     IntersectionSpace(const TensorView<TYPE>& X, const TensorView<TYPE>& Y){
@@ -34,13 +35,13 @@ namespace cnine{
       CNINE_ASSRT(Y.ndims()==2);
       CNINE_ASSRT(X.dims[1]==Y.dims[1]);
 
-      Tensor<TYPE> B=X*Y.transp(); // a*b
-      Tensor<TYPE> C=ComplementSpace<TYPE>(B*B.transp()-Identity<TYPE>(B.dims[0]))(); // c*a
+      TensorView<TYPE> B=X*Y.transp(); // a*b
+      TensorView<TYPE> C=ComplementSpace<TYPE>(B*B.transp()-Identity<TYPE>(B.dims[0]))(); // c*a
       T=C.transp()*X;
     }
 
 
-    Tensor<TYPE> operator()() const{
+    TensorView<TYPE> operator()() const{
       return T;
     }
 

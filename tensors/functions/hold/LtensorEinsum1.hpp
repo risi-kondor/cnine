@@ -17,6 +17,7 @@
 
 #include "Ltensor.hpp"
 #include "EinsumParams.hpp"
+#include "EinsumForm1.hpp"
 
 
 namespace cnine{
@@ -37,7 +38,7 @@ namespace cnine{
     Ltensor<TYPE> operator()(const Ltensor<TYPE>& x, vector<int> rdims={}){
       CNINE_ASSRT(rdims.size()==form.bcast_ids.size());
       
-      vector<int> dimensions(id_tail,-1);
+      vector<int> dimensions(form.id_tail,-1);
       for(int i=0; i<form.x_ids.size(); i++){
 	if(dimensions[form.x_ids[i]]==-1)
 	  dimensions[form.x_ids[i]]=x.dims[i];
@@ -58,9 +59,9 @@ namespace cnine{
     template<typename TYPE>
     void add_einsum(const Ltensor<TYPE>& r, const Ltensor<TYPE>& x, const EinsumForm1& form){
 
-      if(!r.strides.is_decreasing()||!x.strides.is_decreasing())
-	add_einsum(r.with_descreasing_strides(),x.with_decreasing_strides(),
-	  form.permute(r.strides.decreasing_ordering(),x.strides.decreasing_ordering()));
+      //if(!r.strides.is_decreasing()||!x.strides.is_decreasing())
+      //add_einsum(r.with_descreasing_strides(),x.with_decreasing_strides(),
+      //  form.permute(r.strides.decreasing_ordering(),x.strides.decreasing_ordering()));
 
       auto& transfer_indices=form.transfer_indices;
       auto& summation_indices=form.summation_indices;

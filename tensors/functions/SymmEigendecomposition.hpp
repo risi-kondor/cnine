@@ -37,11 +37,11 @@ namespace cnine{
       //solver.compute(_A,Eigen::ComputeThinU|Eigen::ComputeThinV);
     }
 
-    Tensor<TYPE> U() const{
+    TensorView<TYPE> U() const{
       return solver.eigenvectors();
     }
 
-    Tensor<TYPE> lambda() const{
+    TensorView<TYPE> lambda() const{
       return solver.eigenvalues();
     }
     #else
@@ -50,14 +50,14 @@ namespace cnine{
       CNINE_UNIMPL();
     }
 
-    Tensor<TYPE> U() const{
+    TensorView<TYPE> U() const{
       CNINE_UNIMPL();
-      return Tensor<TYPE>();
+      return TensorView<TYPE>();
     }
 
-    Tensor<TYPE> lambda() const{
+    TensorView<TYPE> lambda() const{
       CNINE_UNIMPL();
-      return Tensor<TYPE>();
+      return TensorView<TYPE>();
     }
 
     #endif 

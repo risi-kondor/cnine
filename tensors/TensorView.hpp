@@ -17,7 +17,6 @@
 
 #include "Cnine_base.hpp"
 #include "ExprTemplates.hpp"
-#include "TensorBase.hpp"
 
 #include "Gdims.hpp"
 #include "GstridesB.hpp"
@@ -95,7 +94,7 @@ namespace cnine{
 
 
   template<typename TYPE>
-  class TensorView: public TensorBase{
+  class TensorView{
   public:
 
     friend class Tensor<TYPE>;
@@ -137,8 +136,16 @@ namespace cnine{
       return TensorView(dims,0,dev);
     }
 
+    TensorView ones_like() const{
+      return TensorView(dims,2,dev);
+    }
 
-  public: // ---- Constructors for non-view derived classes --------------------------------------------------
+    TensorView gaussian_like() const{
+      return TensorView(dims,4,dev);
+    }
+
+
+  public: // ---- Constructors ------------------------------------------------------------------------------
 
 
     TensorView(const Gdims& _dims, const int fcode, const int _dev):
@@ -256,6 +263,45 @@ namespace cnine{
     static TensorView zero(const Gdims& _dims, const int _dev=0){
       return TensorView(_dims,0,_dev);
     }
+
+    static TensorView random_unitary(const Gdims& _dims, const int _dev=0){
+      TensorView R(_dims,0,0);
+      CNINE_ASSRT(R.ndims()==2);
+      CNINE_ASSRT(R.dim(0)==R.dim(1));
+      int N=R.dim(0);
+      for(int i=0; i<N; i++){
+	auto v=TensorView({N},4,0);
+	for(int j=0; j<i; j++){
+	  auto u=R.row(j); 
+	  v.subtract(u.inp(v)*u);
+	}
+	R.row(i).add(v,TYPE(1.0)/v.norm());
+      }
+      R.move_to_device(_dev);
+      return R;
+    }
+
+
+  public: // ---- Explicit constructors ---------------------------------------------------------------------
+
+
+    TensorView(const initializer_list<initializer_list<TYPE> >& list, const int _dev=0){
+      int n0=list.size();
+      CNINE_ASSRT(n0>0);
+      int n1=list.begin()->size();
+      TensorView<TYPE> T(Gdims({n0,n1})); 
+      int i=0;
+      for(auto& p: list){
+	int j=0;
+	for(auto& q: p)
+	  T.set(i,j++,q);
+	i++;
+      }
+      if(_dev>0) T.move_to_device(_dev);
+      reset(T);
+    }
+
+
 
 
   public: // ---- Copying -----------------------------------------------------------------------------------
@@ -714,12 +760,67 @@ namespace cnine{
 
   };
 
+
+  // ---- View converters ----------------------------------------------------
+
+
+  inline Itensor1_view view1_of(const TensorView<int>& x){
+    return Itensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
+  inline Rtensor1_view view1_of(const TensorView<float>& x){
+    return Rtensor1_view(x.mem(),x.dim(0),x.stride(0),x.get_dev());}
+  inline Rtensor1_view view1_of(const TensorView<double>& x){// hack!!
+    return Rtensor1_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.stride(0),x.get_dev());}
+  inline Ctensor1_view view1_of(const TensorView<complex<float> >& x){
+    return Ctensor1_view(x.mem_as<float>(),x.mem_as<float>()+1,x.dim(0),2*x.stride(0),x.get_dev());}
+
+  inline Itensor2_view view2_of(const TensorView<int>& x){
+    return Itensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
+  inline Rtensor2_view view2_of(const TensorView<float>& x){
+    return Rtensor2_view(x.mem(),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
+  inline Rtensor2_view view2_of(const TensorView<double>& x){ // hack!!
+    return Rtensor2_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.stride(0),x.stride(1),x.get_dev());}
+  inline Ctensor2_view view2_of(const TensorView<complex<float> >& x){
+    return Ctensor2_view(x.mem_as<float>(),x.mem_as<float>()+1,
+      x.dim(0),x.dim(1),2*x.stride(0),2*x.stride(1),x.get_dev());}
+
+  inline Itensor3_view view3_of(const TensorView<int>& x){
+    return Itensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
+  inline Rtensor3_view view3_of(const TensorView<float>& x){
+    return Rtensor3_view(x.mem(),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
+  inline Rtensor3_view view3_of(const TensorView<double>& x){
+    return Rtensor3_view(reinterpret_cast<float*>(x.mem()),x.dim(0),x.dim(1),x.dim(2),x.stride(0),x.stride(1),x.stride(2),x.get_dev());}
+  inline Ctensor3_view view3_of(const TensorView<complex<float> >& x){
+    return Ctensor3_view(x.mem_as<float>(),x.mem_as<float>()+1,
+      x.dim(0),x.dim(1),x.dim(2),2*x.stride(0),2*x.stride(1),2*x.stride(2),x.get_dev());}
+
+  inline Rtensor1_view flat_view_of(const TensorView<float>& x){
+    CNINE_ASSRT(x.is_contiguous());
+    return Rtensor1_view(x.mem(),x.asize(),1,x.get_dev());}
+
+
 }
 
-#include "TensorView_functions.hpp"
 
+namespace std{
 
-//#define _CnineTensorViewComplete
+  template<typename TYPE>
+  struct hash<cnine::TensorView<TYPE> >{
+  public:
+    size_t operator()(const cnine::TensorView<TYPE>& x) const{
+      size_t t=hash<cnine::Gdims>()(x.dims);
+      if(x.is_regular()){
+	int N=x.asize();
+	for(int i=0; i<N; i++)
+	  t=(t^hash<TYPE>()(x.arr[i]))<<1;
+      }else{
+	x.for_each([&t](const cnine::Gindex& ix, const TYPE v){
+	    t=(t^hash<TYPE>()(v))<<1;});
+      }
+      return t;
+    }
+  };
+}
+
 
 #endif
 

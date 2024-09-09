@@ -13,8 +13,7 @@
 
 
 #include "Cnine_base.cpp"
-#include "Tensor.hpp"
-#include "TensorFunctions.hpp"
+#include "TensorView.hpp"
 #include "CnineSession.hpp"
 #include "IntersectionSpace.hpp"
 
@@ -27,9 +26,9 @@ int main(int argc, char** argv){
 
   cout<<endl;
 
-  auto X=Tensr<double>({{1,0},{0,1}});
+  auto X=TensorView<double>({{1,0},{0,1}});
 
-  auto Y=Tensr<double>({{1,0}});
+  auto Y=TensorView<double>({{1,0}});
 
   auto Z=IntersectionSpace(X,Y)();
   cout<<Z<<endl;

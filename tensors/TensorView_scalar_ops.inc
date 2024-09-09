@@ -91,6 +91,23 @@ TYPE norm() const{
   return sqrt(norm2());
 }
 
+TYPE sum() const{
+  if(asize()==0) return 0;
+  TYPE t=0;
+  if(is_contiguous()){
+    for(size_t i=0; i<asize(); i++)
+      t+=arr[i];
+  }else{
+    for_each([&](const Gindex& ix, TYPE& v){
+	t+=v;});
+  }
+  return t; 
+}
+
+
+
+
+
 TYPE diff2(const TensorView& x) const{
   CNINE_ASSRT(x.asize()==asize());
   if(get_dev()==0 && x.get_dev()>0)
@@ -124,3 +141,5 @@ TYPE unitary_error() const{
     A.inc(i,i,-1.0);
   return A.norm();
 }
+
+

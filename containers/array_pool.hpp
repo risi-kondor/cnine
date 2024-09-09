@@ -18,7 +18,8 @@
 #include "IntTensor.hpp"
 #include "Itensor1_view.hpp"
 #include "Rtensor1_view.hpp"
-#include "Tensor.hpp"
+//#include "TensorView.hpp"
+//#include "Tensor.hpp"
 #include "Ltensor.hpp"
 
 
@@ -107,7 +108,8 @@ namespace cnine{
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE))));
     }
 
-    array_pool(const Tensor<TYPE>& M):
+    /*
+    array_pool(const TensorView<TYPE>& M):
       dir(Gdims({M.dim(0),2})),
       memsize(M.asize()),
       tail(M.asize()),
@@ -130,6 +132,29 @@ namespace cnine{
       }
     }
 
+    array_pool(const Tensor<TYPE>& M):
+      dir(Gdims({M.dim(0),2})),
+      memsize(M.asize()),
+      tail(M.asize()),
+      dev(M.dev){
+      CNINE_ASSRT(M.ndims()==2);
+      CNINE_ASSRT(M.is_regular());
+      int n0=M.dim(0);
+      int n1=M.dim(1);
+      for(int i=0; i<n0; i++){
+	dir.set(i,0,i*n1);
+	dir.set(i,1,n1);
+      }
+      if(dev==0){
+	arr=new TYPE[std::max(memsize,1)]; 
+	std::copy(M.mem(),M.mem()+memsize,arr);
+      }
+      if(dev==1){
+	CUDA_SAFE(cudaMalloc((void **)&arrg, std::max(memsize,1)*sizeof(TYPE)));
+	CUDA_SAFE(cudaMemcpy(arrg,M.mem(),memsize*sizeof(TYPE),cudaMemcpyDeviceToDevice));  
+      }
+    }
+    */
 
   public: // ---- Static constructors ------------------------------------------------------------------------
 
@@ -320,7 +345,6 @@ namespace cnine{
       if(_dev>0) R.move_to_device(_dev);
       return R;
     }
-
 
     
   public: // ---- Transport ----------------------------------------------------------------------------------

@@ -24,7 +24,7 @@ namespace cnine{
   class ComplementSpace{
   public:
 
-    Tensor<TYPE> M;
+    TensorView<TYPE> M;
     int ncols=0;
 
     ComplementSpace(const TensorView<TYPE>& _A, TYPE threshold=10e-5){
@@ -40,11 +40,11 @@ namespace cnine{
 	norms[i]=A.col(i).norm2();
       }
 
-      M=Tensor<TYPE>({n,n},fill_zero());
+      M=TensorView<TYPE>({n,n},fill_zero());
       ncols=0;
 
       for(int i=0; i<n; i++){
-	auto col=Tensor<TYPE>({n},fill_zero());
+	auto col=TensorView<TYPE>({n},fill_zero());
 	col.set(i,1);
 
 	// Orthogonalize to columns of A

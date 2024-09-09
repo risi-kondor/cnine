@@ -21,10 +21,10 @@ int main(int argc, char** argv){
 
   cnine_session session;
 
-  Tensor<int> A({{1,2,3},{2,5,7},{1,2,3}});
+  TensorView<int> A({{1,2,3},{2,5,7},{1,2,3}});
   cout<<A<<endl;
 
-  Tensor<int> B=SortRowsUnique(A);
+  TensorView<int> B=SortRowsUnique(A);
   cout<<B<<endl;
 
 }

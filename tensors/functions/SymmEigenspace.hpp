@@ -24,10 +24,10 @@ namespace cnine{
   class SymmEigenspace{
   public:
 
-    Tensor<TYPE> T;
+    TensorView<TYPE> T;
     int ncols=0;
 
-    SymmEigenspace(const Tensor<TYPE> X, const TYPE lambda){
+    SymmEigenspace(const TensorView<TYPE> X, const TYPE lambda){
       CNINE_ASSRT(X.ndims()==2);
       CNINE_ASSRT(X.dims[0]==X.dims[1]);
 
@@ -37,7 +37,7 @@ namespace cnine{
       T=ComplementSpace<TYPE>(X)();
     }
 
-    Tensor<TYPE> operator()() const{
+    TensorView<TYPE> operator()() const{
       return T;
     }
 

@@ -162,8 +162,8 @@ namespace cnine{
 	  if(x(i,j)) set(i,j,x(i,j));
     }
 
-    Tensor<TYPE> dense() const{
-      auto R=Tensor<TYPE>::zero({n,n});
+    TensorView<TYPE> dense() const{
+      auto R=TensorView<TYPE>::zero({n,n});
       BASE::for_each([&](const KEY& i, const KEY& j, const TYPE& v){
 	  R.set(i,j,v);});
       return R;

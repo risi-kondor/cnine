@@ -18,7 +18,7 @@
 #include "sparse_graph.hpp"
 #include "labeled_tree.hpp"
 #include "labeled_forest.hpp"
-#include "Tensor.hpp"
+#include "TensorView.hpp"
 #include "flog.hpp"
 
 
@@ -45,7 +45,7 @@ namespace cnine{
     int nmatches=0;
     //vector<pair<int,int> > Htraversal;
     //vector<int> assignment;
-    Tensor<int> matches;
+    TensorView<int> matches;
 
     int level;
     //vector<int> matching;
