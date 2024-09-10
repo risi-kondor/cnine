@@ -23,28 +23,52 @@
 namespace cnine{
 
 
-  // ---- Constructors 
+  // ---- Addition -------------------------------------------------------------------------------------------
 
-
-  template<typename TYPE>
-  inline TensorView<TYPE> Identity(const int n, const int _dev=0){
-    return TensorView<TYPE>({n,n},fill_identity(), _dev);
+  template<typename TYPE, typename TYPE2>
+  TensorView<TYPE> operator+(const TYPE2 c, const TensorView<TYPE>& x){
+    TensorView<TYPE> r=x.copy();
+    r.add(c);
+    return r;
   }
 
-  template<typename TYPE>
-  inline Tensor<TYPE> UnitVec(const int n, const int i, const int _dev=0){
-    Tensor<TYPE> R({n},fill_zero(),_dev);
-    R.set(i,1);
-    return R;
+  template<typename TYPE, typename TYPE2>
+  TensorView<TYPE> operator+(const TensorView<TYPE>& x, const TYPE2 c){
+    TensorView<TYPE> r=x.copy();
+    r.add(c);
+    return r;
   }
-
-
-
 
   template<typename TYPE>
   TensorView<TYPE> operator+(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
     TensorView<TYPE> r=x.copy();
     r.add(y);
+    return r;
+  }
+
+
+  // ---- Subtraction ----------------------------------------------------------------------------------------
+
+  
+  template<typename TYPE>
+  TensorView<TYPE> operator-(const TensorView<TYPE>& x){
+   TensorView<TYPE> r=x.zeros_like();
+    r.add(x,-1);
+    return r;
+  }
+
+  template<typename TYPE, typename TYPE2>
+  TensorView<TYPE> operator-(const TYPE2 c, const TensorView<TYPE>& x){
+    TensorView<TYPE> r=x.zeros_like();
+    r.add(x,-1);
+    r.add(c);
+    return r;
+  }
+
+  template<typename TYPE, typename TYPE2>
+  TensorView<TYPE> operator-(const TensorView<TYPE>& x, const TYPE2 c){
+    TensorView<TYPE> r=x.copy();
+    r.add(-c);
     return r;
   }
 
@@ -55,26 +79,22 @@ namespace cnine{
     return r;
   }
 
-  template<typename TYPE>
-  TYPE inp(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-    return x.inp(y);
+
+  // ---- Multiplication -------------------------------------------------------------------------------------
+
+  
+  template<typename TYPE, typename TYPE2>
+  TensorView<TYPE> operator*(const TensorView<TYPE>& x, const TYPE2 c){
+    TensorView<TYPE> r=x.zeros_like();
+    r.add(x,c);
+    return r;
   }
 
-  template<typename TYPE>
-  TYPE norm2(const TensorView<TYPE>& x){
-    return x.norm2();
-  }
-
-  template<typename TYPE>
-  TYPE norm(const TensorView<TYPE>& x){
-    return x.norm();
-  }
-
-  template<typename TYPE>
-  inline TensorView<TYPE> operator*(const TYPE c, const TensorView<TYPE>& x){
-    TensorView<TYPE> R=x.zeros_like(); //TensorView<TYPE>::zeros_like(x);
-    R.add(x,c);
-    return R;
+  template<typename TYPE, typename TYPE2>
+  TensorView<TYPE> operator*( const TYPE2 c, const TensorView<TYPE>& x){
+    TensorView<TYPE> r=x.zeros_like();
+    r.add(x,c);
+    return r;
   }
 
 
@@ -89,7 +109,16 @@ namespace cnine{
   }
 
 
-  // ---- Tensor product ------------------------------------------------------
+  // ---- Elementwise ----------------------------------------------------------------------------------------
+
+
+  template<typename TYPE>
+  inline TensorView<TYPE> odot(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    return x.odot(y);
+  }
+
+
+  // ---- Tensor product -------------------------------------------------------------------------------------
 
 
   template<typename TYPE>
@@ -98,9 +127,6 @@ namespace cnine{
     R.add_tprod(x,y);
     return R;
   }
-
-
-  // ---- Direct sums 
 
 
   template<typename TYPE>
@@ -113,7 +139,46 @@ namespace cnine{
   }
   
 
-  // ---- Einsum -------------------------------------------------------------
+  // ---- Scalar operations ----------------------------------------------------------------------------------
+
+  
+  template<typename TYPE>
+  inline TYPE max(const TensorView<TYPE>& x){
+    return x.max();
+  }
+
+  template<typename TYPE>
+  inline TYPE max_abs(const TensorView<TYPE>& x){
+    return x.max_abs();
+  }
+
+  template<typename TYPE>
+  inline TYPE min(const TensorView<TYPE>& x){
+    return x.max();
+  }
+
+  template<typename TYPE>
+  inline TYPE sum(const TensorView<TYPE>& x){
+    return x.sum();
+  }
+
+  template<typename TYPE>
+  inline TYPE inp(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    return x.inp(y);
+  }
+
+  template<typename TYPE>
+  inline TYPE norm2(const TensorView<TYPE>& x){
+    return x.norm2();
+  }
+
+  template<typename TYPE>
+  inline TYPE diff2(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    return x.diff2(y);
+  }
+
+
+  // ---- Einsum ---------------------------------------------------------------------------------------------
 
 
   template<typename TYPE>
@@ -193,8 +258,49 @@ namespace cnine{
   }
 
 
+  // -------------------------------------------------------------------------------------------------------
+  // ---- Legacy Constructors 
+
+
+  template<typename TYPE>
+  inline TensorView<TYPE> Identity(const int n, const int _dev=0){
+    return TensorView<TYPE>({n,n},fill_identity(), _dev);
+  }
+
+  template<typename TYPE>
+  inline TensorView<TYPE> UnitVec(const int n, const int i, const int _dev=0){
+    TensorView<TYPE> R({n},fill_zero(),_dev);
+    R.set(i,1);
+    return R;
+  }
+
+
+
 
 }
 
 
 #endif 
+  /*
+  template<typename TYPE>
+  TYPE inp(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    return x.inp(y);
+  }
+
+  template<typename TYPE>
+  TYPE norm2(const TensorView<TYPE>& x){
+    return x.norm2();
+  }
+
+  template<typename TYPE>
+  TYPE norm(const TensorView<TYPE>& x){
+    return x.norm();
+  }
+
+  template<typename TYPE>
+  inline TensorView<TYPE> operator*(const TYPE c, const TensorView<TYPE>& x){
+    TensorView<TYPE> R=x.zeros_like(); //TensorView<TYPE>::zeros_like(x);
+    R.add(x,c);
+    return R;
+  }
+  */

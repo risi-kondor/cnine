@@ -12,13 +12,31 @@
  */
 
 
+
 // ---- Not in-place operations  -----------------------------------------------------------------------------
 
 
-TensorView sum(const int d){
+TensorView odot(const TensorView& y) const{
+  auto r=zeros_like();
+  TYPE t=0;
+  zip(y,r,[&t](TYPE& a, TYPE& b, TYPE& c){c=a*b;});
+  return r;
+}
+
+TensorView sum(const int d) const{
   TensorView R(dims.remove(d),0,dev);
   R.add_sum(d,*this);
   return R;
+}
+
+TensorView times(const TYPE c) const{
+  auto r=zeros_like();
+  r.add(*this,c);
+  return r;
+}
+
+TensorView operator*(const TYPE c) const{
+  return times(c);
 }
 
 

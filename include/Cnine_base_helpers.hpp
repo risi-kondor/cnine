@@ -136,6 +136,21 @@ namespace cnine{
     return cout; 
   }
 
+  template<typename TYPE>
+  auto show_if_possible(const TYPE& x, int) -> decltype(x.to_print(),std::to_string(1)){
+    return x.to_print();
+  }
+
+  template<typename TYPE>
+  string show_if_possible(const TYPE& x, long){
+    return x.str();
+  }
+
+  template<typename TYPE>
+  inline void show(const TYPE& x){
+    cout<<show_if_possible(x,0)<<endl;
+  }
+  
   inline ostream& operator<<(ostream& stream, const vector<int>& v){
     stream<<"(";
     int I=v.size()-1;

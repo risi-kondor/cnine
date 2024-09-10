@@ -23,6 +23,7 @@
 #include "Gindex.hpp"
 #include "MemArr.hpp"
 #include "device_helpers.hpp"
+#include "NamedTypes.hpp"
 
 #include "Rtensor1_view.hpp"
 #include "Rtensor2_view.hpp"
@@ -132,18 +133,6 @@ namespace cnine{
       dev(_dev){
     }
 
-    TensorView zeros_like() const{
-      return TensorView(dims,0,dev);
-    }
-
-    TensorView ones_like() const{
-      return TensorView(dims,2,dev);
-    }
-
-    TensorView gaussian_like() const{
-      return TensorView(dims,4,dev);
-    }
-
 
   public: // ---- Constructors ------------------------------------------------------------------------------
 
@@ -202,106 +191,7 @@ namespace cnine{
       arr=MemArr<TYPE>(N,_dev);
     }
 
-    TensorView(const Gdims& _dims, const int _dev=0): 
-      TensorView(_dims,0,_dev){}
-    //TensorView(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
-
-    TensorView(const Gdims& _dims, const fill_raw& dummy, const int _dev=0): 
-      TensorView(MemArr<TYPE>(_dims.asize(),_dev),_dims,GstridesB(_dims)){}
-
-    TensorView(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
-      TensorView(MemArr<TYPE>(_dims.asize(),dummy,_dev),_dims,GstridesB(_dims)){
-    }
-
-    // TODO 
-    TensorView(const Gdims& _dims, const fill_constant<TYPE>& dummy, const int _dev=0):
-      TensorView(_dims,0){
-      size_t N=dims.asize();
-      for(size_t i=0; i<N; i++)
-	arr[i]=dummy.v;
-      move_to_device(_dev);
-    }
-
-    // TODO 
-    TensorView(const Gdims& _dims, const fill_identity& dummy, const int _dev=0):
-      TensorView(_dims,fill_zero(),0){
-      CNINE_ASSRT(ndims()==2);
-      CNINE_ASSRT(dim(0)==dim(1));
-      int N=dim(0);
-      for(int i=0; i<N; i++)
-	set(i,i,1.0);
-      move_to_device(_dev);
-    }
-
-    TensorView(const Gdims& _dims, const fill_sequential& dummy, const int _dev=0):
-      TensorView(_dims,0){
-      size_t N=dims.asize();
-      for(size_t i=0; i<N; i++)
-	arr[i]=i;
-      move_to_device(_dev);
-    }
-
-    TensorView(const Gdims& _dims, const fill_gaussian& dummy, const int _dev=0):
-      TensorView(_dims,0){
-      int N=dims.asize();
-      if constexpr(is_complex<TYPE>()){
-	normal_distribution<TYPE> distr;
-	for(int i=0; i<N; i++) 
-	  arr[i]=TYPE(distr(rndGen),distr(rndGen))*dummy.c;
-      }else{
-	normal_distribution<TYPE> distr;
-	for(int i=0; i<N; i++) 
-	  arr[i]=distr(rndGen)*dummy.c;
-      }
-      move_to_device(_dev);
-    }
-
-
-  public: // ---- Named constructors ------------------------------------------------------------------------
-
-
-    static TensorView zero(const Gdims& _dims, const int _dev=0){
-      return TensorView(_dims,0,_dev);
-    }
-
-    static TensorView random_unitary(const Gdims& _dims, const int _dev=0){
-      TensorView R(_dims,0,0);
-      CNINE_ASSRT(R.ndims()==2);
-      CNINE_ASSRT(R.dim(0)==R.dim(1));
-      int N=R.dim(0);
-      for(int i=0; i<N; i++){
-	auto v=TensorView({N},4,0);
-	for(int j=0; j<i; j++){
-	  auto u=R.row(j); 
-	  v.subtract(u.inp(v)*u);
-	}
-	R.row(i).add(v,TYPE(1.0)/v.norm());
-      }
-      R.move_to_device(_dev);
-      return R;
-    }
-
-
-  public: // ---- Explicit constructors ---------------------------------------------------------------------
-
-
-    TensorView(const initializer_list<initializer_list<TYPE> >& list, const int _dev=0){
-      int n0=list.size();
-      CNINE_ASSRT(n0>0);
-      int n1=list.begin()->size();
-      TensorView<TYPE> T(Gdims({n0,n1})); 
-      int i=0;
-      for(auto& p: list){
-	int j=0;
-	for(auto& q: p)
-	  T.set(i,j++,q);
-	i++;
-      }
-      if(_dev>0) T.move_to_device(_dev);
-      reset(T);
-    }
-
-
+#include "TensorView_constructors.hpp"
 
 
   public: // ---- Copying -----------------------------------------------------------------------------------

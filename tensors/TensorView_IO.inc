@@ -37,6 +37,13 @@ string repr() const{
   return oss.str();
 }
 
+string to_print(const string indent="") const{
+  ostringstream oss;
+  oss<<indent<<repr()<<":"<<endl;
+  oss<<str(indent+"  ")<<endl;
+  return oss.str();
+}
+
 string to_string(const string indent="") const{
   if(dev>0) return TensorView(*this,0).str(indent);
   ostringstream oss;
@@ -82,7 +89,6 @@ string to_string(const string indent="") const{
 
 string str(const string indent="") const{
   ostringstream oss;
-  //oss<<repr()<<":"<<endl;
   oss<<to_string(indent);
   return oss.str();
 }
