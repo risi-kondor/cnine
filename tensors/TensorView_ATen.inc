@@ -27,6 +27,11 @@ static TensorView view(const at::Tensor& T){
       (std::is_same<TYPE,complex<double> >::value && T.dtype()==at::kComplexDouble))){
     CNINE_ERROR("Cannot view a torch::Tensor with data type "+dtype_str(T)+" as a "+classname());
   }
+  //if(T.dtype()==at::kComplexFloat) 
+  if constexpr(std::is_same<TYPE,complex<float> >::value)
+    return TensorView(MemArr<TYPE>(reinterpret_cast<complex<float>*>(T.data_ptr<c10::complex<float> >()),
+	T.type().is_cuda()),Gdims(T),GstridesB(T));
+
   return TensorView(MemArr<TYPE>(T.data<TYPE>(),T.type().is_cuda()),Gdims(T),GstridesB(T));
 }
 

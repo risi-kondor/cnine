@@ -367,11 +367,11 @@ namespace cnine{
     }
 
     int dim(const int i) const{
-      return dims[i];
+      return dims(i);
     }
 
     int get_dim(const int i) const{
-      return dims[i];
+      return dims(i);
     }
 
     Gdims get_dims() const{

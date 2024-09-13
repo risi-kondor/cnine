@@ -263,7 +263,7 @@ namespace cnine{
       for(int i=0; i<n-1; i++)
 	if((*this)[p[i+1]]!=(*this)[p[i]]*dims[p[i]])
 	  return make_pair((size_t)0,-1);
-      return std::pair<size_t,int>((*this)[p[0]],(*this)[p[n-1]]*dims[p[n-1]]);
+      return std::pair<size_t,int>((*this)[p[0]],(*this)[p[n-1]]*dims[p[n-1]]/(*this)[p[0]]);
     }
 
 
