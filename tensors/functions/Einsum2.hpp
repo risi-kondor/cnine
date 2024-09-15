@@ -25,9 +25,9 @@ namespace cnine{
 
 #ifdef _WITH_CUDA
   void add_einsum2_cu(const TensorView<float>& r, const TensorView<float>& x, const TensorView<float>& y, 
-    const Einsum2params& params, const cudaStream_t& stream)
+    const Einsum2params& params, const cudaStream_t& stream);
   void add_einsum2B_cu(const TensorView<float>& r, const TensorView<float>& x, const TensorView<float>& y, 
-    const Einsum2params& params, const cudaStream_t& stream)
+    const Einsum2params& params, const cudaStream_t& stream);
 #endif 
 
 

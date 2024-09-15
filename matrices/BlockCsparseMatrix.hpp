@@ -27,7 +27,7 @@ namespace cnine{
   template<typename TYPE> class BlockCsparseMatrix;
 
 #ifdef _WITH_CUDA
-  BSM_times_BV_cu(const TensorView<TYPE>& r, const BlockCsparseMatrix<TYPE>& x, const TensorView<TYPE>& y, 
+  BSM_times_BV_cu(const TensorView<float>& r, const BlockCsparseMatrix<float>& x, const TensorView<float>& y, 
     const cudaStream_t& stream);
 #endif 
   
