@@ -20,7 +20,8 @@
 #include "hlists.hpp"
 #include "map_of_lists.hpp"
 #include "double_indexed_map.hpp"
-
+#include "once.hpp"
+#include "GatherMapB.hpp"
 
 namespace cnine{
 
@@ -28,7 +29,8 @@ namespace cnine{
 
 
 #ifdef _WITH_CUDA
-  void BSM_times_BV_cu(const TensorView<float>& r, const BlockCsparseMatrix<float>& x, const TensorView<float>& y, const cudaStream_t& stream);
+  template<typename TYPE>
+  void BSM_apply_to_BV_cu(const BlockCsparseMatrix<TYPE>& x, const TensorView<TYPE>& r, const TensorView<TYPE>& y, const cudaStream_t& stream);
 #endif
   
   template<typename TYPE>
@@ -116,7 +118,7 @@ namespace cnine{
     }
 
     int block_m() const{
-      return block_m;
+      return blockm;
     }
 
     int nrows() const{
@@ -178,7 +180,7 @@ namespace cnine{
 	    r.rows(i*blockn,blockn).add_mprod(b,x.rows(j*blockm,blockm));
 	  });
       }else{
-	CUDA_STREAM(BSM_times_BV_cu(r,*this,x,stream));
+	CUDA_STREAM(BSM_apply_to_BV_cu(*this,r,x,stream));
       }
     }
 
@@ -198,7 +200,7 @@ namespace cnine{
 	    r.rows(j*blockm,blockm).add_mprod(b.transp(),x.rows(i*blockn,blockn));
 	  });
       }else{
-	CUDA_STREAM(BSM_times_BV_cu(r,*this,x,stream));
+	CUDA_STREAM(BSM_apply_to_BV_cu(*this,r,x,stream));
       }
     }
 
