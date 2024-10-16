@@ -26,12 +26,11 @@ namespace cnine{
 
   template<typename TYPE> class BlockCsparseMatrix;
 
-#ifdef _WITH_CUDA
-  BSM_times_BV_cu(const TensorView<float>& r, const BlockCsparseMatrix<float>& x, const TensorView<float>& y, 
-    const cudaStream_t& stream);
-#endif 
-  
 
+#ifdef _WITH_CUDA
+  void BSM_times_BV_cu(const TensorView<float>& r, const BlockCsparseMatrix<float>& x, const TensorView<float>& y, const cudaStream_t& stream);
+#endif
+  
   template<typename TYPE>
   class BlockCsparseMatrix{
   public:
@@ -100,7 +99,7 @@ namespace cnine{
   public: // ---- Access -----------------------------------------------------------------------------------
 
 
-    int get_dev(){
+    int get_dev()const{
       return mx.get_dev();
     }
 
@@ -164,7 +163,7 @@ namespace cnine{
       return R;
     }
 
-    void apply_to(const TensorView<TYPE>& r, const TensorView<TYPE>& x){
+    void apply_to(const TensorView<TYPE>& r, const TensorView<TYPE>& x) const{
       int dev=get_dev();
       CNINE_ASSRT(x.get_dev()==dev);
       CNINE_ASSRT(r.get_dev()==dev);
@@ -184,7 +183,7 @@ namespace cnine{
     }
 
 
-    void apply_transp_to(const TensorView<TYPE>& r, const TensorView<TYPE>& x){
+    void apply_transp_to(const TensorView<TYPE>& r, const TensorView<TYPE>& x)const{
       int dev=get_dev();
       CNINE_ASSRT(x.get_dev()==dev);
       CNINE_ASSRT(r.get_dev()==dev);
