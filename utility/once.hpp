@@ -43,6 +43,11 @@ namespace cnine{
   public: // ---- Access -------------------
 
 
+    const OBJ& operator()()const{
+      once& self = const_cast<once&>(*this);
+      return const_cast<const OBJ&>( self());
+    }
+    
     OBJ& operator()(){
       if(!done){
 	obj=make_obj();
