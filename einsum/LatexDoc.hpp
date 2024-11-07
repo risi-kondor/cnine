@@ -16,8 +16,6 @@
 #define _LatexDoc
 
 #include "TensorView.hpp"
-#include "EinsumFormN.hpp"
-#include "EinsumPrograms.hpp"
 
 namespace cnine{
 

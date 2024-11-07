@@ -116,6 +116,36 @@ namespace cnine{
       return p.first->second;
     }
 
+    bool contains(const shared_ptr<KEY0>& keyp0, const shared_ptr<KEY1>& keyp1){
+      auto& key0=*keyp0;
+      auto& key1=*keyp1;
+      return contains(&key0,&key1);
+    }
+
+    bool contains(const KEY0& key0, const KEY1& key1){
+      auto p=make_pair(&const_cast<KEY0&>(key0),&const_cast<KEY1&>(key1));
+      return find(p)!=unordered_map<KEYS,OBJ>::end();
+    }
+
+    void insert(const shared_ptr<KEY0>& keyp0, const shared_ptr<KEY1>& keyp1, const OBJ& x){
+      auto& key0=*keyp0;
+      auto& key1=*keyp1;
+      insert(&key0,&key1,x);
+    }
+
+    void insert(const KEY0& key0, const KEY1& key1, const OBJ& x){
+      insert(&const_cast<KEY0&>(key0),&const_cast<KEY1&>(key1),x);
+    }
+
+    void insert(KEY0* keyp0, KEY1* keyp1, const OBJ& x){
+      auto p=make_pair(keyp0,keyp1);
+      observers0.add(keyp0);
+      observers1.add(keyp1);
+      lookup0[keyp0].insert(keyp1);
+      lookup1[keyp1].insert(keyp0);
+      auto it2=insert({p,x});
+    }
+
     size_t rmemsize() const{
       size_t t=0;
       for(auto& p:*this)

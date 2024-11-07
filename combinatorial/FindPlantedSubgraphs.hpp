@@ -68,7 +68,7 @@ namespace cnine{
 
     operator cnine::TensorView<int>(){
       int N=nmatches();
-      cnine::TensorView<int> R(cnine::dims(N,n));
+      cnine::TensorView<int> R(cnine::dims(N,n),0,0);
       int t=0;
       for(auto p:matches)
 	p->for_each_maximal_path([&](const vector<int>& x){

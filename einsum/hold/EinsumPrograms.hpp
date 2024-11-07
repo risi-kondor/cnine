@@ -17,6 +17,7 @@
 
 #include "TensorView.hpp"
 #include "EinsumFormN.hpp"
+//#include "EinsumFormB.hpp"
 #include "EinsumProgram.hpp"
 #include "LatexDoc.hpp"
 
@@ -31,6 +32,16 @@ namespace cnine{
     vector<shared_ptr<einsum_node> > args;
 
     EinsumPrograms(const EinsumFormN& form){
+      args=form.arg_nodes;
+      EinsumProgram prg(args);
+      set<int> remaining;
+      //for(auto p:form.contraction_ids)
+      //remaining.push_back(p);
+      cout<<form.contraction_ids<<endl;
+      build_programs(prg,form.contraction_ids);
+    }
+
+    EinsumPrograms(const EinsumFormB& form){
       args=form.arg_nodes;
       EinsumProgram prg(args);
       set<int> remaining;

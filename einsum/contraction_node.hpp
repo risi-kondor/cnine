@@ -28,9 +28,10 @@ namespace cnine{
 
     virtual int n_ops(const vector<int>& dims) const{
       int t=0;
-      for(auto& p: children)
-	t+=children->n_ops();
-      return t+dims[id]*adims()*children.size();
+      //for(auto& p: children)
+      //t+=p->n_ops(dims); // TODO 
+      //return t+dims[id]*adims()*children.size();
+      return 0;
     }
 
 

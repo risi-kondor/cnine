@@ -52,7 +52,8 @@ namespace cnine{
 
     int n_ops() const{
       CNINE_ASSRT(root);
-      return root->n_ops();
+      //return root->n_ops();
+      return 0;
     }
 
 

@@ -202,6 +202,36 @@ TensorView(const initializer_list<initializer_list<TYPE> >& list, const int _dev
 
 
 
+// TODO 
+public: // ---- Stacking ----------------------------------------------------------------------------------
+
+
+template<typename OBJ>
+static TensorView stack(int d, const vector<OBJ>& list){
+  CNINE_ASSRT(list.size()>0);
+  CNINE_ASSRT(d<list[0].ndims());
+  Gdims dims0=list[0].dims;
+  Gdims rem=list[0].dims.remove(d);
+  int t=0;
+  for(int i=0; i<list.size(); i++){
+    t+=list[i].dim(d);
+    CNINE_ASSRT(list[i].dims.remove(d)==rem);
+  }
+  TensorView R(dims0.set(d,t),0,list[0].get_dev());
+  t=0;
+  for(int i=0; i<list.size(); i++){
+    R.slices(d,t,list[i].dim(d))+=list[i];
+    t+=list[i].dim(d);
+  }
+  return R;
+}
+
+template<typename OBJ>
+static TensorView stack(int d, const initializer_list<OBJ>& list){
+  vector<TensorView<TYPE> > x;
+  for(auto& p:list) x.push_back(p);
+  return stack(0,x);
+}
 
 
 

@@ -34,7 +34,7 @@ namespace cnine{
 
     EinsumFormN(const string str){
 
-      cout<<str<<endl;
+      //cout<<str<<endl;
       auto d1=str.find("->");
       if(d1==string::npos){
 	CNINE_ERROR(str+" is not a well formed einsum string because it has no rhs.");
@@ -48,7 +48,7 @@ namespace cnine{
       vector<string> input_str;
       int offs=0;
       while(offs<lhs.size()){
-	auto d=str.find(",",offs);
+	auto d=lhs.find(",",offs);
 	if(d==string::npos) d=lhs.size();
 	input_str.push_back(lhs.substr(offs,d-offs));
 	arg_nodes.push_back(make_shared<einsum_node>(d-offs,
@@ -59,11 +59,11 @@ namespace cnine{
       while(true){
 	auto p=rhs.find_first_not_of('_');
 	if(p==string::npos) break;
-	char c=input_str[i][p];
-	input_str[i].replace(p,1,1,'_');
+	char c=rhs[p];
+	rhs.replace(p,1,1,'_');
 	result_node->ids[p]=id_tail;
 	
-	for(int j=i+i; j<input_str.size(); j++){
+	for(int j=1; j<input_str.size(); j++){
 	  auto q=input_str[j].find(c);
 	  if(q==string::npos) continue;
 	  input_str[j].replace(q,1,1,'_');

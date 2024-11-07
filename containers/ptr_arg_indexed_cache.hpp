@@ -18,6 +18,8 @@
 #include "Cnine_base.hpp"
 #include "observable.hpp"
 
+#include "ptr_indexed_cache.hpp" //to avoid duplicate defn of hash fn
+
 
 namespace cnine{
 
@@ -127,6 +129,7 @@ namespace cnine{
 
 namespace std{
 
+  /*
   template<typename IX1, typename IX2> // duplicate! 
   struct hash<pair<IX1,IX2> >{
   public:
@@ -136,7 +139,8 @@ namespace std{
       return h;
     }
   };
-
+  */
+  
 }
 
 #endif 
