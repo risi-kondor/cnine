@@ -62,62 +62,62 @@ namespace cnine{
 
 
   template<typename TYPE>
-  void TensorView_assign_cu(const Ltensor<TYPE>& r, const Ltensor<TYPE>& x, const cudaStream_t& stream){
+  void TensorView_assign_cu(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const cudaStream_t& stream){
     CNINE_ASSRT(r.get_dims()==x.get_dims());
     int D=r.ndims();
 
     if(D==1){
-      if(r.dim[0]>1024)
-	TensorView_assign_kernel_bt<<<r.dim[0]/1024,1024,0,stream>>>(r.get_arr(),x.get_arr(),1024*r.strides[0],r.strides[0],1024*x.strides[0],x.strides[0]);
-      if(r.dim[0]%1024>0)
-	TensorView_assign_kernel_t<<<1,r.dim[0]%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],x.strides[0]);
+      if(r.get_dim(0)>1024)
+	TensorView_assign_kernel_bt<<<r.get_dim(0)/1024,1024,0,stream>>>(r.get_arr(),x.get_arr(),1024*r.strides[0],r.strides[0],1024*x.strides[0],x.strides[0]);
+      if(r.get_dim(0)%1024>0)
+	TensorView_assign_kernel_t<<<1,r.get_dim(0)%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],x.strides[0]);
     }
 
     if(D==2){
 
-      if(r.dim[0]*r.dim[1]<128){
-	dim3 threads(r.dim[0],r.dim[1]);
+      if(r.get_dim(0)*r.get_dim(1)<128){
+	dim3 threads(r.get_dim(0),r.get_dim(1));
 	TensorView_assign_kernel_tt<<<1,threads,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],x.strides[0],x.strides[1]);
 	return;
       }
 
-      if(r.dim[1]<=1024){
-	TensorView_assign_kernel_bt<<<r.dim[0],r.dim[1],0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],x.strides[0],x.strides[1]);
+      if(r.get_dim(1)<=1024){
+	TensorView_assign_kernel_bt<<<r.get_dim(0),r.get_dim(1),0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],x.strides[0],x.strides[1]);
 	return;
       }
 
-      dim3 blocks(r.dim[0],r.dim[1]/1024);
+      dim3 blocks(r.get_dim(0),r.get_dim(1)/1024);
       TensorView_assign_kernel_bbt<<<blocks,1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],1024*r.strides[1],r.strides[1],x.strides[0],1024*x.strides[1],x.strides[1]);
-      if(r.dim[1]%1024>0)
-	TensorView_assign_kernel_bt<<<r.dim[0],r.dim[1]%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],x.strides[0],x.strides[1]);
+      if(r.get_dim(1)%1024>0)
+	TensorView_assign_kernel_bt<<<r.get_dim(0),r.get_dim(1)%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],x.strides[0],x.strides[1]);
 
     }
 
     if(D==3){
 
-      if(r.dim[0]*r.dim[1]*r.dim[2]<128){
-	dim3 threads(r.dim[0],r.dim[1],r.dim[2]);
+      if(r.get_dim(0)*r.get_dim(1)*r.get_dim(2)<128){
+	dim3 threads(r.get_dim(0),r.get_dim(1),r.get_dim(2));
 	TensorView_assign_kernel_ttt<<<1,threads,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
 	return;
       }
 
-      if(r.dim[1]*r.dim[2]<128){
-	dim3 threads(r.dim[1],r.dim[2]);
-	TensorView_assign_kernel_btt<<<r.dim[0],threads,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
+      if(r.get_dim(1)*r.get_dim(2)<128){
+	dim3 threads(r.get_dim(1),r.get_dim(2));
+	TensorView_assign_kernel_btt<<<r.get_dim(0),threads,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
 	return;
       }
 
-      if(r.dim[2]<=1024){
-	dim3 blocks(r.dim[0],r.dim[1]);
-	TensorView_assign_kernel_bbt<<<blocks,r.dim[2],0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
+      if(r.get_dim(2)<=1024){
+	dim3 blocks(r.get_dim(0),r.get_dim(1));
+	TensorView_assign_kernel_bbt<<<blocks,r.get_dim(2),0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
 	return;
       }
 
-      dim3 blocks(r.dim[0],r.dim[1],r.dim[2]/1024);
+      dim3 blocks(r.get_dim(0),r.get_dim(1),r.get_dim(2)/1024);
       TensorView_assign_kernel_bbbt<<<blocks,1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],1024*r.strides[2],r.strides[2],x.strides[0],x.strides[1],1024*x.strides[2],x.strides[2]);
-      if(r.dim[2]%1024>0){
-	dim3 blocks2(r.dim[0],r.dim[1]);
-	TensorView_assign_kernel_bbt<<<blocks2,r.dim[2]%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
+      if(r.get_dim(2)%1024>0){
+	dim3 blocks2(r.get_dim(0),r.get_dim(1));
+	TensorView_assign_kernel_bbt<<<blocks2,r.get_dim(2)%1024,0,stream>>>(r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],x.strides[1],x.strides[2]);
       }
 
     }    
@@ -128,6 +128,10 @@ namespace cnine{
 
   }
 
+  template void TensorView_assign_cu<int>(const TensorView<int>& r, const TensorView<int>& x, const cudaStream_t& stream);
+  template void TensorView_assign_cu<float>(const TensorView<float>& r, const TensorView<float>& x, const cudaStream_t& stream);
+  template void TensorView_assign_cu<double>(const TensorView<double>& r, const TensorView<double>& x, const cudaStream_t& stream);
+  
 }
 
 #endif 

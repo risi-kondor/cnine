@@ -70,9 +70,8 @@ namespace cnine{
   template<typename TYPE> class BatchedTensorView;
 
 #ifdef _WITH_CUDA
-  extern void TensorView_inc_cu(const TensorView<int>& r, const int v, const cudaStream_t& stream);
-  extern void TensorView_inc_cu(const TensorView<float>& r, const float v, const cudaStream_t& stream);
-  extern void TensorView_inc_cu(const TensorView<double>& r, const double v, const cudaStream_t& stream);
+  template<typename TYPE>
+  extern void TensorView_inc_cu(const TensorView<TYPE>& r, const TYPE v, const cudaStream_t& stream);
 #endif 
 
   // this is the multiply defined functions problem
