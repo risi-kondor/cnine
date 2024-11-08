@@ -45,6 +45,7 @@ namespace cnine{
   class plist_indexed_object_bank: public unordered_map<plist<KEY*>,OBJ>{
   public:
 
+    using unordered_map<plist<KEY*>,OBJ>::size;
     using unordered_map<plist<KEY*>,OBJ>::insert;
     using unordered_map<plist<KEY*>,OBJ>::find;
     using unordered_map<plist<KEY*>,OBJ>::erase;

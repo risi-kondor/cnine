@@ -27,6 +27,7 @@ namespace cnine{
   class ptr_indexed_object_bank: public unordered_map<KEY*,OBJ>{
   public:
 
+    using unordered_map<KEY*,OBJ>::size;
     using unordered_map<KEY*,OBJ>::insert;
     using unordered_map<KEY*,OBJ>::find;
     using unordered_map<KEY*,OBJ>::erase;

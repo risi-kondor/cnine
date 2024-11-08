@@ -29,6 +29,7 @@ namespace cnine{
     typedef std::pair<KEY*,ARG> KEYS;
     typedef unordered_map<KEYS,OBJ> BASE;
 
+    using BASE::size;
     using BASE::insert;
     using BASE::find;
     using BASE::erase;
