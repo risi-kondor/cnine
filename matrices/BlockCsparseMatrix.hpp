@@ -129,19 +129,19 @@ namespace cnine{
       return mblocks*blockm;
     }
 
-    bool is_filled(const int i, const int j){
+    bool is_filled(const int i, const int j) const{
       if(offsets.rmap.find(i)==offsets.rmap.end()) return false;
       if(offsets.rmap[i].find(j)==offsets.rmap[i].end()) return false;
       return true;
     }
     
-    int offset(const int i, const int j){
+    int offset(const int i, const int j) const{
       CNINE_ASSRT(offsets.rmap.find(i)!=offsets.rmap.end());
       CNINE_ASSRT(offsets.rmap[i].find(j)!=offsets.rmap[i].end());
       return offsets.rmap[i][j];
     }
 
-    TENSOR block(const int i, const int j){
+    TENSOR block(const int i, const int j) const{
       CNINE_ASSRT(i<nblocks);
       CNINE_ASSRT(j<mblocks);
       return mx.slice(0,offset(i,j));
