@@ -4,7 +4,7 @@ ROOTDIR=../..
 include $(ROOTDIR)/common.txt
 
 INCLUDE= $(CNINE_INCLUDES)
-INCLUDE+=-I../../etree 
+INCLUDE+= -I../ 
 INCLUDE+= $(CENGINE_INCLUDES)
 
 TESTS=$(patsubst %.cpp,%,$(wildcard *.cpp))

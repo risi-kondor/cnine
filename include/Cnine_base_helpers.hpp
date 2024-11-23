@@ -151,6 +151,20 @@ namespace cnine{
     cout<<show_if_possible(x,0)<<endl;
   }
   
+  /*
+  inline string to_string(const vector<int>& v){ // interferes with std::to_string
+    ostringstream oss;
+    oss<<"(";
+    int I=v.size()-1;
+    for(int i=0; i<I; i++)
+      oss<<v[i]<<",";
+    if(v.size()>0) 
+      oss<<v[v.size()-1];
+    oss<<")";
+    return oss.str();
+  }
+  */ 
+
   inline ostream& operator<<(ostream& stream, const vector<int>& v){
     stream<<"(";
     int I=v.size()-1;

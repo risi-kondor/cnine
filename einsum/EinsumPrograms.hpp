@@ -23,6 +23,7 @@
 
 
 namespace cnine{
+  namespace einsum{
 
 
   class EinsumPrograms{
@@ -104,6 +105,7 @@ namespace cnine{
 
   };
 
+  }
 }
 
 #endif 

@@ -16,63 +16,11 @@
 #define _CnineEinsumForm
 
 #include "TensorView.hpp"
+#include "EinsumHelpers.hpp"
 
 
 namespace cnine{
-
-
-  class token_string: public vector<int>{
-  public:
-
-    typedef vector<int> BASE;
-
-    using BASE::BASE;
-
-    bool contains(const int x) const{
-      return std::find(begin(),end(),x)!=end();
-    }
-
-    int find(const int x) const{
-      auto it=std::find(begin(),end(),x);
-      CNINE_ASSRT(it!=end());
-      return it-begin();
-    }
-
-  };
-
-  class index_set: public set<int>{
-  public:
-
-    index_set(){}
-
-    index_set(const vector<int>& x){
-      for(auto p:x) 
-	insert(p);
-    }
-
-    bool contains(const int x) const{
-      return find(x)!=end();
-    }
-
-    vector<int> order(const vector<int>& loop_order){
-      vector<int> r;
-      for(auto& p:loop_order)
-	if(contains(p)) r.push_back(p);
-      return r;
-    }
-
-    string str() const{
-      ostringstream oss;
-      for(auto& p:*this)
-	oss<<static_cast<char>('a'+p);
-      return oss.str();
-    }
-
-    friend ostream& operator<<(ostream& stream, const index_set& x){
-      stream<<x.str(); return stream;
-    }
-
-  };
+  namespace einsum{
 
 
   class EinsumForm{
@@ -80,7 +28,7 @@ namespace cnine{
 
     map<string,int> dict; 
     vector<string> tokens;
-    vector<token_string> args;
+    vector<ix_tuple> args;
     vector<vector<int> > occurrences;
 
     vector<int> contraction_indices;
@@ -146,6 +94,7 @@ namespace cnine{
 
     }
 
+
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
@@ -163,8 +112,8 @@ namespace cnine{
   private: // ------------------------------------------------------------------------------------------------
 
 
-     pair<token_string,vector<vector<int> > > tokenize(const string& str){
-      token_string tokenized;
+     pair<ix_tuple,vector<vector<int> > > tokenize(const string& str){
+      ix_tuple tokenized;
       vector<vector<int> > mapping;
 
       map<string,vector<int> > r;
@@ -255,6 +204,7 @@ namespace cnine{
 
   };
 
+  }
 }
 
 #endif 

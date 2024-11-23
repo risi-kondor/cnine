@@ -5,6 +5,7 @@
 
 
 namespace cnine{
+  namespace einsum{
 
   class ContractionNode{
   public:
@@ -12,10 +13,11 @@ namespace cnine{
     //shared_ptr<EinsumForm> form;
     
     int contraction_index;
+    string contraction_token;
     int arg_id=-1;
-    token_string indices;
-    index_set external_indices;
-    index_set internal_indices;
+    ix_tuple indices;
+    ix_set external_indices;
+    ix_set internal_indices;
 
     vector<shared_ptr<ContractionNode> > children;
 
@@ -24,14 +26,16 @@ namespace cnine{
 
     ContractionNode(){}
     
-    ContractionNode(const int _arg_id, const token_string& _indices, const string _name="M"):
+    ContractionNode(const int _arg_id, const ix_tuple& _indices, const string _name="M"):
       arg_id(_arg_id),
       indices(_indices),
       external_indices(_indices),
       name(_name){}
 
-    ContractionNode(int _contraction_index, vector<shared_ptr<ContractionNode> >& _children):
-      contraction_index(_contraction_index){
+    ContractionNode(int _contraction_index, const string _token, 
+      vector<shared_ptr<ContractionNode> >& _children):
+      contraction_index(_contraction_index),
+      contraction_token(_token){
       for(auto& p:_children){
 	children.push_back(p);
 	for(auto q:p->indices){
@@ -92,7 +96,8 @@ namespace cnine{
     string str(const string indent="") const{
       ostringstream oss;
       if(children.size()>0){
-	oss<<indent<<"contract "<<to_string(contraction_index)<<": ["<<
+	//oss<<indent<<"contract on "<<to_string(contraction_index)<<": ["<<
+	oss<<indent<<"contract on "<<contraction_token<<": ["<<
 	  external_indices<<"/"<<internal_indices<<"]"<<endl;
 	for(auto& p: children)
 	  oss<<p->str(indent+"  ");
@@ -109,6 +114,7 @@ namespace cnine{
 
   };
 
+  }
 }
 
 #endif 

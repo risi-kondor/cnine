@@ -20,7 +20,7 @@
 
 
 namespace cnine{
-
+  namespace einsum{
 
   class ContractionTree{
   public:
@@ -28,7 +28,6 @@ namespace cnine{
     shared_ptr<ContractionNode> root;
     set<shared_ptr<ContractionNode> > frontier;
     map<int,set<int> > levels;
-
 
     ContractionTree(const EinsumForm& form){
       int i=0;
@@ -60,7 +59,7 @@ namespace cnine{
   public: // ---- Operations ---------------------------------------------------------------------------------
 
 
-    shared_ptr<ContractionNode> add_contraction(int contraction_id){
+    shared_ptr<ContractionNode> add_contraction(const int contraction_id, const string token){
       //cout<<"looking for "<<contraction_id<<endl;
       vector<shared_ptr<ContractionNode> > contr;
       for(auto& p:frontier){
@@ -70,7 +69,7 @@ namespace cnine{
       //cout<<"Found "<<contr.size()<<endl;
       for(auto& p:contr)
 	frontier.erase(p);
-      auto new_node=make_shared<ContractionNode>(contraction_id,contr);
+      auto new_node=make_shared<ContractionNode>(contraction_id,token,contr);
       frontier.insert(new_node);
       levels[new_node->level].insert(contraction_id);
       return new_node;
@@ -105,6 +104,7 @@ namespace cnine{
 
   };
 
+  }
 }
 
 #endif 

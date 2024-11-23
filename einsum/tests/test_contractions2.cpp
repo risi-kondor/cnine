@@ -19,19 +19,20 @@
 
 
 using namespace cnine;
+using namespace einsum;
 
 
 int main(int argc, char** argv){
 
   cnine_session session;
 
-  //EinsumFormN f("ij,jk,kl->");
-  //cout<<f<<endl;
-
   EinsumForm form("ij,jk,kl->il");
   cout<<form<<endl;
 
-  EinsumPrograms programs(form);
+  ContractionTrees trees(form);
+  cout<<trees<<endl;
+
+  //EinsumPrograms programs(form);
   //cout<<programs<<endl;
   //cout<<*esum.programs<<endl;
   //esum.programs->latex();

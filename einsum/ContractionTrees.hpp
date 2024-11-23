@@ -22,15 +22,18 @@
 
 
 namespace cnine{
+  namespace einsum{
 
 
   class ContractionTrees{
   public:
 
     vector<ContractionTree> trees;
-    //vector<shared_ptr<einsum_node> > args;
 
-    ContractionTrees(const EinsumForm& form){
+    vector<string> tokens;
+
+    ContractionTrees(const EinsumForm& form):
+      tokens(form.tokens){
       ContractionTree T(form);
       build_trees(T,form.contraction_indices);
     }
@@ -48,7 +51,7 @@ namespace cnine{
       }
       for(int i=0; i<rem.size(); i++){
 	ContractionTree _tree(tree);
-	auto _node=_tree.add_contraction(rem[i]);
+	auto _node=_tree.add_contraction(rem[i],tokens[rem[i]]);
 	if(rem.size()==1){
 	  _tree.root=_node;
 	}
@@ -61,7 +64,7 @@ namespace cnine{
 
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
-
+  
     /*
     void latex(string filename="temp") const{
       ostringstream oss;
@@ -76,8 +79,11 @@ namespace cnine{
     
     string str(const string indent="") const{
       ostringstream oss;
-      for(auto& p:trees)
-	oss<<p.str(indent)<<endl;
+      int i=0;
+      for(auto& p:trees){
+	oss<<indent<<"Tree "<<i++<<":"<<endl;
+	oss<<p.str(indent+"  ")<<endl;
+      }
       return oss.str();
     }
 
@@ -89,6 +95,7 @@ namespace cnine{
 
   };
 
+  }
 }
 
 #endif 
