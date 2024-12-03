@@ -58,6 +58,9 @@ namespace cnine{
 	  CUBLAS_SAFE(cublasDaxpy(cnine_cublas, r.memsize(), &alpha, x.get_arr(), 1, r.get_arr(), 1));
 	  return;
 	}
+	if constexpr(std::is_same<TYPE,int>::value){
+	  CUDA_STREAM(TensorView_add_cu(r,x,stream));
+	}
 	CNINE_UNIMPL();
       }
       return;
@@ -71,7 +74,7 @@ namespace cnine{
       TensorView_add_loops(rp,xp);
     }
 
-    if(dev==1){
+    if(dev==1){// this is probably not going to work for non-contiguous tensors
       if constexpr(std::is_same<TYPE,int>::value || 
 	std::is_same<TYPE,float>::value || 
 	std::is_same<TYPE,double>::value){

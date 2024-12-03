@@ -1,27 +1,28 @@
-#ifndef _loop_tree
-#define _loop_tree
+#ifndef _LoopTree
+#define _LoopTree
 
 #include "ctree.hpp"
-#include "loop_tree_node.hpp"
+#include "LoopTreeNode.hpp"
+#include "TikzTree.hpp"
 
 namespace cnine{
 
 
-  class loop_tree{
+  class LoopTree{
   public:
 
-    typedef loop_tree_index_set IXSET;
+    typedef ctree_index_set IXSET;
 
-    shared_ptr<loop_tree_node> root;
-    shared_ptr<loop_tree_tensor_registry> registry;
+    shared_ptr<LoopTreeNode> root;
+    shared_ptr<LoopTree_tensor_registry> registry;
 
-    loop_tree(){
-      registry=to_share(new loop_tree_tensor_registry());
-      root=to_share(new loop_tree_node(registry));
+    LoopTree(){
+      registry=to_share(new LoopTree_tensor_registry());
+      root=to_share(new LoopTreeNode(registry));
     }
 
-    loop_tree(const ctree& _ctr):
-      loop_tree(){
+    LoopTree(const ctree& _ctr):
+      LoopTree(){
       for(int i=_ctr.nodes.size()-1; i>=0; i--)
 	insert(_ctr.nodes[i]);
     }
@@ -45,7 +46,7 @@ namespace cnine{
       vector<int> args;
       for(auto& p: x.args)
 	args.push_back(p->id);
-      loop_tree_contr lcontr(x.id,x.ix,args,x.dependents);
+      LoopTree_contr lcontr(x.id,x.ix,args,x.dependents);
       root->insert(x.indices,lcontr);
     }
 
@@ -56,7 +57,7 @@ namespace cnine{
 	vector<int> args;
 	for(auto& p: x.args)
 	  args.push_back(p->id);
-	loop_tree_contr lcontr(x.id,x.ix,args,x.dependents);
+	LoopTree_contr lcontr(x.id,x.ix,args,x.dependents);
 	root->insert(indices,lcontr);
       }
       else
@@ -71,6 +72,29 @@ namespace cnine{
     void write_to(code_env& env){
       if(root)
 	root->write_to(env);
+    }
+
+    /*
+    string tikz() const{
+      TikzStream tstream;
+      tstream<<"\\begin{tikzpicture}[";
+      tstream<<"every node/.style={circle, draw=black}";
+      tstream<<",sibling distance=3cm";
+      tstream<<"]\n";
+      tstream.oss<<"\\";
+      if(root) tstream<<*root;
+      tstream.oss<<";\n";
+      tstream.write("\\end{tikzpicture}");
+      return tstream.str();
+    }
+    */
+
+    TikzTree tikz_tree() const{
+      TikzTree ttree;
+      auto x=ttree.add_root("");
+      for(auto& p:root->children)
+	p->to_tikz(x);
+      return ttree;
     }
 
   };

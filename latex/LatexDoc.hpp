@@ -25,6 +25,8 @@ namespace cnine{
 
     LatexDoc(){
       (*this)+="\\documentclass{article}\n";
+      (*this)+="\\usepackage{anyfontsize}\n";
+      (*this)+="\\usepackage{tikz}\n";
       (*this)+="\\begin{document}\n";
     }
 
@@ -38,8 +40,17 @@ namespace cnine{
       (*this)+="\n \\end{document}\n";
     }
 
-    
+    void save(string filename){
+      ofstream ofs(filename+".tex");
+      ofs<<*this;
+      ofs.close();
+    }
 
+    void compile(string name){
+      save(name);
+      string cmd("pdflatex "+name+".tex");
+      system(cmd.c_str());
+    }
 
   };
 

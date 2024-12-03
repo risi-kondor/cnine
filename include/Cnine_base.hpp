@@ -200,7 +200,7 @@ namespace cnine{
 
 
   template<class T> struct is_complex : std::false_type {};
-  template<class T> struct is_complex<std::complex<T>> : std::true_type {};
+  template<class T> struct is_complex<std::complex<T> > : std::true_type {};
   
   //template<typename S, typename=typename std::enable_if<is_complex<S>::value, S>::type>
   //struct is_complex: public true_type{};

@@ -1,9 +1,10 @@
 #include "Cnine_base.cpp"
 #include "CnineSession.hpp"
 
-#include "loop_tree_node.hpp"
+#include "LoopTreeNode.hpp"
 #include "ctree.hpp"
-#include "loop_tree.hpp"
+#include "LoopTree.hpp"
+#include "LatexDoc.hpp"
 
 using namespace cnine;
 
@@ -20,11 +21,18 @@ int main(int argc, char** argv){
   auto T3=contract(T0,T1,1);
   auto T4=contract(T3,T2,2);
 
-  loop_tree ltree(ctr);
+  LoopTree ltree(ctr);
 
   code_env env;
   ltree.write_to(env);
   cout<<env.str()<<endl;
+
+  //cout<<ltree.tikz()<<endl;
+  auto ttree=ltree.tikz_tree();
+  cout<<ttree.latex()<<endl;
+  LatexDoc doc(ttree.latex());
+  doc.compile("temp");
+  system("open temp.pdf");
 
 }
 

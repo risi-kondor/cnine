@@ -1,7 +1,7 @@
 #include "Cnine_base.cpp"
 #include "CnineSession.hpp"
 
-#include "loop_trees.hpp"
+#include "LoopTrees.hpp"
 
 using namespace cnine;
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv){
   auto T5=contract(T4,T2,2);
   auto T6=contract(T5,T3,3);
 
-  loop_trees trees(ctr);
+  LoopTrees trees(ctr);
 
   for(auto& p: trees.trees){
     cout<<endl;

@@ -5,7 +5,6 @@ include $(ROOTDIR)/common.txt
 
 INCLUDE= $(CNINE_INCLUDES)
 INCLUDE+= -I../ 
-INCLUDE+= -I../../latex  
 INCLUDE+= $(CENGINE_INCLUDES)
 
 TESTS=$(patsubst %.cpp,%,$(wildcard *.cpp))

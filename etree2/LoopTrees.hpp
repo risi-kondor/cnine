@@ -1,24 +1,24 @@
-#ifndef _loop_trees
-#define _loop_trees
+#ifndef _LoopTrees
+#define _LoopTrees
 
-#include "loop_tree.hpp"
+#include "LoopTree.hpp"
 #include "ctree.hpp"
 
 
 namespace cnine{
 
-  class loop_trees{
+  class LoopTrees{
   public:
 
-    typedef loop_tree_index_set IXSET;
+    typedef ctree_index_set IXSET;
 
-    vector<shared_ptr<loop_tree> > trees;
+    vector<shared_ptr<LoopTree> > trees;
     map<int,int> contraction_directory;
     vector<vector<vector<int> > > permutation_lists;
 
-    loop_trees(){}
+    LoopTrees(){}
 
-    loop_trees(const ctree& ctr){
+    LoopTrees(const ctree& ctr){
       for(auto& p:ctr.nodes){
 	if(dynamic_pointer_cast<ctree_contraction_node>(p)){
 	  auto& x=*dynamic_pointer_cast<ctree_contraction_node>(p);
@@ -36,7 +36,7 @@ namespace cnine{
 
       if(n==permutation_lists.size()){
 	cout<<trees.size()<<endl;
-	auto tree=new loop_tree();
+	auto tree=new LoopTree();
 	for(int i=ctr.nodes.size()-1; i>=0; i--){
 	  auto& x=ctr.nodes[i];
 	  if(contraction_directory.find(x->id)!=contraction_directory.end())

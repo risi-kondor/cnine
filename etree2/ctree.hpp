@@ -1,14 +1,14 @@
 #ifndef _ctree
 #define _ctree
 
-#include "loop_tree_index_set.hpp"
+#include "ctree_index_set.hpp"
 
 
 namespace cnine{
 
   class ctree;
 
-  typedef loop_tree_index_set IXSET;
+  typedef ctree_index_set IXSET;
 
 
   class ctree_tensor_node{
@@ -82,9 +82,7 @@ namespace cnine{
   class ctree{
   public:
 
-    //vector<shared_ptr<ctree_tensor_node> > inputs;
     vector<shared_ptr<ctree_tensor_node> > nodes;
-    //shared_ptr<ctree_tensor_node> root;
 
     ctree(){}
 

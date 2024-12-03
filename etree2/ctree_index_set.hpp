@@ -1,20 +1,20 @@
-#ifndef _loop_tree_index_set
-#define _loop_tree_index_set
+#ifndef _ctree_index_set
+#define _ctree_index_set
 
 namespace cnine{
 
-  class loop_tree_index_set: public set<int>{
+  class ctree_index_set: public set<int>{
   public:
     
 
-    loop_tree_index_set(){}
+    ctree_index_set(){}
 
-    loop_tree_index_set(const initializer_list<int>& x){
+    ctree_index_set(const initializer_list<int>& x){
       for(auto& p:x)
 	insert(p);
     }
 
-    loop_tree_index_set(const vector<int>& x){
+    ctree_index_set(const vector<int>& x){
       for(auto& p:x)
 	insert(p);
     }
@@ -30,20 +30,20 @@ namespace cnine{
   public: // ---- Operations --------------------------------------------------------------------------------
 
     
-    void add(const loop_tree_index_set& x){
+    void add(const ctree_index_set& x){
       for(auto p:x)
 	insert(p);
     }
 
-    loop_tree_index_set minus(const vector<int>& x) const{
-      loop_tree_index_set r(*this);
+    ctree_index_set minus(const vector<int>& x) const{
+      ctree_index_set r(*this);
       for(auto& p:x)
 	if(r.find(p)!=r.end()) r.erase(p);
       return r;
     }
 
-    loop_tree_index_set contract(const loop_tree_index_set& y, const int ix) const{
-      loop_tree_index_set r(*this);
+    ctree_index_set contract(const ctree_index_set& y, const int ix) const{
+      ctree_index_set r(*this);
       for(auto& p:y) r.insert(p);
       r.erase(ix);
       return r;
@@ -56,7 +56,7 @@ namespace cnine{
 	return r;
       }
       for(auto& p:*this){
-	loop_tree_index_set sub(*this);
+	ctree_index_set sub(*this);
 	sub.erase(p);
 	auto y=sub.permutations();
 	for(auto q:y){
@@ -73,17 +73,22 @@ namespace cnine{
 
     string index_str() const{
       ostringstream oss;
-      for(auto& p:*this)
-	oss<<"i"<<p<<",";
-      if(size()>0) oss<<"\b";
+      int i=0;
+      for(auto& p:*this){
+	oss<<"i"<<p;
+	if(++i<size()) oss<<",";
+      }
       return oss.str();
     }
 
     string limit_str() const{
       ostringstream oss;
-      for(auto& p:*this)
-	oss<<"n"<<p<<",";
-      if(size()>0) oss<<"\b";
+      int i=0;
+      for(auto& p:*this){
+	oss<<"n"<<p;
+	if(++i<size()) oss<<",";
+      }
+      //if(size()>0) oss<<"\b";
       return oss.str();
     }
 
