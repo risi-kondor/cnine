@@ -32,6 +32,7 @@ namespace cnine{
     vector<vector<int> > occurrences;
 
     vector<int> contraction_indices;
+    vector<int> convolution_indices;
 
     vector<vector<int> > summations; // list of indices to sum for each arg
     vector<vector<pair<int,int> > > transfers;
@@ -76,22 +77,35 @@ namespace cnine{
 
       for(int i=0; i<tokens.size(); i++){
 	auto& occ=occurrences[i];
+
 	if(occ.size()==1){
 	  summations[occ[0]].push_back(args[occ[0]].find(i));
 	  continue;
 	}
+
 	if(occ[0]==0){
+
+	  if(tokens[i].size()==2 && tokens[i][0]=='c'){
+	    CNINE_ASSRT(occ.size()==3);
+	    convolution_indices.push_back(i);
+	    continue;
+	  }
+
 	  vector<pair<int,int> > v;
 	  for(int j=0; j<occ.size(); j++)
 	    v.push_back(pair<int,int>(occ[j],args[occ[j]].find(i)));
 	  transfers.push_back(v);
 	  continue;
+
 	}
+
 	if(true){
 	  contraction_indices.push_back(i);
 	}
+
       }
 
+      //cout<<*this<<endl;
     }
 
 
@@ -166,6 +180,10 @@ namespace cnine{
 	else oss<<"("<<tokens[p]<<")";
       oss<<endl<<endl;
 
+      for(int i=0; i<tokens.size(); i++)
+	oss<<i<<":"<<tokens[i]<<endl;
+      oss<<endl;
+
       for(int i=0; i<map_to_dims.size(); i++){
 	oss<<"Mapping "<<i<<": ";
 	for(auto& p:map_to_dims[i])
@@ -189,10 +207,19 @@ namespace cnine{
       }
       oss<<endl;
 
-      oss<<"Contraction indices: (";
+      if(contraction_indices.size()>0){
+	oss<<"Contraction indices: (";
 	for(auto& p:contraction_indices)
 	  oss<<tokens[p]<<",";
-      oss<<"\b)\n";
+	oss<<"\b)\n";
+      }
+
+      if(convolution_indices.size()>0){
+	oss<<"Convolution indices: (";
+	for(auto& p:convolution_indices)
+	  oss<<tokens[p]<<",";
+	oss<<"\b)\n";
+      }
 
       return oss.str();
     }

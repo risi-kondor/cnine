@@ -38,16 +38,58 @@ namespace cnine{
 	return it-begin();
       }
 
-      string str(){
+      vector<int> unpack(const vector<vector<int> >& mapping) const{
+	int n=0;
+	for(auto& p:mapping)
+	  for(auto& q:p)
+	    if(n<=q) n=q+1;
+	vector<int> r(n,0);
+	for(int i=0; i<mapping.size(); i++)
+	  for(auto& q:mapping[i])
+	    r[q]=(*this)[i];
+	return r;
+      }
+
+      bool operator<(const ix_tuple x) const{
+	int n=size();
+	if(n<x.size()) return true;
+	if(n>x.size()) return false;
+	for(int i=0; i<n; i++){
+	  if((*this)[i]<x[i]) return true;
+	  if((*this)[i]>x[i]) return false;
+	}
+	return false;
+      }
+
+
+    public: // ---- I/O -------------------------------------------------------------------------------------
+      
+
+      string str() const{
 	ostringstream oss;
+	oss<<"(";
 	for(int i=0; i<size() ; i++){
 	  oss<<"i"<<(*this)[i];
 	  if(i<size()-1) oss<<",";
 	}
+	oss<<")";
+	return oss.str();
+      }
+
+     string unpacked_str(const vector<vector<int> >& mapping) const{
+	ostringstream oss;
+	oss<<"(";
+	auto unpacked=unpack(mapping);
+	for(int i=0; i<unpacked.size() ; i++){
+	  oss<<"i"<<unpacked[i];
+	  if(i<unpacked.size()-1) oss<<",";
+	}
+	oss<<")";
 	return oss.str();
       }
 
     };
+
 
     class ix_set: public set<int>{
     public:
@@ -59,8 +101,29 @@ namespace cnine{
 	  insert(p);
       }
 
+      operator ix_tuple() const{
+	ix_tuple r(size());
+	int i=0;
+	for(auto p:*this)
+	  r[i++]=p;
+	return r;
+      }
+
+      bool operator<(const ix_set x) const{
+	int n=size();
+	if(n<x.size()) return true;
+	if(n>x.size()) return false;
+	return ix_tuple(*this)<ix_tuple(x);
+      }
+
       bool contains(const int x) const{
 	return find(x)!=end();
+      }
+
+      bool contains(const set<int>& x) const{
+	for(auto p:x)
+	  if(find(p)==end()) return false;
+	return true;
       }
 
       vector<int> order(const vector<int>& loop_order){

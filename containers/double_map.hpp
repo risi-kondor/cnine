@@ -31,11 +31,19 @@ namespace cnine{
     double_index(const IX1 _i1, const IX2 _i2): 
       i1(_i1), i2(_i2){}
 
+    bool operator<(const double_index y) const{
+      if(i1<y.i1) return true;
+      if(i1>y.i1) return false;
+      if(i2<y.i2) return true;
+      return false;
+    }
+
     bool operator==(const double_index& x) const{
       return (i1==x.i1)&&(i2==x.i2);
     }
-
+    
   };
+
 }
 
 

@@ -34,6 +34,8 @@ namespace cnine{
 
   public: // Constructors
 
+    permutation():
+      permutation(1){};
 
     permutation(const int _n): 
       n(_n){
@@ -57,7 +59,8 @@ namespace cnine{
       if(!is_valid()){cerr<<"Invalid permutation"<<endl;}
     }	
 
-    permutation(const vector<int> x): n(x.size()){
+    permutation(const vector<int> x): 
+      n(x.size()){
       p=new int[n]; 
       for(int i=0; i<n; i++) p[i]=x[i];
     }
@@ -142,6 +145,34 @@ namespace cnine{
       return p;
     }
 
+    template<typename TYPE>
+    static permutation ordering(const vector<TYPE> v){
+      int n=v.size();
+      permutation r(n);
+      vector<bool> done(n,false);
+      for(int i=0; i<n; i++){
+	int least=-1;
+	for(int j=0; j<n; j++)
+	  if(!done[j] && (least==-1 || v[j]<v[least])) least=j;
+	done[least]=true;
+	r[i]=least;
+      }
+      return r;
+    }
+
+    static permutation ordering(const int n, const std::function<bool(const int, const int)>& less){
+      permutation r(n);
+      vector<bool> done(n,false);
+      for(int i=0; i<n; i++){
+	int least=-1;
+	for(int j=0; j<n; j++)
+	  if(!done[j] && (least==-1 || less(j,least))) least=j;
+	done[least]=true;
+	r[i]=least;
+      }
+      return r;
+    }
+
 
   public: // ---- Conversions -------------------------------------------------------------------------------
 
@@ -182,7 +213,8 @@ namespace cnine{
     }
 
 
-  public: 
+  public: // ---- Operations --------------------------------------------------------------------------------
+
 
     permutation operator*(const permutation& x) const{
       permutation result(n,cnine::fill_raw());
@@ -215,8 +247,18 @@ namespace cnine{
       return true;
     }
 
+    template<typename TYPE>
+    vector<TYPE> reorder(const vector<TYPE>&  x){
+      int n=x.size();
+      vector<TYPE> r(n);
+      for(int i=0; i<n; i++)
+	r[i]=x[(*this)[i]];
+      return r;
+    }
 
-  public: // I/O 
+
+  public: // ---- I/O ----------------------------------------------------------------------------------------
+
 
     string str(const string indent="") const{
       ostringstream oss;

@@ -18,6 +18,7 @@
 #include "Cnine_base.hpp"
 #include "gvectr.hpp"
 #include "GindexSet.hpp"
+#include "GindexMap.hpp"
 //#include "Bifstream.hpp"
 //#include "Bofstream.hpp"
 
@@ -295,6 +296,27 @@ namespace cnine{
 	r*=(*this)[p];
       }
       return r;
+    }
+
+
+  public: // ---- IndexMap -----------------------------------------------------------------------------------
+
+    
+    Gdims map(const GindexMap& map) const{
+      CNINE_ASSRT(map.ndims()==size());
+      int n=map.size();
+      Gdims R=Gdims::zero(n);
+      for(int i=0; i<n; i++){
+	auto& ix=map[i];
+	CNINE_ASSRT(ix.size()>0);
+	CNINE_ASSRT(ix[0]<size());
+	R[i]=(*this)[ix[0]];
+	for(int j=1; j<ix.size(); j++){
+	  CNINE_ASSRT(ix[j]<size());
+	  CNINE_ASSRT((*this)[ix[j]]==(*this)[ix[0]]);
+	}
+      }
+      return R;
     }
 
 

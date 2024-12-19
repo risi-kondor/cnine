@@ -68,6 +68,10 @@ TensorView  insert_dim(const int d, const int n) const{
   return TensorView(arr,Gdims(dims).insert(d,n),GstridesB(strides).insert(d,0));
 }
 
+TensorView diags(const GindexMap& map) const{
+  return TensorView(arr,dims.map(map),strides.map(map));
+}
+
 TensorView scrunch() const{
   int n=ndims();
   Gdims _dims;

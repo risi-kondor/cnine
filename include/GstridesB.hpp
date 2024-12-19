@@ -73,6 +73,18 @@ namespace cnine{
     }
 
 
+  public: // ---- Named constructors -------------------------------------------------------------------------
+
+
+    static GstridesB raw(const int k){
+      return BASE(k);
+    }
+
+    static GstridesB zero(const int k){
+      return BASE(k,0);
+    }
+
+
   public: // ---- Merging -------------------------------------------------------------------------
 
 
@@ -264,6 +276,23 @@ namespace cnine{
 	if((*this)[p[i+1]]!=(*this)[p[i]]*dims[p[i]])
 	  return make_pair((size_t)0,-1);
       return std::pair<size_t,int>((*this)[p[0]],(*this)[p[n-1]]*dims[p[n-1]]/(*this)[p[0]]);
+    }
+
+
+    GstridesB map(const GindexMap& map) const{
+      CNINE_ASSRT(map.ndims()==size());
+      int n=map.size();
+      GstridesB R=GstridesB::zero(n);
+      for(int i=0; i<n; i++){
+	auto& ix=map[i];
+	size_t t=0;
+	for(int j=0; j<ix.size(); j++){
+	  CNINE_ASSRT(ix[j]<size());
+	  t+=(*this)[ix[j]];
+	}
+	R[i]=t;
+      }
+      return R;
     }
 
 

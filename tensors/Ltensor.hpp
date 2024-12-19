@@ -878,9 +878,9 @@ namespace cnine{
     }
 
     string str(const string indent="") const{
-      if(nbatch()==1) return batch(0).to_string(indent);
 
       if(is_batched()){
+	if(nbatch()==1) return batch(0).to_string(indent);
 	ostringstream oss;
 	for_each_batch([&](const int b, const Ltensor& x){
 	    oss<<indent<<"Batch "<<b<<":"<<endl;
