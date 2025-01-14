@@ -38,7 +38,6 @@ namespace cnine{
     CNINE_ASSRT(r.get_dims()==x.get_dims());
 
     if(r.asize()==0) return; 
-
     if(r.is_contiguous() && r.get_strides()==x.get_strides()){
       TensorView_assign_copy(r,x);
       return;

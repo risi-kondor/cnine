@@ -63,17 +63,23 @@ TensorView block(const Gdims& _dims) const{
 
 TensorView block(const Gdims& _dims, const Gindex& offs) const{
   CNINE_ASSRT(offs+_dims<=dims);
+  //cout<<strides.offs(offs)<<" "<<_dims<<" "<<strides<<endl;
   return TensorView(arr+strides.offs(offs),_dims,strides);
 }
 
 TensorView block(const int i0, const int m0) const{
   CNINE_ASSRT(ndims()==1);
-  return block({m0},{i0});
+  return block(Gdims({m0}),Gindex({i0}));
+}
+
+TensorView bblock(const int i0, const int m0) const{
+  CNINE_ASSRT(ndims()==1);
+  return block(Gdims({m0}),Gindex({i0}));
 }
 
 TensorView block(const int i0, const int i1, const int m0, const int m1) const{
   CNINE_ASSRT(ndims()==2);
-  return block({m0,m1},{i0,i1});
+  return block(Gdims({m0,m1}),Gindex({i0,i1}));
 }
 
 
