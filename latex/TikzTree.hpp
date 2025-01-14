@@ -28,7 +28,7 @@ namespace cnine{
       tstream<<"every node/.style={circle,draw=black}";
       //tstream<<",main node/.style={circle, draw=black}";
       //tstream<<",child node/.style={circle, draw=black}";
-      tstream<<",sibling distance=5cm";
+      tstream<<",sibling distance=3cm";
       tstream<<"]\n";
       if(root){
 	tstream.oss<<"\\";

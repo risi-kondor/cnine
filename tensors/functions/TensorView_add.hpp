@@ -60,6 +60,7 @@ namespace cnine{
 	}
 	if constexpr(std::is_same<TYPE,int>::value){
 	  CUDA_STREAM(TensorView_add_cu(r,x,stream));
+	  return;
 	}
 	CNINE_UNIMPL();
       }

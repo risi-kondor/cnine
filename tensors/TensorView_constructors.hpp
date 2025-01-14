@@ -39,7 +39,7 @@ void unroller(vparams& v){}
 public: // ---- Fill constructors ---------------------------------------------------------------------------------
 
 
-[[deprecated]] // avoid because second argument is easily confused
+//[[deprecated]] // avoid because second argument is easily confused
 TensorView(const Gdims& _dims, const int _dev=0): 
   TensorView(_dims,0,_dev){}
 

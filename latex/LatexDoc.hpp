@@ -23,6 +23,8 @@ namespace cnine{
   class LatexDoc: public string{
   public:
 
+    bool finished=false;
+
     LatexDoc(){
       (*this)+="\\documentclass{article}\n";
       (*this)+="\\usepackage{anyfontsize}\n";
@@ -36,11 +38,19 @@ namespace cnine{
       finish();
     }
 
+    LatexDoc&  operator<<(const string str){
+      (*this)+=str;
+      return *this;
+    }
+
     void finish(){
+      if(finished) return;
       (*this)+="\n \\end{document}\n";
+      finished=true;
     }
 
     void save(string filename){
+      finish();
       ofstream ofs(filename+".tex");
       ofs<<*this;
       ofs.close();
