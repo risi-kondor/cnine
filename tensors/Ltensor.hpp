@@ -696,6 +696,7 @@ namespace cnine{
 #include "Ltensor_reshaping.inc"
 
 
+    /* delegated to TensorView 1/14/25
     Ltensor block(const Gdims& _dims, const Gindex& offs) const{
       CNINE_ASSRT(offs+_dims<=dims);
       return Ltensor(arr+strides.offs(offs),_dims,strides);
@@ -710,6 +711,7 @@ namespace cnine{
       CNINE_ASSRT(ndims()==2);
       return block({m0,m1},{i0,i1});
     }
+    */
 
     Ltensor diag(const vector<int>& ix) const{
       CNINE_ASSRT(ix.size()>0);
