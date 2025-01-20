@@ -10,7 +10,9 @@ namespace cnine{
   public:
 
     string label;
+    string llabel;
     string rlabel;
+    string style="default";
 
     vector<shared_ptr<TikzTreeNodeObj> > children;
 
@@ -25,8 +27,19 @@ namespace cnine{
     }
      
     void write_latex(TikzStream& tstream){
-      if(rlabel!="") tstream.write("node[label={[font=\\fontsize{6pt}{8pt}\\selectfont]right:"+rlabel+"}]{"+label+"}");
-      else tstream.write("node{"+label+"}");
+      string node_str="node";
+      //if(llabel!=""||rlabel!=""){
+	node_str+="["+style;
+	if(llabel!=""||rlabel!="") node_str+=",";
+	if(rlabel!="") node_str+="label={[yshift=-20pt,font=\\fontsize{6pt}{8pt}\\selectfont]right:"+rlabel+"}";
+	if(rlabel!=""&&llabel!="") node_str+=", ";
+	if(llabel!="") node_str+="label={[yshift=-0pt,font=\\fontsize{6pt}{8pt}\\selectfont]left:"+llabel+"}";
+	node_str+="]";
+	//}
+      node_str+="{"+label+"}";
+      tstream.write(node_str);
+      //if(rlabel!="") tstream.write("node[label={[yshift=-20pt,font=\\fontsize{6pt}{8pt}\\selectfont]right:"+rlabel+"}]{"+label+"}");
+      //else tstream.write("node{"+label+"}");
       //if(rlabel!="")
       //tstream.write("edge from parent node[right, text width=4cm, align=left] {"+rlabel+"}");
       for(auto& p:children){

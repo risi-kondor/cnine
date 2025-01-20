@@ -415,6 +415,11 @@ namespace cnine{
   }
 
   template<typename TYPE>
+  std::shared_ptr<TYPE> to_share(const std::shared_ptr<TYPE>& x){
+    return x;
+  }
+
+  template<typename TYPE>
   class selector: public std::vector<TYPE>{
     TYPE operator()(const int i) const {return (*this)[i];}
   };

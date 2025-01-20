@@ -25,7 +25,8 @@ namespace cnine{
     string latex() const{
       TikzStream tstream;
       tstream<<"\\begin{tikzpicture}[";
-      tstream<<"every node/.style={circle,draw=black}";
+      tstream<<"default/.style={circle,draw=black}";
+      //tstream<<"doublec/.style={double circle,draw=black}";
       //tstream<<",main node/.style={circle, draw=black}";
       //tstream<<",child node/.style={circle, draw=black}";
       tstream<<",sibling distance=3cm";

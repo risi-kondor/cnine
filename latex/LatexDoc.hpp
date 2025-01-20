@@ -38,6 +38,20 @@ namespace cnine{
       finish();
     }
 
+    static LatexDoc fullpage(){
+      LatexDoc R;
+      R.set("\\documentclass{report}\n");
+      R+="\\usepackage{fullpage}\n";
+      R+="\\usepackage{anyfontsize}\n";
+      R+="\\usepackage{tikz}\n";
+      R+="\\begin{document}\n";      
+      return R;
+    }
+
+    void set(const string s){
+      string::operator=(s);
+    }
+
     LatexDoc&  operator<<(const string str){
       (*this)+=str;
       return *this;
@@ -58,7 +72,8 @@ namespace cnine{
 
     void compile(string name){
       save(name);
-      string cmd("pdflatex "+name+".tex");
+      cout<<"Compiling LaTeX document..."<<endl;
+      string cmd("pdflatex "+name+".tex > latex.log");
       system(cmd.c_str());
     }
 
