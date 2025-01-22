@@ -15,6 +15,7 @@
 #ifndef __GstridesB
 #define __GstridesB
 
+#include <climits>
 #include "Cnine_base.hpp"
 #include "gvectr.hpp"
 #include "Gdims.hpp"

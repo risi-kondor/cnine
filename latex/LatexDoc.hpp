@@ -74,7 +74,7 @@ namespace cnine{
       save(name);
       cout<<"Compiling LaTeX document..."<<endl;
       string cmd("pdflatex "+name+".tex > latex.log");
-      system(cmd.c_str());
+      int rerr=system(cmd.c_str());
     }
 
   };
