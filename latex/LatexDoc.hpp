@@ -29,6 +29,7 @@ namespace cnine{
       (*this)+="\\documentclass{article}\n";
       (*this)+="\\usepackage{anyfontsize}\n";
       (*this)+="\\usepackage{tikz}\n";
+      (*this)+="\\usepackage{pgfplots}\n";
       (*this)+="\\begin{document}\n";
     }
 
@@ -44,6 +45,7 @@ namespace cnine{
       R+="\\usepackage{fullpage}\n";
       R+="\\usepackage{anyfontsize}\n";
       R+="\\usepackage{tikz}\n";
+      R+="\\usepackage{pgfplots}\n";
       R+="\\begin{document}\n";      
       return R;
     }
@@ -73,8 +75,10 @@ namespace cnine{
     void compile(string name){
       save(name);
       cout<<"Compiling LaTeX document..."<<endl;
-      string cmd("pdflatex "+name+".tex > latex.log");
+      string cmd("pdflatex -interaction=nonstopmode "+name+".tex > latex.log");
       int rerr=system(cmd.c_str());
+      {string cmd("rm "+name+".aux"); int err=system(cmd.c_str());}
+      {string cmd("rm "+name+".log"); int err=system(cmd.c_str());}
     }
 
   };

@@ -17,9 +17,28 @@ namespace cnine{
       oss<<string(2*depth,' ')<<s<<"\n";
     }
 
-    void operator<<(const string& s){
+    TikzStream& operator<<(const string& s){
       oss<<s;
+      return *this;
     }
+
+    template<typename TYPE>
+    TikzStream& operator<<(const TYPE x){
+      oss<<x;
+      return *this;
+    }
+    
+    /*
+    TikzStream& operator<<(const int x){
+      oss<<x;
+      return *this;
+    }
+
+    TikzStream& operator<<(const float x){
+      oss<<x;
+      return *this;
+    }
+    */
 
     string str(){
       return oss.str();
