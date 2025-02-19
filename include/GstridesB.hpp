@@ -92,6 +92,9 @@ namespace cnine{
     GstridesB(const GstridesB& d1, const size_t v, const GstridesB& d2):
       BASE(d1,v,d2){}
 
+    GstridesB(const size_t b, const GstridesB& d1, const GstridesB& d2):
+      BASE(b,d1,d2){}
+
 
   public: // ---- Constructing from Gdims -------------------------------------------------------------------
 

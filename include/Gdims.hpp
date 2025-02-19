@@ -107,6 +107,7 @@ namespace cnine{
 	std::copy(d.begin(),d.end(),begin()+1);
     }
 
+    /*
     Gdims(const int b, const Gdims& d1, const Gdims& d2): 
       BASE((b>0)+d1.size()+d2.size()){
       if(b>0){
@@ -117,6 +118,14 @@ namespace cnine{
 	for(int i=0; i<d1.size(); i++) (*this)[i]=d1[i];
 	for(int i=0; i<d2.size(); i++) (*this)[i+d1.size()]=d2[i];
       }
+    }
+    */
+
+    Gdims(const int b, const Gdims& d1, const Gdims& d2): 
+      BASE(1+d1.size()+d2.size()){
+      (*this)[0]=b;
+      for(int i=0; i<d1.size(); i++) (*this)[1+i]=d1[i];
+      for(int i=0; i<d2.size(); i++) (*this)[1+i+d1.size()]=d2[i];
     }
 
     Gdims(const Gdims& d1, const int v, const Gdims& d2):
@@ -438,7 +447,6 @@ namespace cnine{
 	  (*this)[i++]=q;
     }
 
-    [[deprecated]]
     size_t total() const{
       size_t t=1; 
       for(int i=0; i<size(); i++) t*=(*this)[i];

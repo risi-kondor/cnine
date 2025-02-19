@@ -54,6 +54,13 @@ namespace cnine{
       (*this)[x.size()]=v;
     }
 
+    Gvec(const TYPE b, const Gvec& x, const Gvec& y):
+      Gvec(x.size()+y.size()+1){
+      (*this)[0]=b;
+      std::copy(x.begin(),x.end(),begin()+1);
+      std::copy(y.begin(),y.end(),begin()+x.size()+1);
+    }
+
 
   public: // ---- Conversions --------------------------------------------------------------------------------
 
