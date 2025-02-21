@@ -1,4 +1,4 @@
-#include "../tensors/Tensor.hpp"
+#include "../tensors/Ltensor.hpp"
 
 #include "../tensors/functions/ComplementSpace.hpp"
 #include "../tensors/functions/IntersectionSpace.hpp"
