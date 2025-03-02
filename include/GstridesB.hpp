@@ -157,13 +157,6 @@ namespace cnine{
       return r;
     }
 
-     GstridesB fuse(const int a, const int n) const{
-      GstridesB R(size()-n+1,fill_raw());
-      for(int i=0; i<a; i++) R[i]=(*this)[i];
-      for(int i=0; i<size()-(a+n-1); i++) R[a+i]=(*this)[a+n+i-1];
-      return R;//.set_offset(offset);
-    }
-    
     Gstrides reals() const{
       Gstrides R(size(),fill_raw());
       for(int i=0; i<size(); i++)
@@ -271,18 +264,6 @@ namespace cnine{
       return true;
     }
 
-    pair<size_t,int> fuser(const Gdims& dims) const{
-      auto p=ordering();
-      int n=size();
-      if(n==-1) return make_pair((size_t)0,-1);
-      int mins=(*this)[p[0]];
-      for(int i=0; i<n-1; i++)
-	if((*this)[p[i+1]]!=(*this)[p[i]]*dims[p[i]])
-	  return make_pair((size_t)0,-1);
-      return std::pair<size_t,int>((*this)[p[0]],(*this)[p[n-1]]*dims[p[n-1]]/(*this)[p[0]]);
-    }
-
-
     GstridesB map(const GindexMap& map) const{
       CNINE_ASSRT(map.ndims()==size());
       int n=map.size();
@@ -339,6 +320,43 @@ namespace cnine{
       }
       return t;
     }
+
+
+  public: // ---- Fusing ------------------------------------------------------------------------------------
+
+
+    bool fusible(const Gdims& dims, const vector<int>& ordering){
+      int n=size();
+      CNINE_ASSRT(dims.size()==n);
+      CNINE_ASSRT(ordering.size()==n);
+      if(n==0) return true;
+
+      CNINE_ASSRT(ordering[0]<n);
+      for(int i=0; i<n; i++){
+	CNINE_ASSRT(ordering[i]<n);
+	if((*this)[ordering[i]]!=(*this)[ordering[i-1]]*dims[ordering[i-1]]) return false;
+      }
+      return true;
+    }
+
+     GstridesB fuse(const int a, const int n) const{
+      GstridesB R(size()-n+1,fill_raw());
+      for(int i=0; i<a; i++) R[i]=(*this)[i];
+      for(int i=0; i<size()-(a+n-1); i++) R[a+i]=(*this)[a+n+i-1];
+      return R;
+    }
+    
+    pair<size_t,int> fuser(const Gdims& dims) const{
+      auto p=ordering();
+      int n=size();
+      if(n==-1) return make_pair((size_t)0,-1);
+      int mins=(*this)[p[0]];
+      for(int i=0; i<n-1; i++)
+	if((*this)[p[i+1]]!=(*this)[p[i]]*dims[p[i]])
+	  return make_pair((size_t)0,-1);
+      return std::pair<size_t,int>((*this)[p[0]],(*this)[p[n-1]]*dims[p[n-1]]/(*this)[p[0]]);
+    }
+
 
 
   public: // ---- Deprecated ---------------------------------------------------------------------------------

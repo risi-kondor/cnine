@@ -126,7 +126,7 @@ pair<TensorView,TensorView> co_scrunch(const TensorView& y) const{
 }
 
 
-// ---- Fusing and splitting  -------------------------------------------------------------------------------
+// ---- Fusing -----------------------------------------------------------------------------------------------
 
 
 TensorView fuse01() const{
@@ -136,6 +136,7 @@ TensorView fuse01() const{
   GstridesB s=strides.remove(0);
   return TensorView(arr,d,s);
 }
+
 
 TensorView fuse(const int a, const int b) const{
   CNINE_ASSRT(a<ndims());
@@ -163,6 +164,7 @@ TensorView fuse(const vector<int>& ix) const{ // TODO
   return TensorView(arr,dims.remove(ix0).set(ix[0],t),strides.remove(ix0).set(ix[0],s));
 }
 
+
 TensorView fuse_chunk(const int i, const int n) const{
   auto [s,d]=strides.chunk(i,n).fuser(dims.chunk(i,n));
   if(d==-1) throw std::out_of_range("Indices "+std::to_string(i)+" to "+std::to_string(i+n-1)+" in "+repr()+
@@ -170,6 +172,12 @@ TensorView fuse_chunk(const int i, const int n) const{
   return TensorView(arr,Gdims(dims.chunk(0,i),d,dims.chunk(i+n)),
     GstridesB(strides.chunk(0,i),s,strides.chunk(i+n)));
 }
+
+
+
+// ---- Splitting ------------------------------------------------------------------------------------------------------
+
+
 
 TensorView split0(const int a, const int b) const{
   CNINE_ASSRT(ndims()>=1);
@@ -228,3 +236,49 @@ TensorView<TYPE> tprod_view(const Gdims& dims1, const Gdims& dims2) const{
   return TensorView<TYPE>(arr,rdims,rstrides);
 }
 
+/*
+bool bifuse_inplace(const int i, const int n){
+
+  Gdims subdims=dims.chunk(i,n);
+  GstridesB substrides=strides.chunk(i,n);
+  auto ordering=substrides.ordering;
+
+  int d0=1;
+  int s0=0;
+  int d1=1;
+  int s1=0;
+
+  if(n>0){
+
+    int i=1;
+    while(i<n && substrides[p[i]]==substrides[p[i-1]]*subdims[p[i-1]]) i++;
+    d0=substrides[p[i-1]]*subdims[p[i-1]]/substrides[p[0]];
+    s0=(*this)[p[0]];
+
+    if(i<n){
+      int j=i+1;
+      while(j<n && substrides[p[j]]==substrides[p[j-1]]*subdims[p[j-1]]) j++;
+      d1=substrides[p[j-1]]*subdims[p[j-1]]/substrides[p[i]];
+      s1=substrides[p[i]];
+      if(j<n) return false;
+      //if(j<n) CNINE_ERROR("Indices "+to_string(i)+" to "+to_string(i+n)+" with dimension "+dims.str()+" and strides "+strides.str()+" cannot be fused into just two dimension.");
+    }
+  }
+
+  Gdims new_dims(dims.size()-n+2);
+  std::copy(dims.begin(),dims.begin()+i,new_dims.begin());
+  new_dims[i]=d0;
+  new_dims[i+1]=d1;
+  std::copy(dims.begin()+i+n,dims.end(),new_dims.begin()+2);
+  dims=new_dims;
+
+  GstridesB new_strides(dims.size()-n+2);
+  std::copy(strides.begin(),strides.begin()+i,new_strides.begin());
+  new_strides[i]=d0;
+  new_strides[i+1]=d1;
+  std::copy(strides.begin()+i+n,strides.end(),new_strides.begin()+2);
+  strides=new_strides;
+
+  return true;
+}
+*/

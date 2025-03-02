@@ -113,6 +113,14 @@ namespace cnine{
   public: // ---- Operations ---------------------------------------------------------------------------------
 
 
+    TYPE max() const{
+      return *std::max_element(begin(),end());
+    }
+
+    TYPE min() const{
+      return *std::min_element(begin(),end());
+    }
+
     SUB operator+(const Gvec& y) const{
       CNINE_ASSRT(y.size()==size());
       Gvec R(*this);
