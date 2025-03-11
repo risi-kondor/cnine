@@ -22,6 +22,9 @@
 
 namespace cnine{
 
+  extern thread_local int nthreads;
+
+
   class ThreadGroup{
   public:
 
