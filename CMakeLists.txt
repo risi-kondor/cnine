@@ -24,7 +24,7 @@ if(WITH_CUDA)
   endif(CMAKE_CUDA_COMPILER)
 endif(WITH_CUDA)
   
-# find_package(Torch REQUIRED)
+find_package(Torch REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
@@ -74,7 +74,7 @@ if(WITH_CUDA)
   # add_subdirectory(cuda)
 endif(WITH_CUDA)
 
-option(BUILD_PYTHON "Build the python bindings" OFF)
+option(BUILD_PYTHON "Build the python bindings" ON)
 if(BUILD_PYTHON)
   add_subdirectory(python)
 endif(BUILD_PYTHON)
