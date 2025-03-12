@@ -24,17 +24,31 @@ if(WITH_CUDA)
   endif(CMAKE_CUDA_COMPILER)
 endif(WITH_CUDA)
   
-find_package(Torch REQUIRED)
+# find_package(Torch REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 add_library(cnine cuda/dummy.cpp)
-set(cnine_include_dirs include algorithms combinatorial containers hpc math matrices tensors utility wrappers include/cmaps tensor_views
-  # legacy/scalar legacy/matrix legacy/tensor legacy/backendA legacy/backendB legacy/tensor_array legacy/cell_maps legacy/cell_ops legacy/labeled legacy/ntensor legacy/ntensor/functions legacy/tensor_array/cell_ops legacy/tensor_array/cell_maps
-  # tensors/abandoned_Tensor tensors/functions
+
+set(cnine_include_dirs
+  include
+  algorithms
+  combinatorial
+  containers
+  hpc
+  math
+  matrices
+  tensors
+  utility
+  wrappers
+  tensor_views
+  tensors/functions
 )
 
-target_include_directories(cnine PUBLIC ${cnine_include_dirs})
+foreach(directory IN LISTS cnine_include_dirs)
+  target_include_directories(cnine PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${directory}> $<INSTALL_INTERFACE:${directory}>)
+endforeach()
+
 target_link_libraries(cnine "${TORCH_LIBRARIES}")
 target_compile_definitions(cnine PUBLIC _WITH_ATEN)
 target_compile_definitions(cnine PUBLIC CNINE_RANGE_CHECKING)
@@ -64,3 +78,25 @@ option(BUILD_PYTHON "Build the python bindings" OFF)
 if(BUILD_PYTHON)
   add_subdirectory(python)
 endif(BUILD_PYTHON)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cnineConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cnineConfig.cmake  INSTALL_DESTINATION lib/cmake/cnine)
+
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/cnineVersion.cmake  VERSION ${PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
+
+# Install the library
+install(TARGETS cnine  EXPORT cnine  LIBRARY DESTINATION lib  ARCHIVE DESTINATION lib INCLUDES DESTINATION include)
+
+# Install the headers
+foreach(directory IN LISTS cnine_include_dirs)
+  install(DIRECTORY ${directory}/ DESTINATION ${directory})
+endforeach()
+
+# Install the config files
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cnineConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/cnineVersion.cmake  DESTINATION lib/cmake/cnine)
+
+# Install the export
+install(EXPORT cnine FILE cnineTargets.cmake NAMESPACE cnine:: DESTINATION lib/cmake/cnine)
+
+# Register package in user's package registry
+export(PACKAGE cnine)
