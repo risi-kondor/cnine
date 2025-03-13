@@ -20,3 +20,4 @@ test = ["pytest"]
 
 [tool.scikit-build]
 cmake.define = {}
+wheel.packages=["python/src/cnine"]
