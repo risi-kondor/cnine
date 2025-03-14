@@ -53,7 +53,7 @@
 #include "CnineSession.hpp"
 cnine::cnine_session session;
 
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+PYBIND11_MODULE(cnine, m) {
 
   using namespace cnine;
   namespace py=pybind11;

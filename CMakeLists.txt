@@ -2,17 +2,17 @@ cmake_minimum_required(VERSION 3.25)
 project( cnine VERSION 0.2.0 LANGUAGES CXX CUDA)
 include(CheckLanguage)
 
+option(WITH_CUDA "Compiling with CUDA support" ON)
+
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Set the C++ standard
-set(CMAKE_CUDA_STANDARD 17)
-set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-
-option(WITH_CUDA "Compiling with CUDA support" ON)
 if(WITH_CUDA)
   check_language(CUDA)
+  # Set the C++ standard
+  set(CMAKE_CUDA_STANDARD 17)
+  set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
   if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
@@ -25,7 +25,6 @@ if(WITH_CUDA)
 endif(WITH_CUDA)
   
 find_package(Torch REQUIRED)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 add_library(cnine cuda/dummy.cpp)
@@ -50,6 +49,7 @@ foreach(directory IN LISTS cnine_include_dirs)
 endforeach()
 
 target_link_libraries(cnine "${TORCH_LIBRARIES}")
+
 target_compile_definitions(cnine PUBLIC _WITH_ATEN)
 target_compile_definitions(cnine PUBLIC CNINE_RANGE_CHECKING)
 target_compile_definitions(cnine PUBLIC CNINE_SIZE_CHECKING)
@@ -70,8 +70,7 @@ target_compile_options(cnine PUBLIC -Wno-reorder)
 target_compile_options(cnine PUBLIC -Wno-reorder-ctor)
 
 if(WITH_CUDA)
-  # Currently not compiling
-  # add_subdirectory(cuda)
+  add_subdirectory(cuda)
 endif(WITH_CUDA)
 
 option(BUILD_PYTHON "Build the python bindings" ON)
@@ -85,7 +84,7 @@ configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cnineConfig.cmak
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/cnineVersion.cmake  VERSION ${PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
 
 # Install the library
-install(TARGETS cnine  EXPORT cnine  LIBRARY DESTINATION lib  ARCHIVE DESTINATION lib INCLUDES DESTINATION include)
+install(TARGETS cnine  EXPORT cnine  LIBRARY DESTINATION lib  ARCHIVE DESTINATION lib INCLUDES DESTINATION cnine/include)
 
 # Install the headers
 foreach(directory IN LISTS cnine_include_dirs)

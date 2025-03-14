@@ -31,6 +31,7 @@
 #include <tuple>
 #include <memory>
 #include <algorithm>
+#include <torch/types.h>
 
 #ifdef _WITH_CUDA
 #include <cuda.h>
