@@ -11,7 +11,6 @@
  *
  */
 
-#include <torch/torch.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
 

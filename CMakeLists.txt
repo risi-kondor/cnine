@@ -27,7 +27,9 @@ endif(WITH_CUDA)
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
-add_library(cnine cuda/dummy.cpp)
+add_library(cnine STATIC cuda/dummy.cpp)
+set_target_properties(cnine PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 
 set(cnine_include_dirs
   include
@@ -48,7 +50,7 @@ foreach(directory IN LISTS cnine_include_dirs)
   target_include_directories(cnine PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${directory}> $<INSTALL_INTERFACE:${directory}>)
 endforeach()
 
-target_link_libraries(cnine "${TORCH_LIBRARIES}")
+target_link_libraries(cnine PUBLIC "${TORCH_LIBRARIES}")
 
 target_compile_definitions(cnine PUBLIC _WITH_ATEN)
 target_compile_definitions(cnine PUBLIC CNINE_RANGE_CHECKING)
