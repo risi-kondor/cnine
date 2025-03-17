@@ -14,6 +14,8 @@ Cnine is released under the custom noncommercial license included in the file LI
 
 ## Installation
 
+Please install the CUDA toolkit first!
+
 ### Basic Installation  
 Create and activate a virtual environment:  
 ```bash
@@ -42,7 +44,7 @@ For custom PyTorch versions:
 
 Cnine uses scikit-build-core. To build manually:  
 ```bash
-git clone https://github.com/yourusername/cnine.git
+git clone https://github.com/risi-kondor/cnine.git
 cd cnine
 mkdir build && cd build
 cmake .. -DCMAKE_PREFIX_PATH="$VIRTUAL_ENV/lib/python3.11/site-packages/torch"
