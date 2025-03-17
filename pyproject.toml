@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "torch", "pybind11"]
+requires = ["scikit-build-core", "torch", "pybind11", "cuda-python"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -8,7 +8,7 @@ version = "0.2.0"
 authors = [
   { name = "Risi Kondor", email = "risi@uchicago.edu" },
 ]
-dependencies = ["numpy", "torch"]
+dependencies = ["numpy", "torch", "cuda-python"]
 description = "Lightweight Tensor Library"
 readme = "README.md"
 requires-python = ">=3.10"
