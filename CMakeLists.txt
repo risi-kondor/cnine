@@ -80,24 +80,24 @@ if(BUILD_PYTHON)
   add_subdirectory(python)
 endif(BUILD_PYTHON)
 
-# include(CMakePackageConfigHelpers)
-# configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cnineConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cnineConfig.cmake  INSTALL_DESTINATION lib/cmake/cnine)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cnineConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cnineConfig.cmake  INSTALL_DESTINATION lib/cmake/cnine)
 
-# write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/cnineVersion.cmake  VERSION ${PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/cnineVersion.cmake  VERSION ${PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
 
-# # Install the library
-# install(TARGETS cnine  EXPORT cnine  LIBRARY DESTINATION lib  ARCHIVE DESTINATION lib INCLUDES DESTINATION cnine/include)
+# Install the library
+install(TARGETS cnine  EXPORT cnine  LIBRARY DESTINATION lib  ARCHIVE DESTINATION lib INCLUDES DESTINATION cnine/include)
 
-# # Install the headers
-# foreach(directory IN LISTS cnine_include_dirs)
-#   install(DIRECTORY ${directory}/ DESTINATION ${directory})
-# endforeach()
+# Install the headers
+foreach(directory IN LISTS cnine_include_dirs)
+  install(DIRECTORY ${directory}/ DESTINATION ${directory})
+endforeach()
 
-# # Install the config files
-# install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cnineConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/cnineVersion.cmake  DESTINATION lib/cmake/cnine)
+# Install the config files
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cnineConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/cnineVersion.cmake  DESTINATION lib/cmake/cnine)
 
-# # Install the export
-# install(EXPORT cnine FILE cnineTargets.cmake NAMESPACE cnine:: DESTINATION lib/cmake/cnine)
+# Install the export
+install(EXPORT cnine FILE cnineTargets.cmake NAMESPACE cnine:: DESTINATION lib/cmake/cnine)
 
-# # Register package in user's package registry
-# export(PACKAGE cnine)
+# Register package in user's package registry
+export(PACKAGE cnine)

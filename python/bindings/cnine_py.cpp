@@ -13,6 +13,7 @@
 
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <torch/extension.h>
 
 #include "Cnine_base.cpp"
 
