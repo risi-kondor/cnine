@@ -35,6 +35,8 @@ jobs:
         os: ["ubuntu-latest"]
         python-version: ["3.8", "3.12"]
     steps:
+      - uses: Jimver/cuda-toolkit@master
+        id: cuda-toolkit
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Missing Developper packages
