@@ -37,18 +37,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          environment-file: environment-cpu.yml
-          activate-environment: cnine
       - name: Install Missing Developper packages
-        run: conda install pytest
+        run: pip install pytest
       - name: Install and build
         run: |
           export WITH_CUDA=False
-          pip install python/
+          pip install .
       # TODO activate pytests when ready
       # - name: Test with pytest
       #   run: pytest python/tests
