@@ -19,5 +19,5 @@ urls = { homepage = "https://github.com/risi-kondor/cnine" }
 test = ["pytest"]
 
 [tool.scikit-build]
-cmake.define = {}
+cmake.define = {BUILD_PYTHON="ON"}
 wheel.packages=["python/src/cnine"]

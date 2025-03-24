@@ -16,7 +16,7 @@ if(WITH_CUDA)
 
   if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
-    find_package(CUDAToolkit 12.0 REQUIRED CUDA::cudart CUDA::cublas)
+    find_package(CUDAToolkit 11...<13 CUDA::cudart CUDA::cublas)
 
   else(CMAKE_CUDA_COMPILER)
     message(STATUS "No CUDA compiler found")
@@ -75,7 +75,7 @@ if(WITH_CUDA)
   add_subdirectory(cuda)
 endif(WITH_CUDA)
 
-option(BUILD_PYTHON "Build the python bindings" ON)
+option(BUILD_PYTHON "Build the python bindings" OFF)
 if(BUILD_PYTHON)
   add_subdirectory(python)
 endif(BUILD_PYTHON)
