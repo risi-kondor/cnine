@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project( cnine VERSION 0.2.0 LANGUAGES CXX CUDA)
+project( cnine VERSION 0.2.0 LANGUAGES CXX)
 include(CheckLanguage)
 
 option(WITH_CUDA "Compiling with CUDA support" ON)
@@ -29,7 +29,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 add_library(cnine STATIC cuda/dummy.cpp)
 set_target_properties(cnine PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
 
 set(cnine_include_dirs
   include
