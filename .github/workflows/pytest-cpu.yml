@@ -38,7 +38,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Missing Developper packages
-        run: pip install pytest
+        run: |
+          pip install pytest
+          apt install cuda-toolkit
       - name: Install and build
         run: |
           export WITH_CUDA=False

@@ -39,7 +39,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Missing Developper packages
         # We use pip here, since conda isn't very happy with the total env, but it works...
-        run: pip install pytest
+        run: |
+          pip install pytest
+          apt install cuda-toolkit
       - name: Install and build
         run: |
           export WITH_CUDA=True
