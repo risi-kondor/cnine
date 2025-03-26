@@ -40,7 +40,7 @@ jobs:
       - name: Install Missing Developper packages
         # We use pip here, since conda isn't very happy with the total env, but it works...
         run: pip install pytest
-      - uses: Jimver/cuda-toolkit@master
+      - uses: Jimver/cuda-toolkit@v0.2.21
         id: cuda-toolkit
         with:
           log-file-suffix: '${{matrix.os}}.txt'
