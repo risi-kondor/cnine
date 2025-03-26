@@ -40,7 +40,7 @@ jobs:
       - name: Install Missing Developper packages
         run: |
           pip install pytest
-          apt install cuda-toolkit
+          sudo apt -y install cuda-toolkit
       - name: Install and build
         run: |
           export WITH_CUDA=False
