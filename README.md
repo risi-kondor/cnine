@@ -34,9 +34,9 @@ For custom PyTorch versions:
    ```bash
    pip install scikit-build-core pybind11
    ```
-2. Then install cnine:
+2. Then install cnine, we disable the isolation build, so that module we just manually installed are used as dependencies during the build stage
    ```bash
-   pip install .
+   pip install --no-build-isolation .
    ```
 
 #### Manual CMake Build

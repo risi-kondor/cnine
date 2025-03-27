@@ -37,12 +37,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install Missing Developper packages
-        run: pip install pytest
-      - name: Install and build
+      - name: Install manually for CPU
         run: |
-          export WITH_CUDA=False
-          pip install .
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install scikit-build-core pybind11
+          pip install --no-build-isolation .
+          pip install pytest
+      - name: Install and build
+        run: pip install .
       # TODO activate pytests when ready
       # - name: Test with pytest
       #   run: pytest python/tests
