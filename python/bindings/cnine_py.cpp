@@ -53,7 +53,7 @@
 #include "CnineSession.hpp"
 cnine::cnine_session session;
 
-PYBIND11_MODULE(cnine, m) {
+PYBIND11_MODULE(cnine_base, m) {
 
   using namespace cnine;
   namespace py=pybind11;
