@@ -14,7 +14,7 @@
 
 #ifndef _TensorView_add_cu
 #define _TensorView_add_cu
-
+#include <torch/types.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 
