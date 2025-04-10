@@ -13,7 +13,7 @@
 
 #ifndef _Ctensor1view_add_cu
 #define _Ctensor1view_add_cu
-
+#include <torch/types.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <thrust/complex.h>

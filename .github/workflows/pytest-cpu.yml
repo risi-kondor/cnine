@@ -37,18 +37,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          environment-file: environment-cpu.yml
-          activate-environment: cnine
-      - name: Install Missing Developper packages
-        run: conda install pytest
-      - name: Install and build
+      - name: Install manually for CPU
         run: |
-          export WITH_CUDA=False
-          pip install python/
+          pip install --force-reinstall --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+          pip install scikit-build-core pybind11
+          pip install --no-build-isolation .
+          pip install pytest
       # TODO activate pytests when ready
-      # - name: Test with pytest
-      #   run: pytest python/tests
+      - name: Test with pytest
+        run: python -c "import cnine"

@@ -16,6 +16,7 @@
 
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <torch/types.h>
 
 #include "Cnine_base.hpp"
 #include "BlockCsparseMatrix.hpp"

@@ -18,6 +18,7 @@
 #include <cuda_runtime.h>
 #include <thrust/complex.h>
 #include <thrust/tuple.h>
+#include <torch/types.h>
 
 #include "Cnine_base.hpp"
 #include "Rtensor2_view.hpp"

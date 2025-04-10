@@ -11,9 +11,9 @@
  *
  */
 
-#include <torch/torch.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <torch/extension.h>
 
 #include "Cnine_base.cpp"
 
@@ -53,7 +53,7 @@
 #include "CnineSession.hpp"
 cnine::cnine_session session;
 
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+PYBIND11_MODULE(cnine_base, m) {
 
   using namespace cnine;
   namespace py=pybind11;
