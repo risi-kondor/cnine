@@ -104,6 +104,44 @@ namespace cnine{
     }
     
 
+    explicit GatherMapB(const TensorView<int>& M, int n_in=-1, int n_out=-1){
+
+      CNINE_ASSRT(M.ndims()==2);
+      CNINE_ASSRT(M.dims(1)==2);
+      int N=M.dim(0);
+      if(n_in==-1)
+	for(int i=0; i<N; i++)
+	  n_in=std::max(n_in,M(i,0)+1);
+      if(n_out==-1)
+	for(int i=0; i<N; i++)
+	  n_out=std::max(n_out,M(i,1)+1);
+
+      unordered_map<int,int> sizes;
+      for(int i=0; i<N; i++){
+	CNINE_ASSRT(M(i,0)<n_in);
+	CNINE_ASSRT(M(i,1)<n_out);
+	sizes[M(i,1)]++;
+      }
+
+      int n=sizes.size();
+      vector<int> heads(n);
+      vector<int> lengths(n);
+      unordered_map<int,int> mapping;
+      int i=0;
+      for(auto p:sizes){
+	heads[i]=p.first;
+	lengths[i]=p.second;
+	mapping[p.first]=i;
+	i++;
+      }
+
+      arr=hlists<int>(heads,lengths,fill_noalloc());
+      for(int i=0; i<N; i++){
+	arr.push_back(mapping[M(i,1)],M(i,0));
+      }
+    }
+    
+
     GatherMapB(const map_of_lists<int,int>& x, const int _out_columns=1, const int _in_columns=1,
       const int _out_columns_n=1, const int _in_columns_n=1):
       in_columns(_in_columns),
@@ -261,16 +299,6 @@ namespace cnine{
       return arr(i,j);
     }
 
-    void for_each(std::function<void(const int i, const int j)> lambda) const{
-      int N=size();
-      for(int i=0; i<N; i++){
-	int M=size_of(i);
-	int targt=target(i);
-	for(int j=0; j<M; j++)
-	  lambda(targt,(*this)(i,j));
-      }
-    }
-
     shared_ptr<GatherMapB> inv_ptr() const{
       if(!_inv.get()) make_inv();
       return _inv;
@@ -280,6 +308,22 @@ namespace cnine{
       if(!_inv.get()) make_inv();
       return *_inv;
     }
+
+
+  public: // ---- Lambdas ------------------------------------------------------------------------------------
+
+
+    void for_each(std::function<void(const int i, const int j)> lambda) const{
+      //arr.for_each(lambda); // just use this?
+      int N=size();
+      for(int i=0; i<N; i++){
+	int M=size_of(i);
+	int targt=target(i);
+	for(int j=0; j<M; j++)
+	  lambda(targt,(*this)(i,j));
+      }
+    }
+
 
   public: // ---- Setters ------------------------------------------------------------------------------------
 

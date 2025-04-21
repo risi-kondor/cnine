@@ -26,7 +26,21 @@ int main(int argc, char** argv){
   Ltensor<int> B=GatherRows()(A,g);
   cout<<B<<endl;
 
-  
+  Ltensor<int> U(dims(5,2));
+  U(0,0)=1;
+  U(0,1)=3;
+  U(1,0)=4;
+  U(1,1)=2;
+  U(2,0)=0;
+  U(2,1)=8;
+  U(3,0)=9;
+  U(3,1)=4;
+  U(4,0)=3;
+  U(4,1)=3;
+  cout<<U<<endl;
+
+  GatherMapB g2(U);
+  cout<<g2<<endl;
 
 }
 

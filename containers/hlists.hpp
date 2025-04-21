@@ -49,6 +49,18 @@ namespace cnine{
       }
     }
 
+    hlists(const vector<TYPE>& heads, const vector<int>& lengths, const fill_noalloc& dummy):
+      BASE(lengths.size(),std::accumulate(lengths.begin(),lengths.end(),0)+lengths.size(),fill_reserve()){
+      int N=size();
+      CNINE_ASSRT(heads.size()==N);
+      for(int i=0; i<N; i++){
+	dir.set(i,0,tail);
+	dir.set(i,1,1); // changed
+	arr[tail]=heads[i];
+	tail+=lengths[i]+1;
+      }
+    }
+
     hlists(const map_of_lists<TYPE,TYPE>& map):
       BASE(map.size(),map.size()+map.tsize(),fill_reserve()){
       int i=0;

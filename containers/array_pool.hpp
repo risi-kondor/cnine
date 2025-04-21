@@ -540,7 +540,7 @@ namespace cnine{
 
     void push_back(const int i, const TYPE v){
       CNINE_ASSRT(i<size());
-      CNINE_ASSRT(max_size_of(i)<size_of(i));
+      CNINE_ASSRT(size_of(i)<max_size_of(i));
       arr[dir(i,0)+dir(i,1)]=v;
       dir.set(i,1,dir(i,1)+1);
     }

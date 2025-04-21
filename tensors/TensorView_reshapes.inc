@@ -126,6 +126,57 @@ pair<TensorView,TensorView> co_scrunch(const TensorView& y) const{
 }
 
 
+pair<TensorView,TensorView> co_scrunch_except(const TensorView& y, int xspecial, int yspecial=-1) const{
+  if(yspecial==-1) yspecial=xspecial;
+  int n=ndims()-1;
+  CNINE_ASSRT(y.ndims()-1==n);
+  CNINE_ASSRT(xspecial<n);
+  CNINE_ASSRT(yspecial<n);
+
+  Gdims xdims=dims.remove(xspecial);
+  CNINE_ASSRT(y.dims.remove(yspecial)==xdims);
+  GstridesB xstrides=strides.remove(xspecial);
+  GstridesB ystrides=y.strides.remove(yspecial);
+
+  Gdims _dims;
+  GstridesB _xstrides;
+  GstridesB _ystrides;
+  auto ordering=xstrides.ordering();
+
+  for(int i=0; i<n; i++){
+    int xs=xstrides[ordering[i]];
+    int ys=ystrides[ordering[i]];
+    int d=xdims[ordering[i]];
+    while(i+1<n && xstrides[ordering[i+1]]==xs*d && ystrides[ordering[i+1]]==ys*d){
+      d*=xdims[ordering[i+1]];
+      i++;
+    }
+    _dims.push_back(d);
+    _xstrides.push_back(xs);
+    _ystrides.push_back(ys);
+  }
+
+  int m=_dims.size()+1;
+  Gdims rxdims(m,fill_raw());
+  Gdims rydims(m,fill_raw());
+  GstridesB rxstrides(m,fill_raw());
+  GstridesB rystrides(m,fill_raw());
+  rxdims[0]=dims[xspecial];
+  rydims[0]=y.dims[yspecial];
+  rxstrides[0]=strides[xspecial];
+  rystrides[0]=y.strides[yspecial];
+
+  for(int i=0; i<m-1; i++){
+    rxdims[m-1-i]=_dims[i];
+    rydims[m-1-i]=_dims[i];
+    rxstrides[m-1-i]=_xstrides[i];
+    rystrides[m-1-i]=_ystrides[i];
+  }
+
+  return make_pair(TensorView(arr,rxdims,rxstrides),TensorView(y.arr,rydims,rystrides));
+}
+
+
 // ---- Fusing -----------------------------------------------------------------------------------------------
 
 
