@@ -340,6 +340,8 @@ namespace cnine{
   template void TensorView_gather_cu<float>(TensorView<float> r, TensorView<float> x, const GatherMapB& gmap, const cudaStream_t& stream);
   template void TensorView_gather_cu<double>(TensorView<double> r, TensorView<double> x, const GatherMapB& gmap, const cudaStream_t& stream);
 
+  template void TensorView_gather_cu<complex<float> >(TensorView<complex<float> > r, TensorView<complex<float> > x, const GatherMapB& gmap, const cudaStream_t& stream);
+
 }
 
 
