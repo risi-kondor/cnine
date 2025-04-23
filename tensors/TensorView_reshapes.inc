@@ -254,16 +254,16 @@ TensorView split(const int d, const int a) const{
   Gdims D=dims.insert(d+1,a); 
   D[d]/=a;
   GstridesB S=strides.insert(d,strides[d]*a);
-  return Ltensor(arr,D,S);
+  return TensorView(arr,D,S);
 }
 
 TensorView<TYPE> cinflate(const int d, const int n) const{
   CNINE_ASSRT(dims[d]==1||dims[d]==n);
   if(dims[d]==n) return *this; 
   TensorView<TYPE> R(*this);
-      R.dims[d]=n;
-      R.strides[d]=0;
-      return R;
+  R.dims[d]=n;
+  R.strides[d]=0;
+  return R;
 }
 
 

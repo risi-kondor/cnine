@@ -39,6 +39,7 @@ CUDA_OBJECTS+=gatherRows.o
 CUDA_OBJECTS+=TensorView_add.o  
 CUDA_OBJECTS+=TensorView_assign.o  
 CUDA_OBJECTS+=TensorView_inc.o  
+CUDA_OBJECTS+=TensorView_gather.o  
 CUDA_OBJECTS+=BlockCsparseMatrix.o  
 CUDA_EXTERNS+=$(INCLUDEDIR)/Cnine_base.cu 
 NVCCFLAGS+= -D_WITH_CUDA -D_WITH_CUBLAS
