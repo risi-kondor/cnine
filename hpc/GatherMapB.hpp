@@ -45,6 +45,7 @@ namespace cnine{
     //  return to_share(new cnine::Ltensor<int>(arr.to_tensor(1)));});
 
     RemoteCopy<int,ITENSOR> on_device=cnine::RemoteCopy<int,ITENSOR>([this](const int& _dev){
+	//cout<<arr.to_tensor(0)<<endl;
 	return to_share(new ITENSOR(arr.to_tensor(_dev)));});
 
 

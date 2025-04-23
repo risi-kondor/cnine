@@ -1,4 +1,4 @@
-*
+/*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
  * Copyright (c) 2024, Imre Risi Kondor
@@ -14,12 +14,12 @@
 
 #ifndef _TensorView_add_cu
 #define _TensorView_add_cu
-#include <torch/types.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
   
 #include "TensorView.hpp"
 #include "GatherMapB.hpp"
+
   
 template<typename TYPE>
 __global__ void gatherSlice_t_kernel(TYPE* rarr, const TYPE* xarr, 
@@ -31,8 +31,8 @@ __global__ void gatherSlice_t_kernel(TYPE* rarr, const TYPE* xarr,
   int i=blockIdx.x;
   int t0=threadIdx.x;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -53,8 +53,8 @@ __global__ void gatherSlice_tt_kernel(TYPE* rarr, const TYPE* xarr,
   int t0=threadIdx.x;
   int t1=threadIdx.y;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -64,6 +64,7 @@ __global__ void gatherSlice_tt_kernel(TYPE* rarr, const TYPE* xarr,
 }
 
 
+template<typename TYPE>
 __global__ void gatherSlice_ttt_kernel(TYPE* rarr, const TYPE* xarr, 
   const int rs0, const int rs1, const int rs2, const int rs3,  
   const int xs0, const int xs1, const int xs2, const int xs3, 
@@ -75,8 +76,8 @@ __global__ void gatherSlice_ttt_kernel(TYPE* rarr, const TYPE* xarr,
   int t1=threadIdx.y;
   int t2=threadIdx.z;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -97,8 +98,8 @@ __global__ void gatherSlice_bt_kernel(TYPE* rarr, const TYPE* xarr,
   int b0=blockIdx.y;
   int t0=threadIdx.x;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -120,8 +121,8 @@ __global__ void gatherSlice_btt_kernel(TYPE* rarr, const TYPE* xarr,
   int t0=threadIdx.x;
   int t1=threadIdx.y;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -144,8 +145,8 @@ __global__ void gatherSlice_bttt_kernel(TYPE* rarr, const TYPE* xarr,
   int t1=threadIdx.y;
   int t2=threadIdx.z;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -167,8 +168,8 @@ __global__ void gatherSlice_bbt_kernel(TYPE* rarr, const TYPE* xarr,
   int b1=blockIdx.z;
   int t0=threadIdx.x;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -191,8 +192,8 @@ __global__ void gatherSlice_bbtt_kernel(TYPE* rarr, const TYPE* xarr,
   int t0=threadIdx.x;
   int t1=threadIdx.y;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -216,8 +217,8 @@ __global__ void gatherSlice_bbttt_kernel(TYPE* rarr, const TYPE* xarr,
   int t1=threadIdx.y;
   int t2=threadIdx.z;
 
-  const int* row=ix+ix[2*i+1];
-  int n=ix[2*i+2]-ix[2*i+1];
+  const int* row=ix+ix[i+1];
+  int n=ix[i+2]-ix[i+1]-1;
   int target=row[0];
 
   TYPE a=0;
@@ -231,7 +232,7 @@ namespace cnine{
 
 
   template<typename TYPE>
-  void TensorView_gather_cu(const TensorView<TYPE> r, const TensorView<TYPE> x, const GatherMapB& gmap, const cudaStream_t& stream){
+  void TensorView_gather_cu(TensorView<TYPE> r, TensorView<TYPE> x, const GatherMapB& g, const cudaStream_t& stream){
 
     CNINE_ASSRT(r.dev==1);
     CNINE_ASSRT(x.dev==1);
@@ -252,9 +253,9 @@ namespace cnine{
     int total_threads=1;
     //int remaining_threads=1024;
     for(int i=0; i<D-1 && i<3; i++){
-      if(x.dim[D-1-i]<(1024/total_threads)){
-	tdims.push_back(x.dim[D-1-i]);
-	total_threads*=(x.dim[D-1-i]);
+      if(x.dim(D-1-i)<(1024/total_threads)){
+	tdims.push_back(x.dim(D-1-i));
+	total_threads*=(x.dim(D-1-i));
       }else
 	break;
     }
@@ -267,81 +268,79 @@ namespace cnine{
       if(ntdims==1){
       	dim3 threads(tdims[0]);
 	gatherSlice_t_kernel<<<g.size(),threads,0,stream>>>
-	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],x.strides[0],x.strides[1],g.on_device(1));
+	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],
+	    x.strides[0],x.strides[1],g.on_device(1).get_arr());
       }
       if(ntdims==2){
       	dim3 threads(tdims[1],tdims[0]);
 	gatherSlice_tt_kernel<<<g.size(),threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],x.strides[0],
-	    x.strides[1],x.strides[2],g.on_device(1));
+	    x.strides[1],x.strides[2],g.on_device(1).get_arr());
       }
       if(ntdims==3){
       	dim3 threads(tdims[2],tdims[1],tdims[0]);
 	gatherSlice_ttt_kernel<<<g.size(),threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],r.strides[3],
-	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],g.on_device(1));
+	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],g.on_device(1).get_arr());
       }
     }
 
     if(ngdims==1){
       if(ntdims==1){
-	dim3 blocks(g.size(),x.dim[1]);
+	dim3 blocks(g.size(),x.dim(1));
       	dim3 threads(tdims[0]);
 	gatherSlice_bt_kernel<<<blocks,threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],
-	    x.strides[0],x.strides[1],x.strides[2],g.on_device(1));
+	    x.strides[0],x.strides[1],x.strides[2],g.on_device(1).get_arr());
       }
       if(ntdims==2){
-	dim3 blocks(g.size(),x.dim[1]);
+	dim3 blocks(g.size(),x.dim(1));
       	dim3 threads(tdims[1],tdims[0]);
 	gatherSlice_btt_kernel<<<blocks,threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],r.strides[3],
-	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],g.on_device(1));
+	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],g.on_device(1).get_arr());
       }
       if(ntdims==3){
-	dim3 blocks(g.size(),x.dim[1]);
+	dim3 blocks(g.size(),x.dim(1));
       	dim3 threads(tdims[2],tdims[1],tdims[0]);
 	gatherSlice_bttt_kernel<<<blocks,threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],r.strides[3],r.strides[4],
-	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],x.strides[4],g.on_device(1));
+	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],x.strides[4],g.on_device(1).get_arr());
       }
     }
 
     if(ngdims==2){
       if(ntdims==1){
-	dim3 blocks(g.size(),x.dim[1],x.dim[2]);
+	dim3 blocks(g.size(),x.dim(1),x.dim(2));
       	dim3 threads(tdims[0]);
 	gatherSlice_bbt_kernel<<<blocks,threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],r.strides[3],
-	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],g.on_device(1));
+	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],g.on_device(1).get_arr());
       }
       if(ntdims==2){
-	dim3 blocks(g.size(),x.dim[1]);
+	dim3 blocks(g.size(),x.dim(1),x.dim(2));
       	dim3 threads(tdims[1],tdims[0]);
 	gatherSlice_bbtt_kernel<<<blocks,threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],r.strides[3],r.strides[4],
-	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],x.strides[4],g.on_device(1));
+	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],x.strides[4],g.on_device(1).get_arr());
       }
       if(ntdims==3){
-	dim3 blocks(g.size(),x.dim[1]);
+	dim3 blocks(g.size(),x.dim(1),x.dim(2));
       	dim3 threads(tdims[2],tdims[1],tdims[0]);
 	gatherSlice_bbttt_kernel<<<blocks,threads,0,stream>>>
 	  (r.get_arr(),x.get_arr(),r.strides[0],r.strides[1],r.strides[2],r.strides[3],r.strides[4],r.strides[5],
-	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],x.strides[4],x.strides[5],g.on_device(1));
+	    x.strides[0],x.strides[1],x.strides[2],x.strides[3],x.strides[4],x.strides[5],g.on_device(1).get_arr());
       }
     }
 
-    //gatherRows_kernel<<<(g.size()-1)/multi+1,threads,0,stream>>>
-    //(r.arr,r.s0,x.arr,x.s0,g.on_device(1),g.size(),nc);
-    //cudaDeviceSynchronize();
   }
 
 
-  }
-
-  template void TensorView_gather_cu<int>(const TensorView<int>& r, const TensorView<int>& x, const GatherMapB& gmap, const cudaStream_t& stream){
-  template void TensorView_gather_cu<float>(const TensorView<float>& r, const TensorView<float>& x, const GatherMapB& gmap, const cudaStream_t& stream){
-  template void TensorView_gather_cu<double>(const TensorView<double>& r, const TensorView<double>& x, const GatherMapB& gmap, const cudaStream_t& stream){
-
+  template void TensorView_gather_cu<int>(TensorView<int> r, TensorView<int> x, const GatherMapB& gmap, const cudaStream_t& stream);
+  template void TensorView_gather_cu<float>(TensorView<float> r, TensorView<float> x, const GatherMapB& gmap, const cudaStream_t& stream);
+  template void TensorView_gather_cu<double>(TensorView<double> r, TensorView<double> x, const GatherMapB& gmap, const cudaStream_t& stream);
 
 }
+
+
+#endif 

@@ -28,7 +28,7 @@ namespace cnine{
 
 #ifdef _WITH_CUDA
   template<typename TYPE>
-  void TensorView_gather_cu(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const GatherMapB& gmap, const cudaStream_t& stream);
+  void TensorView_gather_cu(TensorView<TYPE> r, TensorView<TYPE> x, const GatherMapB& gmap, const cudaStream_t& stream);
 #endif 
 
 
@@ -71,7 +71,6 @@ namespace cnine{
       CNINE_ASSRT(X.dim(0)==gmap.n_in);
 
       int dev=R.get_dev();
-      CNINE_CPUONLY();
       CNINE_ASSRT(X.get_dev()==dev);
       
       if(dev==0){
