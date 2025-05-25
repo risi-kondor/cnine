@@ -20,20 +20,14 @@ def interpret_bool_string(string:Union[str,bool], _true_values:Tuple[str] = ("TR
 
 def main():
 
-    # --- User settings ------------------------------------------------------------------------------------------
-
     compile_with_cuda = interpret_bool_string(os.environ.get("WITH_CUDA", False))
-    
     copy_warnings= interpret_bool_string(os.environ.get("COPY_WARNING", False))
     torch_convert_warnings=interpret_bool_string(os.environ.get("TORCH_CONVERT_WARNINGS", False))
 
-    # ------------------------------------------------------------------------------------------------------------
-
-    #if 'CUDA_HOME' in os.environ:
-    #    print("CUDA found at "+os.environ['CUDA_HOME'])
-    # else:
-    #    print("No CUDA found, installing without GPU support.")
-    #    compile_with_cuda=False
+    if compile_with_cuda: 
+        print("CUDA found at "+os.environ['CUDA_HOME'])
+    else:
+        print("No CUDA found, installing without GPU support.")
 
     cwd = os.getcwd()
 
@@ -86,74 +80,75 @@ def main():
                               '-Wno-reorder-ctor',
                               ]
 
-        if copy_warnings:
-            _cxx_compile_args.extend([
-                '-DCNINE_COPY_WARNINGS',
-                '-DCNINE_ASSIGN_WARNINGS',
-                '-DCNINE_MOVE_WARNINGS',
-                '-DCNINE_MOVEASSIGN_WARNINGS'
-                ])
+    if copy_warnings:
+        _cxx_compile_args.extend([
+            '-DCNINE_COPY_WARNINGS',
+            '-DCNINE_ASSIGN_WARNINGS',
+            '-DCNINE_MOVE_WARNINGS',
+            '-DCNINE_MOVEASSIGN_WARNINGS'
+            ])
 
-        if torch_convert_warnings:
-            _cxx_compile_args.extend([
-                '-DCNINE_ATEN_CONVERT_WARNINGS'
-                ])
+    if torch_convert_warnings:
+        _cxx_compile_args.extend([
+            '-DCNINE_ATEN_CONVERT_WARNINGS'
+            ])
 
-        if compile_with_cuda:
-            _cxx_compile_args.extend([
-                '-D_WITH_CUDA',
-                '-D_WITH_CUBLAS'
-                ])
+    if compile_with_cuda:
+        _cxx_compile_args.extend([
+            '-D_WITH_CUDA',
+            '-D_WITH_CUBLAS'
+            ])
 
-        _depends=['setup.py',
-                  'bindings/*.cpp',
-                  #'cnine_py.cpp',
-                  #'rtensor_py.cpp',
-                  #'ctensor_py.cpp',
-                  #'rtensorarr_py.cpp',
-                  #'ctensorarr_py.cpp',
-                  #'cmaps_py.cpp',
-                  'build/*/*'
-                  ]
-
-
-        # ---- Compilation commands ----------------------------------------------------------------------------------
+    _depends=['setup.py',
+              'bindings/*.cpp',
+              #'cnine_py.cpp',
+              #'rtensor_py.cpp',
+              #'ctensor_py.cpp',
+              #'rtensorarr_py.cpp',
+              #'ctensorarr_py.cpp',
+              #'cmaps_py.cpp',
+              'build/*/*'
+              ]
 
 
-        if compile_with_cuda:
-            ext_modules=[CUDAExtension('cnine_base',
-                                       ['bindings/cnine_py.cpp',
-                                        '../include/Cnine_base.cu',
-                                        '../cuda/RtensorUtils.cu',
-                                        '../cuda/RtensorReduce.cu',
-                                        '../cuda/RtensorEinsumProducts.cu'],
-                                       include_dirs=_include_dirs,
-                                       extra_compile_args = {
-                                           'nvcc': _nvcc_compile_args,
-                                           'cxx': _cxx_compile_args},
-                                       depends=_depends,
-                                       )]
-        else:
-            ext_modules=[CppExtension('cnine_base',
-                                      ['bindings/cnine_py.cpp'],
-                                      include_dirs=_include_dirs,
-                                      extra_compile_args = {
-                                          'cxx': _cxx_compile_args},
-                                      depends=_depends,
-                                      )]
+    # ---- Compilation commands ----------------------------------------------------------------------------------
 
 
-        setup(name='cnine',
-              ext_modules=ext_modules,
-              packages=find_packages('src'),
-              package_dir={'': 'src'},
-              py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
-              include_package_data=True,
-              zip_safe=False,
-            cmdclass={'build_ext': BuildExtension}
-        )
+    if compile_with_cuda:
+        ext_modules=[CUDAExtension('cnine_base',
+                                   ['bindings/cnine_py.cpp',
+                                    '../include/Cnine_base.cu',
+                                    '../cuda/RtensorUtils.cu',
+                                    '../cuda/RtensorReduce.cu',
+                                    '../cuda/RtensorEinsumProducts.cu'],
+                                   include_dirs=_include_dirs,
+                                   extra_compile_args = {
+                                       'nvcc': _nvcc_compile_args,
+                                       'cxx': _cxx_compile_args},
+                                   depends=_depends,
+                                   )]
+    else:
+        ext_modules=[CppExtension('cnine_base',
+                                  ['bindings/cnine_py.cpp'],
+                                  include_dirs=_include_dirs,
+                                  extra_compile_args = {
+                                      'cxx': _cxx_compile_args},
+                                  depends=_depends,
+                                  )]
 
-    # ------------------------------------------------------------------------------------------------------------
+
+    setup(name='cnine',
+          ext_modules=ext_modules,
+          packages=find_packages('src'),
+          package_dir={'': 'src'},
+          py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+          include_package_data=True,
+          zip_safe=False,
+        cmdclass={'build_ext': BuildExtension}
+    )
+
+
+# ------------------------------------------------------------------------------------------------------------
     
 
 if __name__ == "__main__":
