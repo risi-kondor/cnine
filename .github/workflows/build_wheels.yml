@@ -25,7 +25,7 @@ jobs:
         run: python -m pip install cibuildwheel
 
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: python -m cibuildwheel --output-dir dist
         env:
           CMAKE_ARGS: -DWITH_CUDA=OFF -DUSE_MKL=OFF 
 
