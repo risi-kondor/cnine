@@ -29,6 +29,15 @@ jobs:
         env:
           CMAKE_ARGS: -DWITH_CUDA=OFF -DUSE_MKL=OFF 
 
+      - name: Repair wheels with auditwheel
+        run: |
+          for whl in dist/*.whl; do
+            auditwheel repair "$whl" -w wheelhouse/ \
+              --exclude libtorch_python.so \
+              --exclude libtorch_cpu.so \
+              --exclude libc10.so
+          done
+
       - name: Upload wheels as artifacts
         uses: actions/upload-artifact@v4
         with:
