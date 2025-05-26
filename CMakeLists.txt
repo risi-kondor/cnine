@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 project( cnine VERSION 0.2.0 LANGUAGES CXX)
 include(CheckLanguage)
 
-option(WITH_CUDA "Compiling with CUDA support" ON)
+option(WITH_CUDA "Compiling with CUDA support" OFF)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
