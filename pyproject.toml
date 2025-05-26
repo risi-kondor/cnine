@@ -21,3 +21,14 @@ test = ["pytest"]
 [tool.scikit-build]
 cmake.define = {BUILD_PYTHON="ON"}
 wheel.packages=["python/src/cnine"]
+
+[tool.cibuildwheel.linux]
+repair-wheel-command = [
+  "auditwheel",
+  "repair",
+  "--exclude", "libtorch_python.so",
+  "--exclude", "libtorch_cpu.so",
+  "--exclude", "libc10.so",
+  "-w", "{dest_dir}",
+  "{wheel}"
+]
