@@ -1,6 +1,6 @@
 [build-system]
-requires = ["scikit-build-core", "torch", "pybind11"]
-build-backend = "scikit_build_core.build"
+requires = ["setuptools>=42", "wheel", "torch"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "cnine"
