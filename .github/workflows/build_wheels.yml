@@ -25,20 +25,23 @@ jobs:
         run: python -m pip install cibuildwheel
 
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir dist
+        run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CMAKE_ARGS: -DWITH_CUDA=OFF -DUSE_MKL=OFF 
-
-      - name: Repair wheels with auditwheel
-        run: |
-          for whl in dist/*.whl; do
-            auditwheel repair "$whl" -w wheelhouse/ \
-              --exclude libtorch_python.so \
-              --exclude libtorch_cpu.so
-          done
+          CIBW_CONFIG_FILE: .cibuildwheel/config.toml  # Point to your config
 
       - name: Upload wheels as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: wheelhouse/*.whl
+
+
+#          CMAKE_ARGS: -DWITH_CUDA=OFF -DUSE_MKL=OFF 
+#      - name: Repair wheels with auditwheel
+#        run: |
+#          for whl in dist/*.whl; do
+#            auditwheel repair "$whl" -w wheelhouse/ \
+#              --exclude libtorch_python.so \
+#              --exclude libtorch_cpu.so
+#          done
+

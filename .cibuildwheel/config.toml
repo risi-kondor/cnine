@@ -1,0 +1,10 @@
+[tool.cibuildwheel.linux]
+repair-wheel-command = [
+  "auditwheel",
+  "repair",
+  "--exclude", "libtorch_python.so",
+  "--exclude", "libtorch_cpu.so",
+  "--exclude", "libc10.so",
+  "-w", "{dest_dir}",
+  "{wheel}"
+]
