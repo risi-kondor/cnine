@@ -34,9 +34,9 @@ jobs:
           for whl in dist/*.whl; do
             auditwheel repair "$whl" -w wheelhouse/ \
               --exclude libtorch_python.so \
-              --exclude libtorch_cpu.so \
-              --exclude libc10.so
+              --exclude libtorch_cpu.so
           done
+	#              --exclude libc10.so
 
       - name: Upload wheels as artifacts
         uses: actions/upload-artifact@v4
