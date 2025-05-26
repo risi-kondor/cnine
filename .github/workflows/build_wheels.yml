@@ -27,7 +27,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-	  CIBW_SKIP: "pp*"
+          CIBW_SKIP: "pp*"
           CIBW_CONFIG_FILE: .cibuildwheel/config.toml  # Point to your config
 
       - name: Upload wheels as artifacts
