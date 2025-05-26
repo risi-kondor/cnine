@@ -1,17 +1,18 @@
 name: Build wheels
 
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
+
+#  push:
+#    branches: [main]
+#  pull_request:
 
 jobs:
   build_wheels:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest] # ubuntu-latest
+        os: [macos-latest, ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +36,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_SKIP: "pp* *-manylinux_i686 *-manylinux_armv7l *-musllinux_* cp39-macosx_arm64"
+          CIBW_SKIP: "pp* *-manylinux_i686 *-manylinux_armv7l *-musllinux_*"
           CIBW_CONFIG_FILE: .cibuildwheel/config.toml  # Point to your config
           CIBW_BEFORE_BUILD: "python -m pip install torch"
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
