@@ -88,29 +88,6 @@ namespace cnine{
 
     
     template<typename TYPE, typename TRANSFORM>
-    void add_einsum(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TRANSFORM& transf){
-
-      auto& x_summation_indices=form.x_summation_indices;
-      auto& r_summation_indices=form.r_summation_indices;
-      auto& xr_indices=form.xr_indices;
-      // We might need an assertion for xr_gather here, e.g.,
-      // auto& xr_gather=form.xr_gather;
-      // CNINE_ASSRT(xr_gather.size()==0); // Or however transforms should handle gather parts
-
-      Einsum1params params;
-
-      params.sum1(x_summation_indices,x);
-      params.bcast(r_summation_indices,r);
-
-      int ntransf=0;
-      params.transfer1(ntransf,xr_indices.vecs[0],xr_indices.vecs[1],x,r);
-
-      // Call the existing 4-argument implementation for TRANSFORM
-      // Signature: add_einsum(const TensorView<TYPE>& _r, const TensorView<TYPE>& x, const Einsum1params& p, const TRANSFORM& transf)
-      add_einsum(r, x, params, transf);
-    }
-
-    template<typename TYPE, typename TRANSFORM>
     TensorView<TYPE> operator()(const TensorView<TYPE>& x, const TRANSFORM& transf, vector<int> rdims={}){
       CNINE_ASSRT(rdims.size()==form.bcast_ids.size());
       
@@ -159,6 +136,34 @@ namespace cnine{
 
       add_einsum(r,x,params);
     }
+
+      
+    template<typename TYPE, typename ARG0>
+    void add_einsum(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const ARG0& arg){
+
+      auto& x_summation_indices=form.x_summation_indices;
+      auto& r_summation_indices=form.r_summation_indices;
+      auto& xr_indices=form.xr_indices;
+      auto& xr_gather=form.xr_gather;
+
+      CNINE_ASSRT(x_summation_indices.size()<=3);
+      CNINE_ASSRT(r_summation_indices.size()<=3);
+      CNINE_ASSRT(xr_indices.size()<=4);
+      //CNINE_ASSRT(xr_gather.size()==1);
+
+      Einsum1params params;
+
+      params.sum1(x_summation_indices,x);
+      params.bcast(r_summation_indices,r);
+
+      int ntransf=0;
+      params.transfer1(ntransf,xr_indices.vecs[0],xr_indices.vecs[1],x,r);
+
+      params.gather1(xr_gather.vecs[0],xr_gather.vecs[1],x,r);
+
+      add_einsum(r,x,params,arg);
+    }
+
       
     template<typename TYPE>
     void add_einsum_back(const TensorView<TYPE>& x, const TensorView<TYPE>& r){
