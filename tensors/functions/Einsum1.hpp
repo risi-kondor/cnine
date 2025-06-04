@@ -159,34 +159,6 @@ namespace cnine{
 
       add_einsum(r,x,params);
     }
-
-    /* REMOVED CONFLICTING GENERIC add_einsum
-    template<typename TYPE, typename ARG0>
-    void add_einsum(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const ARG0& arg){
-
-      auto& x_summation_indices=form.x_summation_indices;
-      auto& r_summation_indices=form.r_summation_indices;
-      auto& xr_indices=form.xr_indices;
-      auto& xr_gather=form.xr_gather;
-
-      CNINE_ASSRT(x_summation_indices.size()<=3);
-      CNINE_ASSRT(r_summation_indices.size()<=3);
-      CNINE_ASSRT(xr_indices.size()<=4);
-      //CNINE_ASSRT(xr_gather.size()==1);
-
-      Einsum1params params;
-
-      params.sum1(x_summation_indices,x);
-      params.bcast(r_summation_indices,r);
-
-      int ntransf=0;
-      params.transfer1(ntransf,xr_indices.vecs[0],xr_indices.vecs[1],x,r);
-
-      params.gather1(xr_gather.vecs[0],xr_gather.vecs[1],x,r);
-
-      add_einsum(r,x,arg,params);
-    }
-    */
       
     template<typename TYPE>
     void add_einsum_back(const TensorView<TYPE>& x, const TensorView<TYPE>& r){
