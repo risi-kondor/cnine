@@ -14,7 +14,7 @@
 
 #ifndef _TensorView_assign_cu
 #define _TensorView_assign_cu
-#include <torch/types.h>
+//#include <torch/types.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 
