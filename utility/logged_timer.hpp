@@ -54,7 +54,7 @@ namespace cnine{
       n_ops=_ops;
     }
 
-    template<typename OBJ0, typename OBJ1>
+    template<typename OBJ0>
     logged_timer(string _task, const OBJ0& obj0, const long long _ops):
       task(_task+obj0.repr()){
       t0=chrono::system_clock::now();
