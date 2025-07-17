@@ -82,6 +82,15 @@ namespace cnine{
     return R;
   }
 
+  template<typename TYPE1, typename TYPE2>
+  inline std::vector<TYPE2> mapcar(const std::initializer_list<TYPE1>& v, 
+    const std::function<TYPE2(const TYPE1&)> lambda){
+    std::vector<TYPE2> R;
+    for(auto& p: v)
+      R.push_back(lambda(p));
+    return R;
+  }
+
   template<typename ARG1, typename ARG2, typename RESULT>
   inline std::vector<RESULT> mapcar(const std::vector<ARG1>& x1, const std::vector<ARG2>& x2, 
     const std::function<RESULT(const ARG1&, const ARG2&)> lambda){

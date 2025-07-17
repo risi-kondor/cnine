@@ -63,7 +63,6 @@ TensorView block(const Gdims& _dims) const{
 
 TensorView block(const Gdims& _dims, const Gindex& offs) const{
   CNINE_ASSRT(offs+_dims<=dims);
-  //cout<<strides.offs(offs)<<" "<<_dims<<" "<<strides<<endl;
   return TensorView(arr+strides.offs(offs),_dims,strides);
 }
 

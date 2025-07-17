@@ -128,8 +128,8 @@ namespace cnine{
 
     LtensorBpack mapcar(const std::function<TENSOR(const KEY&, const TENSOR& )>& lambda){
       LtensorBpack r(_nbatch,_gdims,_dev);
-      for(auto p: tensors)
-	r.emplace(p.first,lambda(p.first,p.second));
+      //for(auto p: tensors)
+      //r.emplace(p.first,lambda(p.first,p.second));
       return r;
     }
 

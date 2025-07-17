@@ -588,8 +588,8 @@ namespace cnine{
 
 	  if(x.ndims()==1){
 	    CNINE_ASSRT(r.dims[0]==x.dims[0]*y.dims[0]);
-	      for(int i=0; i<x.dims[0]; i++)
-		r.block({y.dims[0]},{i*y.dims[0]}).add(y,x(i));
+	    for(int i=0; i<x.dims[0]; i++)
+	      r.block(i*y.dims[0],y.dims[0]).add(y,x(i));
 	    return;
 	  }
 	  
