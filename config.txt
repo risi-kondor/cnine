@@ -15,9 +15,9 @@
 
 # ---- CUDA OPTIONS ------------------------------------
 
-WITH_CUDA=t
-CUDA_HOME=/usr/local/cuda
-WITH_CUBLAS=t
+#WITH_CUDA=t
+#CUDA_HOME=/usr/local/cuda
+#WITH_CUBLAS=t
 
 ifeq ($(WITH_CUDA),TRUE)
 WITH_CUDA=t

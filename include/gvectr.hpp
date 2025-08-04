@@ -212,8 +212,36 @@ namespace cnine{
     }
 
 
+    template<typename... Args>
+    static SUB cat(const int d0, const Args&... args){
+      vector<int> v({d0});
+      cat_unroller(v,args...);
+      return SUB(v);
+    }
 
+    template<typename... Args>
+    static SUB cat(const vector<int> v0, const Args&... args){
+      vector<int> v(v0);
+      cat_unroller(v,args...);
+      return SUB(v);
+    }
 
+    template<typename... Args>
+    static void cat_unroller(vector<int>& v, const int d, const Args&... args){
+      v.push_back(d);
+      cat_unroller(v,args...);
+    }
+
+    template<typename... Args>
+    static void cat_unroller(vector<int>& v, const vector<int>& v0, const Args&... args){
+      for(auto& d:v0)
+	v.push_back(d);
+      cat_unroller(v,args...);
+    }
+
+    static void cat_unroller(vector<int>& v){}
+
+    
   public: // ---- I/O ----------------------------------------------------------------------------------------
 
 

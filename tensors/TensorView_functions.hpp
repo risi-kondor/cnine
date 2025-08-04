@@ -108,6 +108,13 @@ namespace cnine{
     return R;
   }
 
+  template<typename TYPE>
+  inline TensorView<TYPE> mprod(const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+    auto R=TensorView<TYPE>::zero(x.get_dims().Mprod(y.get_dims()),x.get_dev());
+    if(R.asize()>0) R.add_mprod(x,y);
+    return R;
+  }
+
 
   // ---- Elementwise ----------------------------------------------------------------------------------------
 
