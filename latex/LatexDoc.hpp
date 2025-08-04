@@ -59,6 +59,12 @@ namespace cnine{
       return *this;
     }
 
+
+    LatexDoc&  operator<<(const int x){
+      (*this)+=to_string(x);
+      return *this;
+    }
+
     void finish(){
       if(finished) return;
       (*this)+="\n \\end{document}\n";

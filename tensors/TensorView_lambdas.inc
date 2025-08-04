@@ -348,3 +348,10 @@ void zip(const TensorView& y, TensorView& z, std::function<void(TYPE&,TYPE&,TYPE
 }
 
 
+template<typename TYPE2>
+TensorView<TYPE2> map(std::function<TYPE2(const Gindex&, const TYPE&)> lambda) const{
+  TensorView<TYPE2> R(dims,0,0);
+  dims.for_each_index([&](const Gindex& ix){
+			R.arr[R.strides.offs(ix)]=lambda(ix,arr[strides.offs(ix)]);});
+  return R;
+}
