@@ -30,14 +30,19 @@ TYPE& operator()(const int i0, const int i1) const{
   return arr[strides.offs(i0,i1)];
 }
 
-TYPE operator()(const int i0, const int i1, const int i2) const{
+TYPE& operator()(const int i0, const int i1, const int i2) const{
   CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,string(__PRETTY_FUNCTION__)));
   return arr[strides.offs(i0,i1,i2)];
 }
 
-TYPE operator()(const int i0, const int i1, const int i2, const int i3) const{
+TYPE& operator()(const int i0, const int i1, const int i2, const int i3) const{
   CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
   return arr[strides.offs(i0,i1,i2,i3)];
+}
+
+TYPE& operator()(const int i0, const int i1, const int i2, const int i3, const int i4) const{
+  CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,i4,string(__PRETTY_FUNCTION__)));
+  return arr[strides.offs(i0,i1,i2,i3,i4)];
 }
 
 
@@ -98,6 +103,12 @@ TYPE set(const int i0, const int i1, const int i2, const TYPE x) const{
 TYPE set(const int i0, const int i1, const int i2, const int i3, const TYPE x) const{
   CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
   arr[strides.offs(i0,i1,i2,i3)]=x;
+  return x;
+}
+
+TYPE set(const int i0, const int i1, const int i2, const int i3, const int i4, const TYPE x) const{
+  CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,i4,string(__PRETTY_FUNCTION__)));
+  arr[strides.offs(i0,i1,i2,i3,i4)]=x;
   return x;
 }
 

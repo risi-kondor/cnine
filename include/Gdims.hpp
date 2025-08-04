@@ -411,6 +411,12 @@ namespace cnine{
 	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0,i1,i2,i3}).str()+" out of range of "+str()));
     }
 
+    void check_in_range(const int i0, const int i1, const int i2, const int i3, const int i4, const string name) const{
+      CNINE_CHECK_RANGE(if(size()!=5 || i0<0 || i0>=(*this)[0] || i1<0 || i1>=(*this)[1] || i2<0 || i2>=(*this)[2] 
+			   || i3<0 || i3>=(*this)[3] || i4<0 || i4>=(*this)[4]) 
+			  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0,i1,i2,i3,i4}).str()+" out of range of "+str()));
+    }
+
     void check_in_range_d(const int d, const int i0, const string name="") const{
       CNINE_CHECK_RANGE(if(size()<=d || i0<0 || i0>=(*this)[d]) 
 	  throw std::out_of_range("cnine::"+name+" index "+Gdims({i0}).str()+" out of range of dimension "+to_string(d)+" of "+str()+"."));
