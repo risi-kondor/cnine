@@ -16,6 +16,7 @@
 #define _BatchedTensor
 
 #include "TensorView.hpp"
+#include "MultiLoop.hpp"
 
 
 namespace cnine{
