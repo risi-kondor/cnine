@@ -201,6 +201,10 @@ namespace cnine{
 
   template<class T> struct is_complex : std::false_type {};
   template<class T> struct is_complex<std::complex<T> > : std::true_type {};
+
+  template<typename T> struct complex_inner_t{using type=T;};
+  template<typename U> struct complex_inner_t<std::complex<U>> {using type=U;};
+  template<typename T> using complex_inner_type=typename complex_inner_t<T>::type;
   
   //template<typename S, typename=typename std::enable_if<is_complex<S>::value, S>::type>
   //struct is_complex: public true_type{};

@@ -26,7 +26,7 @@ namespace cnine{
     TensorView<TYPE> T;
     int ncols=0;
 
-    ColumnSpace(const TensorView<TYPE>& M, TYPE threshold=10e-5):
+    ColumnSpace(const TensorView<TYPE>& M, complex_inner_type<TYPE> threshold=10e-5):
       T(M.get_dims(),fill_zero()){
       CNINE_ASSRT(M.ndims()==2);
       const int m=M.dim(1);
@@ -37,7 +37,7 @@ namespace cnine{
 	for(int j=0; j<ncols; j++)
 	  col.subtract(T.col(j),inp(col,T.col(j)));
       
-	TYPE norm=col.norm();
+	auto norm=col.norm();
 	//cout<<"norm="<<norm<<endl;
 	if(norm>threshold){
 	  T.col(ncols).add(col,1.0/norm);

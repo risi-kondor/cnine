@@ -125,3 +125,27 @@ TensorView slices(const int d, const int i, const int n) const{
   return TensorView(arr+strides[d]*i,_dims.set(d,n),strides);
 }
 
+
+// ---- Real and imaginary parts ---------------------------------------------------------------------------
+
+
+template<typename Q=TYPE> typename std::enable_if<is_complex<Q>::value, TensorView<RTYPE> >::type
+view_of_real() const{
+  return TensorView<RTYPE>(MemArr<RTYPE>(arr.template ptr_as<RTYPE>(),arr.get_dev()),dims,strides*2);
+}
+
+template<typename Q=TYPE> typename std::enable_if<is_complex<Q>::value, TensorView<RTYPE> >::type
+real() const{
+  return view_of_real().copy();
+}
+
+template<typename Q=TYPE> typename std::enable_if<is_complex<Q>::value, TensorView<RTYPE> >::type
+view_of_imag() const{
+  return TensorView<RTYPE>(MemArr<RTYPE>(arr.template ptr_as<RTYPE>()+1,arr.get_dev()),dims,strides*2);
+}
+
+template<typename Q=TYPE> typename std::enable_if<is_complex<Q>::value, TensorView<RTYPE> >::type
+imag() const{
+  return view_of_imag().copy();
+}
+

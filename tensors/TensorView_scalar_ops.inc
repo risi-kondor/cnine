@@ -52,7 +52,9 @@ auto max_abs() const -> decltype(std::real(min())){
   return t; 
 }
 
-TYPE inp(const TensorView& y) const{
+template<typename Q=TYPE>
+typename std::enable_if<!is_complex<Q>::value, TYPE>::type
+inp(const TensorView& y) const{
   CNINE_CPUONLY();
   CNINE_ASSRT(dims==y.dims);
   TYPE t=0;
@@ -70,24 +72,67 @@ TYPE inp(const TensorView& y) const{
   return t;
 }
 
-TYPE norm2() const{
+template<typename Q=TYPE>
+typename std::enable_if<is_complex<Q>::value, TYPE>::type
+inp(const TensorView& y) const{
+  CNINE_CPUONLY();
+  CNINE_ASSRT(dims==y.dims);
+  TYPE t=0;
+  if(dev==0){
+    if(is_regular() && y.is_regular()){
+      for(size_t i=0; i<asize(); i++)
+	t+=std::conj(arr[i])*y.arr[i];
+    }else{
+      for_each([&](const Gindex& ix, TYPE& v){
+		 t+=std::conj(v)*y(ix);});
+    }
+  }
+  return t;
+}
+
+template<typename Q=TYPE>
+typename std::enable_if<!is_complex<Q>::value, TYPE>::type
+norm2() const{
   CNINE_CPUONLY();
   TYPE t=0;
   if(dev==0){
     if(is_contiguous()){
       for(size_t i=0; i<asize(); i++)
 	t+=arr[i]*arr[i];
-      //t+=std::conj(arr[i])*arr[i];
     }else{
       for_each([&](const Gindex& ix, TYPE& v){
-	  t+=v*v;});
-      //t+=std::conj(v)*v;});
+		 t+=v*v;});
     }
   }
   return t;
 }
 
-TYPE norm() const{
+template<typename Q=TYPE>
+typename std::enable_if<is_complex<Q>::value, complex_inner_type<TYPE> >::type
+norm2() const{
+  CNINE_CPUONLY();
+  complex_inner_type<TYPE> t=0;
+  if(dev==0){
+    if(is_contiguous()){
+      for(size_t i=0; i<asize(); i++)
+	t+=std::norm(arr[i]);
+    }else{
+      for_each([&](const Gindex& ix, TYPE& v){
+		 t+=std::norm(v);});
+    }
+  }
+  return t;
+}
+
+template<typename Q=TYPE>
+typename std::enable_if<!is_complex<Q>::value, TYPE>::type
+norm() const{
+  return sqrt(norm2());
+}
+
+template<typename Q=TYPE>
+typename std::enable_if<is_complex<Q>::value, complex_inner_type<TYPE> >::type
+norm() const{
   return sqrt(norm2());
 }
 

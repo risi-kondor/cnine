@@ -39,5 +39,19 @@ TensorView operator*(const TYPE c) const{
   return times(c);
 }
 
+template<typename Q=TYPE> typename std::enable_if<is_complex<Q>::value, TensorView<TYPE> >::type
+conj() const{
+  TensorView<TYPE> R(dims,0,dev);
+  R.view_of_real().add(view_of_real());
+  R.view_of_imag().subtract(view_of_imag());
+  return R;
+}
 
+template<typename Q=TYPE> typename std::enable_if<is_complex<Q>::value, TensorView<TYPE> >::type
+herm() const{
+  TensorView<TYPE> R(dims,0,dev);
+  R.view_of_real().add(transp().view_of_real());
+  R.view_of_imag().subtract(transp().view_of_imag());
+  return R;
+}
 

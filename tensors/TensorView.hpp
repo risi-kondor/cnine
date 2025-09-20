@@ -106,6 +106,7 @@ namespace cnine{
 
     typedef std::size_t size_t;
 
+    using RTYPE=complex_inner_type<TYPE>;
 
     MemArr<TYPE> arr;
     Gdims dims;

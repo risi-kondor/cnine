@@ -121,6 +121,13 @@ namespace cnine{
       return *std::min_element(begin(),end());
     }
 
+    Gvec operator*(TYPE x) const{
+      Gvec R(*this);
+      for(int i=0; i<size(); i++)
+	R[i]=(*this)[i]*x;
+      return R;
+    }
+
     SUB operator+(const Gvec& y) const{
       CNINE_ASSRT(y.size()==size());
       Gvec R(*this);

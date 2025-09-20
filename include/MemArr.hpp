@@ -91,6 +91,10 @@ namespace cnine{
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
+    int get_dev() const{
+      return blob->dev;
+    }
+
     int device() const{
       return blob->dev;
     }

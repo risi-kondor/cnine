@@ -139,7 +139,7 @@ namespace cnine{
 
 
     bool is_batched() const{
-      return _nbatch>0;
+      return _nbatch>1;
     }
 
     int nbatch() const{
