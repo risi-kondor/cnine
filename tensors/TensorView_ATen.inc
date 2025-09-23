@@ -27,12 +27,14 @@ static TensorView view(const at::Tensor& T){
       (std::is_same<TYPE,complex<double> >::value && T.dtype()==at::kComplexDouble))){
     CNINE_ERROR("Cannot view a torch::Tensor with data type "+dtype_str(T)+" as a "+classname());
   }
+
+  // changed  type().is_cuda() to device().is_cuda() 
   //if(T.dtype()==at::kComplexFloat) 
   if constexpr(std::is_same<TYPE,complex<float> >::value)
     return TensorView(MemArr<TYPE>(reinterpret_cast<complex<float>*>(T.data_ptr<c10::complex<float> >()),
-	T.type().is_cuda()),Gdims(T),GstridesB(T));
+	T.device().is_cuda()),Gdims(T),GstridesB(T));
 
-  return TensorView(MemArr<TYPE>(T.data<TYPE>(),T.type().is_cuda()),Gdims(T),GstridesB(T));
+  return TensorView(MemArr<TYPE>(T.data<TYPE>(),T.device().is_cuda()),Gdims(T),GstridesB(T));
 }
 
 
@@ -40,11 +42,11 @@ static TensorView copy(const at::Tensor& T){
   auto _dims=Gdims(T);
   auto _strides=GstridesB(T);
   if(_strides.is_contiguous(_dims)){
-    TensorView R(_dims,_strides,T.type().is_cuda());
+    TensorView R(_dims,_strides,T.device().is_cuda());
     R=view(T);
     return R;
   }
-  TensorView R(_dims,T.type().is_cuda());
+  TensorView R(_dims,T.device().is_cuda());
   R=view(T);
   return R;
 }

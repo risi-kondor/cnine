@@ -30,7 +30,7 @@ namespace cnine{
     Gdims _gdims;
     int _dev=0;
     //DimLabels _labels;
-    map<KEY,TENSOR> tensors;
+    mutable map<KEY,TENSOR> tensors;
 
     LtensorBpack(){}
 
@@ -97,7 +97,7 @@ namespace cnine{
     
     vector<at::Tensor> torch() const{
       vector<at::Tensor> R;
-      for_each([&](const Ltensor<TYPE>& c){
+      for_each([&](const TENSOR& x){
 	  R.push_back(x.torch());});
       return R;
     }
