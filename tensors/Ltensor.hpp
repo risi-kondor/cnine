@@ -217,6 +217,16 @@ namespace cnine{
   public: // ---- Other constructors ------------------------------------------------------------------------
 
 
+    static Ltensor init(const initializer_list<TYPE>& list, const int _dev=0){
+      Ltensor<TYPE> T(Gdims({list.size()})); 
+      int j=0;
+      for(auto& q: list)
+	T.set(j++,q);
+      if(_dev>0) T.move_to_device(_dev);
+      return T;
+    }
+      
+
     Ltensor(const initializer_list<initializer_list<TYPE> >& list, const int _dev=0){
       int n0=list.size();
       CNINE_ASSRT(n0>0);

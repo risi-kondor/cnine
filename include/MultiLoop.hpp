@@ -25,9 +25,9 @@ namespace cnine{
   class MultiLoop{
   public:
     
-    MultiLoop(const int n, std::function<void(int)> lambda){
+    MultiLoop(const int n, std::function<void(int)> lambda, bool sequential=false){
 
-      if(nthreads<=1){
+      if(sequential || nthreads<=1){
 	for(int i=0; i<n; i++) lambda(i);
 	return;
       }

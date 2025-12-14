@@ -62,7 +62,8 @@ namespace cnine{
       //_labels(x._labels),
       _dev(x._dev){
       for(auto& p:x.tensors)
-	tensors[p.first]=TENSOR(p.second);
+	tensors.emplace(p.first,p.second);
+      //tensors[p.first]=TENSOR(p.second);
     }
     
     LtensorBpack(LtensorBpack&& x):
@@ -143,6 +144,10 @@ namespace cnine{
     }
 
     int nbatch() const{
+      return _nbatch;
+    }
+
+    int getb() const{
       return _nbatch;
     }
 
