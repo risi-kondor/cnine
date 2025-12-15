@@ -43,6 +43,9 @@ using namespace std;
 #define CNINE_ERROR(message) \
   throw std::runtime_error("Cnine error in "+string(__PRETTY_FUNCTION__)+" : "+message+".");
 
+#define CNINE_ARG_ERR(message) \
+  throw std::invalid_argument(string("Cnine error: ")+message+".");
+
 #define CNINE_ASSRT(condition) \
   if(!(condition)) throw std::runtime_error("Cnine error in "+string(__PRETTY_FUNCTION__)+" : failed assertion "+#condition+".");
 
@@ -164,7 +167,9 @@ using namespace std;
 #define IF_DOUBLE template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,double>::value, U>::type>
 #define IF_CFLOAT template<typename U=TYPE, typename = typename std::enable_if<std::is_same<U,complex<float> >::value, U>::type>
 
-
+template<typename T>
+constexpr bool is_numeric_or_complex_v = std::is_arithmetic_v<T> || 
+(std::is_same_v<std::complex<float>, T> || std::is_same_v<std::complex<double>, T>);
 
 // ---- other -------------------------------------------------------------------------------------------------
 

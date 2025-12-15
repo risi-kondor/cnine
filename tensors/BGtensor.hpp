@@ -17,7 +17,8 @@
 #include "TensorView.hpp"
 #include "MultiLoop.hpp"
 
-//#include "ForEachCellMultiScalar.hpp"
+#include "ForEachCellMulti.hpp"
+#include "ForEachCellMultiScalar.hpp"
 
 
 namespace cnine{
@@ -54,6 +55,8 @@ namespace cnine{
   public: // ---- Constructors -------------------------------------------------------------------------------
 
 
+    BGtensor(){}
+
     BGtensor(const int b, const Gdims gdims, const Gdims cdims, const int fill=0, const int _dev=0):
       TENSOR(Gdims::cat(b,gdims,cdims),fill,_dev){
       nc=cdims.size();
@@ -66,6 +69,16 @@ namespace cnine{
 	dims=dims.insert(0,1);
 	strides=strides.insert(0,0);
       }
+    }
+
+    BGtensor(const int _nc, const TENSOR& x):
+      TENSOR(x){
+      CNINE_ASSRT(_nc<=ndims()-1);
+      nc=_nc;
+    }
+
+    BGtensor static like(const BGtensor& t, const TENSOR& x){
+      return BGtensor(t.nc,x);
     }
 
     //static BGtensor (const TensorView<TYPE>& x):
@@ -270,6 +283,10 @@ namespace cnine{
       return dims.size()>nc+1;
     }
 
+    int ncdims() const{
+      return nc;
+    }
+
     Gdims cdims() const{
       if(nc==0) return Gdims();
       return dims.chunk(-nc);
@@ -283,6 +300,11 @@ namespace cnine{
     Gdims get_cdims() const{
       if(nc==0) return Gdims();
       return dims.chunk(-nc);
+    }
+
+    int cdim(const int i) const{
+      CNINE_ASSRT(i<nc);
+      return dims(-nc+i);
     }
 
     TENSOR cell(const int b, const Gindex& ix) const{
@@ -458,6 +480,8 @@ namespace cnine{
 
   public: // ---- Products -------------------------------------------------------------------------------------------------
 
+    #include "BGtensor_products.hpp"
+
     /*
     template<typename TYPE2>
     BGtensor prod(const BGtensor<TYPE2>& y){
@@ -518,6 +542,12 @@ namespace cnine{
     }
 
   };
+
+
+  template<typename TYPE, typename TYPE2>
+  inline BGtensor<TYPE> operator*(const TYPE2 c, const BGtensor<TYPE>& x){
+    return x*c;
+  }
 
 }
 

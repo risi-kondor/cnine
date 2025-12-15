@@ -21,36 +21,55 @@
 
 namespace cnine{
 
-  template<typename TYPE>
-  BGtensor<TYPE> operator*(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y){
-    BGtensor<TYPE> R(x.dominant_batch(x,y),x.dominant_gdims(x,y),x.dominant_cdims(x,y),0,x.get_dev());
-    add_prod(R,x,y);
-    return R;
-  }
 
+
+  // ---- Elementwise products -------------------------------------------------------------------------------------------------
+
+ 
+
+}
+
+#endif 
+
+
+  /*
   template<typename TYPE>
-  void add_prod(const BGtensor<TYPE>& r, const BGtensor<TYPE>& x, const BGtensor<TYPE>& y){
+  inline void add_prod(const BGtensor<TYPE>& r, const BGtensor<TYPE>& x, const BGtensor<TYPE>& y){
 
     if(x.nc==0){
       if(y.nc==0) CNINE_UNIMPL();
       ForEachCellMultiScalar<TYPE>()(r,y,x,[](const int b, const Gindex& ix,
-					      const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
-				       r.add(y,c);},0);
+	  const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
+	  r.add(y,c);},0);
       return;
     }
 
     if(y.nc==0){
       ForEachCellMultiScalar<TYPE>()(r,x,y,[](const int b, const Gindex& ix,
-					      const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
-				       r.add(x,c);},0);
+	  const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
+	  r.add(x,c);},0);
       return;
     }
 
     ForEachCellMulti<TYPE>()(r,x,y,[](const int b, const Gindex& ix,
-				      const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-			       r.add_prod(x,y);},0);
+	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+	r.add_prod(x,y);},0);
+  }
+  */
+  /*
+  template<typename TYPE>
+  inline BGtensor<TYPE> operator*(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y){
+    BGtensor<TYPE> R(x.dominant_batch(x,y),x.dominant_gdims(x,y),x.dominant_cdims(x,y),0,x.get_dev());
+    R.add_prod(x,y);
+    return R;
   }
 
-}
 
-#endif 
+  template<typename TYPE>
+  inline BGtensor<TYPE> oprod(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y){
+    BGtensor<TYPE> R(x.dominant_batch(x,y),x.dominant_gdims(x,y),x.dominant_cdims(x,y),0,x.get_dev());
+    R.add_prod(x,y);
+    return R;
+  }
+  */
+ 

@@ -91,14 +91,14 @@ namespace cnine{
   }
 
   template<typename TYPE, typename TYPE2>
-  TensorView<TYPE> operator*( const TYPE2 c, const TensorView<TYPE>& x){
+  TensorView<TYPE> operator*(const TYPE2 c, const TensorView<TYPE>& x){
     TensorView<TYPE> r=x.zeros_like();
     r.add(x,c);
     return r;
   }
 
 
-  // ---- Matrix products
+  // ---- Matrix products -------------------------------------------------------------------------------------
 
 
   template<typename TYPE>

@@ -1,7 +1,7 @@
 /*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
- * Copyright (c) 2021, Imre Risi Kondor
+ * Copyright (c) 2025, Imre Risi Kondor
  *
  * This source code file is subject to the terms of the noncommercial 
  * license distributed with cnine in the file LICENSE.TXT. Commercial 
@@ -23,15 +23,14 @@ namespace cnine{
   class BGtensor;
 
 
-  template<typename TYPE>
+  template<typename XTYPE, typename YTYPE, typename ZTYPE>
   class ForEachCellMulti{
   public: 
 
-
-    void operator()(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y, const BGtensor<TYPE>& z, 
-		    std::function<void(const int b, const Gindex& cell,
-				       const TensorView<TYPE>& x,  const TensorView<TYPE>& y, const TensorView<TYPE>& z)> lambda,
-		    const int target=0) const{
+    void operator()(const BGtensor<XTYPE>& x, const BGtensor<YTYPE>& y, const BGtensor<ZTYPE>& z, 
+      std::function<void(const int b, const Gindex& cell,
+	const TensorView<XTYPE>& x,  const TensorView<YTYPE>& y, const TensorView<ZTYPE>& z)> lambda,
+      const int target=0) const{
     
       int B=x.dominant_batch(x,y,z);
       Gdims gdims=x.dominant_gdims(x,y,z);
@@ -48,17 +47,17 @@ namespace cnine{
 	return;
       }
 
-      TensorView<TYPE> xcell(x.arr,x.get_cdims(),x.cstrides());
+      TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides());
       GstridesB x_gstrides=GstridesB::zero(ngdims);
       if(x.has_grid()) x_gstrides=x.gstrides();
       int x_bstride=x.strides[0]*(x.is_batched());
 
-      TensorView<TYPE> ycell(y.arr,y.get_cdims(),y.cstrides());
+      TensorView<YTYPE> ycell(y.arr,y.get_cdims(),y.cstrides());
       GstridesB y_gstrides=GstridesB::zero(ngdims);
       if(y.has_grid()) y_gstrides=y.gstrides();
       int y_bstride=y.strides[0]*(y.is_batched());
 
-      TensorView<TYPE> zcell(z.arr,z.get_cdims(),z.cstrides());
+      TensorView<ZTYPE> zcell(z.arr,z.get_cdims(),z.cstrides());
       GstridesB z_gstrides=GstridesB::zero(ngdims);
       if(z.has_grid()) z_gstrides=z.gstrides();
       int z_bstride=z.strides[0]*(z.is_batched());
@@ -72,7 +71,6 @@ namespace cnine{
 		    lambda(b,ix,xcell,ycell,zcell);
 		  }
 		},sequential);
-
     }
     
   };
