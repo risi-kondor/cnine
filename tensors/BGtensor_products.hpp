@@ -40,15 +40,15 @@ BGtensor<TYPE> operator*(const BGtensor<TYPE>& y) const{
 
 void add_prod(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
 
-  if(x.nc==0){
-    if(y.nc==0) CNINE_UNIMPL();
+  if(!x.has_cells()){
+    if(!y.has_cells()) CNINE_UNIMPL();
     ForEachCellMultiScalar<TYPE,TYPE,TYPE>()(*this,y,x,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
 	r.add(y,c);},0);
     return;
   }
 
-  if(y.nc==0){
+  if(!y.has_cells()){
     ForEachCellMultiScalar<TYPE,TYPE,TYPE>()(*this,x,y,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
 	r.add(x,c);},0);

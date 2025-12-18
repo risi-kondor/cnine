@@ -166,7 +166,6 @@ namespace cnine{
 	    complex<float> t=0;
 	    for(int i=0; i<I; i++)
 	      t+=x(a,i)*y(i,b);
-	    cout<<a<<" "<<b<<" "<<t<<endl;
 	    inc(a,b,t);
 	  }
       }
