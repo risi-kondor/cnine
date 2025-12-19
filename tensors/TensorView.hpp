@@ -557,22 +557,21 @@ namespace cnine{
 	  CNINE_ASSRT(x.dims[1]==y.dims[0]);
 
 	  r.view2().add_matmul_AA(x.view2(),y.view2());
+	});
+    }
 
-	  /*
-	  if(r.dev==0){
-	    for(int i=0; i<r.dims[0]; i++)
-	      for(int j=0; j<r.dims[1]; j++){
-		TYPE t=0;
-		for(int k=0; k<x.dims[1]; k++)
-		  t+=x(i,k)*y(k,j);
-		r.inc(i,j,t);
-	      }
-	  }
-	  if(r.dev==1){
-	    CNINE_UNIMPL();
-	  }
-	  */
 
+    void add_mprod_AH(const TensorView& x, const TensorView& y) const{
+      reconcile_devices<TensorView<TYPE> >(*this,x,y,[]
+	(const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+	  CNINE_NDIMS_IS_2(r);
+	  CNINE_NDIMS_IS_2(x);
+	  CNINE_NDIMS_IS_2(y);
+	  CNINE_ASSRT(x.dims[0]==r.dims[0]);
+	  CNINE_ASSRT(y.dims[0]==r.dims[1]);
+	  CNINE_ASSRT(x.dims[1]==y.dims[1]);
+
+	  r.view2().add_matmul_AH(x.view2(),y.view2()); 
 	});
     }
 

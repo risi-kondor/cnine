@@ -19,7 +19,7 @@
 //template<typename TYPE2, std::enable_if_t<std::is_arithmetic_v<TYPE2>> = 0>
 template<typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
 BGtensor<TYPE> operator*(const TYPE2 c) const{
-  return BGtensor<TYPE>::like(*this,TensorView<TYPE>::operator*(c));
+  return like(TensorView<TYPE>::operator*(c));
 }
 
 
@@ -32,32 +32,46 @@ BGtensor<TYPE> operator*(const BGtensor<TYPE>& y) const{
   return R;
 }
 
-//BGtensor<TYPE> oprod(const BGtensor<TYPE>& y) const{
-//  BGtensor<TYPE> R(dominant_batch(*this,y),dominant_gdims(*this,y),dominant_cdims(*this,y),0,get_dev());
-//  R.add_prod(*this,y);
-//  return R;
-//}
 
 void add_prod(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
-
   if(!x.has_cells()){
-    if(!y.has_cells()) CNINE_UNIMPL();
+    if(!y.has_cells()){CNINE_UNIMPL(); return;}
     ForEachCellMultiScalar<TYPE,TYPE,TYPE>()(*this,y,x,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
 	r.add(y,c);},0);
-    return;
-  }
-
-  if(!y.has_cells()){
+  }else if(!y.has_cells()){
     ForEachCellMultiScalar<TYPE,TYPE,TYPE>()(*this,x,y,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
 	r.add(x,c);},0);
-    return;
-  }
-
+  }else{
   ForEachCellMulti<TYPE,TYPE,TYPE>()(*this,x,y,[](const int b, const Gindex& ix,
       const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
       r.add_prod(x,y);},0);
+  }
+}
+
+
+void add_prod_XC(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
+  if(x.has_cells()+y.has_cells()+has_cells()<2){CNINE_UNIMPL(); return;}
+  if(!x.has_cells()){
+    ForEachCellMultiScalar<TYPE,TYPE,TYPE>()(*this,y,x,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
+	r.add_CX(y,c);},0);
+  }else if(!y.has_cells()){
+    ForEachCellMultiScalar<TYPE,TYPE,TYPE>()(*this,x,y,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
+	r.add(x,std::conj(c));},0);
+  }else if(!has_cells()){
+    ForEachCellMultiScalar<TYPE,TYPE,TYPE>()(x,y,*this,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& x, const TensorView<TYPE>& y, TYPE& r){
+	r+=inp(y,x);
+      },2);
+  }else{
+    ForEachCellMulti<TYPE,TYPE,TYPE>()(*this,x,y,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+      r.add_prod_XC(x,y);
+      },0);
+  }
 }
 
 
@@ -77,3 +91,10 @@ void add_mprod(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
       const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
       r.add_mprod(x,y);},0);
 }
+
+void add_mprod_AH(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
+  ForEachCellMulti<TYPE,TYPE,TYPE>()(*this,x,y,[](const int b, const Gindex& ix,
+      const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+      r.add_mprod_AH(x,y);},0);
+}
+

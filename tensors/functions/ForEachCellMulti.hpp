@@ -32,8 +32,8 @@ namespace cnine{
 	const TensorView<XTYPE>& x,  const TensorView<YTYPE>& y, const TensorView<ZTYPE>& z)> lambda,
       const int target=0) const{
     
-      int B=x.dominant_batch(x,y,z);
-      Gdims gdims=x.dominant_gdims(x,y,z);
+      int B=dominant_batch(x,y,z);
+      Gdims gdims=dominant_gdims(x,y,z);
       int ncells=gdims.asize();
       int ngdims=gdims.size();
       bool sequential=(target==0 && x.getb()==1)||(target==1 && y.getb()==1)||(target==2 && z.getb()==1);

@@ -59,18 +59,15 @@ namespace cnine{
     BGtensorPack(const BGtensorPack& x):
       _nbatch(x._nbatch),
       _gdims(x._gdims),
-      //_labels(x._labels),
       _dev(x._dev){
       for(auto& p:x.tensors)
 	tensors.emplace(p.first,p.second);
-      //tensors[p.first]=TENSOR(p.second);
     }
     
     BGtensorPack(BGtensorPack&& x):
       _nbatch(x._nbatch),
       _gdims(x._gdims),
       _dev(x._dev),
-      //_labels(x._labels),
       tensors(std::move(x.tensors)){
     }
       
@@ -190,6 +187,10 @@ namespace cnine{
       return _gdims.size()>0;
     }
 
+    bool has_grid() const{
+      return _gdims.size()>0;
+    }
+
     int ngdims() const{
       return _gdims.size();
     }
@@ -197,7 +198,6 @@ namespace cnine{
     Gdims gdims() const{
       return _gdims;
     }
-
 
     Gdims get_gdims() const{
       return _gdims;
@@ -217,8 +217,19 @@ namespace cnine{
 
     void add(const BGtensorPack& x){
       CNINE_ASSRT(x.size()==size());
-      for(auto p:tensors)
-	p.second.add(x.tensors[p.first]);
+      for(auto p:x.tensors)
+	tensors[p.first].add(p.first);
+    }
+
+    void subtract(const BGtensorPack& x){
+      CNINE_ASSRT(x.size()==size());
+      for(auto p:x.tensors)
+	tensors[p.first].subtract(p.first);
+    }
+
+    void add_prod(const BGtensorPack<TYPE>& x, const BGtensor<TYPE>& y) const{
+      for(auto& p: x.tensors)
+	tensors[p.first].add_prod(p.second);
     }
 
 

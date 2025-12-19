@@ -1,7 +1,7 @@
 /*
  * This file is part of cnine, a lightweight C++ tensor library. 
  *  
- * Copyright (c) 2021, Imre Risi Kondor
+ * Copyright (c) 2025, Imre Risi Kondor
  *
  * This source code file is subject to the terms of the noncommercial 
  * license distributed with cnine in the file LICENSE.TXT. Commercial 
@@ -19,6 +19,7 @@
 
 #include "ForEachCellMulti.hpp"
 #include "ForEachCellMultiScalar.hpp"
+#include "BGtensor_reconcilers.hpp"
 
 
 namespace cnine{
@@ -37,21 +38,8 @@ namespace cnine{
     using TENSOR::slice;
     using TENSOR::repr;
 
-    //using TENSOR::TENSOR;
-
-    //int nc=0;
     int ng=0;
 
-    /*
-    BGtensor(const TENSOR& x):
-      TENSOR(x){
-      CNINE_ASSRT(dims.size()==nc || dims.size()==nc+1);
-      if(dims.size()<nc+1){
-	dims=dims.insert(0,1);
-	strides=strides.insert(0,0);
-      }
-    }
-    */
 
   public: // ---- Constructors -------------------------------------------------------------------------------
 
@@ -60,33 +48,71 @@ namespace cnine{
 
     BGtensor(const int b, const Gdims gdims, const Gdims cdims, const int fill=0, const int _dev=0):
       TENSOR(Gdims::cat(b,gdims,cdims),fill,_dev){
-      //nc=cdims.size();
       ng=gdims.size();
     }
 
-    BGtensor(const TENSOR& x, const bool _batched=0, const int _ngrid=0):
-      TENSOR(x){
-      //nc=dims.size()-_batched-_ngrid;
-      ng=_ngrid;
+    BGtensor(const TENSOR& x, const bool _batched=0, const int _ng=0):
+      TENSOR(x), ng(_ng){
       if(!_batched){
 	dims=dims.insert(0,1);
 	strides=strides.insert(0,0);
       }
     }
 
+    BGtensor(const initializer_list<BGtensor>& v):
+      BGtensor(vector<BGtensor>(v)){}
+
+    BGtensor(const vector<BGtensor>& v):
+      TENSOR([](const vector<BGtensor>& v){
+	  CNINE_ASSRT(v.size()>0); 
+	  auto& x=*v.begin(); 
+	  return Gdims::cat(x.getb()*v.size(),x.gdims(),x.cdims())}(v),fill,_dev){
+      int _b=x.getb();
+      Gdims _gdims=x.gdims();
+      Gdims _cdims=x.cdims();
+      int offs=0;
+      for(auto& p:v){
+	CNINE_ASSRT(p.getb()==_b);
+	CNINE_ASSRT(p.gdims()==_gdims);
+	CNINE_ASSRT(p.cdims()==_cdims);
+	slices(0,offs,_b).add(p);
+	offs+=b;
+      }
+    }
+
     BGtensor(const int _ng, const TENSOR& x):
-    TENSOR(x){
+      TENSOR(x), ng(_ng){
       CNINE_ASSRT(_ng<=ndims()-1);
-      ng=_ng;
     }
 
-    BGtensor static like(const BGtensor& t, const TENSOR& x){
-      return BGtensor(t.ng,x);
+    BGtensor like(const TENSOR& x) const{
+      return BGtensor(ng,x);
     }
 
-    //static BGtensor (const TensorView<TYPE>& x):
-    //BASE(x,true){}
+    BGtensor zeros_like() const{
+      return BGtensor(ng,TENSOR::zeros_like());
+    }
 
+
+  public: // ---- Copying ---------- -------------------------------------------------------------------------
+
+    
+    BGtensor(const BGtensor& x):
+      TENSOR(x),
+      ng(x.ng){}
+    
+    BGtensor& operator=(const BGtensor& x) const{
+      CNINE_ASSRT(ng==x.ng);
+      TENSOR::operator=(x);
+      return *this;
+    }
+    
+    BGtensor copy() const{
+      return BGtensor(ng,TENSOR::copy());
+    }
+      
+
+  public: // ---- Named constructors -------------------------------------------------------------------------
 
 
     static BGtensor batched_scalar(const TENSOR& x){
@@ -138,18 +164,16 @@ namespace cnine{
     }
 
 
-
-
   public: // ---- Conversions --------------------------------------------------------------------------------
+
 
 
   public: // ---- Access -------------------------------------------------------------------------------------
 
 
-    Gdims get_dims() const{
-      //return dims.chunk(-nc);
-      return dims.chunk(1+ng);
-    }
+    //Gdims get_dims() const{
+    //return dims.chunk(1+ng);
+    //}
 
 
   public: // ---- Batches ------------------------------------------------------------------------------------
@@ -171,128 +195,40 @@ namespace cnine{
       slice(0,b)+=x.slice(0,0);
     }
 
-    static int dominant_batch(const BGtensor& x, const BGtensor& y){
-      int xb=x.getb();
-      int yb=y.getb();
-      if(xb==yb) return xb;
-      if(xb==1) return yb;
-      if(yb==1) return xb;
-      throw std::invalid_argument("Cnine error: the batch dimensions of "+x.repr()+" and "+y.repr()+
-	" cannot be reconciled.");
-      return 0;
-    }
-
-    static int dominant_batch(const BGtensor& x, const BGtensor& y, const BGtensor& z){
-      int xb=x.getb();
-      int yb=y.getb();
-      int zb=z.getb();
-      CNINE_ASSRT(xb>0 && yb>0 && zb>>0);
-
-      int nb=((int)(xb>1))+((int)(yb>1))+((int)(zb>1));
-      if(nb==0) return 1;
-      if(nb==1) return (xb>1)*xb+(yb>1)*yb+(zb>1)*zb;
-      if(nb==2){
-	if(xb==1){
-	  CNINE_ASSRT(yb==zb);
-	  return yb;
-	}
-	if(yb==1){
-	  CNINE_ASSRT(xb==zb);
-	  return xb;
-	}
-	if(zb==1){
-	  CNINE_ASSRT(xb==yb);
-	  return xb;
-	}
-      }
-      CNINE_ASSRT(xb==yb && xb==zb);
-      return xb;
-    }
-
 
   public: // ---- Grid ---------------------------------------------------------------------------------------
 
 
     bool is_gridded() const{
-      //return dims.size()>nc+1;
       return ng>1;
     }
 
     bool is_grid() const{
-      //return dims.size()>nc+1;
       return ng>1;
     }
 
     bool has_grid() const{
-      //return dims.size()>nc+1;
       return ng>1;
     }
 
     int ngdims() const{
-      //return dims.size()-nc-1;
       return ng;
     }
 
     Gdims gdims() const{
-      //return dims.chunk(1,dims.size()-nc-1);
+      return dims.chunk(1,ng);
+    }
+
+    Gdims get_gdims() const{
       return dims.chunk(1,ng);
     }
 
     GstridesB gstrides() const{
-      //return strides.chunk(1,dims.size()-nc-1);
       return strides.chunk(1,ng);
-    }
-
-    Gdims get_gdims() const{
-      //return dims.chunk(1,dims.size()-nc-1);
-      return dims.chunk(1,ng);
     }
 
     GstridesB get_gstrides() const{
-      //return strides.chunk(1,dims.size()-nc-1);
       return strides.chunk(1,ng);
-    }
-
-    template<typename TYPE2>
-    static Gdims dominant_gdims(const BGtensor& x, const BGtensor<TYPE2>& y){
-      Gdims xg=x.gdims();
-      Gdims yg=y.gdims();
-      if(xg==yg) return xg;
-      if(!x.is_grid()) return yg;
-      if(!y.is_grid()) return xg;
-      throw std::invalid_argument("Genet error: the grid dimensions of "+x.repr()+" and "+y.repr()+
-	" cannot be reconciled.");
-      return Gdims();
-    }
-
-    static Gdims dominant_gdims(const BGtensor& x, const BGtensor& y, const BGtensor& z){
-      Gdims xg=x.gdims();
-      Gdims yg=y.gdims();
-      Gdims zg=y.gdims();
-
-      int ng=(int)(xg.size()>0)+(int)(yg.size()>0)+(int)(zg.size()>0);
-      if(ng==0) return Gdims();
-      if(ng==1){
-	if(xg.size()>0) return xg;
-	if(yg.size()>0) return yg;
-	return zg;
-      }
-      if(ng==2){
-	if(xg.size()==0){
-	  CNINE_ASSRT(yg==zg);
-	  return yg;
-	}
-	if(yg.size()==0){
-	  CNINE_ASSRT(xg==zg);
-	  return xg;
-	}
-	if(zg.size()==0){
-	  CNINE_ASSRT(xg==yg);
-	  return xg;
-	}
-      }
-      CNINE_ASSRT(xg==yg && xg==zg);
-      return xg;
     }
 
 
@@ -308,29 +244,21 @@ namespace cnine{
     }
 
     Gdims cdims() const{
-      //if(nc==0) return Gdims();
-      //return dims.chunk(-nc);
+      if(!has_cells()) return Gdims();
+      return dims.chunk(1+ng);
+    }
+
+    Gdims get_cdims() const{
       if(!has_cells()) return Gdims();
       return dims.chunk(1+ng);
     }
 
     GstridesB cstrides() const{
-      //if(nc==0) return GstridesB();
-      //return strides.chunk(-nc);
       if(!has_cells()) return GstridesB();
       return strides.chunk(1+ng);
     }
 
-    Gdims get_cdims() const{
-      //if(nc==0) return Gdims();
-      //return dims.chunk(-nc);
-      if(!has_cells()) return Gdims();
-      return dims.chunk(1+ng);
-    }
-
     int cdim(const int i) const{
-      //CNINE_ASSRT(i<nc);
-      //return dims(-nc+i);
       return dims(1+ng+i);
     }
 
@@ -338,186 +266,20 @@ namespace cnine{
       return TENSOR(arr+b*strides[0]+get_gstrides().offs(ix),cdims(),cstrides());
     }
 
-    template<typename TYPE2>
-    static Gdims dominant_cdims(const BGtensor& x, const BGtensor<TYPE2>& y){
-      Gdims xg=x.get_cdims();
-      Gdims yg=y.get_cdims();
-      if(xg==yg) return xg;
-      if(!x.has_cells()) return yg;
-      if(!y.has_cells()) return xg;
-      throw std::invalid_argument("Genet error: the cell dimensions of "+x.repr()+" and "+y.repr()+" cannot be reconciled.");
-      return Gdims();
+    BGtensor transp() const{
+      CNINE_ASSRT(ncdims()==2);
+      auto R(*this);
+      R.dims=dims.transp();
+      R.strides=strides.transp();
+      return R;
     }
-
-
-  public: // ---- Lambdas -------------------------------------------------------------------------------------------------
-
-
-    template<typename TYPE2>
-    void for_each_batch_multi(const BGtensor& x, const BGtensor<TYPE2>& y, 
-			      const std::function<void(const int, const TENSOR& x, const TensorView<TYPE2>& y)>& lambda) const{
-      if(x.getb()==1){
-	int B=y.dim(0);
-	for(int b=0; b<B; b++)
-	  lambda(b,x.slice(0,0),y.slice(0,b));
-	return;
-      }
-      if(y.dim(0)==1){
-	MultiLoop(x.getb(),[&](const int b){
-			   lambda(b,x.slice(0,b),y.slice(0,0));});
-	return;
-      }
-      MultiLoop(x.getb(),[&](const int b){
-			 lambda(b,x.slice(0,b),y.slice(0,b));});
-    }
-
-
-    void for_each_batch_multi(const BGtensor& x,  const BGtensor& y, const BGtensor& z, 
-			      const std::function<void(const int, const TENSOR& x, const TENSOR& y, const TENSOR& z)>& lambda) const{
-      int B=dominant_batch(x,y,z);
-      if(x.getb()==1)
-	for(int b=0; b<B; b++)
-	  lambda(b,x.slice(0,0),y.slice(0,(y.dim(0)>1)*b),z.slice(0,(z.dim(0)>1)*b));
-      else
-	MultiLoop(B,[&](const int b){
-			 lambda(b,x.slice(0,b),y.slice(0,(y.dim(0)>1)*b),z.slice(0,(z.dim(0)>1)*b));});
-    }
-
-
-    template<typename TYPE2>
-    void for_each_batch_multi(const TensorView<TYPE2>& y, 
-			      const std::function<void(const int, const TENSOR& x, const TensorView<TYPE2>& y)>& lambda) const{
-      if(getb()==1){
-	int B=y.dim(0);
-	for(int b=0; b<B; b++)
-	  lambda(b,slice(0,0),y.slice(0,b));
-	return;
-      }
-      if(y.dim(0)==1){
-	MultiLoop(getb(),[&](const int b){
-			   lambda(b,slice(0,b),y.slice(0,0));});
-	return;
-      }
-      MultiLoop(getb(),[&](const int b){
-			 lambda(b,slice(0,b),y.slice(0,b));});
-    }
-
-
-  public: // ---- For each cell -----------------------------------------------------------------------------
-
-    
-    // this became a mess when allowing x and y to have different base types
-    template<typename TYPE2>
-    void for_each_cell_multi(const BGtensor<TYPE2>& y, 
-			     const std::function<void(const int, const Gindex cell, const TENSOR& x, 
-						      const TensorView<TYPE2>& y)> lambda) const{
-      auto& x=*this;
-
-      Gdims gdims=dominant_gdims(x,y);
-      int ncells=gdims.asize();
-      int kg=gdims.size();
-      int nc=ncdims();
-      if(kg==0){ // shortcut 
-	Gindex null_ix;
-	for_each_batch_multi<TYPE2>(x,y,[&](const int b, const TENSOR& x, const TensorView<TYPE2>& y){
-			       lambda(b,null_ix,x,y);});
-	return;
-      }
-
-      TENSOR _x(x);
-      GstridesB xstrides=GstridesB::zero(kg);
-      if(x.strides.size()==nc+1+kg){
-	xstrides=x.strides.chunk(0,kg);
-	_x.dims=Gdims::cat(_x.dims[0],_x.dims.chunk(1+kg));
-	_x.strides=Gdims::cat(_x.dims[0],_x.dims.chunk(1+kg));
-      }
-
-      TensorView<TYPE2> _y(y);
-      GstridesB ystrides=GstridesB::zero(kg);
-      if(x.strides.size()==nc+1+kg){
-	xstrides=x.strides.chunk(0,kg);
-  	_y.dims=Gdims::cat(_y.dims[0],_y.dims.chunk(1+kg));
-	_y.strides=Gdims::cat(_y.dims[0],_y.dims.chunk(1+kg));
-      }
-
-      for_each_batch_multi<TYPE2>(_x,_y,[&](const int b, const TENSOR& x, const TensorView<TYPE2>& y){
-			     TENSOR _x(x);
-			     TensorView<TYPE2> _y(y);
-			     for(int i=0; i<ncells; i++){
-			       Gindex ix(i,gdims);
-			       _x.arr=x.arr+xstrides.offs(ix);
-			       _y.arr=y.arr+ystrides.offs(ix);
-			       lambda(b,ix,_x,_y);
-			     }
-			   });
-    }
-      
-
-    void for_each_cell_multi(const BGtensor& y, const BGtensor& z, 
-			     const std::function<void(const int, const Gindex cell, const TENSOR& x, const TENSOR& y, const TENSOR& z)>& lambda) const{
-      auto& x=*this;
-
-      Gdims gdims=dominant_gdims(x,y,z);
-      int ncells=gdims.asize();
-      int kg=gdims.size();
-      int nc=ncdims();
-      if(kg==0){ // shortcut 
-	Gindex null_ix;
-	for_each_batch_multi(x,y,z,[&](const int b, const TENSOR& x, const TENSOR& y, const TENSOR& z){
-			       lambda(b,null_ix,x,y,z);});
-	return;
-      }
-
-      TENSOR _x(x);
-      GstridesB xstrides=GstridesB::zero(kg);
-      if(x.strides.size()==nc+1+kg){
-	xstrides=x.strides.chunk(0,kg);
-	_x.dims=Gdims::cat(_x.dims[0],_x.dims.chunk(1+kg));
-	_x.strides=Gdims::cat(_x.dims[0],_x.dims.chunk(1+kg));
-      }
-
-      TENSOR _y(y);
-      GstridesB ystrides=GstridesB::zero(kg);
-      if(x.strides.size()==nc+1+kg){
-	xstrides=y.strides.chunk(0,kg);
-  	_y.dims=Gdims::cat(_y.dims[0],_y.dims.chunk(1+kg));
-	_y.strides=Gdims::cat(_y.dims[0],_y.dims.chunk(1+kg));
-      }
-
-      TENSOR _z(z);
-      GstridesB zstrides=GstridesB::zero(kg);
-      if(z.strides.size()==nc+1+kg){
-	zstrides=z.strides.chunk(0,kg);
-  	_z.dims=Gdims::cat(_z.dims[0],_z.dims.chunk(1+kg));
-	_z.strides=Gdims::cat(_z.dims[0],_z.dims.chunk(1+kg));
-      }
-
-      for_each_batch_multi(_x,_y,_z,[&](const int b, const TENSOR& x, const TENSOR& y, const TENSOR& z){
-			     TENSOR _x(x);
-			     TENSOR _y(y);
-			     TENSOR _z(z);
-			     for(int i=0; i<ncells; i++){
-			       Gindex ix(i,gdims);
-			       _x.arr=x.arr+xstrides.offs(ix);
-			       _y.arr=y.arr+ystrides.offs(ix);
-			       _z.arr=z.arr+zstrides.offs(ix);
-			       lambda(b,ix,_x,_y,_z);
-			     }
-			   });
-    }
-
+ 
 
   public: // ---- Products -------------------------------------------------------------------------------------------------
 
+
     #include "BGtensor_products.hpp"
 
-    /*
-    template<typename TYPE2>
-    BGtensor prod(const BGtensor<TYPE2>& y){
-      BGtensor<TYPE,nc> R(dominant_batch(*this,y),dominant_gdims(*this,y),get_cdims(),0,get_dev());
-      return R;
-    }
-    */
 
   public: // ---- I/O ------------------------------------------------------------------------------------------------------
 
@@ -582,3 +344,59 @@ namespace cnine{
 
 
 #endif 
+
+    /*
+    template<typename TYPE2>
+    static Gdims dominant_gdims(const BGtensor& x, const BGtensor<TYPE2>& y){
+      Gdims xg=x.gdims();
+      Gdims yg=y.gdims();
+      if(xg==yg) return xg;
+      if(!x.is_grid()) return yg;
+      if(!y.is_grid()) return xg;
+      throw std::invalid_argument("Genet error: the grid dimensions of "+x.repr()+" and "+y.repr()+
+	" cannot be reconciled.");
+      return Gdims();
+    }
+
+    static Gdims dominant_gdims(const BGtensor& x, const BGtensor& y, const BGtensor& z){
+      Gdims xg=x.gdims();
+      Gdims yg=y.gdims();
+      Gdims zg=y.gdims();
+
+      int ng=(int)(xg.size()>0)+(int)(yg.size()>0)+(int)(zg.size()>0);
+      if(ng==0) return Gdims();
+      if(ng==1){
+	if(xg.size()>0) return xg;
+	if(yg.size()>0) return yg;
+	return zg;
+      }
+      if(ng==2){
+	if(xg.size()==0){
+	  CNINE_ASSRT(yg==zg);
+	  return yg;
+	}
+	if(yg.size()==0){
+	  CNINE_ASSRT(xg==zg);
+	  return xg;
+	}
+	if(zg.size()==0){
+	  CNINE_ASSRT(xg==yg);
+	  return xg;
+	}
+      }
+      CNINE_ASSRT(xg==yg && xg==zg);
+      return xg;
+    }
+    */
+   /*
+    template<typename TYPE2>
+    static Gdims dominant_cdims(const BGtensor& x, const BGtensor<TYPE2>& y){
+      Gdims xg=x.get_cdims();
+      Gdims yg=y.get_cdims();
+      if(xg==yg) return xg;
+      if(!x.has_cells()) return yg;
+      if(!y.has_cells()) return xg;
+      throw std::invalid_argument("Genet error: the cell dimensions of "+x.repr()+" and "+y.repr()+" cannot be reconciled.");
+      return Gdims();
+    }
+    */
