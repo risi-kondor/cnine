@@ -227,10 +227,10 @@ namespace cnine{
 	tensors[p.first].subtract(p.first);
     }
 
-    void add_prod(const BGtensorPack<TYPE>& x, const BGtensor<TYPE>& y) const{
-      for(auto& p: x.tensors)
-	tensors[p.first].add_prod(p.second);
-    }
+    //void add_prod(const BGtensorPack& x, const BGtensor& y) const{
+    //for(auto& p: x.tensors)
+    //tensors[p.first].add_prod(p.second);
+    //}
 
 
   public: // ---- Operations ---------------------------------------------------------------------------------

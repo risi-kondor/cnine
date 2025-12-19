@@ -36,6 +36,7 @@ namespace cnine{
     using TENSOR::ndims;
     using TENSOR::get_dev;
     using TENSOR::slice;
+    using TENSOR::slices;
     using TENSOR::repr;
 
     int ng=0;
@@ -66,7 +67,8 @@ namespace cnine{
       TENSOR([](const vector<BGtensor>& v){
 	  CNINE_ASSRT(v.size()>0); 
 	  auto& x=*v.begin(); 
-	  return Gdims::cat(x.getb()*v.size(),x.gdims(),x.cdims())}(v),fill,_dev){
+	  return TENSOR(Gdims::cat(x.getb()*v.size(),x.gdims(),x.cdims()),0,x.get_dev());}){
+      auto& x=*v.begin(); 
       int _b=x.getb();
       Gdims _gdims=x.gdims();
       Gdims _cdims=x.cdims();
@@ -76,7 +78,7 @@ namespace cnine{
 	CNINE_ASSRT(p.gdims()==_gdims);
 	CNINE_ASSRT(p.cdims()==_cdims);
 	slices(0,offs,_b).add(p);
-	offs+=b;
+	offs+=_b;
       }
     }
 

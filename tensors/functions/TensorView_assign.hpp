@@ -113,7 +113,7 @@ namespace cnine{
 
       if(copylast){
 	for(int i0=0; i0<n0; i0++)
-	  std::copy(xarr+i0*xs0,xarr+i0*xs0+n1*xs0,rarr+i0*rs0);
+	  std::copy(xarr+i0*xs0,xarr+i0*xs0+n1,rarr+i0*rs0); // changed
       }else{
 	for(int i0=0; i0<n0; i0++)
 	  for(int i1=0; i1<n1; i1++)
