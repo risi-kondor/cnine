@@ -29,6 +29,12 @@ namespace cnine{
   }
 
   template<typename TYPE>
+  inline TYPE sconj(const TYPE x){
+    if constexpr(is_complex<TYPE>()) return std::conj(x);
+    else return x;
+  }
+
+  template<typename TYPE>
   inline void fastadd(const TYPE* source, TYPE* dest, const int n){
     for(int i=0; i<n; i++)
       *(dest+i)+=*(source+i);

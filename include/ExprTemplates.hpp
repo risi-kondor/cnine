@@ -87,10 +87,10 @@ namespace cnine{
     return Conjugate<OBJ>(x);
   }
 
-  template<typename OBJ>
-  Hermitian<OBJ> herm(const OBJ& x){
-    return Hermitian<OBJ>(x);
-  }
+  //template<typename OBJ>
+  //Hermitian<OBJ> herm(const OBJ& x){
+  //return Hermitian<OBJ>(x);
+  //}
 
 
   //template<typename OBJ>

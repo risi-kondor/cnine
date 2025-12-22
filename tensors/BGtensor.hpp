@@ -52,14 +52,6 @@ namespace cnine{
       ng=gdims.size();
     }
 
-    BGtensor(const TENSOR& x, const bool _batched=0, const int _ng=0):
-      TENSOR(x), ng(_ng){
-      if(!_batched){
-	dims=dims.insert(0,1);
-	strides=strides.insert(0,0);
-      }
-    }
-
     BGtensor(const initializer_list<BGtensor>& v):
       BGtensor(vector<BGtensor>(v)){}
 
@@ -85,6 +77,14 @@ namespace cnine{
     BGtensor(const int _ng, const TENSOR& x):
       TENSOR(x), ng(_ng){
       CNINE_ASSRT(_ng<=ndims()-1);
+    }
+
+    BGtensor(const TENSOR& x, const bool _batched=0, const int _ng=0):
+      TENSOR(x), ng(_ng){
+      if(!_batched){
+	dims=dims.insert(0,1);
+	strides=strides.insert(0,0);
+      }
     }
 
     BGtensor like(const TENSOR& x) const{
@@ -113,17 +113,28 @@ namespace cnine{
       return BGtensor(ng,TENSOR::copy());
     }
       
+    BGtensor conjugate(){
+      BGtensor R(*this);
+      R.is_conj.flip();
+      return R;
+    }
+
 
   public: // ---- Named constructors -------------------------------------------------------------------------
 
 
-    static BGtensor batched_scalar(const TENSOR& x){
+    static BGtensor scalar(const TENSOR& x){
       CNINE_ASSRT(x.ndims()==1);
       return BGtensor(x,1);
     }
 
-    static BGtensor batched_scalar(const initializer_list<TYPE>& v){
+    static BGtensor scalar(const initializer_list<TYPE>& v){
       return BGtensor(TensorView<TYPE>::init(v),true);
+    }
+
+
+    static BGtensor vectr(const TENSOR& x){
+      return BGtensor(x,x.ndims()>1,std::max(0,x.ndims()-2));
     }
 
 
@@ -131,26 +142,26 @@ namespace cnine{
       return BGtensor(x,0);
     }
 
-    static BGtensor tensor(const initializer_list<TYPE>& v){
-      return BGtensor(TensorView<TYPE>::init(v),0);
-    }
+    //static BGtensor tensor(const initializer_list<TYPE>& v){
+    //return BGtensor(TensorView<TYPE>::init(v),0);
+    //}
 
-    static BGtensor tensor(const initializer_list<initializer_list<TYPE> >& v){
-      return BGtensor(TensorView<TYPE>::init(v),0);
-    }
+    //static BGtensor tensor(const initializer_list<initializer_list<TYPE> >& v){
+    //return BGtensor(TensorView<TYPE>::init(v),0);
+    //}
 
 
     static BGtensor batched_tensor(const TENSOR& x){
       return BGtensor(x,1);
     }
 
-    static BGtensor batched_tensor(const initializer_list<TYPE>& v){
-      return BGtensor(TensorView<TYPE>::init(v),1);
-    }
+    //static BGtensor batched_tensor(const initializer_list<TYPE>& v){
+    //return BGtensor(TensorView<TYPE>::init(v),1);
+    //}
 
-    static BGtensor batched_tensor(const initializer_list<initializer_list<TYPE> >& v){
-      return BGtensor(TensorView<TYPE>::init(v),1);
-    }
+    //static BGtensor batched_tensor(const initializer_list<initializer_list<TYPE> >& v){
+    //return BGtensor(TensorView<TYPE>::init(v),1);
+    //}
 
 
     static BGtensor grid(const TENSOR& x){
@@ -187,6 +198,10 @@ namespace cnine{
 
     int getb() const{
       return dims[0];
+    }
+
+    int bstride() const{
+      return strides[0];
     }
 
     BGtensor batch(const int b) const{
@@ -285,6 +300,13 @@ namespace cnine{
 
   public: // ---- I/O ------------------------------------------------------------------------------------------------------
 
+
+    string repr() const{
+      ostringstream oss;
+      oss<<"<BGtensor<"<<TENSOR::dtype_str()<<"> b="<<getb()<<",gdims=";
+      oss<<gdims()<<",cdims="<<cdims()<<"> [strides="<<strides<<"]";
+      return oss.str();
+    }
 
     string cell_to_string(int b, const Gindex& ix, const string indent="") const{
       if(!has_cells()){

@@ -22,6 +22,7 @@
 #include "GstridesB.hpp"
 #include "Gindex.hpp"
 #include "MemArr.hpp"
+#include "ComplexHelper.hpp"
 #include "device_helpers.hpp"
 #include "NamedTypes.hpp"
 
@@ -112,6 +113,7 @@ namespace cnine{
     Gdims dims;
     GstridesB strides;
     int dev;
+    ComplexHelper<TYPE> is_conj;
 
   
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -119,11 +121,12 @@ namespace cnine{
 
     TensorView(){}
 
-    TensorView(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides):
+    TensorView(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides, const bool _conj=false):
       arr(_arr),
       dims(_dims), 
       strides(_strides), 
-      dev(_arr.device()){
+      dev(_arr.device()),
+      is_conj(_conj){
     }
 
     TensorView(const Gdims& _dims, const GstridesB& _strides, const int _dev):
@@ -242,6 +245,12 @@ namespace cnine{
       return R;
     }
     
+    TensorView conjugate(){
+      TensorView R(*this);
+      R.is_conj.flip();
+      return R;
+    }
+
     TensorView* clone() const{
       return new TensorView(*this);
     }
@@ -640,6 +649,110 @@ namespace cnine{
 	CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,get_arr(),nc,y.get_arr(),1,get_arr(),nc));
 	//CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
       }    
+    }
+
+    void add_mul_columns(const TensorView<TYPE>& x, const TensorView& y) const{
+      try{
+	CNINE_DEVICE_SAME(x);
+	CNINE_DEVICE_SAME(y);
+	if(x.ndims()!=2) CNINE_THROW("x must be a matrix.");
+	if(y.ndims()!=1) CNINE_THROW("y must be a vector.");
+	int n=dim(0);
+	int nc=dim(1);
+	if(x.dim(0)!=n) CNINE_THROW("dim(0) of x does not match dim(0) of output.");
+	if(x.dim(1)!=nc) CNINE_THROW("dim(1) of x does not match dim(1) of output.");
+	if(y.dim(0)!=nc) CNINE_THROW("dim(0) of y does not match dim(1) of output.");
+	if(dev==0){
+	  for(int i=0; i<n; i++)
+	    for(int j=0; j<nc; j++)
+	      arr[i*nc+j]+=x.arr[i*nc+j]*y.arr[j];
+	}
+	if(dev==1){
+	  CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,get_arr(),nc,y.get_arr(),1,get_arr(),nc));
+	  //CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
+	}    
+      }catch(const std::runtime_error& e){
+	throw std::runtime_error(string("TensorView::add_mul_columns(x,y): ")+e.what());
+      }
+    }
+
+    void add_mul_columns_XC(const TensorView<TYPE>& x, const TensorView& y) const{
+      try{
+	CNINE_DEVICE_SAME(x);
+	CNINE_DEVICE_SAME(y);
+	if(x.ndims()!=2) CNINE_THROW("x must be a matrix.");
+	if(y.ndims()!=1) CNINE_THROW("y must be a vector.");
+	int n=dim(0);
+	int nc=dim(1);
+	if(x.dim(0)!=n) CNINE_THROW("dim(0) of x does not match dim(0) of output.");
+	if(x.dim(1)!=nc) CNINE_THROW("dim(1) of x does not match dim(1) of output.");
+	if(y.dim(0)!=nc) CNINE_THROW("dim(0) of y does not match dim(1) of output.");
+	if(dev==0){
+	  for(int i=0; i<n; i++)
+	    for(int j=0; j<nc; j++)
+	      arr[i*nc+j]+=x.arr[i*nc+j]*sconj(y.arr[j]);
+	}
+	if(dev==1){
+	  CNINE_CPUONLY();
+	  //CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,get_arr(),nc,y.get_arr(),1,get_arr(),nc));
+	  //CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
+	}    
+      }catch(const std::runtime_error& e){
+	throw std::runtime_error(string("TensorView::add_mul_columns_XC(x,y): ")+e.what());
+      }
+    }
+
+    void add_div_columns(const TensorView<TYPE>& x, const TensorView& y) const{
+      try{
+	CNINE_DEVICE_SAME(x);
+	CNINE_DEVICE_SAME(y);
+	if(x.ndims()!=2) CNINE_THROW("x must be a matrix.");
+	if(y.ndims()!=1) CNINE_THROW("y must be a vector.");
+	int n=dim(0);
+	int nc=dim(1);
+	if(x.dim(0)!=n) CNINE_THROW("dim(0) of x does not match dim(0) of output.");
+	if(x.dim(1)!=nc) CNINE_THROW("dim(1) of x does not match dim(1) of output.");
+	if(y.dim(0)!=nc) CNINE_THROW("dim(0) of y does not match dim(1) of output.");
+	if(dev==0){
+	  for(int i=0; i<n; i++)
+	    for(int j=0; j<nc; j++)
+	      arr[i*nc+j]+=x.arr[i*nc+j]/y.arr[j];
+	}
+	CNINE_CPUONLY()
+	  if(dev==1){
+	    //CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,get_arr(),nc,y.get_arr(),1,get_arr(),nc));
+	  }    
+      }catch(const std::runtime_error& e){
+	throw std::runtime_error(string("TensorView::add_div_columns(x,y): ")+e.what());
+      }
+    }
+
+
+    void add_column_inps_XC(const TensorView<TYPE>& x, const TensorView& y) const{
+      try{
+	CNINE_DEVICE_SAME(x);
+	CNINE_DEVICE_SAME(y);
+	CNINE_CHECK_SIZE(x.dims.check_eq(y.dims));
+	if(ndims()!=1) CNINE_THROW("output must be a vector.");
+	if(dim(0)!=x.dim(1)) CNINE_THROW("dim(0) of output does not match number of columns.");
+	int n=x.dim(0);
+	int nc=x.dim(1);
+	if(dev==0){
+	  for(int i=0; i<nc; i++){
+	    TYPE t=0;
+	    for(int j=0; j<n; j++)
+	      t+=x(j,i)*sconj(y(j,i));
+	    set(i,t);
+	  }
+	}
+	if(dev==1){
+	  CNINE_CPUONLY();
+	  //CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,n,get_arr(),nc,y.get_arr(),1,get_arr(),nc));
+	  //CUBLAS_SAFE(cublasSdgmm(cnine_cublas,CUBLAS_SIDE_LEFT,nc,tail/nc,arrg,nc,y.arr,1,R.arrg,R.nc));
+	}    
+      }catch(const std::runtime_error& e){
+	throw std::runtime_error(string("TensorView::add_column_inps_XC(x,y): ")+e.what());
+      }
     }
 
 

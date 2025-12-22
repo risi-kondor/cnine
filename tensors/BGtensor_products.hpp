@@ -34,9 +34,8 @@ BGtensor<TYPE> operator*(const BGtensor<TYPE>& y) const{
 
 
 void add_prod(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
+  if(x.has_cells()+y.has_cells()+has_cells()<2){CNINE_UNIMPL(); return;}
   if(!x.has_cells()){
-    if(!y.has_cells()){CNINE_UNIMPL(); return;}
-    //ForEachCellMultiScalar<TYPE,TYPE,TYPE>()
     for_each_cell_multi_scalar(*this,y,x,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
 	r.add(y,c);},0);
@@ -51,7 +50,6 @@ void add_prod(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
   }
 }
 
-
 void add_prod_XC(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
   if(x.has_cells()+y.has_cells()+has_cells()<2){CNINE_UNIMPL(); return;}
   if(!x.has_cells()){
@@ -65,26 +63,78 @@ void add_prod_XC(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
   }else if(!has_cells()){
     for_each_cell_multi_scalar(x,y,*this,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& x, const TensorView<TYPE>& y, TYPE& r){
-	r+=inp(y,x);
-      },2);
+	r+=inp(y,x);},2);
   }else{
     for_each_cell_multi(*this,x,y,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
-	r.add_prod_XC(x,y);
-      },0);
+	r.add_prod_XC(x,y);},0);
   }
 }
 
+
+// ---- Elementwise division ------------------------------------------------------------------------------------------------
+
+
+BGtensor<TYPE> operator/(const BGtensor<TYPE>& y) const{
+  BGtensor<TYPE> R(dominant_batch(*this,y),dominant_gdims(*this,y),dominant_cdims(*this,y),0,get_dev());
+  R.add_div(*this,y);
+  return R;
+}
+
+
+/*
+void add_div(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
+  if(x.has_cells()+y.has_cells()+has_cells()<2){CNINE_UNIMPL(); return;}
+  if(!x.has_cells()){
+    //for_each_cell_multi_scalar(*this,y,x,[](const int b, const Gindex& ix,
+    //const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
+    //r.add(y,c);},0);
+  }else if(!y.has_cells()){
+    for_each_cell_multi_scalar(*this,x,y,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
+	r.add(x,1.0/c);},0);
+  }else{
+    for_each_cell_multi(*this,x,y,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+	r.add_div(x,y);},0);
+  }
+}
+*/
+
+/*
+void add_div_XC(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
+  if(x.has_cells()+y.has_cells()+has_cells()<2){CNINE_UNIMPL(); return;}
+  if(!x.has_cells()){
+    //for_each_cell_multi_scalar(*this,y,x,[](const int b, const Gindex& ix,
+    //const TensorView<TYPE>& r, const TensorView<TYPE>& y, const TYPE c){
+    //r.add_CX(y,c);},0);
+  }else if(!y.has_cells()){
+    for_each_cell_multi_scalar(*this,x,y,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
+	r.add(x,1.0/std::conj(c));},0);
+  }else if(!has_cells()){
+    //for_each_cell_multi_scalar(x,y,*this,[](const int b, const Gindex& ix,
+    //const TensorView<TYPE>& x, const TensorView<TYPE>& y, TYPE& r){
+    //r+=inp(y,x);},2);
+  }else{
+    for_each_cell_multi(*this,x,y,[](const int b, const Gindex& ix,
+	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TensorView<TYPE>& y){
+	r.add_prod_XC(x,y);},0);
+  }
+}
+*/
 
 // ---- Matrix products -----------------------------------------------------------------------------------------------------
 
   
 BGtensor<TYPE> mprod(const BGtensor<TYPE>& y) const{
-  if(ncdims()!=2||y.ncdims()!=2) CNINE_ARG_ERR("matrix product: both BGtensors must have cell dimensions 2");
-  if(cdim(1)!=y.cdim(0)) CNINE_ARG_ERR("matrix product: inner dimensions do not match");
-  BGtensor<TYPE> R(dominant_batch(*this,y),dominant_gdims(*this,y),Gdims({cdim(0),y.cdim(1)}),0,get_dev());
-  R.add_mprod(*this,y);
-  return R;
+  try{
+    if(ncdims()!=2||y.ncdims()!=2) CNINE_THROW("both BGtensors must have cell dimensions 2");
+    if(cdim(1)!=y.cdim(0)) CNINE_THROW(string("inner dimensions do not match between (")+repr()+", "+y.repr()+").");
+    BGtensor<TYPE> R(dominant_batch(*this,y),dominant_gdims(*this,y),Gdims({cdim(0),y.cdim(1)}),0,get_dev());
+    R.add_mprod(*this,y);
+    return R;
+  }catch(const std::runtime_error& e){CNINE_THROW(string("BGtensor::mprod(y): ")+e.what());}
 }
 
 void add_mprod(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{

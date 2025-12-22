@@ -45,21 +45,47 @@ void add(const TensorView& x) const{
 }
 
 
-void add(const TensorView& x, const TYPE c) const{
+//template<typename TYPE2>
+void add(const TensorView& x, TYPE c) const{
   CNINE_DEVICE_SAME(x);
   CNINE_CHECK_SIZE(dims.check_eq(x.dims));
   CNINE_CPUONLY();
   assert(asize()==x.asize());
+  if constexpr(is_complex<TYPE>()&&is_complex<TYPE>())
+    if(is_conj()) c=std::conj(c);
+
   if(dev==0){
-    if(is_regular() && x.is_regular() && strides==x.strides){
-      TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();/*+strides.offset*/
-      TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr()/*+x.strides.offset*/;
-      for(size_t i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
+    if constexpr(!is_complex<TYPE>()){
+      if(is_regular() && x.is_regular() && strides==x.strides){
+	TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	for(size_t i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
+      }else{
+	for_each([&](const Gindex& ix, TYPE& v){v+=c*x(ix);});
+      }
     }else{
-      for_each([&](const Gindex& ix, TYPE& v){v+=c*x(ix);});
+      if(!(x.is_conj()^is_conj())){
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  for(size_t i=0; i<asize(); i++) ptr[i]+=c*xptr[i];
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){v+=c*x(ix);});
+	}
+      }else{
+	if(is_regular() && x.is_regular() && strides==x.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  for(size_t i=0; i<asize(); i++) ptr[i]+=c*std::conj(xptr[i]);
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){v+=c*std::conj(x(ix));});
+	}
+      }
     }
   }
+
   if(dev==1){
+    CNINE_UNIMPL();
     if(is_regular() && x.is_regular() && strides==x.strides){
       const TYPE alpha=c;
       //CUBLAS_SAFE(cublasSaxpy(cnine_cublas, asize(), &alpha, x.arr, 1, arr, 1));
@@ -160,19 +186,57 @@ void add_sum(const int d, const TensorView& x) const{
 }
 
 
+// ---- Elementwise products -------------------------------------------------------------------------------------------
+
+
+// conjugation complicates things too much
 void add_prod(const TensorView& x, const TensorView& y) const{
   CNINE_DEVICE_SAME(x);
   CNINE_DEVICE_SAME(y);
   CNINE_DIMS_SAME(x);
   CNINE_DIMS_SAME(y);
   if(dev==0){
-    if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
-      TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
-      TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
-      TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
-      for(int i=0; i<asize(); i++) ptr[i]+=xptr[i]*yptr[i];
-    }else
-      for_each([&](const Gindex& ix, TYPE& v){v+=x(ix)*y(ix);});
+    if(x.is_conj()^is_conj()){
+      if(y.is_conj()^is_conj()){
+	if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
+	  for(int i=0; i<asize(); i++) ptr[i]+=std::conj(xptr[i]*yptr[i]);
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){v+=std::conj(x(ix)*y(ix));});
+	}
+      }else{
+	if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
+	  for(int i=0; i<asize(); i++) ptr[i]+=std::conj(xptr[i])*yptr[i];
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){v+=std::conj(x(ix))*y(ix);});
+	}
+      }
+    }else{
+      if(y.is_conj()^is_conj()){
+	if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
+	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i]*std::conj(yptr[i]);
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix)*std::conj(y(ix));});
+	}
+      }else{
+	if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
+	  TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+	  TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+	  TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
+	  for(int i=0; i<asize(); i++) ptr[i]+=xptr[i]*yptr[i];
+	}else{
+	  for_each([&](const Gindex& ix, TYPE& v){v+=x(ix)*y(ix);});
+	}
+      }
+    }
   }
   if(dev==1){
     CNINE_UNIMPL();
@@ -198,6 +262,31 @@ void add_prod_XC(const TensorView& x, const TensorView& y) const{
     CNINE_UNIMPL();
   }
 }
+
+
+void add_div(const TensorView& x, const TensorView& y) const{
+  CNINE_DEVICE_SAME(x);
+  CNINE_DEVICE_SAME(y);
+  CNINE_DIMS_SAME(x);
+  CNINE_DIMS_SAME(y);
+  if(dev==0){
+    if(is_regular() && x.is_regular() && y.is_regular() && strides==x.strides&& strides==y.strides){
+      TYPE* ptr=const_cast<MemArr<TYPE>&>(arr).get_arr();
+      TYPE* xptr=const_cast<MemArr<TYPE>&>(x.arr).get_arr();
+      TYPE* yptr=const_cast<MemArr<TYPE>&>(y.arr).get_arr();
+      for(int i=0; i<asize(); i++) ptr[i]+=xptr[i]/yptr[i];
+    }else
+      for_each([&](const Gindex& ix, TYPE& v){v+=x(ix)/y(ix);});
+  }
+  if(dev==1){
+    CNINE_UNIMPL();
+  }
+}
+
+
+
+// ---- Elementwise products -------------------------------------------------------------------------------------------
+
 
 
 void add_broadcast(const int d, const TensorView& x) const{

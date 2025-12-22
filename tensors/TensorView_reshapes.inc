@@ -16,9 +16,17 @@
 
 
 TensorView transp() const{
-  CNINE_ASSRT(ndims()==2);
-  return TensorView(arr,{dims[1],dims[0]},{strides[1],strides[0]});
+  CNINE_ASSRT(ndims()>=2);
+  return TensorView(arr,dims.transp(),strides.transp());
+  //return TensorView(arr,{dims[1],dims[0]},{strides[1],strides[0]});
 }
+
+/*
+TensorView herm() const{
+  CNINE_ASSRT(ndims()>=2);
+  return TensorView(arr,dims.transp(),strides.transp()).conjugate();
+}
+*/
 
 TensorView transp(const int a, const int b) const{
   CNINE_ASSRT(a<ndims());

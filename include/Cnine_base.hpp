@@ -56,6 +56,8 @@ using namespace std;
 
 #define CNINE_UNIMPL() printf("Cnine error: function \"%s\" not implemented.\n",__PRETTY_FUNCTION__);
 
+#define CNINE_THROW(msg) throw std::runtime_error(msg);
+
 
 // ---- Copy, assign and convert warnings --------------------------------------------------------------------
 
