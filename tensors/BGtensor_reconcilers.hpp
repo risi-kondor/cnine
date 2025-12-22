@@ -65,6 +65,28 @@ namespace cnine{
   }
 
 
+  template<typename TYPE1, typename TYPE2, typename TYPE3, typename TYPE4>
+  static int dominant_batch(const BGtensor<TYPE1>& x, const BGtensor<TYPE2>& y, const BGtensor<TYPE3>& z, const BGtensor<TYPE4>& w){
+    int xb=x.getb();
+    int yb=y.getb();
+    int zb=z.getb();
+    int wb=w.getb();
+    CNINE_ASSRT(xb>0 && yb>0 && zb>0 && wb>0);
+
+    int B=1;
+    if(xb>1) B=xb;
+    if(yb>1) B=yb;
+    if(zb>1) B=zb;
+    if(wb>1) B=wb;
+    CNINE_ASSRT(xb==B || xb==1);
+    CNINE_ASSRT(yb==B || yb==1);
+    CNINE_ASSRT(zb==B || zb==1);
+    CNINE_ASSRT(wb==B || wb==1);
+
+    return B;
+  }
+
+
   // ---- Grid ----------------------------------------------------------------------------------------------
 
 
@@ -109,6 +131,26 @@ namespace cnine{
     }
     CNINE_ASSRT(xg==yg && xg==zg);
     return xg;
+  }
+
+
+  template<typename TYPE1, typename TYPE2, typename TYPE3, typename TYPE4>
+  Gdims dominant_gdims(const BGtensor<TYPE1>& x, const BGtensor<TYPE2>& y, const BGtensor<TYPE3>& z, const BGtensor<TYPE4>& w){
+    Gdims xg=x.gdims();
+    Gdims yg=y.gdims();
+    Gdims zg=y.gdims();
+    Gdims wg=w.gdims();
+
+    Gdims r;
+    if(xg.size()>0) r=xg;
+    if(yg.size()>0) r=yg;
+    if(zg.size()>0) r=zg;
+    if(wg.size()>0) r=wg;
+    CNINE_ASSRT(xg.size()==0 || xg==r);
+    CNINE_ASSRT(yg.size()==0 || yg==r);
+    CNINE_ASSRT(zg.size()==0 || zg==r);
+    CNINE_ASSRT(wg.size()==0 || wg==r);
+    return r;
   }
 
 
