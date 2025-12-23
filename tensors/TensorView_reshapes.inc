@@ -67,6 +67,11 @@ TensorView inplace_reshape(const Gdims& _dims){
   return *this;
 }
 
+TensorView squeeze(const int d) const{
+  CNINE_ASSRT(dims[d]==1);
+  return TensorView(arr,dims.remove(d),strides.remove(d));
+}
+
 TensorView unsqueeze(const int d) const{
   int s=ifthen(d==0,strides.memsize(dims),strides[d-1]);
   return TensorView(arr,Gdims(dims).insert(d,1),GstridesB(strides).insert(d,s));

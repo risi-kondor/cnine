@@ -165,6 +165,25 @@ namespace cnine{
   inline void show(const TYPE& x){
     cout<<show_if_possible(x,0)<<endl;
   }
+
+  
+  template<typename TYPE>
+  auto print_if_possible(const TYPE& x, int) -> decltype(x.str(),std::to_string(1)){
+    return x.str();
+  }
+
+  template<typename TYPE>
+  string print_if_possible(const TYPE& x, long){
+    ostringstream oss;
+    oss<<x;
+    return oss.str();
+    //return to_stringx;
+  }
+
+  template<typename TYPE>
+  inline void print(const TYPE& x){
+    cout<<print_if_possible(x,0)<<endl;
+  }
   
   /*
   inline string to_string(const vector<int>& v){ // interferes with std::to_string

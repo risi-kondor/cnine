@@ -25,14 +25,14 @@ namespace cnine{
 
   // ---- Addition -------------------------------------------------------------------------------------------
 
-  template<typename TYPE, typename TYPE2>
+  template<typename TYPE, typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
   TensorView<TYPE> operator+(const TYPE2 c, const TensorView<TYPE>& x){
     TensorView<TYPE> r=x.copy();
     r.add(c);
     return r;
   }
 
-  template<typename TYPE, typename TYPE2>
+  template<typename TYPE, typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
   TensorView<TYPE> operator+(const TensorView<TYPE>& x, const TYPE2 c){
     TensorView<TYPE> r=x.copy();
     r.add(c);
@@ -57,7 +57,7 @@ namespace cnine{
     return r;
   }
 
-  template<typename TYPE, typename TYPE2>
+  template<typename TYPE, typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
   TensorView<TYPE> operator-(const TYPE2 c, const TensorView<TYPE>& x){
     TensorView<TYPE> r=x.zeros_like();
     r.add(x,-1);
@@ -65,7 +65,7 @@ namespace cnine{
     return r;
   }
 
-  template<typename TYPE, typename TYPE2>
+  template<typename TYPE, typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
   TensorView<TYPE> operator-(const TensorView<TYPE>& x, const TYPE2 c){
     TensorView<TYPE> r=x.copy();
     r.add(-c);
@@ -83,14 +83,14 @@ namespace cnine{
   // ---- Multiplication -------------------------------------------------------------------------------------
 
   
-  template<typename TYPE, typename TYPE2>
+  template<typename TYPE, typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
   TensorView<TYPE> operator*(const TensorView<TYPE>& x, const TYPE2 c){
     TensorView<TYPE> r=x.zeros_like();
     r.add(x,c);
     return r;
   }
 
-  template<typename TYPE, typename TYPE2>
+  template<typename TYPE, typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
   TensorView<TYPE> operator*(const TYPE2 c, const TensorView<TYPE>& x){
     TensorView<TYPE> r=x.zeros_like();
     r.add(x,c);

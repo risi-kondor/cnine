@@ -33,6 +33,8 @@ namespace cnine{
     using TENSOR::arr;
     using TENSOR::dims;
     using TENSOR::strides;
+    using TENSOR::dev;
+
     using TENSOR::ndims;
     using TENSOR::get_dev;
     using TENSOR::slice;
@@ -74,6 +76,19 @@ namespace cnine{
       }
     }
 
+    //BGtensor(const MemArr<TYPE>& _arr, const int _ng, Gdims& _dims, const GstridesB& _strides):
+    //TENSOR(_arr,_dims,_strides){
+    //ng=_ng;
+    //}
+
+    BGtensor(const MemArr<TYPE>& _arr, const int _b, const Gdims& _gdims, const Gdims& _cdims,
+      const int _bstride, const GstridesB& _gstrides, const GstridesB& _cstrides):
+      TENSOR(_arr,Gdims(_b,_gdims,_cdims),GstridesB(_bstride,_gstrides,_cstrides)){
+      CNINE_ASSRT(_gdims.size()==_gstrides.size());
+      CNINE_ASSRT(_cdims.size()==_cstrides.size());
+      ng=_gdims.size();
+    }
+
     BGtensor(const int _ng, const TENSOR& x):
       TENSOR(x), ng(_ng){
       CNINE_ASSRT(_ng<=ndims()-1);
@@ -93,6 +108,23 @@ namespace cnine{
 
     BGtensor zeros_like() const{
       return BGtensor(ng,TENSOR::zeros_like());
+    }
+
+    void reset(const BGtensor& x){
+      arr=x.arr;
+      dims=x.dims;
+      strides=x.strides;
+      dev=x.dev;
+      ng=x.ng;
+    }
+
+    void reset(const int b, const Gdims gdims, const Gdims cdims, const int fill=0, const int _dev=0){
+      BGtensor r(b,gdims,cdims,fill,_dev);
+      arr=r.arr;
+      dims=r.dims;
+      strides=r.strides;
+      dev=r.dev;
+      ng=r.ng;
     }
 
 
@@ -205,7 +237,7 @@ namespace cnine{
     }
 
     BGtensor batch(const int b) const{
-      return BGtensor(slice(0,b),0);
+      return BGtensor(arr+b*strides[0],1,gdims(),cdims(),0,gstrides(),cstrides());
     }
 
     void add_to_batch(const int b, const BGtensor& x) const{
@@ -279,8 +311,12 @@ namespace cnine{
       return dims(1+ng+i);
     }
 
-    TENSOR cell(const int b, const Gindex& ix) const{
-      return TENSOR(arr+b*strides[0]+get_gstrides().offs(ix),cdims(),cstrides());
+    BGtensor cell(const Gindex& ix) const{
+      return BGtensor(arr+get_gstrides().offs(ix),getb(),{},cdims(),bstride(),{},cstrides());
+    }
+
+    BGtensor cell(const int b, const Gindex& ix) const{
+      return BGtensor(arr+b*strides[0]+get_gstrides().offs(ix),1,{},cdims(),0,{},cstrides());
     }
 
     BGtensor transp() const{
@@ -314,7 +350,7 @@ namespace cnine{
 	oss<<"("<<arr[b*strides[0]+gstrides().offs(ix)]<<")"<<endl;
 	return oss.str();
       }
-      return cell(b,ix).str(indent);
+      return cell(b,ix).squeeze(0).str(indent);
     }
 
     string batch_to_string(int b, const string indent="") const{
@@ -369,58 +405,3 @@ namespace cnine{
 
 #endif 
 
-    /*
-    template<typename TYPE2>
-    static Gdims dominant_gdims(const BGtensor& x, const BGtensor<TYPE2>& y){
-      Gdims xg=x.gdims();
-      Gdims yg=y.gdims();
-      if(xg==yg) return xg;
-      if(!x.is_grid()) return yg;
-      if(!y.is_grid()) return xg;
-      throw std::invalid_argument("Genet error: the grid dimensions of "+x.repr()+" and "+y.repr()+
-	" cannot be reconciled.");
-      return Gdims();
-    }
-
-    static Gdims dominant_gdims(const BGtensor& x, const BGtensor& y, const BGtensor& z){
-      Gdims xg=x.gdims();
-      Gdims yg=y.gdims();
-      Gdims zg=y.gdims();
-
-      int ng=(int)(xg.size()>0)+(int)(yg.size()>0)+(int)(zg.size()>0);
-      if(ng==0) return Gdims();
-      if(ng==1){
-	if(xg.size()>0) return xg;
-	if(yg.size()>0) return yg;
-	return zg;
-      }
-      if(ng==2){
-	if(xg.size()==0){
-	  CNINE_ASSRT(yg==zg);
-	  return yg;
-	}
-	if(yg.size()==0){
-	  CNINE_ASSRT(xg==zg);
-	  return xg;
-	}
-	if(zg.size()==0){
-	  CNINE_ASSRT(xg==yg);
-	  return xg;
-	}
-      }
-      CNINE_ASSRT(xg==yg && xg==zg);
-      return xg;
-    }
-    */
-   /*
-    template<typename TYPE2>
-    static Gdims dominant_cdims(const BGtensor& x, const BGtensor<TYPE2>& y){
-      Gdims xg=x.get_cdims();
-      Gdims yg=y.get_cdims();
-      if(xg==yg) return xg;
-      if(!x.has_cells()) return yg;
-      if(!y.has_cells()) return xg;
-      throw std::invalid_argument("Genet error: the cell dimensions of "+x.repr()+" and "+y.repr()+" cannot be reconciled.");
-      return Gdims();
-    }
-    */

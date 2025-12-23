@@ -468,10 +468,10 @@ namespace cnine{
   public: // ---- I/O ---------------------------------------------------------------------------------------
 
 
-    string str() const{
+    string str(const string indent="") const{
       ostringstream oss;
       int k=size();
-      oss<<"(";
+      oss<<indent<<"(";
       for(int i=0; i<k; i++){
 	oss<<(*this)[i];
 	if(i<k-1) oss<<",";
