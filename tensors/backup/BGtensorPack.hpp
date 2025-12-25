@@ -30,7 +30,7 @@ namespace cnine{
     Gdims _gdims;
     int _dev=0;
     //DimLabels _labels;
-    mutable map<KEY,shared_ptr<TENSOR> > tensors;
+    mutable map<KEY,TENSOR> tensors;
 
     BGtensorPack(){}
 
@@ -76,14 +76,14 @@ namespace cnine{
       GELIB_ASSRT(_gdims==x._gdims);
       _dev=x._dev;
       for(auto& p:tensors)
-	(*p.second)=*x.tensors[p.first];
+	p.second=x.tensors[p.first];
       return *this;
     }
 
     BGtensorPack copy() const{
       BGtensorPack r(_nbatch,_gdims,_dev);
       for(auto& p:tensors)
-	r.tensors.emplace(p.first,make_shared<TENSOR>(p.second->copy())); // double copy
+	r.tensors.emplace(p.first,p.second.copy());
       return r;
     }
 
@@ -100,9 +100,9 @@ namespace cnine{
 	_gdims=Gdims();
 	_dev=0;
       }else{
-	_nbatch=it->second->getb();
-	_gdims=it->second->gdims();
-	_dev=it->second->get_dev();
+	_nbatch=it->second.getb();
+	_gdims=it->second.gdims();
+	_dev=it->second.get_dev();
       }
     }
 
@@ -129,21 +129,21 @@ namespace cnine{
       BGtensorPack R;
       R.vars_like(*this);
       for(auto& p:tensors)
-	R.tensors.emplace(p.first,make_shared<TENSOR>(p.second->get_grad()));
+	R.tensors.emplace(p.first,p.second.get_grad());
       return R;
     }
 
     void set_grad(const BGtensorPack& x) const{
       try{
 	for(auto& p:x.tensors)
-	  (*this)[p.first].set_grad(new TENSOR(*p.second));
+	  (*this)[p.first].set_grad(new TENSOR(p.second));
       }catch(std::runtime_error& e) {GENET_THROW(string("in BGtensorPack::set_grad(x): ")+e.what())};
     }
 
     void add_to_grad(const BGtensorPack& x) const{
       try{
 	for(auto& p:x.tensors)
-	  (*this)[p.first].add_to_grad(*p.second);
+	  (*this)[p.first].add_to_grad(p.second);
       }catch(std::runtime_error& e) {GENET_THROW(string("in BGtensorPack::add_to_grad(x): ")+e.what())};
     }
 
@@ -163,10 +163,10 @@ namespace cnine{
       return tensors.size();
     }
 
-    TENSOR& operator[](const KEY& x) const{
+    TENSOR operator[](const KEY& x) const{
       auto it=tensors.find(x);
       CNINE_ASSRT(it!=tensors.end());
-      return *it->second;
+      return it->second;
     }
 
     void insert(const KEY& key, const TENSOR& x){
@@ -178,7 +178,7 @@ namespace cnine{
       CNINE_ASSRT(x.getb()==getb());
       CNINE_ASSRT(x.gdims()==gdims());
       CNINE_ASSRT(x.get_dev()==get_dev());
-      tensors.emplace(key,make_shared<TENSOR>(x));
+      tensors.emplace(key,x);
     }
 
     void remove(const KEY& key){
@@ -187,7 +187,7 @@ namespace cnine{
 
     void for_each(const std::function<void(const KEY&, const TENSOR&)>& lambda) const{
       for(auto p: tensors)
-	lambda(p.first,*p.second);
+	lambda(p.first,p.second);
     }
 
     //BGtensorPack mapcar(const std::function<TENSOR(const KEY&, const TENSOR& )>& lambda){
@@ -200,7 +200,7 @@ namespace cnine{
     template<typename FUN>
     BGtensorPack zip(const BGtensorPack& y, FUN&& lambda){
       for(auto p: tensors){
-	return lambda(p.first,*p.second,*y.tensors[p.first]);
+	return lambda(p.first,p.second,y.tensors[p.first]);
       }
     }
 
@@ -225,7 +225,7 @@ namespace cnine{
       CNINE_ASSRT(b>=0 && b<_nbatch);
       BGtensorPack r(0,_gdims,_dev);
       for(auto p:tensors)
-	r.tensors.emplace(p.first,make_shared<TENSOR>(p.second.batch(b)));
+	r.tensors.emplace(p.first,p.second.batch(b));
       return r;
     }
 
@@ -263,7 +263,7 @@ namespace cnine{
       CNINE_ASSRT(ix.size()==_gdims.size());
       BGtensorPack r(_nbatch,cnine::Gdims(),_dev);
       for(auto p:tensors)
-	r.tensors.emplace(p.first,make_shared<TENSOR>(p.second->cell(ix)));
+	r.tensors.emplace(p.first,p.second.cell(ix));
       return r;
     }
 
@@ -272,13 +272,13 @@ namespace cnine{
 
 
     BGtensorPack operator+(const BGtensorPack& y) const{
-      BGtensorPack R=copy();
+      BGtensorPack R(*this);
       R.add(y);
       return R;
     }
 
     BGtensorPack operator-(const BGtensorPack& y) const{
-      BGtensorPack R=copy();
+      BGtensorPack R(*this);
       R.subtract(y);
       return R;
     }
@@ -287,7 +287,7 @@ namespace cnine{
     BGtensorPack operator*(const SCALAR c) const{
       BGtensorPack R;
       for(auto& p:tensors)
-	R.tensors.emplace(p.first,make_shared<TENSOR>((*p.second)*c));
+	R.tensors.emplace(p.first,p.second*c);
       R.reset_vars();
       return R;
     }
@@ -295,13 +295,13 @@ namespace cnine{
     void add(const BGtensorPack& x) const{
       CNINE_ASSRT(x.size()==size());
       for(auto& p:tensors)
-	p.second->add(x[p.first]);
+	p.second.add(x[p.first]);
     }
 
     void subtract(const BGtensorPack& x) const{
       CNINE_ASSRT(x.size()==size());
       for(auto p:x.tensors)
-	p.second->subtract(x[p.first]);
+	p.second.subtract(x[p.first]);
     }
 
     //void add_prod(const BGtensorPack& x, const BGtensor& y) const{
@@ -316,7 +316,7 @@ namespace cnine{
     BGtensorPack transp(){
       BGtensorPack r(_nbatch,_gdims,_dev);
       for(auto p:tensors)
-	r.tensors.emplace(p.first,make_shared<TENSOR>(p.second.transp()));
+	r.tensors.emplace(p.first,p.second.transp());
       return r;
     }
 
