@@ -395,7 +395,7 @@ namespace cnine{
   };
 
 
-  template<typename TYPE, typename TYPE2>
+  template<typename TYPE, typename TYPE2, std::enable_if_t<is_numeric_or_complex_v<TYPE2>>* = nullptr>
   inline BGtensor<TYPE> operator*(const TYPE2 c, const BGtensor<TYPE>& x){
     return x*c;
   }

@@ -83,12 +83,31 @@ namespace cnine{
     BGtensorPack copy() const{
       BGtensorPack r(_nbatch,_gdims,_dev);
       for(auto& p:tensors)
-	r.tensors[p.first]=p.second->copy();
+	r.tensors.emplace(p.first,p.second.copy());
       return r;
     }
 
+    void vars_like(const BGtensorPack& x){
+      _nbatch=x._nbatch;
+      _gdims=x._gdims;
+      _dev=x._dev;
+    }
 
-  public: // ---- ATen --------------------------------------------------------------------------------------
+    void reset_vars(){
+      auto it=tensors.begin();
+      if(it==tensors.end()){
+	_nbatch=1;
+	_gdims=Gdims();
+	_dev=0;
+      }else{
+	_nbatch=it->second.getb();
+	_gdims=it->second.gdims();
+	_dev=it->second.get_dev();
+      }
+    }
+
+
+  public: // ---- ATen --------------------------------------------------------------------------------------------------------
 
     
     #ifdef _WITH_ATEN
@@ -103,7 +122,33 @@ namespace cnine{
     #endif 
 
 
-  public: // ---- Access ------------------------------------------------------------------------------------
+  public: // ---- Autodiff ----------------------------------------------------------------------------------------------------
+
+
+    BGtensorPack get_grad() const{
+      BGtensorPack R;
+      R.vars_like(*this);
+      for(auto& p:tensors)
+	R.tensors.emplace(p.first,p.second.get_grad());
+      return R;
+    }
+
+    void set_grad(const BGtensorPack& x) const{
+      try{
+	for(auto& p:x.tensors)
+	  (*this)[p.first].set_grad(new TENSOR(p.second));
+      }catch(std::runtime_error& e) {GENET_THROW(string("in BGtensorPack::set_grad(x): ")+e.what())};
+    }
+
+    void add_to_grad(const BGtensorPack& x) const{
+      try{
+	for(auto& p:x.tensors)
+	  (*this)[p.first].add_to_grad(p.second);
+      }catch(std::runtime_error& e) {GENET_THROW(string("in BGtensorPack::add_to_grad(x): ")+e.what())};
+    }
+
+
+  public: // ---- Access ------------------------------------------------------------------------------------------------------
 
 
     int get_dev() const{
@@ -119,8 +164,9 @@ namespace cnine{
     }
 
     TENSOR operator[](const KEY& x) const{
-      CNINE_ASSRT(tensors.find(x)!=tensors.end());
-      return const_cast<BGtensorPack&>(*this).tensors[x];
+      auto it=tensors.find(x);
+      CNINE_ASSRT(it!=tensors.end());
+      return it->second;
     }
 
     void insert(const KEY& key, const TENSOR& x){
@@ -135,18 +181,28 @@ namespace cnine{
       tensors.emplace(key,x);
     }
 
+    void remove(const KEY& key){
+      tensors.erase(key);
+    }
+
     void for_each(const std::function<void(const KEY&, const TENSOR&)>& lambda) const{
       for(auto p: tensors)
 	lambda(p.first,p.second);
     }
 
-    BGtensorPack mapcar(const std::function<TENSOR(const KEY&, const TENSOR& )>& lambda){
-      BGtensorPack r(_nbatch,_gdims,_dev);
+    //BGtensorPack mapcar(const std::function<TENSOR(const KEY&, const TENSOR& )>& lambda){
+    //BGtensorPack r(_nbatch,_gdims,_dev);
       //for(auto p: tensors)
       //r.emplace(p.first,lambda(p.first,p.second));
-      return r;
-    }
+      //return r;
+    //}
 
+    template<typename FUN>
+    BGtensorPack zip(const BGtensorPack& y, FUN&& lambda){
+      for(auto p: tensors){
+	return lambda(p.first,p.second,y.tensors[p.first]);
+      }
+    }
 
 
   public: // ---- Batches -----------------------------------------------------------------------------------
@@ -215,16 +271,37 @@ namespace cnine{
   public: // ---- Cumulative operations ----------------------------------------------------------------------
 
 
-    void add(const BGtensorPack& x){
-      CNINE_ASSRT(x.size()==size());
-      for(auto p:x.tensors)
-	tensors[p.first].add(p.first);
+    BGtensorPack operator+(const BGtensorPack& y) const{
+      BGtensorPack R(*this);
+      R.add(y);
+      return R;
     }
 
-    void subtract(const BGtensorPack& x){
+    BGtensorPack operator-(const BGtensorPack& y) const{
+      BGtensorPack R(*this);
+      R.subtract(y);
+      return R;
+    }
+
+    template<typename SCALAR, std::enable_if_t<is_numeric_or_complex_v<SCALAR>>* = nullptr>
+    BGtensorPack operator*(const SCALAR c) const{
+      BGtensorPack R;
+      for(auto& p:tensors)
+	R.tensors.emplace(p.first,p.second*c);
+      R.reset_vars();
+      return R;
+    }
+
+    void add(const BGtensorPack& x) const{
+      CNINE_ASSRT(x.size()==size());
+      for(auto& p:tensors)
+	p.second.add(x[p.first]);
+    }
+
+    void subtract(const BGtensorPack& x) const{
       CNINE_ASSRT(x.size()==size());
       for(auto p:x.tensors)
-	tensors[p.first].subtract(p.first);
+	p.second.subtract(x[p.first]);
     }
 
     //void add_prod(const BGtensorPack& x, const BGtensor& y) const{
