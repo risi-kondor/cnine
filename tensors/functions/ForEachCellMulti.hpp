@@ -47,13 +47,13 @@ namespace cnine{
       GstridesB x_gstrides=GstridesB::zero(ngdims);
       if(x.has_grid()) x_gstrides=x.gstrides();
       int x_bstride=x.strides[0]*(x.is_batched());
-      xcell.is_conj=x.is_conj;
+      //xcell.is_conj=x.is_conj;
 
       TensorView<YTYPE> ycell(y.arr,y.get_cdims(),y.cstrides());
       GstridesB y_gstrides=GstridesB::zero(ngdims);
       if(y.has_grid()) y_gstrides=y.gstrides();
       int y_bstride=y.strides[0]*(y.is_batched());
-      ycell.is_conj=y.is_conj;
+      //ycell.is_conj=y.is_conj;
 
       MultiLoop(B,[&](const int b){
 	  for(int i=0; i<ncells; i++){
@@ -93,19 +93,19 @@ namespace cnine{
       GstridesB x_gstrides=GstridesB::zero(ngdims);
       if(x.has_grid()) x_gstrides=x.gstrides();
       int x_bstride=x.strides[0]*(x.is_batched());
-      xcell.is_conj=x.is_conj;
+      //xcell.is_conj=x.is_conj;
 
       TensorView<YTYPE> ycell(y.arr,y.get_cdims(),y.cstrides());
       GstridesB y_gstrides=GstridesB::zero(ngdims);
       if(y.has_grid()) y_gstrides=y.gstrides();
       int y_bstride=y.strides[0]*(y.is_batched());
-      ycell.is_conj=y.is_conj;
+      //ycell.is_conj=y.is_conj;
 
       TensorView<ZTYPE> zcell(z.arr,z.get_cdims(),z.cstrides());
       GstridesB z_gstrides=GstridesB::zero(ngdims);
       if(z.has_grid()) z_gstrides=z.gstrides();
       int z_bstride=z.strides[0]*(z.is_batched());
-      zcell.is_conj=z.is_conj;
+      //zcell.is_conj=z.is_conj;
 
       MultiLoop(B,[&](const int b){
 	  for(int i=0; i<ncells; i++){

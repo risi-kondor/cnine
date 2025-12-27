@@ -145,11 +145,11 @@ namespace cnine{
       return BGtensor(ng,TENSOR::copy());
     }
       
-    BGtensor conjugate(){
-      BGtensor R(*this);
-      R.is_conj.flip();
-      return R;
-    }
+    //BGtensor conjugate(){
+    //BGtensor R(*this);
+    //R.is_conj.flip();
+    //return R;
+    //}
 
 
   public: // ---- Named constructors -------------------------------------------------------------------------

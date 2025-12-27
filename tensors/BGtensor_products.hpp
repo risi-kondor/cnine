@@ -65,7 +65,7 @@ void add_prod_XC(const BGtensor<TYPE>& x, const BGtensor<TYPE>& y) const{
   }else if(!y.has_cells()){
     for_each_cell_multi_scalar(*this,x,y,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& r, const TensorView<TYPE>& x, const TYPE c){
-	r.add(x,std::conj(c));},0);
+	r.add(x,sconj(c));},0);
   }else if(!has_cells()){
     for_each_cell_multi_scalar(x,y,*this,[](const int b, const Gindex& ix,
 	const TensorView<TYPE>& x, const TensorView<TYPE>& y, TYPE& r){

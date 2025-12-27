@@ -22,7 +22,7 @@
 #include "GstridesB.hpp"
 #include "Gindex.hpp"
 #include "MemArr.hpp"
-#include "ComplexHelper.hpp"
+//#include "ComplexHelper.hpp"
 #include "device_helpers.hpp"
 #include "NamedTypes.hpp"
 
@@ -113,7 +113,7 @@ namespace cnine{
     Gdims dims;
     GstridesB strides;
     int dev;
-    ComplexHelper<TYPE> is_conj;
+    //ComplexHelper<TYPE> is_conj;
 
   
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -121,12 +121,12 @@ namespace cnine{
 
     TensorView(){}
 
-    TensorView(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides, const bool _conj=false):
+    TensorView(const MemArr<TYPE>& _arr, const Gdims& _dims, const GstridesB& _strides): //, const bool _conj=false):
       arr(_arr),
       dims(_dims), 
       strides(_strides), 
-      dev(_arr.device()),
-      is_conj(_conj){
+      //is_conj(_conj),
+      dev(_arr.device()){
     }
 
     TensorView(const Gdims& _dims, const GstridesB& _strides, const int _dev):
@@ -245,11 +245,11 @@ namespace cnine{
       return R;
     }
     
-    TensorView conjugate(){
-      TensorView R(*this);
-      R.is_conj.flip();
-      return R;
-    }
+    //TensorView conjugate(){
+    //TensorView R(*this);
+    //R.is_conj.flip();
+    //return R;
+    //}
 
     TensorView* clone() const{
       return new TensorView(*this);

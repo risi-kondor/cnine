@@ -44,7 +44,7 @@ namespace cnine{
       return;
     }
 
-    TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides(),x.is_conj());
+    TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides()); //,x.is_conj());
     GstridesB x_gstrides=GstridesB::zero(ngdims);
     if(x.has_grid()) x_gstrides=x.gstrides();
     int x_bstride=x.strides[0]*(x.is_batched());
@@ -97,12 +97,12 @@ namespace cnine{
       return;
     }
 
-    TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides(),x.is_conj());
+    TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides()); //,x.is_conj());
     GstridesB x_gstrides=GstridesB::zero(ngdims);
     if(x.has_grid()) x_gstrides=x.gstrides();
     int x_bstride=x.strides[0]*(x.is_batched());
 
-    TensorView<YTYPE> ycell(y.arr,y.get_cdims(),y.cstrides(),y.is_conj());
+    TensorView<YTYPE> ycell(y.arr,y.get_cdims(),y.cstrides()); //,y.is_conj());
     GstridesB y_gstrides=GstridesB::zero(ngdims);
     if(y.has_grid()) y_gstrides=y.gstrides();
     int y_bstride=y.strides[0]*(y.is_batched());
@@ -118,15 +118,15 @@ namespace cnine{
 	  xcell.arr=x.arr+x_bstride*b+x_gstrides.offs(ix);
 	  ycell.arr=y.arr+y_bstride*b+y_gstrides.offs(ix);
 	  ZTYPE& c=z.arr[z_bstride*b+z_gstrides.offs(ix)];
-	  if constexpr(is_complex<ZTYPE>()){
-	    if(z.is_conj()){
-	      ZTYPE v=std::conj(c);
-	      lambda(b,ix,xcell,ycell,v);
-	      if(target==2) z.arr[z_bstride*b+z_gstrides.offs(ix)]=std::conj(v); 
-	    }else lambda(b,ix,xcell,ycell,c);
-	  }else{
-	    lambda(b,ix,xcell,ycell,c);
-	  }
+	  // 	  if constexpr(is_complex<ZTYPE>()){
+	  // 	    if(z.is_conj()){
+	  // 	      ZTYPE v=std::conj(c);
+	  // 	      lambda(b,ix,xcell,ycell,v);
+	  // 	      if(target==2) z.arr[z_bstride*b+z_gstrides.offs(ix)]=std::conj(v); 
+	  // 	    }else lambda(b,ix,xcell,ycell,c);
+	  // 	  }else{
+	  lambda(b,ix,xcell,ycell,c);
+	  //	  }
 	}
       },sequential);
     }catch(std::runtime_error& e) {CNINE_THROW(string("in BGtensor::for_each_cell_multi(x,y,z,lambda,target): ")+e.what())};
@@ -155,12 +155,12 @@ namespace cnine{
       return;
     }
 
-    TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides(),x.is_conj());
+    TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides()); //,x.is_conj());
     GstridesB x_gstrides=GstridesB::zero(ngdims);
     if(x.has_grid()) x_gstrides=x.gstrides();
     int x_bstride=x.strides[0]*(x.is_batched());
 
-    TensorView<YTYPE> ycell(y.arr,y.get_cdims(),y.cstrides(),y.is_conj());
+    TensorView<YTYPE> ycell(y.arr,y.get_cdims(),y.cstrides()); //,y.is_conj());
     GstridesB y_gstrides=GstridesB::zero(ngdims);
     if(y.has_grid()) y_gstrides=y.gstrides();
     int y_bstride=y.strides[0]*(y.is_batched());

@@ -111,18 +111,18 @@ TensorView diag(const vector<int>& ix) const{
 
 TensorView slice(const int d, const int i) const{
   CNINE_CHECK_RANGE(dims.check_in_range_d(d,i,string(__PRETTY_FUNCTION__)));
-  return TensorView(arr+strides[d]*i,dims.remove(d),strides.remove(d),is_conj());
+  return TensorView(arr+strides[d]*i,dims.remove(d),strides.remove(d)); //,is_conj());
 }
 
 TensorView slice(const Gindex& ix) const{
   const int k=ix.size();
-  return TensorView(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k),is_conj());
+  return TensorView(arr+strides.chunk(0,k)(ix),dims.chunk(k),strides.chunk(k));//,is_conj());
 }
 
 TensorView slices(const int d, const int i, const int n) const{
   if(i+n>0) {CNINE_CHECK_RANGE(dims.check_in_range_d(d,i+n-1,string(__PRETTY_FUNCTION__)));}
   Gdims _dims(dims);
-  return TensorView(arr+strides[d]*i,_dims.set(d,n),strides,is_conj());
+  return TensorView(arr+strides[d]*i,_dims.set(d,n),strides);//,is_conj());
 }
 
 

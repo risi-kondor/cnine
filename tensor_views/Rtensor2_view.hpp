@@ -292,7 +292,11 @@ namespace cnine{
       }
     }
     
-   void add_matmul_TA(const Rtensor2_view& x, const Rtensor2_view& y){
+    void add_matmul_AH(const Rtensor2_view& x, const Rtensor2_view& y){
+      add_matmul_AT(x,y);
+    }
+
+    void add_matmul_TA(const Rtensor2_view& x, const Rtensor2_view& y){
       const int I=x.n0;
       CNINE_ASSRT(x.n1==n0);
       CNINE_ASSRT(y.n0==I);
