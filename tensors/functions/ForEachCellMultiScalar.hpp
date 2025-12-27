@@ -24,12 +24,54 @@ namespace cnine{
   class BGtensor;
 
 
+  template<typename XTYPE, typename YTYPE, typename F>
+  void for_each_cell_multi_scalar(const BGtensor<XTYPE>& x, const BGtensor<YTYPE>& y,  
+    F&& lambda, const int target=0){
+    try{ 
+
+    int B=dominant_batch(x,y);
+    Gdims gdims=dominant_gdims(x,y);
+    int ncells=gdims.asize();
+    int ngdims=gdims.size();
+    bool sequential=(target==0 && x.getb()==1)||(target==1 && y.getb()==1);
+
+    // Shortcut
+    if(ngdims==0){ 
+      Gindex null_ix;
+      MultiLoop(B,[&](const int b){
+	  lambda(b,null_ix,x.slice(0,(x.dim(0)>1)*b), 
+	    const_cast<BGtensor<YTYPE>& >(y)((y.dim(0)>1)*b));},sequential);
+      return;
+    }
+
+    TensorView<XTYPE> xcell(x.arr,x.get_cdims(),x.cstrides(),x.is_conj());
+    GstridesB x_gstrides=GstridesB::zero(ngdims);
+    if(x.has_grid()) x_gstrides=x.gstrides();
+    int x_bstride=x.strides[0]*(x.is_batched());
+
+    MemArr<YTYPE> yarr=y.arr;
+    GstridesB y_gstrides=GstridesB::zero(ngdims);
+    if(y.has_grid()) y_gstrides=y.gstrides();
+    int y_bstride=y.strides[0]*(y.is_batched());      
+
+    MultiLoop(B,[&](const int b){
+	for(int i=0; i<ncells; i++){
+	  Gindex ix(i,gdims);
+	  xcell.arr=x.arr+x_bstride*b+x_gstrides.offs(ix);
+	  YTYPE& c=y.arr[y_bstride*b+y_gstrides.offs(ix)];
+	  lambda(b,ix,xcell,c);
+	  }
+      },sequential);
+
+    }catch(std::runtime_error& e) {CNINE_THROW(string("in BGtensor::for_each_cell_multi(x,y,lambda,target): ")+e.what())};
+  }
+
+
   template<typename XTYPE, typename YTYPE, typename ZTYPE, typename F>
   void for_each_cell_multi_scalar(const BGtensor<XTYPE>& x, const BGtensor<YTYPE>& y, const BGtensor<ZTYPE>& z, 
-    //std::function<void(const int, const Gindex cell, 
-    //const TensorView<XTYPE>& x, const TensorView<YTYPE>& y, ZTYPE& c)> lambda,
     F&& lambda, const int target=0){
-		      
+    try{
+
     int B=dominant_batch(x,y,z);
     Gdims gdims=dominant_gdims(x,y,z);
     int ncells=gdims.asize();
@@ -39,16 +81,16 @@ namespace cnine{
     // Shortcut
     if(ngdims==0){ 
       Gindex null_ix;
-      if constexpr(is_complex<ZTYPE>() && false){
-	if(z.is_conj()){
-	  MultiLoop(B,[&](const int b){
-	      ZTYPE v=	std::conj(const_cast<BGtensor<ZTYPE>& >(z)((z.dim(0)>1)*b)); // terrible hack
-	      lambda(b,null_ix,x.slice(0,(x.dim(0)>1)*b),y.slice(0,(y.dim(0)>1)*b),v);
-	      const_cast<BGtensor<ZTYPE>& >(z)((z.dim(0)>1)*b)=std::conj(v);
-	    },sequential);
-	  return;
-	}
-      }
+//       if constexpr(is_complex<ZTYPE>() && false){
+// 	if(z.is_conj()){
+// 	  MultiLoop(B,[&](const int b){
+// 	      ZTYPE v=	std::conj(const_cast<BGtensor<ZTYPE>& >(z)((z.dim(0)>1)*b)); // terrible hack
+// 	      lambda(b,null_ix,x.slice(0,(x.dim(0)>1)*b),y.slice(0,(y.dim(0)>1)*b),v);
+// 	      const_cast<BGtensor<ZTYPE>& >(z)((z.dim(0)>1)*b)=std::conj(v);
+// 	    },sequential);
+// 	  return;
+// 	}
+//       }
       MultiLoop(B,[&](const int b){
 	  lambda(b,null_ix,x.slice(0,(x.dim(0)>1)*b),y.slice(0,(y.dim(0)>1)*b),
 	    const_cast<BGtensor<ZTYPE>& >(z)((z.dim(0)>1)*b));},sequential);
@@ -87,6 +129,7 @@ namespace cnine{
 	  }
 	}
       },sequential);
+    }catch(std::runtime_error& e) {CNINE_THROW(string("in BGtensor::for_each_cell_multi(x,y,z,lambda,target): ")+e.what())};
   }
 
 

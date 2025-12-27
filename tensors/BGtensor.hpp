@@ -249,15 +249,15 @@ namespace cnine{
 
 
     bool is_gridded() const{
-      return ng>1;
+      return ng>0;
     }
 
     bool is_grid() const{
-      return ng>1;
+      return ng>0;
     }
 
     bool has_grid() const{
-      return ng>1;
+      return ng>0;
     }
 
     int ngdims() const{
@@ -332,6 +332,30 @@ namespace cnine{
 
 
     #include "BGtensor_products.hpp"
+
+
+  public: // ---- Operations -----------------------------------------------------------------------------------------------
+
+
+    BGtensor norm() const{
+      BGtensor R(getb(),get_gdims(),Gdims({1,1}),0,get_dev());
+      R.add_norm(*this);
+      return R;
+    }
+
+    void add_norm(const BGtensor& x) const{
+      for_each_cell_multi(x,*this,[]
+	(const int b, const Gindex& ix, const TENSOR& x, const TENSOR& c){
+	  c.set(0,0,x.norm());},1);
+    }
+
+    void add_norm_back(const BGtensor& rg, const BGtensor& x) const{
+      try{
+	for_each_cell_multi(*this,x,rg,[]
+	  (const int b, const Gindex& ix, const TENSOR& xg, const TENSOR& x, const TENSOR& rg){
+	    xg+=x*(rg(0,0)/x.norm());});
+      }catch(std::runtime_error& e) {CNINE_THROW(string("in BGtensor::add_norm_back(rg,x): ")+e.what());}
+    }
 
 
   public: // ---- I/O ------------------------------------------------------------------------------------------------------
