@@ -161,7 +161,7 @@ namespace cnine{
 
       params.gather1(xr_gather.vecs[0],xr_gather.vecs[1],x,r);
 
-      add_einsum(r,x,arg,params);
+      add_einsum(r,x,params,arg);
     }
 
       
