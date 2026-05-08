@@ -29,6 +29,9 @@ namespace cnine{
 
     TensorView<TYPE> data;
 
+    LatexTable(const vector<string>& rows, const vector<string>& cols, const TensorView<TYPE>& _data):
+      data(_data), row_headings(rows), col_headings(cols){}
+
     template<typename TYPE1>
     LatexTable(const vector<TYPE1>& rows, const vector<TYPE1>& cols, const TensorView<TYPE>& _data):
       data(_data){
