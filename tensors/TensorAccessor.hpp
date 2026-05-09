@@ -101,6 +101,65 @@ namespace cnine{
 
   };
 
+
+  template<typename TYPE>
+  class TensorAccessor<TYPE,4>{
+  public:
+
+    TYPE* arr;
+    int s0;
+    int s1;
+    int s2;
+    int s3;
+
+    TensorAccessor(const TensorView<TYPE>& x){
+      CNINE_ASSRT(x.ndims()==4);
+      arr=x.get_arr();
+      s0=x.stride(0);
+      s1=x.stride(1);
+      s2=x.stride(2);
+      s3=x.stride(3);
+    }
+
+    TYPE operator()(const int i0, const int i1, const int i2){
+      return arr[s0*i0+s1*i1+s2*i2+s3*i3];
+    }
+
+    void set(const int i0, const int i1, const int i2, const TYPE v){
+      arr[s0*i0+s1*i1+s2*i2+s3*i3]=v;
+    }
+
+  template<typename TYPE>
+  class TensorAccessor<TYPE,5>{
+  public:
+
+    TYPE* arr;
+    int s0;
+    int s1;
+    int s2;
+    int s3;
+    int s4;
+
+    TensorAccessor(const TensorView<TYPE>& x){
+      CNINE_ASSRT(x.ndims()==4);
+      arr=x.get_arr();
+      s0=x.stride(0);
+      s1=x.stride(1);
+      s2=x.stride(2);
+      s3=x.stride(3);
+      s4=x.stride(4);
+    }
+
+    TYPE operator()(const int i0, const int i1, const int i2){
+      return arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4];
+    }
+
+    void set(const int i0, const int i1, const int i2, const TYPE v){
+      arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4]=v;
+    }
+
+  };
+
 }
 
 #endif 
