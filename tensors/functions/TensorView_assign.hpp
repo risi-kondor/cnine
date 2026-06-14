@@ -37,6 +37,13 @@ namespace cnine{
   void TensorView_assign(const TensorView<TYPE>& r, const TensorView<TYPE>& x){
     CNINE_ASSRT(r.get_dims()==x.get_dims());
 
+    // TODO: refine this!
+    if(r.ndims()==0){
+      if(r.get_dev()==0 && x.get_dev()==0){
+	r.set(x());
+      }else CNINE_UNIMPL();
+    }
+
     if(r.asize()==0) return; 
     if(r.is_contiguous() && r.get_strides()==x.get_strides()){
       TensorView_assign_copy(r,x);

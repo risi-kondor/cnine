@@ -201,6 +201,14 @@ TensorView(const initializer_list<initializer_list<TYPE> >& list, const int _dev
 }
 
 
+static TensorView init(const TYPE& v, const int _dev=0){
+  TensorView<TYPE> T(Gdims(0),0,0);
+  T.set(v);
+  if(_dev>0) T.move_to_device(_dev);
+  return T;
+}
+
+
 static TensorView init(const initializer_list<TYPE>& list, const int _dev=0){
   int n0=list.size();
   CNINE_ASSRT(n0>0);

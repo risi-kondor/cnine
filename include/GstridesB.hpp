@@ -102,7 +102,7 @@ namespace cnine{
     GstridesB(const Gdims& dims, const int s0=1): 
       BASE(dims.size()){
       int k=dims.size();
-      assert(k>0);
+      if(k==0) return;
       (*this)[k-1]=s0;
       for(int i=k-2; i>=0; i--)
       (*this)[i]=(*this)[i+1]*dims[i+1];

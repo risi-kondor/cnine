@@ -55,6 +55,10 @@ string to_string(const string indent="") const{
   else 
     limit=max_abs()/10e5;
 
+  if(ndims()==0){
+    oss<<(*this)()<<endl;
+  }
+
   if(ndims()==1){
     oss<<base_indent<<indent<<"[ ";
     for(int i0=0; i0<dims[0]; i0++)

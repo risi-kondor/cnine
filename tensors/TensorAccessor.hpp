@@ -25,6 +25,41 @@ namespace cnine{
 
 
   template<typename TYPE>
+  class TensorAccessor<TYPE,0>{
+  public:
+
+    TYPE* arr;
+
+    TensorAccessor(const TensorView<TYPE>& x){
+      CNINE_ASSRT(x.ndims()==0 || x.ndims()==1); 
+      if(x.ndims()==1) CNINE_ASSRT(x.dims[0]==1); // backward compatibility
+      arr=x.get_arr();
+    }
+
+    operator TYPE(){
+      return *arr;
+    }
+
+    TYPE operator()(){
+      return *arr;
+    }
+
+    TYPE operator()(const int i0){
+      return *arr;
+    }
+
+    void set(const int i0, const TYPE v){
+      *arr=v;
+    }
+
+    void set(const TYPE v){
+      *arr=v;
+    }
+
+  };
+
+
+  template<typename TYPE>
   class TensorAccessor<TYPE,1>{
   public:
 
@@ -121,13 +156,16 @@ namespace cnine{
       s3=x.stride(3);
     }
 
-    TYPE operator()(const int i0, const int i1, const int i2){
+    TYPE operator()(const int i0, const int i1, const int i2, const int i3){
       return arr[s0*i0+s1*i1+s2*i2+s3*i3];
     }
 
-    void set(const int i0, const int i1, const int i2, const TYPE v){
+    void set(const int i0, const int i1, const int i2, const int i3, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2+s3*i3]=v;
     }
+
+  };
+
 
   template<typename TYPE>
   class TensorAccessor<TYPE,5>{
@@ -150,11 +188,11 @@ namespace cnine{
       s4=x.stride(4);
     }
 
-    TYPE operator()(const int i0, const int i1, const int i2){
+    TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4){
       return arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4];
     }
 
-    void set(const int i0, const int i1, const int i2, const TYPE v){
+    void set(const int i0, const int i1, const int i2, const int i3, const int i4, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4]=v;
     }
 

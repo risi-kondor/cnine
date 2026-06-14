@@ -15,9 +15,15 @@
 // ---- Getters ------------------------------------------------------------------------------------
 
 
+
 TYPE operator()(const Gindex& ix) const{
   CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
   return arr[strides.offs(ix)];
+}
+
+TYPE operator()() const{
+  CNINE_ASSRT(dims.size()==0);
+  return arr[0];
 }
 
 TYPE operator()(const int i0) const{
@@ -45,6 +51,10 @@ TYPE& operator()(const int i0, const int i1, const int i2, const int i3, const i
   return arr[strides.offs(i0,i1,i2,i3,i4)];
 }
 
+
+TYPE get() const{
+  return operator()();
+}
 
 TYPE get(const int i0) const{
   return operator()(i0);
@@ -79,6 +89,12 @@ TYPE& operator()(const int i0){
 TYPE set(const Gindex& ix, const TYPE x) const{
   CNINE_CHECK_RANGE(dims.check_in_range(ix,string(__PRETTY_FUNCTION__)));
   arr[strides.offs(ix)]=x;
+  return x;
+}
+
+TYPE set(const TYPE x) const{
+  CNINE_ASSRT(dims.size()==0);
+  arr[0]=x;
   return x;
 }
 
@@ -140,5 +156,4 @@ void inc(const int i0, const int i1, const int i2, const int i3, const TYPE x) c
   CNINE_CHECK_RANGE(dims.check_in_range(i0,i1,i2,i3,string(__PRETTY_FUNCTION__)));
   arr[strides.offs(i0,i1,i2,i3)]+=x;
 }
-
 

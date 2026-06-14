@@ -196,6 +196,13 @@ namespace cnine{
       return p[i];
     }
 
+    int inv(const int i) const{
+      for(int j=0; j<n; j++)
+	if(p[j]==i) return j;
+      CNINE_ASSRT(false);
+      return 0;
+    }
+
     void set(const int i, const int j){
       p[i]=j;
     }
