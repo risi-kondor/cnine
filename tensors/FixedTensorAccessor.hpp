@@ -12,25 +12,21 @@
  */
 
 
-#ifndef _CnineTensorAccessor
-#define _CnineTensorAccessor
+#ifndef _CnineFixedTensorAccessor
+#define _CnineFixedTensorAccessor
 
 #include "TensorView.hpp"
 
 namespace cnine{
 
-  template<typename TYPE, int k>
-  class TensorAccessor{
-  };
-
 
   template<typename TYPE>
-  class TensorAccessor<TYPE,0>{
+  class FixedTensorAccessor0{
   public:
 
     TYPE* arr;
 
-    TensorAccessor(const TensorView<TYPE>& x){
+    FixedTensorAccessor0(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==0 || x.ndims()==1); 
       if(x.ndims()==1) CNINE_ASSRT(x.dims[0]==1); // backward compatibility
       arr=x.get_arr();
@@ -44,14 +40,6 @@ namespace cnine{
       return *arr;
     }
 
-    TYPE operator()(const int i0){
-      return *arr;
-    }
-
-    void set(const int i0, const TYPE v){
-      *arr=v;
-    }
-
     void set(const TYPE v){
       *arr=v;
     }
@@ -59,17 +47,15 @@ namespace cnine{
   };
 
 
-  template<typename TYPE>
-  class TensorAccessor<TYPE,1>{
+  template<typename TYPE, int s0>
+  class FixedTensorAccessor1{
   public:
 
     TYPE* arr;
-    int s0;
 
-    TensorAccessor(const TensorView<TYPE>& x){
+    FixedTensorAccessor1(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==1);
       arr=x.get_arr();
-      s0=x.stride(0);
     }
 
     TYPE operator()(const int i0){
@@ -83,19 +69,15 @@ namespace cnine{
   };
 
 
-  template<typename TYPE>
-  class TensorAccessor<TYPE,2>{
+  template<typename TYPE, int s0, int s1>
+  class FixedTensorAccessor2{
   public:
 
     TYPE* arr;
-    int s0;
-    int s1;
 
-    TensorAccessor(const TensorView<TYPE>& x){
+    FixedTensorAccessor2(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==2);
       arr=x.get_arr();
-      s0=x.stride(0);
-      s1=x.stride(1);
     }
 
     TYPE operator()(const int i0, const int i1){
@@ -109,21 +91,15 @@ namespace cnine{
   };
 
 
-  template<typename TYPE>
-  class TensorAccessor<TYPE,3>{
+  template<typename TYPE, int s0, int s1, int s2>
+  class FixedTensorAccessor3{
   public:
 
     TYPE* arr;
-    int s0;
-    int s1;
-    int s2;
 
-    TensorAccessor(const TensorView<TYPE>& x){
+    FixedTensorAccessor3(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==3);
       arr=x.get_arr();
-      s0=x.stride(0);
-      s1=x.stride(1);
-      s2=x.stride(2);
     }
 
     TYPE operator()(const int i0, const int i1, const int i2){
@@ -137,23 +113,15 @@ namespace cnine{
   };
 
 
-  template<typename TYPE>
-  class TensorAccessor<TYPE,4>{
+  template<typename TYPE, int s0, int s1, int s2, int s3>
+  class FixedTensorAccessor4{
   public:
 
     TYPE* arr;
-    int s0;
-    int s1;
-    int s2;
-    int s3;
 
-    TensorAccessor(const TensorView<TYPE>& x){
+    FixedTensorAccessor4(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==4);
       arr=x.get_arr();
-      s0=x.stride(0);
-      s1=x.stride(1);
-      s2=x.stride(2);
-      s3=x.stride(3);
     }
 
     TYPE operator()(const int i0, const int i1, const int i2, const int i3){
@@ -167,25 +135,15 @@ namespace cnine{
   };
 
 
-  template<typename TYPE>
-  class TensorAccessor<TYPE,5>{
+  template<typename TYPE, int s0, int s1, int s2, int s3, int s4>
+  class FixedTensorAccessor5{
   public:
 
     TYPE* arr;
-    int s0;
-    int s1;
-    int s2;
-    int s3;
-    int s4;
 
-    TensorAccessor(const TensorView<TYPE>& x){
+    FixedTensorAccessor5(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==5);
       arr=x.get_arr();
-      s0=x.stride(0);
-      s1=x.stride(1);
-      s2=x.stride(2);
-      s3=x.stride(3);
-      s4=x.stride(4);
     }
 
     TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4){
@@ -199,27 +157,15 @@ namespace cnine{
   };
 
 
-  template<typename TYPE>
-  class TensorAccessor<TYPE,6>{
+  template<typename TYPE, int s0, int s1, int s2, int s3, int s4, int s5>
+  class FixedTensorAccessor6{
   public:
 
     TYPE* arr;
-    int s0;
-    int s1;
-    int s2;
-    int s3;
-    int s4;
-    int s5;
 
-    TensorAccessor(const TensorView<TYPE>& x){
+    FixedTensorAccessor6(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==6);
       arr=x.get_arr();
-      s0=x.stride(0);
-      s1=x.stride(1);
-      s2=x.stride(2);
-      s3=x.stride(3);
-      s4=x.stride(4);
-      s5=x.stride(5);
     }
 
     TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5){

@@ -173,6 +173,21 @@ namespace cnine{
       return r;
     }
 
+    template<typename TYPE>
+    static permutation reverse_ordering(const vector<TYPE> v){
+      int n=v.size();
+      permutation r(n);
+      vector<bool> done(n,false);
+      for(int i=0; i<n; i++){
+	int most=-1;
+	for(int j=0; j<n; j++)
+	  if(!done[j] && (most==-1 || v[j]>v[most])) most=j;
+	done[most]=true;
+	r[i]=most;
+      }
+      return r;
+    }
+
 
   public: // ---- Conversions -------------------------------------------------------------------------------
 

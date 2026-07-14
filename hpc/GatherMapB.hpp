@@ -105,7 +105,9 @@ namespace cnine{
     }
     
 
-    explicit GatherMapB(const TensorView<int>& M, int n_in=-1, int n_out=-1){
+    explicit GatherMapB(const TensorView<int>& M, int _n_in=-1, int _n_out=-1){
+      n_in=_n_in;
+      n_out=_n_out;
 
       CNINE_ASSRT(M.ndims()==2);
       CNINE_ASSRT(M.dims(1)==2);
