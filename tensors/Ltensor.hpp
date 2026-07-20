@@ -449,7 +449,7 @@ namespace cnine{
       return labels.gdims(dims);
     }
 
-    Gdims gdim(const int i) const{
+    int gdim(const int i) const{
       return labels.gdims(dims)[i];
     }
 
