@@ -17,6 +17,7 @@
 
 #include "Cnine_base.hpp"
 
+extern std::default_random_engine rndGen;
 
 namespace cnine{
 

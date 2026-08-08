@@ -47,6 +47,7 @@ namespace cnine{
   };
 
 
+#ifndef CNINE_NO_LOG
   class CnineLog{
   public:
 
@@ -60,7 +61,6 @@ namespace cnine{
       topen = std::chrono::system_clock::now();
       std::time_t timet = std::chrono::system_clock::to_time_t(topen);
       ofs<<"Cnine log opened on "<<std::ctime(&timet)<<endl;
-
     }
 
 
@@ -128,6 +128,19 @@ namespace cnine{
 
   };
 
+#else
+
+  class CnineLog{
+  public:
+    CnineLog(const string filename="cnine.log"){}
+    void operator()(const string msg){}
+    void warning(const string fn, const string str){}
+    void operator()(){}
+    void log_call(const string name, const double t){}
+  };
+
+
+#endif 
 
 
 }

@@ -23,7 +23,7 @@
 
 namespace cnine{
 
-  extern CnineLog cnine_log;
+  //extern CnineLog cnine_log;
 
 
   class GatherMapB{
@@ -75,7 +75,7 @@ namespace cnine{
       n_out(_n_out), n_in(_n_in){}
 
     GatherMapB(const vector<int>& sources, const vector<int>& targets){
-      cnine::fnlog timer("GatherMapB::GatherMapB(const vector<int>& sources, const vector<int>& targets)");
+      //cnine::fnlog timer("GatherMapB::GatherMapB(const vector<int>& sources, const vector<int>& targets)");
       CNINE_ASSRT(sources.size()==targets.size());
 
       int N=sources.size();
@@ -151,7 +151,7 @@ namespace cnine{
       out_columns(_out_columns),
       in_columns_n(_in_columns_n),
       out_columns_n(_out_columns_n){
-      cnine::fnlog timer("GatherMapB::GatherMapB(const map_of_lists<int,int>& map)");
+      //cnine::fnlog timer("GatherMapB::GatherMapB(const map_of_lists<int,int>& map)");
       //cout<<"make GatherMapB"<<endl;
 
       int total=0;
@@ -362,7 +362,7 @@ namespace cnine{
 
 
     void make_inv() const{
-      cnine::fnlog timer("GatherMapB::make_inv()");
+      //cnine::fnlog timer("GatherMapB::make_inv()");
       map<int,vector<int> > inv_map;
       int total=0;
       for_each([&](const int i, const int j){
@@ -385,7 +385,7 @@ namespace cnine{
 
     
     const GatherMapB& sort() const{
-      cnine::fnlog timer("GatherMapB::sort()");
+      //cnine::fnlog timer("GatherMapB::sort()");
       if(sorted) return *this;
 
       map<int,vector<int> > lengths;
@@ -411,7 +411,7 @@ namespace cnine{
 
 
     const GatherMapB& grade(const int min_size=0) const{
-      cnine::fnlog timer("GatherMapB::grade()");
+      //cnine::fnlog timer("GatherMapB::grade()");
       map<int,vector<int> > lengths;
       int N=size();
       for(int i=0; i<N; i++)
