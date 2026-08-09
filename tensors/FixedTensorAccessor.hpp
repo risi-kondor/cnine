@@ -17,6 +17,12 @@
 
 #include "TensorView.hpp"
 
+#if defined(__CUDACC__)
+  #define HD __host__ __device__
+#else
+  #define HD
+#endif
+
 namespace cnine{
 
 
@@ -26,21 +32,21 @@ namespace cnine{
 
     TYPE* arr;
 
-    FixedTensorAccessor0(const TensorView<TYPE>& x){
-      CNINE_ASSRT(x.ndims()==0 || x.ndims()==1); 
-      if(x.ndims()==1) CNINE_ASSRT(x.dims[0]==1); // backward compatibility
+    HD FixedTensorAccessor0(const TensorView<TYPE>& x){
+      //CNINE_ASSRT(x.ndims()==0 || x.ndims()==1); 
+      //if(x.ndims()==1) CNINE_ASSRT(x.dims[0]==1); // backward compatibility
       arr=x.get_arr();
     }
 
-    operator TYPE(){
+    HD operator TYPE(){
       return *arr;
     }
 
-    TYPE operator()(){
+    HD TYPE operator()(){
       return *arr;
     }
 
-    void set(const TYPE v){
+    HD void set(const TYPE v){
       *arr=v;
     }
 
@@ -53,16 +59,16 @@ namespace cnine{
 
     TYPE* arr;
 
-    FixedTensorAccessor1(const TensorView<TYPE>& x){
-      CNINE_ASSRT(x.ndims()==1);
+    HD FixedTensorAccessor1(const TensorView<TYPE>& x){
+      //CNINE_ASSRT(x.ndims()==1);
       arr=x.get_arr();
     }
 
-    TYPE operator()(const int i0){
+    HD TYPE operator()(const int i0){
       return arr[s0*i0];
     }
 
-    void set(const int i0, const TYPE v){
+    HD void set(const int i0, const TYPE v){
       arr[s0*i0]=v;
     }
 
@@ -76,15 +82,15 @@ namespace cnine{
     TYPE* arr;
 
     FixedTensorAccessor2(const TensorView<TYPE>& x){
-      CNINE_ASSRT(x.ndims()==2);
+      //CNINE_ASSRT(x.ndims()==2);
       arr=x.get_arr();
     }
 
-    TYPE operator()(const int i0, const int i1){
+    HD TYPE operator()(const int i0, const int i1){
       return arr[s0*i0+s1*i1];
     }
 
-    void set(const int i0, const int i1, const TYPE v){
+    HD void set(const int i0, const int i1, const TYPE v){
       arr[s0*i0+s1*i1]=v;
     }
 
@@ -97,16 +103,16 @@ namespace cnine{
 
     TYPE* arr;
 
-    FixedTensorAccessor3(const TensorView<TYPE>& x){
-      CNINE_ASSRT(x.ndims()==3);
+    HD FixedTensorAccessor3(const TensorView<TYPE>& x){
+      //CNINE_ASSRT(x.ndims()==3);
       arr=x.get_arr();
     }
 
-    TYPE operator()(const int i0, const int i1, const int i2){
+    HD TYPE operator()(const int i0, const int i1, const int i2){
       return arr[s0*i0+s1*i1+s2*i2];
     }
 
-    void set(const int i0, const int i1, const int i2, const TYPE v){
+    HD void set(const int i0, const int i1, const int i2, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2]=v;
     }
 
@@ -119,16 +125,16 @@ namespace cnine{
 
     TYPE* arr;
 
-    FixedTensorAccessor4(const TensorView<TYPE>& x){
+    HD FixedTensorAccessor4(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==4);
       arr=x.get_arr();
     }
 
-    TYPE operator()(const int i0, const int i1, const int i2, const int i3){
+    HD TYPE operator()(const int i0, const int i1, const int i2, const int i3){
       return arr[s0*i0+s1*i1+s2*i2+s3*i3];
     }
 
-    void set(const int i0, const int i1, const int i2, const int i3, const TYPE v){
+    HD void set(const int i0, const int i1, const int i2, const int i3, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2+s3*i3]=v;
     }
 
