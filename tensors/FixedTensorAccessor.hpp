@@ -32,7 +32,7 @@ namespace cnine{
 
     TYPE* arr;
 
-    HD FixedTensorAccessor0(const TensorView<TYPE>& x){
+    FixedTensorAccessor0(const TensorView<TYPE>& x){
       //CNINE_ASSRT(x.ndims()==0 || x.ndims()==1); 
       //if(x.ndims()==1) CNINE_ASSRT(x.dims[0]==1); // backward compatibility
       arr=x.get_arr();
@@ -59,7 +59,7 @@ namespace cnine{
 
     TYPE* arr;
 
-    HD FixedTensorAccessor1(const TensorView<TYPE>& x){
+    FixedTensorAccessor1(const TensorView<TYPE>& x){
       //CNINE_ASSRT(x.ndims()==1);
       arr=x.get_arr();
     }
@@ -103,7 +103,7 @@ namespace cnine{
 
     TYPE* arr;
 
-    HD FixedTensorAccessor3(const TensorView<TYPE>& x){
+    FixedTensorAccessor3(const TensorView<TYPE>& x){
       //CNINE_ASSRT(x.ndims()==3);
       arr=x.get_arr();
     }
@@ -125,7 +125,7 @@ namespace cnine{
 
     TYPE* arr;
 
-    HD FixedTensorAccessor4(const TensorView<TYPE>& x){
+    FixedTensorAccessor4(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==4);
       arr=x.get_arr();
     }
