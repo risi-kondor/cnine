@@ -32,8 +32,21 @@ namespace cnine{
 
     TYPE* arr;
 
+    FixedTensorAccessor0(TYPE* _arr): 
+      arr(_arr){}
+
+    FixedTensorAccessor0(TYPE* _arr, const size_t asize): 
+      arr(_arr){
+      std::fill(arr,arr+asize,0);
+    }
+
+    FixedTensorAccessor0(TYPE* _arr, const size_t asize, const int dev): 
+      arr(_arr){
+      CUDA_SAFE(cudaMemset(arr,0,sizeof(TYPE)));
+    }
+
     FixedTensorAccessor0(const TensorView<TYPE>& x){
-      //CNINE_ASSRT(x.ndims()==0 || x.ndims()==1); 
+      CNINE_ASSRT(x.ndims()==0 || x.ndims()==1); 
       //if(x.ndims()==1) CNINE_ASSRT(x.dims[0]==1); // backward compatibility
       arr=x.get_arr();
     }
@@ -59,8 +72,21 @@ namespace cnine{
 
     TYPE* arr;
 
+    FixedTensorAccessor1(TYPE* _arr): 
+      arr(_arr){}
+
+    FixedTensorAccessor1(TYPE* _arr, const size_t asize): 
+      arr(_arr){
+      std::fill(arr,arr+asize,0);
+    }
+
+    FixedTensorAccessor1(TYPE* _arr, const size_t asize, const int dev): 
+      arr(_arr){
+      CUDA_SAFE(cudaMemset(arr,0,sizeof(TYPE)));
+    }
+
     FixedTensorAccessor1(const TensorView<TYPE>& x){
-      //CNINE_ASSRT(x.ndims()==1);
+      CNINE_ASSRT(x.ndims()==1);
       arr=x.get_arr();
     }
 
@@ -81,8 +107,21 @@ namespace cnine{
 
     TYPE* arr;
 
+    FixedTensorAccessor2(TYPE* _arr): 
+      arr(_arr){}
+
+    FixedTensorAccessor2(TYPE* _arr, const size_t asize): 
+      arr(_arr){
+      std::fill(arr,arr+asize,0);
+    }
+
+    FixedTensorAccessor2(TYPE* _arr, const size_t asize, const int dev): 
+      arr(_arr){
+      CUDA_SAFE(cudaMemset(arr,0,sizeof(TYPE)));
+    }
+
     FixedTensorAccessor2(const TensorView<TYPE>& x){
-      //CNINE_ASSRT(x.ndims()==2);
+      CNINE_ASSRT(x.ndims()==2);
       arr=x.get_arr();
     }
 
@@ -103,8 +142,16 @@ namespace cnine{
 
     TYPE* arr;
 
+    FixedTensorAccessor3(TYPE* _arr): 
+      arr(_arr){}
+
+    FixedTensorAccessor3(TYPE* _arr, const size_t asize): 
+      arr(_arr){
+      std::fill(arr,arr+asize,0);
+    }
+
     FixedTensorAccessor3(const TensorView<TYPE>& x){
-      //CNINE_ASSRT(x.ndims()==3);
+      CNINE_ASSRT(x.ndims()==3);
       arr=x.get_arr();
     }
 
@@ -124,6 +171,14 @@ namespace cnine{
   public:
 
     TYPE* arr;
+
+    FixedTensorAccessor4(TYPE* _arr): 
+      arr(_arr){}
+
+    FixedTensorAccessor4(TYPE* _arr, const size_t asize): 
+      arr(_arr){
+      std::fill(arr,arr+asize,0);
+    }
 
     FixedTensorAccessor4(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==4);
@@ -147,16 +202,24 @@ namespace cnine{
 
     TYPE* arr;
 
+    FixedTensorAccessor5(TYPE* _arr): 
+      arr(_arr){}
+
+    FixedTensorAccessor5(TYPE* _arr, const size_t asize): 
+      arr(_arr){
+      std::fill(arr,arr+asize,0);
+    }
+
     FixedTensorAccessor5(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==5);
       arr=x.get_arr();
     }
 
-    TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4){
+    HD TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4){
       return arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4];
     }
 
-    void set(const int i0, const int i1, const int i2, const int i3, const int i4, const TYPE v){
+    HD void set(const int i0, const int i1, const int i2, const int i3, const int i4, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4]=v;
     }
 
@@ -169,16 +232,24 @@ namespace cnine{
 
     TYPE* arr;
 
+    FixedTensorAccessor6(TYPE* _arr): 
+      arr(_arr){}
+
+    FixedTensorAccessor6(TYPE* _arr, const size_t asize): 
+      arr(_arr){
+      std::fill(arr,arr+asize,0);
+    }
+
     FixedTensorAccessor6(const TensorView<TYPE>& x){
       CNINE_ASSRT(x.ndims()==6);
       arr=x.get_arr();
     }
 
-    TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5){
+    HD TYPE operator()(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5){
       return arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4+s5*i5];
     }
 
-    void set(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const TYPE v){
+    HD void set(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4+s5*i5]=v;
     }
 

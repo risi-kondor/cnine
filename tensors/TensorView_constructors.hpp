@@ -43,6 +43,14 @@ public: // ---- Fill constructors ----------------------------------------------
 TensorView(const Gdims& _dims, const int _dev=0): 
   TensorView(_dims,0,_dev){}
 
+TensorView(const int _dev, const Gdims& _dims): 
+  dims(_dims),
+  strides(GstridesB(_dims)),
+  dev(_dev){
+  size_t N=dims.asize();
+  arr=MemArr<TYPE>(N,fill_zero(),_dev);
+}
+
 TensorView(const Gdims& _dims, const fill_zero& dummy, const int _dev=0): 
   TensorView(MemArr<TYPE>(_dims.asize(),dummy,_dev),_dims,GstridesB(_dims)){
 }

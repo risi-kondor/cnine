@@ -78,6 +78,8 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
         std::abort();                                              \
     }                                                              \
 } while (0)
+#else 
+#define CUDA_CHECK(call) 
 #endif 
 
 
