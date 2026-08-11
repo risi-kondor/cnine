@@ -57,7 +57,7 @@ namespace cnine{
       }
       BLOB_DEBUG("Delete blob.");
       if(dev==0 && arr) {delete[] arr;}
-      if(dev==1 && arr) {CUDA_SAFE(cudaFree(arr));}
+      if(dev==1 && arr) {CUDA_SAFE(cudaFree(arr));cout<<"free"<<endl;}
     }
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -76,8 +76,13 @@ namespace cnine{
       }
 
       //fnlog timer("MemBlob not managed");
+      size_t freeBytes, totalBytes;
+      CUDA_CHECK(cudaMemGetInfo(&freeBytes, &totalBytes));
+      cout<<totalBytes<<" "<<freeBytes<<" "<<_memsize*sizeof(TYPE)<<endl;
+
       CPUCODE(arr=new TYPE[_memsize];);
-      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE))););
+      GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE)));cout<<_memsize*sizeof(TYPE)<<endl;);
+      cout<<224<<endl;
     }
 
     MemBlob(const MemoryManager& _manager, size_t _memsize, const int _dev=0):

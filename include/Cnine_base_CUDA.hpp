@@ -69,6 +69,16 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 #define CUDA_STREAM(cmd) CNINE_NOCUDA_ERROR
 #endif
 
+#ifdef _WITH_CUDA
+#define CUDA_CHECK(call) do {                                      \
+    cudaError_t e = (call);                                        \
+    if (e != cudaSuccess) {                                        \
+        fprintf(stderr, "%s:%d: %s: %s\n",                         \
+                __FILE__, __LINE__, #call, cudaGetErrorString(e)); \
+        std::abort();                                              \
+    }                                                              \
+} while (0)
+#endif 
 
 
 #ifdef _WITH_CUDA
