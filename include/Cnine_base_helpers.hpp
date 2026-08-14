@@ -72,7 +72,7 @@ namespace cnine{
   }
 
   template<typename TYPE1, typename TYPE2>
-  inline std::vector<TYPE1> convert(std::vector<TYPE2>& x){
+  inline std::vector<TYPE1> convert(const std::vector<TYPE2>& x){
     std::vector<TYPE1> R(x.size());
     for(int i=0; i<x.size(); i++)
       R[i]=TYPE1(x[i]);
