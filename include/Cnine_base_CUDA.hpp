@@ -61,7 +61,7 @@ inline void __cudaSafeCall(cudaError err, const char *file, const int line){
 #define CUDA_STREAM(cmd)({\
       cudaStream_t stream=NULL;			\
       CUDA_SAFE(cudaStreamCreate(&stream));		\
-      CUDA_SAFE(cmd); 					\
+      cmd; 					\
       CUDA_SAFE(cudaStreamSynchronize(stream));\
       CUDA_SAFE(cudaStreamDestroy(stream));\
       })

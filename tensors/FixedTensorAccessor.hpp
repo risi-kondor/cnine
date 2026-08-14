@@ -82,7 +82,7 @@ namespace cnine{
 
     FixedTensorAccessor1(TYPE* _arr, const size_t asize, const int dev): 
       arr(_arr){
-      CUDA_SAFE(cudaMemset(arr,0,sizeof(TYPE)));
+      CUDA_SAFE(cudaMemset(arr,0,asize*sizeof(TYPE)));
     }
 
     FixedTensorAccessor1(const TensorView<TYPE>& x){
@@ -117,7 +117,7 @@ namespace cnine{
 
     FixedTensorAccessor2(TYPE* _arr, const size_t asize, const int dev): 
       arr(_arr){
-      CUDA_SAFE(cudaMemset(arr,0,sizeof(TYPE)));
+      CUDA_SAFE(cudaMemset(arr,0,asize*sizeof(TYPE)));
     }
 
     FixedTensorAccessor2(const TensorView<TYPE>& x){
@@ -148,6 +148,11 @@ namespace cnine{
     FixedTensorAccessor3(TYPE* _arr, const size_t asize): 
       arr(_arr){
       std::fill(arr,arr+asize,0);
+    }
+
+    FixedTensorAccessor3(TYPE* _arr, const size_t asize, const int dev): 
+      arr(_arr){
+      CUDA_SAFE(cudaMemset(arr,0,asize*sizeof(TYPE)));
     }
 
     FixedTensorAccessor3(const TensorView<TYPE>& x){
