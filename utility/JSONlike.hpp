@@ -179,6 +179,10 @@ namespace cnine{
 	return obj->get_int();
       }
 
+      operator bool() const{
+	return obj->get_int();
+      }
+
       int get_int() const{
 	return obj->get_int();
       }
