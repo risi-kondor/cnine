@@ -63,7 +63,7 @@ namespace cnine{
 
       BLOB_DEBUG("Delete blob.");
       if(dev==0 && arr) {delete[] arr;}
-      if(dev==1 && arr) {CUDA_SAFE(cudaFree(arr));cout<<"free"<<endl;}
+      if(dev==1 && arr) {CUDA_SAFE(cudaFree(arr));}
     }
 
   public: // ---- Constructors ------------------------------------------------------------------------------
@@ -87,12 +87,12 @@ namespace cnine{
       //size_t freeBytes, totalBytes;
       //CUDA_CHECK(cudaMemGetInfo(&freeBytes, &totalBytes));
       //cout<<totalBytes<<" "<<freeBytes<<" "<<_memsize*sizeof(TYPE)<<endl;
-
-      GPUCODE(cout<<"allocating "<<_memsize*sizeof(TYPE)<<endl;);
+      
+      //GPUCODE(cout<<"allocating "<<_memsize*sizeof(TYPE)<<endl;);
       CPUCODE(arr=new TYPE[_memsize];);
       GPUCODE(CUDA_SAFE(cudaMalloc((void **)&arr, _memsize*sizeof(TYPE))););
-      CUDA_SAFE(cudaGetLastError());
-      CUDA_SAFE(cudaStreamSynchronize(nullptr));
+      //CUDA_SAFE(cudaGetLastError());
+      //CUDA_SAFE(cudaStreamSynchronize(nullptr));
 
     }
 
