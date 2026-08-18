@@ -228,7 +228,7 @@ namespace cnine{
     
     void parse_dict(const string str){
       auto s=str.find_first_not_of(" \n\t\r");
-      while(s!=string::npos && s<str.size() && dict.size()<10){
+      while(s!=string::npos && s<str.size() && dict.size()<1000){
 	auto e=str.find_first_of(" =\n\t",s);
 	if(e==string::npos) return;
 	auto key=str.substr(s,e-s);
