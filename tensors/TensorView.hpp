@@ -265,9 +265,7 @@ namespace cnine{
     // change this so as to keep strides!!
     TensorView(const TensorView<TYPE>& x, const int _dev):
       TensorView<TYPE>(MemArr<TYPE>(x.dims.asize(),_dev),x.dims,GstridesB(x.dims)){
-      cout<<3345<<endl;
       (*this)=x;
-      cout<<3346<<endl;
     }
 
     void move_to_device(const int _dev) const{
