@@ -39,10 +39,11 @@ namespace cnine{
 
     // TODO: refine this!
     if(r.ndims()==0){
-      if(r.get_dev()==0 && x.get_dev()==0){
-	r.set(x());
-      }else CNINE_UNIMPL();
+      if(r.get_dev()==0 && x.get_dev()==0) r.set(x());
+      else TensorView_assign_copy(r,x);
     }
+
+    //cout<<r.dims<<x.dims<<r.strides<<x.strides<<endl;
 
     if(r.asize()==0) return; 
     if(r.is_contiguous() && r.get_strides()==x.get_strides()){
@@ -62,8 +63,10 @@ namespace cnine{
       CNINE_UNIMPL();
     }else{
       if(rp.get_dev()==1){
+	#ifndef _CNINE_NO_CUDA_EXTERNS
 	if(xp.get_dev()==0) CUDA_STREAM(TensorView_assign_cu(rp,TensorView<TYPE>(xp,rp.get_dev()),stream));
 	if(xp.get_dev()==1) CUDA_STREAM(TensorView_assign_cu(rp,xp,stream));
+	#endif 
 	return;
       }
 
@@ -71,7 +74,9 @@ namespace cnine{
       if(rp.get_dev()==0){
 	if(rp.is_contiguous()){
 	  TensorView<TYPE> z(MemArr<TYPE>(rp.get_strides().memsize(rp.get_dims()),xp.get_dev()),rp.get_dims(),rp.get_strides());
+	  #ifndef _CNINE_NO_CUDA_EXTERNS
 	  CUDA_STREAM(TensorView_assign_cu(z,xp,stream));
+	  #endif 
 	  TensorView_assign(rp,z);
 	}else{
 	  TensorView<TYPE> z(xp,0);

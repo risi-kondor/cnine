@@ -176,6 +176,7 @@ namespace cnine{
 	  break;
 
 	  case(4): //gaussian
+	    #ifndef _CNINE_NO_GLOBALS
 	    normal_distribution<double> distr;
 	    if constexpr(is_complex<TYPE>()){
 	      for(int i=0; i<N; i++) 
@@ -184,6 +185,7 @@ namespace cnine{
 	      for(int i=0; i<N; i++) 
 		arr[i]=distr(rndGen);
 	    }
+	    #endif 
 	  break;
 
  	}
@@ -263,7 +265,9 @@ namespace cnine{
     // change this so as to keep strides!!
     TensorView(const TensorView<TYPE>& x, const int _dev):
       TensorView<TYPE>(MemArr<TYPE>(x.dims.asize(),_dev),x.dims,GstridesB(x.dims)){
+      cout<<3345<<endl;
       (*this)=x;
+      cout<<3346<<endl;
     }
 
     void move_to_device(const int _dev) const{

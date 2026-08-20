@@ -66,7 +66,7 @@ namespace cnine{
 
   public: // -------------------------------------------------------------------------------------------------
 
-
+#ifdef _WITH_CUDA
     template<typename U, std::enable_if_t<std::is_same<TYPE,cuComplex>::value && std::is_same<U,complex<float> >::value, int> =0>
     FixedTensorAccessor0(const FixedTensorAccessor0<U>& src)
       :arr(reinterpret_cast<TYPE*>(src.arr)){}
@@ -74,6 +74,7 @@ namespace cnine{
     template<typename U, std::enable_if_t<std::is_same<TYPE,ccomplex<float> >::value && std::is_same<U,complex<float> >::value, int> =0>
     FixedTensorAccessor0(const FixedTensorAccessor0<U>& src)
       :arr(reinterpret_cast<TYPE*>(src.arr)){}
+#endif 
 
   };
 
@@ -113,7 +114,7 @@ namespace cnine{
 
   public: // -------------------------------------------------------------------------------------------------
 
-
+#ifdef _WITH_CUDA
     template<typename U, std::enable_if_t<std::is_same<TYPE,cuComplex>::value && std::is_same<U,complex<float>>::value, int> =0>
     FixedTensorAccessor1(const FixedTensorAccessor1<U,s0>& src)
       :arr(reinterpret_cast<TYPE*>(src.arr)){}
@@ -121,6 +122,7 @@ namespace cnine{
     template<typename U, std::enable_if_t<std::is_same<TYPE,ccomplex<float> >::value && std::is_same<U,complex<float>>::value, int> =0>
     FixedTensorAccessor1(const FixedTensorAccessor1<U,s0>& src)
       :arr(reinterpret_cast<TYPE*>(src.arr)){}
+#endif 
 
   };
 
@@ -161,6 +163,7 @@ namespace cnine{
   public: // -------------------------------------------------------------------------------------------------
 
 
+#ifdef _WITH_CUDA
     template<typename U, std::enable_if_t<std::is_same<TYPE,cuComplex>::value && std::is_same<U,complex<float>>::value, int> =0>
     FixedTensorAccessor2(const FixedTensorAccessor2<U,s0,s1>& src)
       :arr(reinterpret_cast<TYPE*>(src.arr)){
@@ -172,6 +175,7 @@ namespace cnine{
     FixedTensorAccessor2(const FixedTensorAccessor2<U,s0,s1>& src)
       :arr(reinterpret_cast<TYPE*>(src.arr)){
     }
+#endif 
 
   };
 
