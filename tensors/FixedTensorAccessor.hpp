@@ -212,6 +212,15 @@ namespace cnine{
       arr[s0*i0+s1*i1+s2*i2]=v;
     }
 
+#ifdef _WITH_CUDA
+    template<typename U, std::enable_if_t<std::is_same<TYPE,cuComplex>::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor3(const FixedTensorAccessor3<U,s0,s1,s2>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+    template<typename U, std::enable_if_t<std::is_same<TYPE,ccomplex<float> >::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor3(const FixedTensorAccessor3<U,s0,s1,s2>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+#endif 
+
   };
 
 
@@ -241,6 +250,15 @@ namespace cnine{
     HD void set(const int i0, const int i1, const int i2, const int i3, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2+s3*i3]=v;
     }
+
+#ifdef _WITH_CUDA
+    template<typename U, std::enable_if_t<std::is_same<TYPE,cuComplex>::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor4(const FixedTensorAccessor4<U,s0,s1,s2,s3>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+    template<typename U, std::enable_if_t<std::is_same<TYPE,ccomplex<float> >::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor4(const FixedTensorAccessor4<U,s0,s1,s2,s3>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+#endif 
 
   };
 
@@ -272,6 +290,15 @@ namespace cnine{
       arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4]=v;
     }
 
+#ifdef _WITH_CUDA
+    template<typename U, std::enable_if_t<std::is_same<TYPE,cuComplex>::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor5(const FixedTensorAccessor5<U,s0,s1,s2,s3,s4>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+    template<typename U, std::enable_if_t<std::is_same<TYPE,ccomplex<float> >::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor5(const FixedTensorAccessor5<U,s0,s1,s2,s3,s4>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+#endif 
+
   };
 
 
@@ -301,6 +328,15 @@ namespace cnine{
     HD void set(const int i0, const int i1, const int i2, const int i3, const int i4, const int i5, const TYPE v){
       arr[s0*i0+s1*i1+s2*i2+s3*i3+s4*i4+s5*i5]=v;
     }
+
+#ifdef _WITH_CUDA
+    template<typename U, std::enable_if_t<std::is_same<TYPE,cuComplex>::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor6(const FixedTensorAccessor6<U,s0,s1,s2,s3,s4,s5>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+    template<typename U, std::enable_if_t<std::is_same<TYPE,ccomplex<float> >::value && std::is_same<U,complex<float>>::value, int> =0>
+    FixedTensorAccessor6(const FixedTensorAccessor6<U,s0,s1,s2,s3,s4,s5>& src)
+      :arr(reinterpret_cast<TYPE*>(src.arr)){}
+#endif 
 
   };
 
